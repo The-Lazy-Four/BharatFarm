@@ -1,41 +1,47 @@
 /* ============================================================
-   BharatFarm — Stitch "Master Style Fix" Design System
-   Urbanist font, Signal-Lime accent, Warm Gray palette
+   BharatFarm — Premium Master Design System
+   Urbanist typography, Signal-Lime accent, Glassmorphism & 3D Depth
    ============================================================ */
 
 :root {
-  --font-family: 'Urbanist', sans-serif;
+  --font-family: 'Urbanist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 
-  /* Stitch Warm Palette */
+  /* Premium Palette */
   --signal-lime: #D7F21A;
-  --dark-text: #22251F;
-  --sidebar-bg: #E9EAE5;
+  --signal-lime-glow: rgba(215, 242, 26, 0.4);
+  --emerald-primary: #15803D;
+  --emerald-dark: #0F5128;
+  --dark-text: #1B1E19;
+  --sidebar-bg: rgba(233, 234, 229, 0.85);
   --app-bg: #F3F3F1;
-  --card-bg: #FFFFFF;
-  --card-gray: #F3F3F1;
+  --card-bg: rgba(255, 255, 255, 0.92);
+  --card-glass-bg: rgba(255, 255, 255, 0.78);
+  --card-gray: #F0F1ED;
 
-  /* Text opacity variants */
-  --text-main: #22251F;
-  --text-muted: rgba(34, 37, 31, 0.7);
-  --text-light: rgba(34, 37, 31, 0.5);
+  /* Text variants */
+  --text-main: #1B1E19;
+  --text-muted: rgba(27, 30, 25, 0.72);
+  --text-light: rgba(27, 30, 25, 0.52);
 
-  /* Semantic colors (kept for info/warning/success contexts) */
+  /* Semantic colors */
   --info-blue: #0284C7;
   --danger: #DC2626;
   --amber: #D97706;
+  --success: #16A34A;
 
   /* Layout tokens */
-  --radius: 24px;
-  --radius-sm: 16px;
+  --radius: 20px;
+  --radius-sm: 12px;
   --radius-lg: 28px;
   --radius-pill: 9999px;
 
-  /* Shadows */
-  --shadow-sm: 0 4px 16px rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 8px 32px rgba(0, 0, 0, 0.08);
-  --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.1);
+  /* 3D Shadows & Depth */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
+  --shadow-md: 0 8px 24px -4px rgba(0, 0, 0, 0.08), 0 4px 12px -2px rgba(0, 0, 0, 0.04);
+  --shadow-lg: 0 16px 36px -6px rgba(0, 0, 0, 0.12), 0 8px 16px -4px rgba(0, 0, 0, 0.06);
+  --shadow-3d: 0 12px 28px -4px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(255, 255, 255, 0.8) inset, 0 -2px 6px rgba(0, 0, 0, 0.04) inset;
 
-  --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 * {
@@ -50,6 +56,7 @@ body {
   color: var(--text-main);
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
 a {
@@ -57,18 +64,39 @@ a {
   text-decoration: none;
 }
 
-/* Glass Panel card style — borderless with ambient shadow */
+/* Glass Panel card style — borderless with ambient shadow & subtle backdrop filter */
 .card-glass {
   background: var(--card-bg);
-  border: none;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
   border-radius: var(--radius);
-  padding: 1.5rem;
+  padding: 1.25rem;
   box-shadow: var(--shadow-md);
   transition: var(--transition);
+  position: relative;
+  overflow: hidden;
 }
 
 .card-glass:hover {
+  transform: translateY(-2px);
   box-shadow: var(--shadow-lg);
+  border-color: rgba(215, 242, 26, 0.5);
+}
+
+/* 3D Elevated Card */
+.card-3d {
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  box-shadow: var(--shadow-3d);
+  transition: var(--transition);
+  border: 1px solid rgba(225, 227, 220, 0.8);
+}
+
+.card-3d:hover {
+  transform: translateY(-3px) scale(1.005);
+  box-shadow: 0 20px 40px -8px rgba(0, 0, 0, 0.14), 0 0 0 1px var(--signal-lime) inset;
 }
 
 /* Ambient shadow utility */
@@ -76,42 +104,46 @@ a {
   box-shadow: var(--shadow-lg);
 }
 
-/* Badge — pill-shaped, no borders */
+/* Badge — pill-shaped */
 .badge {
   display: inline-flex;
   align-items: center;
-  padding: 0.25rem 0.75rem;
+  padding: 0.3rem 0.8rem;
   border-radius: var(--radius-pill);
-  font-size: 0.75rem;
-  font-weight: 600;
+  font-size: 0.72rem;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.04em;
   border: none;
+  line-height: 1;
 }
 
-/* Signal-lime primary badge */
 .badge-primary {
   background: var(--signal-lime);
   color: var(--dark-text);
+  box-shadow: 0 2px 8px rgba(215, 242, 26, 0.3);
 }
 
-/* Amber warning badge */
 .badge-warning {
   background: #FEF3C7;
   color: #92400E;
 }
 
-/* Gray secondary badge */
 .badge-secondary {
   background: var(--card-gray);
   color: var(--text-muted);
+}
+
+.badge-success {
+  background: #DCFCE7;
+  color: #166534;
 }
 
 /* Grid Layouts */
 .grid-dashboard {
   display: grid;
   grid-template-columns: repeat(12, 1fr);
-  gap: 1.5rem;
+  gap: 1.25rem;
 }
 
 .col-span-12 { grid-column: span 12; }
@@ -119,10 +151,29 @@ a {
 .col-span-6 { grid-column: span 12; }
 .col-span-4 { grid-column: span 12; }
 
+@media (min-width: 768px) {
+  .col-span-6 { grid-column: span 6; }
+  .col-span-4 { grid-column: span 6; }
+}
+
 @media (min-width: 1024px) {
   .col-span-8 { grid-column: span 8; }
   .col-span-6 { grid-column: span 6; }
   .col-span-4 { grid-column: span 4; }
+}
+
+/* Mobile-optimized compact 2-column grid helper */
+.mobile-grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+}
+
+@media (min-width: 640px) {
+  .mobile-grid-2 {
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 1.25rem;
+  }
 }
 
 /* App Shell Responsive Rules */
@@ -136,8 +187,8 @@ a {
   display: flex;
 }
 .app-main {
-  padding: 1rem !important;
-  padding-bottom: 5rem !important;
+  padding: 0.85rem !important;
+  padding-bottom: 5.5rem !important;
   background-image: url('./bg2.jpg');
   background-size: cover;
   background-position: center;
@@ -155,7 +206,7 @@ a {
     display: none;
   }
   .app-main {
-    padding: 2rem !important;
+    padding: 1.75rem !important;
     padding-bottom: 2rem !important;
   }
 }
@@ -164,3 +215,20 @@ a {
 .material-symbols-outlined {
   font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
 }
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(34, 37, 31, 0.2);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(34, 37, 31, 0.4);
+}
+
