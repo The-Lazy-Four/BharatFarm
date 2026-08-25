@@ -425,6 +425,20 @@ a {
   gap: 0.75rem;
 }
 
+.telemetry-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+}
+
+.mobile-only-sahayak {
+  display: block;
+}
+
+.desktop-only-sahayak {
+  display: none;
+}
+
 @media (min-width: 640px) {
   .mobile-grid-2 {
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -436,6 +450,16 @@ a {
   .mobile-feature-grid {
     grid-template-columns: repeat(3, 1fr);
     gap: 1.25rem;
+  }
+  .telemetry-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.25rem;
+  }
+  .mobile-only-sahayak {
+    display: none;
+  }
+  .desktop-only-sahayak {
+    display: block;
   }
 }
 

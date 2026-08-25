@@ -11,6 +11,7 @@ const primaryItems = [
 ];
 
 const extraItems = [
+  { path: '/sahayak', label: 'Sahayak Help', icon: 'handshake' },
   { path: '/groupbuying', label: 'Group Buying', icon: 'group' },
   { path: '/records', label: 'Farm Records', icon: 'description' },
   { path: '/schemes', label: 'Govt Schemes', icon: 'account_balance' },

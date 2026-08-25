@@ -89,6 +89,13 @@ export const FEATURE_IMAGES: Record<string, FeatureImageItem> = {
     url: 'https://images.unsplash.com/photo-1589923188900-85dae523342b?auto=format&fit=crop&w=800&q=80',
     fallbackUrl: 'https://images.unsplash.com/photo-1586771107445-d3ca888129ff?auto=format&fit=crop&w=800&q=80',
     alt: 'Agricultural input transport logistics'
+  },
+  sahayak: {
+    id: 'sahayak',
+    title: 'Sahayak Assistance',
+    url: 'https://images.unsplash.com/photo-1595974482597-4b8da8879bc5?auto=format&fit=crop&w=800&q=80',
+    fallbackUrl: 'https://images.unsplash.com/photo-1625246333195-78d9c38ad449?auto=format&fit=crop&w=800&q=80',
+    alt: 'Local agricultural support worker assisting a farmer'
   }
 };
 

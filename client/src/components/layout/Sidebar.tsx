@@ -5,6 +5,7 @@ import { useTheme } from '../../context/ThemeContext.js';
 
 const navItems = [
   { path: '/', label: 'Dashboard', icon: 'dashboard' },
+  { path: '/sahayak', label: 'Sahayak Assistance', icon: 'handshake' },
   { path: '/scanner', label: 'Leaf Scanner AI', icon: 'biotech' },
   { path: '/weather', label: 'Weather Intelligence', icon: 'cloud' },
   { path: '/marketplace', label: 'Marketplace', icon: 'storefront' },

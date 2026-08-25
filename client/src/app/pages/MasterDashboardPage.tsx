@@ -34,8 +34,35 @@ export const MasterDashboardPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Grid Row 1: Key Telemetry Cards */}
-      <div className="mobile-grid-2">
+      {/* Mobile-Only Prominent Sahayak Card */}
+      <div className="mobile-only-sahayak" style={{ marginTop: '0.25rem' }}>
+        <Link to="/sahayak" className="card-feature-backed" style={{ minHeight: '140px', display: 'block' }}>
+          <img src={FEATURE_IMAGES.sahayak.url} alt="Sahayak Assistance" className="card-feature-bg" />
+          <div className="card-feature-overlay" style={{ background: 'linear-gradient(135deg, rgba(8, 30, 15, 0.85) 0%, rgba(5, 18, 8, 0.95) 100%)' }} />
+          <div className="card-feature-content" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '100%' }}>
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span className="badge badge-primary" style={{ background: 'var(--signal-lime)', color: 'var(--text-on-lime)', fontWeight: 800 }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: '14px', marginRight: '4px', verticalAlign: 'middle' }}>verified</span>
+                  SAHAYAK ASSISTANCE
+                </span>
+                <div className="card-feature-action">→</div>
+              </div>
+              <h3 style={{ fontSize: '1.15rem', fontWeight: 800, marginTop: '0.4rem', color: '#FFFFFF' }}>Need help using BharatFarm?</h3>
+              <p style={{ fontSize: '0.78rem', opacity: 0.92, lineHeight: 1.3, color: '#FFFFFF', marginTop: '0.2rem' }}>
+                Connect with a verified local helper who can assist you with the app.
+              </p>
+            </div>
+            <div style={{ marginTop: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <span style={{ fontSize: '0.72rem', color: 'var(--signal-lime)', fontWeight: 700 }}>Get Assistance</span>
+              <span style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.7)' }}>• Learn how it works</span>
+            </div>
+          </div>
+        </Link>
+      </div>
+
+      {/* Grid Row 1: Key Telemetry Cards + Desktop Sahayak Compact Card */}
+      <div className="telemetry-grid">
         <div className="card-3d" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -85,6 +112,33 @@ export const MasterDashboardPage: React.FC = () => {
               Irrigation: <strong style={{ color: 'var(--text-primary)' }}>Late Afternoon</strong>
             </p>
           </div>
+        </div>
+
+        {/* Desktop-Only Compact Sahayak Card */}
+        <div className="desktop-only-sahayak">
+          <Link to="/sahayak" className="card-feature-backed" style={{ minHeight: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+            <img src={FEATURE_IMAGES.sahayak.url} alt="Sahayak" className="card-feature-bg" />
+            <div className="card-feature-overlay" style={{ background: 'linear-gradient(135deg, rgba(8, 30, 15, 0.88) 0%, rgba(5, 18, 8, 0.96) 100%)' }} />
+            <div className="card-feature-content" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '100%' }}>
+              <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span className="badge badge-primary" style={{ background: 'var(--signal-lime)', color: 'var(--text-on-lime)', fontWeight: 700, fontSize: '0.68rem' }}>
+                    <span className="material-symbols-outlined" style={{ fontSize: '13px', marginRight: '3px', verticalAlign: 'middle' }}>verified</span>
+                    VERIFIED SAHAYAK
+                  </span>
+                  <div className="card-feature-action" style={{ width: '28px', height: '28px', fontSize: '0.85rem' }}>→</div>
+                </div>
+                <h3 style={{ fontSize: '1.1rem', fontWeight: 800, marginTop: '0.4rem', color: '#FFFFFF' }}>Sahayak</h3>
+                <p style={{ fontSize: '0.76rem', opacity: 0.92, lineHeight: 1.3, color: '#FFFFFF', marginTop: '0.25rem' }}>
+                  Need help using BharatFarm? Get assistance from a verified local Sahayak for digital farming services.
+                </p>
+              </div>
+              <div style={{ marginTop: '0.6rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--signal-lime)' }}>Get Assistance</span>
+                <span style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.7)' }}>How it works</span>
+              </div>
+            </div>
+          </Link>
         </div>
       </div>
 

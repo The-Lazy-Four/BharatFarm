@@ -12,12 +12,14 @@ import { FarmCalculatorPage } from './pages/FarmCalculatorPage.js';
 import { OrdersDeliveryPage } from './pages/OrdersDeliveryPage.js';
 import { ProfileSettingsPage } from './pages/ProfileSettingsPage.js';
 import { LoanEligibilityPage } from './pages/LoanEligibilityPage.js';
+import { SahayakPage } from './pages/SahayakPage.js';
 
 export const AppRouter: React.FC = () => {
   return (
     <AppLayout>
       <Routes>
         <Route path="/" element={<MasterDashboardPage />} />
+        <Route path="/sahayak" element={<SahayakPage />} />
         <Route path="/scanner" element={<ScannerPage />} />
         <Route path="/marketplace" element={<MarketplacePage />} />
         <Route path="/marketplace/new" element={<CreateListingPage />} />
