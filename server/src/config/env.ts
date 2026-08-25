@@ -10,7 +10,8 @@ export const config = {
     anonKey: process.env.SUPABASE_ANON_KEY || '',
     serviceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY || ''
   },
-  aiProviderApiKey: process.env.AI_PROVIDER_API_KEY || '',
+  openRouterApiKey: process.env.OPENROUTER_API_KEY || process.env.AI_PROVIDER_API_KEY || '',
+  aiProviderApiKey: process.env.OPENROUTER_API_KEY || process.env.AI_PROVIDER_API_KEY || '',
   weatherApiKey: process.env.WEATHER_API_KEY || '',
-  useMockData: process.env.USE_MOCK_DATA !== 'false'
+  useMockData: process.env.USE_MOCK_DATA === 'true'
 };
