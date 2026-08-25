@@ -10,7 +10,7 @@ import { Spinner } from '../../../components/ui/Spinner.js';
 import { FEATURE_IMAGES } from '../../../constants/featureImages.js';
 
 export const WeatherPage: React.FC = () => {
-  const { weather, isLoading, error, searchLocation, useMyLocation } = useWeather();
+  const { weather, isLoading, error, searchLocation, useMyLocation, refreshWeather } = useWeather();
   const [locationInput, setLocationInput] = useState('');
 
   const handleSearch = (e: React.FormEvent) => {
@@ -38,7 +38,10 @@ export const WeatherPage: React.FC = () => {
           </div>
           <Button type="submit" size="sm">Search</Button>
           <Button type="button" variant="secondary" size="sm" onClick={useMyLocation}>
-            <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>my_location</span> My Location
+            <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>my_location</span> GPS Location
+          </Button>
+          <Button type="button" variant="outline" size="sm" onClick={refreshWeather} style={{ color: '#FFFFFF', borderColor: 'rgba(255,255,255,0.4)' }}>
+            <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>refresh</span> Refresh
           </Button>
         </form>
       </div>

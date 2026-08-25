@@ -49,8 +49,11 @@ function describeWeatherCode(code: number): { label: string; icon: string } {
 
 export class WeatherRepository {
   async getWeather(params: { location?: string; lat?: number; lon?: number }): Promise<WeatherForecast> {
-    if (config.useMockData) {
-      return { ...MOCK_WEATHER_DATA, updatedAt: new Date().toISOString() };
+    if (params.lat !== undefined && (isNaN(params.lat) || params.lat < -90 || params.lat > 90)) {
+      throw new Error('Invalid latitude provided. Must be between -90 and 90.');
+    }
+    if (params.lon !== undefined && (isNaN(params.lon) || params.lon < -180 || params.lon > 180)) {
+      throw new Error('Invalid longitude provided. Must be between -180 and 180.');
     }
 
     try {
@@ -71,9 +74,12 @@ export class WeatherRepository {
           lon = WEATHER_CONSTANTS.DEFAULT_LON;
           resolvedLocation = WEATHER_CONSTANTS.DEFAULT_LOCATION;
         }
+      } else if (!resolvedLocation) {
+        resolvedLocation = await this.reverseGeocode(lat, lon);
       }
 
-      const forecast = await this.fetchForecast(lat, lon, resolvedLocation || WEATHER_CONSTANTS.DEFAULT_LOCATION);
+      logger.info(`[Weather] Requesting live Open-Meteo forecast for ${resolvedLocation} (${lat}, ${lon})`);
+      const forecast = await this.fetchForecast(lat, lon, resolvedLocation);
       return forecast;
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Unknown error';
@@ -87,10 +93,33 @@ export class WeatherRepository {
     }
   }
 
-  async geocode(city: string): Promise<GeocodeResult[]> {
+  private async reverseGeocode(lat: number, lon: number): Promise<string> {
     try {
-      const url = `${GEOCODE_URL}?name=${encodeURIComponent(city)}&count=5&language=en&format=json`;
-      const response = await fetch(url);
+      const url = `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=en`;
+      const response = await fetch(url, { signal: AbortSignal.timeout(4000) });
+      if (response.ok) {
+        const data = await response.json();
+        const cityOrLocality = data.locality || data.city || data.principalSubdivision;
+        const state = data.principalSubdivision;
+        if (cityOrLocality && state && cityOrLocality !== state) {
+          return `${cityOrLocality}, ${state}`;
+        }
+        if (cityOrLocality) return cityOrLocality;
+      }
+    } catch (err) {
+      logger.warn('[Weather] Reverse geocoding failed, falling back to coordinate label');
+    }
+    return `Location (${lat.toFixed(2)}°, ${lon.toFixed(2)}°)`;
+  }
+
+  async geocode(city: string): Promise<GeocodeResult[]> {
+    if (!city || !city.trim()) {
+      return this.fallbackGeocode('hooghly');
+    }
+
+    try {
+      const url = `${GEOCODE_URL}?name=${encodeURIComponent(city.trim())}&count=5&language=en&format=json`;
+      const response = await fetch(url, { signal: AbortSignal.timeout(5000) });
       if (!response.ok) throw new Error(`Geocoding API responded with status ${response.status}`);
       const data = await response.json();
       return (data.results || []) as GeocodeResult[];
@@ -126,7 +155,7 @@ export class WeatherRepository {
       `&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum,wind_speed_10m_max,precipitation_probability_max` +
       `&timezone=auto&forecast_days=7`;
 
-    const response = await fetch(url);
+    const response = await fetch(url, { signal: AbortSignal.timeout(5000) });
     if (!response.ok) throw new Error(`Weather API responded with status ${response.status}`);
     const data = await response.json();
 
@@ -236,22 +265,14 @@ export class WeatherRepository {
     location: string,
     w: { temperatureCelsius: number; humidityPercent: number; windSpeedKmh: number; rainfallProbability: number; condition: string }
   ): Promise<string> {
-    if (!AiClient.isConfigured()) {
-      if (!config.useMockData) {
-        logger.error('[Weather] OPENROUTER_API_KEY missing while Mock Mode is false.');
-        throw new Error('OPENROUTER_API_KEY is not configured on server');
-      }
-    } else {
+    if (AiClient.isConfigured()) {
       try {
         const prompt = `You are a crop weather expert. Today's weather in ${location}: Temperature ${w.temperatureCelsius}°C, Humidity ${w.humidityPercent}%, Rain probability ${w.rainfallProbability}%, Wind speed ${w.windSpeedKmh} km/h, Condition ${w.condition}. Provide two short, practical sentences of advice for farmers. Respond with plain text only, no markdown.`;
         const advice = await AiClient.chat([{ role: 'user', content: prompt }]);
         if (advice.trim()) return advice.trim();
       } catch (err) {
         const message = err instanceof Error ? err.message : 'Unknown error';
-        logger.error('[Weather] AI advisory generation failed', { error: message });
-        if (!config.useMockData) {
-          throw new Error(`Weather AI advisory error: ${message}`);
-        }
+        logger.warn('[Weather] AI advisory generation failed, using rule-based advisory', { error: message });
       }
     }
 
