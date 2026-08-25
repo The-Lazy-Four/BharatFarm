@@ -1,50 +1,57 @@
-import { classifyLocalIntent, detectSpokenLanguage, IntentMatchResult } from '../voiceKnowledge/intentClassifier.js';
+import { classifyLocalIntent, detectSpokenLanguage, LanguageCode } from '../voiceKnowledge/intentClassifier.js';
 import { KrishiBotApi } from './krishiBotApi.js';
 
 export interface VoiceAssistantResponse {
-  detectedLanguage: 'en' | 'hi' | 'bn';
+  responseMessage: string;
+  detectedLanguage: LanguageCode;
   isNavigation: boolean;
   navPath?: string;
-  responseMessage: string;
-  source: 'LOCAL_FAST' | 'AI_ENGINE';
-  isSensitive?: boolean;
+  matchedIntentId?: string;
+  source: 'LOCAL_INTENT' | 'AI_ENGINE' | 'FALLBACK';
 }
 
-/**
- * Modern Multilingual Two-Layer Voice Processing Pipeline.
- * LAYER 1: Immediate local intent matching (0ms latency, zero API calls for app commands).
- * LAYER 2: Server-side OpenRouter / Gemini AI pipeline for open-ended agricultural queries.
- */
 export class SpeakToAiService {
-  static async processQuery(
-    rawQuery: string,
-    currentPageRoute?: string
+  /**
+   * Process incoming voice query through two-layer architecture with conversational memory
+   */
+  public static async processQuery(
+    queryText: string,
+    previousContextIntent?: string
   ): Promise<VoiceAssistantResponse> {
-    const lang = detectSpokenLanguage(rawQuery);
+    const lang = detectSpokenLanguage(queryText);
 
-    // LAYER 1: Fast Intent Matching
-    const localMatch: IntentMatchResult = classifyLocalIntent(rawQuery, currentPageRoute);
+    // Layer 1: Fast Local Intent Classification (0ms Navigation)
+    const localResult = classifyLocalIntent(queryText, previousContextIntent);
 
-    if (localMatch.matched) {
+    if (localResult.matched && localResult.isNavigation) {
       return {
-        detectedLanguage: localMatch.detectedLanguage,
-        isNavigation: localMatch.isNavigation,
-        navPath: localMatch.navPath,
-        responseMessage: localMatch.responseMessage,
-        source: 'LOCAL_FAST',
-        isSensitive: localMatch.isSensitive
+        responseMessage: localResult.responseMessage || 'Opening feature...',
+        detectedLanguage: localResult.detectedLanguage,
+        isNavigation: true,
+        navPath: localResult.navPath,
+        matchedIntentId: localResult.intentId,
+        source: 'LOCAL_INTENT'
       };
     }
 
-    // LAYER 2: AI Farming Query Engine via existing KrishiBot backend pipeline
+    if (!localResult.matched && localResult.isNoise) {
+      return {
+        responseMessage: localResult.responseMessage || 'Could you please clarify your request?',
+        detectedLanguage: localResult.detectedLanguage,
+        isNavigation: false,
+        source: 'LOCAL_INTENT'
+      };
+    }
+
+    // Layer 2: Open-ended AI Query Processing for farming questions
     try {
-      const res = await KrishiBotApi.sendMessage(rawQuery, lang);
-      const replyText = res?.reply || 'BharatFarm AI could not process this request right now.';
+      const chatRes = await KrishiBotApi.sendMessage(queryText, lang);
+      const replyText = chatRes?.reply || 'I am ready to help you with your crop and farm questions.';
 
       return {
+        responseMessage: replyText,
         detectedLanguage: lang,
         isNavigation: false,
-        responseMessage: replyText,
         source: 'AI_ENGINE'
       };
     } catch {
@@ -52,14 +59,14 @@ export class SpeakToAiService {
       if (lang === 'hi') {
         fallback = 'कृषि सलाहकार से जुड़ने में समस्या हो रही है। आप अभी भी BharatFarm की सभी सुविधाओं का सामान्य रूप से उपयोग कर सकते हैं।';
       } else if (lang === 'bn') {
-        fallback = 'কৃষি উপদেষ্টার সাথে সংযোগ করতে সমস্যা হচ্ছে। আপনি এখনও BharatFarm-এর সমস্ত ফিচার ব্যবহার করতে পারেন।';
+        fallback = 'কৃষি পরামর্শকের সাথে সংযোগ করতে সমস্যা হচ্ছে। আপনি এখনও BharatFarm-এর সমস্ত সুবিধা ব্যবহার করতে পারেন।';
       }
 
       return {
+        responseMessage: fallback,
         detectedLanguage: lang,
         isNavigation: false,
-        responseMessage: fallback,
-        source: 'LOCAL_FAST'
+        source: 'FALLBACK'
       };
     }
   }

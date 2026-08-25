@@ -3,12 +3,16 @@ export const formatBotTimestamp = (date: Date): string => {
 };
 
 /**
- * Text-to-speech playback, adapted from OLD project's `speakResponse()`
- * (js/chatbot.js) which used the browser SpeechSynthesis API with
- * language-specific voice selection for en/hi/bn.
+ * Text-to-speech playback using browser SpeechSynthesis API with
+ * native voice selection for en-IN/hi-IN/bn-IN.
  */
-export const speakText = (text: string, language: string): void => {
-  if (!('speechSynthesis' in window)) return;
+export const speakText = (
+  text: string,
+  language: string,
+  onEnd?: () => void,
+  onError?: () => void
+): SpeechSynthesisUtterance | null => {
+  if (!('speechSynthesis' in window)) return null;
   window.speechSynthesis.cancel();
 
   const cleanText = text.replace(/[*_#`]/g, '');
@@ -17,16 +21,27 @@ export const speakText = (text: string, language: string): void => {
 
   if (language === 'hi') {
     utterance.lang = 'hi-IN';
-    utterance.voice = voices.find(v => v.lang === 'hi-IN' || v.lang.startsWith('hi')) || null;
+    utterance.voice =
+      voices.find(v => v.lang === 'hi-IN' || v.lang.startsWith('hi')) || null;
   } else if (language === 'bn') {
     utterance.lang = 'bn-IN';
-    utterance.voice = voices.find(v => v.lang === 'bn-IN' || v.lang === 'bn-BD' || v.lang.startsWith('bn')) || null;
+    // Native Bengali voice priority check: bn-IN -> bn-BD -> any bn
+    utterance.voice =
+      voices.find(v => v.lang.toLowerCase() === 'bn-in' || v.lang.toLowerCase() === 'bn_in') ||
+      voices.find(v => v.lang.toLowerCase() === 'bn-bd' || v.lang.toLowerCase() === 'bn_bd') ||
+      voices.find(v => v.lang.toLowerCase().startsWith('bn')) || null;
     utterance.rate = 0.9;
   } else {
     utterance.lang = 'en-IN';
+    utterance.voice =
+      voices.find(v => v.lang === 'en-IN' || v.lang === 'en_IN') || null;
   }
 
+  if (onEnd) utterance.onend = () => onEnd();
+  if (onError) utterance.onerror = () => onError();
+
   window.speechSynthesis.speak(utterance);
+  return utterance;
 };
 
 export const stopSpeaking = (): void => {

@@ -1,167 +1,177 @@
-import { VOICE_INTENTS, SENSITIVE_KEYWORDS, CLARIFICATION_PROMPTS, VoiceIntent } from './voiceRegistry.js';
+import { VOICE_INTENTS, VoiceIntent, SENSITIVE_KEYWORDS, CLARIFICATION_PROMPTS } from './voiceRegistry.js';
 
-export interface IntentMatchResult {
-  matched: boolean;
-  intent?: VoiceIntent;
-  confidence: number;
-  detectedLanguage: 'en' | 'hi' | 'bn';
-  isNavigation: boolean;
-  navPath?: string;
-  responseMessage: string;
-  isSensitive?: boolean;
-}
+export type LanguageCode = 'en' | 'hi' | 'bn' | 'mr' | 'te' | 'ta' | 'kn' | 'gu' | 'pa' | 'or' | 'as';
 
-/**
- * Normalizes input text by removing punctuation, converting to lowercase,
- * and normalizing whitespace for robust natural language matching.
- */
+/** Noise / Meaningless Single-Syllable Fillers filter */
+const NOISE_WORDS = new Set([
+  'a', 'uh', 'hmm', 'um', 'ee', 'oh', 'ah', 'ha', 'eh',
+  'ओ', 'आ', 'हूम', 'हम्म', 'উম', 'হুম', 'আ', 'হ্যা'
+]);
+
+/** Affirmative context tokens for conversational follow-ups */
+const AFFIRMATIVE_WORDS = new Set([
+  'yes', 'yeah', 'yep', 'haan', 'han', 'ha', 'ok', 'okay', 'sure', 'theek hai', 'accha',
+  'हाँ', 'हां', 'ठीक है', 'अच्छा', 'सही है', 'হ্যাঁ', 'হাঁ', 'ঠিক আছে', 'আচ্ছা', 'হয়'
+]);
+
+/** Phonetic / Speech-to-text fuzzy mappings for common farmer typos */
+const PHONETIC_MAPPINGS: Record<string, string> = {
+  'scannar': 'scanner',
+  'scaner': 'scanner',
+  'skaner': 'scanner',
+  'skannar': 'scanner',
+  'patta': 'leaf',
+  'patte': 'leaf',
+  'mosam': 'weather',
+  'mousam': 'weather',
+  'mausum': 'weather',
+  'mandee': 'mandi',
+  'mundi': 'mandi',
+  'bazar': 'bazaar',
+  'seme': 'scheme',
+  'sceme': 'scheme',
+  'lon': 'loan',
+  'krishi': 'krishibot'
+};
+
+/** Normalize text for fuzzy matching */
 export const normalizeText = (text: string): string => {
   return text
     .toLowerCase()
-    .replace(/[.,/#!$%^&*;:{}=\-_`~()?'"॥।]/g, ' ')
+    .replace(/[.,/#!$%^&*;:{}=\-_`~()?।]/g, '')
     .replace(/\s+/g, ' ')
     .trim();
 };
 
-/**
- * Detect language based on script (Bengali vs Devanagari vs Latin)
- * and regional vocabulary markers.
- */
-export const detectSpokenLanguage = (rawText: string): 'en' | 'hi' | 'bn' => {
-  // 1. Script checks
-  if (/[\u0980-\u09FF]/.test(rawText)) return 'bn'; // Bengali Unicode
-  if (/[\u0900-\u097F]/.test(rawText)) return 'hi'; // Devanagari Unicode
+/** Multilingual Script & Keyword Language Resolver for 11 regional languages */
+export const detectSpokenLanguage = (text: string): LanguageCode => {
+  if (!text) return 'en';
 
-  // 2. Transliterated / Hinglish / Banglish vocabulary markers
-  const text = normalizeText(rawText);
-  const words = text.split(' ');
+  // 1. Script Unicode Range Inspection
+  if (/[\u0900-\u097F]/.test(text)) return 'hi'; // Devanagari (Hindi / Marathi)
+  if (/[\u0980-\u09FF]/.test(text)) return 'bn'; // Bengali / Assamese
+  if (/[\u0C00-\u0C7F]/.test(text)) return 'te'; // Telugu
+  if (/[\u0B80-\u0BFF]/.test(text)) return 'ta'; // Tamil
+  if (/[\u0C80-\u0CFF]/.test(text)) return 'kn'; // Kannada
+  if (/[\u0A80-\u0AFF]/.test(text)) return 'gu'; // Gujarati
+  if (/[\u0A00-\u0A7F]/.test(text)) return 'pa'; // Punjabi
+  if (/[\u0B00-\u0B7F]/.test(text)) return 'or'; // Odia
 
-  const bnMarkers = ['ta', 'dekhao', 'kine', 'kholo', 'amar', 'kemon', 'koto', 'naki', 'ache', 'hocche'];
-  const hiMarkers = ['kholo', 'karo', 'dikhao', 'hai', 'kaise', 'batao', 'kya', 'chahiye', 'karni', 'mera', 'apna'];
+  const normalized = normalizeText(text);
 
-  let bnScore = 0;
-  let hiScore = 0;
+  // 2. Transliterated Banglish / Bengali vocabulary markers
+  const bnMarkers = ['ta', 'dekhao', 'kholo', 'aamader', 'kamon', 'amhar', 'pata', 'sar', 'bazaar', 'dhekho', 'koron', 'kintu', 'jante', 'khulbo'];
+  if (bnMarkers.some(m => new RegExp(`\\b${m}\\b`, 'i').test(normalized))) return 'bn';
 
-  for (const w of words) {
-    if (bnMarkers.includes(w)) bnScore++;
-    if (hiMarkers.includes(w)) hiScore++;
-  }
-
-  if (bnScore > hiScore && bnScore > 0) return 'bn';
-  if (hiScore > bnScore && hiScore > 0) return 'hi';
+  // 3. Transliterated Hinglish / Hindi vocabulary markers
+  const hiMarkers = ['karo', 'khol', 'kholo', 'dikhao', 'kya', 'kaise', 'hai', 'bhai', 'pata', 'chahiye', 'batao', 'mandi', 'mausam', 'wala', 'kisi'];
+  if (hiMarkers.some(m => new RegExp(`\\b${m}\\b`, 'i').test(normalized))) return 'hi';
 
   return 'en';
 };
 
-/**
- * Layer 1 — Local Fast Intent Classifier Engine
- * Evaluates queries against the central VOICE_INTENTS registry without any AI network overhead.
- */
-export const classifyLocalIntent = (rawQuery: string, currentPageRoute?: string): IntentMatchResult => {
-  const lang = detectSpokenLanguage(rawQuery);
-  const normQuery = normalizeText(rawQuery);
+export interface LocalIntentResult {
+  matched: boolean;
+  intentId?: string;
+  isNavigation?: boolean;
+  navPath?: string;
+  responseMessage?: string;
+  detectedLanguage: LanguageCode;
+  isSensitive?: boolean;
+  isNoise?: boolean;
+}
 
-  // Check 1: Sensitive Gated Actions
-  const isSensitive = SENSITIVE_KEYWORDS.some(kw => normQuery.includes(normalizeText(kw)));
-  if (isSensitive) {
-    let msg = 'For your security, financial transactions, purchasing, or official applications require your manual tap and confirmation.';
-    if (lang === 'hi') {
-      msg = 'आपकी सुरक्षा के लिए, वित्तीय लेनदेन, खरीदारी या आवेदन जमा करने के लिए आपको स्वयं बटन दबाकर पुष्टि करनी होगी।';
-    } else if (lang === 'bn') {
-      msg = 'আপনার নিরাপত্তার জন্য, আর্থিক লেনদেন, কেনাকাটা বা আবেদন জমা দেওয়ার জন্য আপনাকে নিজে ম্যানুয়ালি নিশ্চিত করতে হবে।';
-    }
+/** Layer 1 Fast Local Intent Classification Engine with Phonetic & Context Fallbacks */
+export const classifyLocalIntent = (text: string, previousContextIntent?: string): LocalIntentResult => {
+  const detectedLanguage = detectSpokenLanguage(text);
+  const rawNormalized = normalizeText(text);
+
+  // 1. Noise / Filler Detection (Short meaningless audio)
+  if (rawNormalized.length <= 2 || NOISE_WORDS.has(rawNormalized)) {
     return {
-      matched: true,
-      confidence: 1.0,
-      detectedLanguage: lang,
-      isNavigation: false,
-      responseMessage: msg,
-      isSensitive: true
+      matched: false,
+      detectedLanguage,
+      isNoise: true,
+      responseMessage: CLARIFICATION_PROMPTS[detectedLanguage] || CLARIFICATION_PROMPTS['en']
     };
   }
 
-  // Check 2: Relative Contextual Commands ("how do I use this?", "go back", "go home")
-  if (normQuery.includes('go back') || normQuery.includes('पीछे जाओ') || normQuery.includes('पीछे') || normQuery.includes('পিছনে')) {
-    let msg = 'Going back to the previous screen.';
-    if (lang === 'hi') msg = 'पिछली स्क्रीन पर वापस जा रहे हैं।';
-    if (lang === 'bn') msg = 'আগের স্ক্রিনে ফিরে যাওয়া হচ্ছে।';
-    return {
-      matched: true,
-      confidence: 0.95,
-      detectedLanguage: lang,
-      isNavigation: true,
-      navPath: '-1', // Special signal for navigate(-1)
-      responseMessage: msg
-    };
-  }
+  // Apply Phonetic Substitution for Common STT Typo Errors
+  let normalized = rawNormalized;
+  const words = normalized.split(' ').map(w => PHONETIC_MAPPINGS[w] || w);
+  normalized = words.join(' ');
 
-  // Check 3: Match intent against central registry using multi-word keyphrase fuzzy scoring
-  let bestMatch: VoiceIntent | null = null;
-  let maxScore = 0;
-
-  for (const intent of VOICE_INTENTS) {
-    let currentScore = 0;
-
-    for (const kw of intent.keywords) {
-      const normKw = normalizeText(kw);
-
-      // Exact substring match
-      if (normQuery.includes(normKw)) {
-        // Longer keyword matches earn higher weight
-        const score = normKw.length * 2;
-        if (score > currentScore) currentScore = score;
-      } else {
-        // Multi-word token overlap match (e.g. "leaf scanner open karo" matching "leaf scanner")
-        const queryWords = normQuery.split(' ');
-        const kwWords = normKw.split(' ');
-        const overlap = kwWords.filter(w => queryWords.includes(w)).length;
-        if (overlap > 0 && overlap === kwWords.length) {
-          const score = overlap * 3;
-          if (score > currentScore) currentScore = score;
-        }
-      }
-    }
-
-    if (currentScore > maxScore) {
-      maxScore = currentScore;
-      bestMatch = intent;
-    }
-  }
-
-  // Threshold check for local fast classification confidence
-  if (bestMatch && maxScore >= 3) {
-    return {
-      matched: true,
-      intent: bestMatch,
-      confidence: Math.min(1.0, maxScore / 10),
-      detectedLanguage: lang,
-      isNavigation: true,
-      navPath: bestMatch.route,
-      responseMessage: bestMatch.guidance[lang]
-    };
-  }
-
-  // Check 4: Contextual "How to use this page" if no explicit intent matched
-  if (currentPageRoute && (normQuery.includes('how to use') || normQuery.includes('ise kaise') || normQuery.includes('kivabe') || normQuery.includes('help'))) {
-    const pageIntent = VOICE_INTENTS.find(i => i.route === currentPageRoute);
-    if (pageIntent) {
+  // 2. Conversational Context / Affirmative Follow-up Handling ("haan", "yes", "theek hai")
+  if (AFFIRMATIVE_WORDS.has(normalized) && previousContextIntent) {
+    const matchedContextIntent = VOICE_INTENTS.find(i => i.id === previousContextIntent);
+    if (matchedContextIntent) {
       return {
         matched: true,
-        intent: pageIntent,
-        confidence: 0.9,
-        detectedLanguage: lang,
-        isNavigation: false,
-        responseMessage: pageIntent.guidance[lang]
+        intentId: matchedContextIntent.id,
+        isNavigation: !!matchedContextIntent.route,
+        navPath: matchedContextIntent.route,
+        responseMessage: matchedContextIntent.guidance[detectedLanguage] || matchedContextIntent.guidance['en'],
+        detectedLanguage
       };
     }
   }
 
-  // Unmatched query -> Requires Layer 2 (AI Processing or Ambiguity Clarification)
+  // 3. Sensitive financial transaction safeguard
+  const isSensitive = SENSITIVE_KEYWORDS.some(kw => normalized.includes(kw));
+  if (isSensitive) {
+    let warning = 'Sensitive transaction requested. Please confirm manually on screen.';
+    if (detectedLanguage === 'hi') warning = 'संवेदनशील लेन-देन। कृपया स्क्रीन पर मैन्युअल रूप से पुष्टि करें।';
+    if (detectedLanguage === 'bn') warning = 'সংবেদনশীল লেনদেন। অনুগ্রহ করে স্ক্রিনে ম্যানুয়ালি নিশ্চিত করুন।';
+
+    return {
+      matched: true,
+      intentId: 'SENSITIVE_ACTION',
+      isNavigation: false,
+      responseMessage: warning,
+      detectedLanguage,
+      isSensitive: true
+    };
+  }
+
+  // 4. Exact & Fuzzy Keyword Matching against Voice Registry
+  let bestIntent: VoiceIntent | null = null;
+  let highestScore = 0;
+
+  for (const intent of VOICE_INTENTS) {
+    for (const kw of intent.keywords) {
+      const normKw = normalizeText(kw);
+      if (normalized === normKw) {
+        bestIntent = intent;
+        highestScore = 100;
+        break;
+      }
+      if (normalized.includes(normKw)) {
+        const score = normKw.length;
+        if (score > highestScore) {
+          highestScore = score;
+          bestIntent = intent;
+        }
+      }
+    }
+    if (highestScore === 100) break;
+  }
+
+  if (bestIntent && highestScore >= 3) {
+    const responseMsg = bestIntent.guidance[detectedLanguage] || bestIntent.guidance['en'];
+    return {
+      matched: true,
+      intentId: bestIntent.id,
+      isNavigation: !!bestIntent.route,
+      navPath: bestIntent.route,
+      responseMessage: responseMsg,
+      detectedLanguage
+    };
+  }
+
+  // Unclear / Ambiguous Speech handling
   return {
     matched: false,
-    confidence: 0,
-    detectedLanguage: lang,
-    isNavigation: false,
-    responseMessage: CLARIFICATION_PROMPTS[lang]
+    detectedLanguage,
+    responseMessage: CLARIFICATION_PROMPTS[detectedLanguage] || CLARIFICATION_PROMPTS['en']
   };
 };
