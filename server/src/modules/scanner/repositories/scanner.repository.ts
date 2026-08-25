@@ -21,21 +21,24 @@ interface RawLeafAnalysis {
   treatments: string[];
 }
 
-const VISION_PROMPT = `You are an expert plant pathologist. Analyze the provided image.
-First, determine if the image contains a plant leaf. If it does NOT contain a plant leaf (e.g. an animal, person, object, landscape, screenshot, etc.), return status "not_a_plant".
+const VISION_PROMPT = `
+You are an expert plant pathologist. Analyze the provided image.
+First, determine if the image contains a plant leaf. If it does NOT contain a plant leaf (e.g., it's an animal, person, object, landscape, screenshot, etc.), return status "not_a_plant".
 If it IS a plant leaf, identify any diseases, deficiencies, or pests present. If the leaf is healthy, state that it is healthy.
 
-Respond strictly in JSON matching this structure:
+Respond strictly in JSON format matching this exact structure:
 {
   "status": "healthy" | "diseased" | "not_a_plant",
   "name": "Name of the disease, 'Healthy Plant', or 'Not a Plant'",
-  "description": "Short description of the issue, or what the image actually contains if not a plant.",
-  "fertilizers": ["Fertilizer/nutrition recommendation 1", "..."],
-  "treatments": ["Actionable treatment tip 1", "..."]
+  "description": "Short description of the issue, or explain what the image actually contains if not a plant.",
+  "fertilizers": ["Fertilizer recommendation 1", "Fertilizer recommendation 2"],
+  "treatments": ["Actionable tip 1", "Actionable tip 2"]
 }
 
-If the image is NOT a plant leaf, set status to "not_a_plant", name to "Not a Plant", and leave fertilizers and treatments as empty arrays.
-Do not include markdown formatting like \`\`\`json in your response. Return only the raw JSON object.`;
+IMPORTANT: If the image is NOT a plant leaf, you MUST set status to "not_a_plant", name to "Not a Plant", and leave fertilizers and treatments as empty arrays.
+
+Do not include any markdown formatting like \`\`\`json in your response. Just return the raw JSON object.
+`;
 
 export class ScannerRepository {
   async saveAndAnalyzeScan(scanReq: ScanRequest): Promise<ScanAnalysisResult> {
@@ -56,8 +59,11 @@ export class ScannerRepository {
       return await this.analyzeWithAiProvider(scanReq);
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Unknown error';
-      logger.error('[Scanner] AI analysis failed with error', { error: message });
-      throw new Error(`Leaf analysis error: ${message}`);
+      logger.error('[Scanner] AI vision analysis failed with error:', { error: message });
+      if (!config.useMockData) {
+        throw new Error(`Leaf analysis error: ${message}`);
+      }
+      return this.buildMockResult();
     }
   }
 

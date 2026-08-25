@@ -1,7 +1,7 @@
 import { ApiClient } from '../../../services/apiClient.js';
 import { ScanResult, ScannerService } from '../types/scanner.types.js';
 
-export class MockScannerService implements ScannerService {
+export class HttpScannerService implements ScannerService {
   async analyzeImage(imageBase64: string): Promise<ScanResult> {
     const res = await ApiClient.post<ScanResult>('/scanner/analyze', { imageBase64 });
     if (res.success && res.data) {
@@ -11,4 +11,5 @@ export class MockScannerService implements ScannerService {
   }
 }
 
-export const scannerApi = new MockScannerService();
+export const scannerApi = new HttpScannerService();
+
