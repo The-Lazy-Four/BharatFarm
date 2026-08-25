@@ -88,101 +88,101 @@ export const MasterDashboardPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Grid Row 2: Agricultural Feature Hub — Strict 3-Row x 2-Column Responsive Layout */}
+      {/* Grid Row 2: Agricultural Feature Hub — 2-Column on Mobile, 2-Column on Desktop */}
       <Card title="Farmer Companion Services" subtitle="Tap any tool to open interactive smart advisory.">
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.25rem', marginTop: '0.75rem' }}>
-          {/* Row 1: Card 1 — KrishiBot AI */}
+        <div className="mobile-feature-grid" style={{ marginTop: '0.75rem' }}>
+          {/* Card 1 — KrishiBot AI */}
           <Link to="/krishibot" className="card-feature-backed" style={{ minHeight: '180px' }}>
             <img src={FEATURE_IMAGES.krishibot.url} alt="KrishiBot AI" className="card-feature-bg" />
             <div className="card-feature-overlay" />
             <div className="card-feature-content">
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span className="badge badge-primary">Multilingual AI</span>
+                <span className="badge badge-primary">AI POWERED</span>
                 <div className="card-feature-action">→</div>
               </div>
               <h3 style={{ fontSize: '1.25rem', fontWeight: 800, marginTop: '0.5rem', color: '#FFFFFF' }}>KrishiBot AI</h3>
               <p style={{ fontSize: '0.82rem', opacity: 0.92, lineHeight: 1.35, color: '#FFFFFF' }}>
-                Voice & text agricultural advisor answering crop queries in regional Indian languages.
+                Voice & text farming advisor in regional languages.
               </p>
             </div>
           </Link>
 
-          {/* Row 1: Card 2 — Leaf Scanner */}
+          {/* Card 2 — Leaf Scanner */}
           <Link to="/scanner" className="card-feature-backed" style={{ minHeight: '180px' }}>
             <img src={FEATURE_IMAGES.scanner.url} alt="Leaf Scanner" className="card-feature-bg" />
             <div className="card-feature-overlay" />
             <div className="card-feature-content">
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span className="badge badge-success">Neural Vision v3</span>
+                <span className="badge badge-success">VISION DIAGNOSIS</span>
                 <div className="card-feature-action">→</div>
               </div>
               <h3 style={{ fontSize: '1.25rem', fontWeight: 800, marginTop: '0.5rem', color: '#FFFFFF' }}>Leaf Scanner</h3>
               <p style={{ fontSize: '0.82rem', opacity: 0.92, lineHeight: 1.35, color: '#FFFFFF' }}>
-                Snap crop leaves for instant AI pest & disease identification and exact remedy dosages.
+                Snap crop leaves for instant pest & disease treatment.
               </p>
             </div>
           </Link>
 
-          {/* Row 2: Card 3 — Mandi Marketplace */}
+          {/* Card 3 — Mandi Marketplace */}
           <Link to="/marketplace" className="card-feature-backed" style={{ minHeight: '180px' }}>
             <img src={FEATURE_IMAGES.marketplace.url} alt="Mandi Marketplace" className="card-feature-bg" />
             <div className="card-feature-overlay" />
             <div className="card-feature-content">
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span className="badge badge-primary">Direct Trade</span>
+                <span className="badge badge-primary">MANDI RATES</span>
                 <div className="card-feature-action">→</div>
               </div>
               <h3 style={{ fontSize: '1.25rem', fontWeight: 800, marginTop: '0.5rem', color: '#FFFFFF' }}>Mandi Marketplace</h3>
               <p style={{ fontSize: '0.82rem', opacity: 0.92, lineHeight: 1.35, color: '#FFFFFF' }}>
-                Trade crops directly with buyers, inspect governed MSP rates & order certified farm inputs.
+                Live crop prices & buy quality farming inputs.
               </p>
             </div>
           </Link>
 
-          {/* Row 2: Card 4 — Weather AI */}
+          {/* Card 4 — Weather AI */}
           <Link to="/weather" className="card-feature-backed" style={{ minHeight: '180px' }}>
             <img src={FEATURE_IMAGES.weather.url} alt="Weather AI" className="card-feature-bg" />
             <div className="card-feature-overlay" />
             <div className="card-feature-content">
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span className="badge badge-primary">Hyperlocal Radar</span>
+                <span className="badge badge-primary">7-DAY FORECAST</span>
                 <div className="card-feature-action">→</div>
               </div>
               <h3 style={{ fontSize: '1.25rem', fontWeight: 800, marginTop: '0.5rem', color: '#FFFFFF' }}>Weather AI</h3>
               <p style={{ fontSize: '0.82rem', opacity: 0.92, lineHeight: 1.35, color: '#FFFFFF' }}>
-                Hyperlocal rainfall probability, humidity alerts, and field spraying suitability schedules.
+                Hyperlocal rainfall alerts & irrigation schedules.
               </p>
             </div>
           </Link>
 
-          {/* Row 3: Card 5 — Group Buying */}
+          {/* Card 5 — Group Buying */}
           <Link to="/groupbuying" className="card-feature-backed" style={{ minHeight: '180px' }}>
             <img src={FEATURE_IMAGES.groupbuying.url} alt="Group Buying" className="card-feature-bg" />
             <div className="card-feature-overlay" />
             <div className="card-feature-content">
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span className="badge badge-success">Wholesale Pooling</span>
+                <span className="badge badge-success">SAVE UP TO 30%</span>
                 <div className="card-feature-action">→</div>
               </div>
               <h3 style={{ fontSize: '1.25rem', fontWeight: 800, marginTop: '0.5rem', color: '#FFFFFF' }}>Group Buying</h3>
               <p style={{ fontSize: '0.82rem', opacity: 0.92, lineHeight: 1.35, color: '#FFFFFF' }}>
-                Pool fertilizer, bio-pesticide & seed orders with neighboring farmers to save up to 30%.
+                Pool fertilizer & seed orders with neighborhood farmers.
               </p>
             </div>
           </Link>
 
-          {/* Row 3: Card 6 — Government Schemes */}
+          {/* Card 6 — Government Schemes */}
           <Link to="/schemes" className="card-feature-backed" style={{ minHeight: '180px' }}>
             <img src={FEATURE_IMAGES.schemes.url} alt="Government Schemes" className="card-feature-bg" />
             <div className="card-feature-overlay" />
             <div className="card-feature-content">
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span className="badge badge-primary">Direct Subsidies</span>
+                <span className="badge badge-primary">SUBSIDIES</span>
                 <div className="card-feature-action">→</div>
               </div>
               <h3 style={{ fontSize: '1.25rem', fontWeight: 800, marginTop: '0.5rem', color: '#FFFFFF' }}>Govt Schemes</h3>
               <p style={{ fontSize: '0.82rem', opacity: 0.92, lineHeight: 1.35, color: '#FFFFFF' }}>
-                Check eligibility for PM-KISAN Samman Nidhi, Kisan Credit Card & central subsidies.
+                Check PM-KISAN, soil health card & subsidy eligibility.
               </p>
             </div>
           </Link>
