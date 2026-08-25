@@ -42,46 +42,111 @@ export const FarmRecordsPage: React.FC = () => {
     setShowAdd(false);
   };
 
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', maxWidth: '1000px', margin: '0 auto' }}>
-      <Card
-        title="Farm Records & Field Management"
-        subtitle="Log day-to-day farming activities, input expenses, and harvest yields for full traceability."
-        action={
-          <Button size="sm" onClick={() => setShowAdd(!showAdd)}>
-            {showAdd ? 'Cancel' : '+ Add Log Entry'}
-          </Button>
-        }
-      >
-        {showAdd && (
-          <form onSubmit={handleAdd} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginTop: '1rem', padding: '1rem', background: 'var(--bg-card-hover)', borderRadius: 'var(--radius)' }}>
-            <Input label="Crop Name" placeholder="e.g. Wheat" value={crop} onChange={e => setCrop(e.target.value)} required />
-            <Input label="Activity / Task" placeholder="e.g. Sowing, Fertilizer" value={activity} onChange={e => setActivity(e.target.value)} required />
-            <Input label="Cost (₹)" type="number" placeholder="0" value={cost} onChange={e => setCost(e.target.value)} />
-            <Input label="Notes" placeholder="Additional details..." value={notes} onChange={e => setNotes(e.target.value)} />
-            <div style={{ gridColumn: '1 / -1', display: 'flex', justifyContent: 'flex-end' }}>
-              <Button type="submit" size="sm">Save Entry</Button>
-            </div>
-          </form>
-        )}
-      </Card>
+  const totalExpense = records.reduce((acc, curr) => acc + curr.cost, 0);
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-        {records.map(rec => (
-          <Card key={rec.id}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '0.5rem' }}>
-              <div>
-                <span className="badge badge-primary">{rec.crop}</span>
-                <h4 style={{ marginTop: '0.5rem', fontSize: '1.1rem', color: 'var(--text-main)' }}>{rec.activity}</h4>
-                <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>{rec.notes}</p>
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', maxWidth: '1280px', margin: '0 auto' }}>
+      {/* Header Banner */}
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        flexWrap: 'wrap',
+        gap: '1rem',
+        padding: '1.5rem',
+        background: '#FFFFFF',
+        borderRadius: 'var(--radius)',
+        border: '1px solid var(--border-color)',
+        boxShadow: 'var(--shadow-sm)'
+      }}>
+        <div>
+          <span className="badge badge-primary" style={{ marginBottom: '0.35rem' }}>Field Telemetry & Log</span>
+          <h1 style={{ fontSize: '1.75rem', fontWeight: 700, color: 'var(--text-main)' }}>
+            Farm Records — Input & Activity Tracker
+          </h1>
+          <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginTop: '0.2rem' }}>
+            Track day-to-day farming activities, input expenses, and harvest yields for full agronomic traceability.
+          </p>
+        </div>
+
+        <Button variant="primary" size="md" onClick={() => setShowAdd(!showAdd)}>
+          {showAdd ? 'Close Logger' : '➕ Add Field Record'}
+        </Button>
+      </div>
+
+      {/* Main Grid Layout matching Stitch */}
+      <div className="grid-dashboard">
+        {/* Left Column (Span 8): Recent Activity Logs */}
+        <div className="col-span-8" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+          <Card title="Activity & Expense Logs" subtitle="Historical record of all farm operations and input applications.">
+            {showAdd && (
+              <form onSubmit={handleAdd} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '1.5rem', padding: '1.25rem', background: '#FFFDF5', border: '1px solid #FCD34D', borderRadius: 'var(--radius-sm)' }}>
+                <Input label="Crop Name" placeholder="e.g. Wheat (PBW 725)" value={crop} onChange={e => setCrop(e.target.value)} required />
+                <Input label="Activity / Task" placeholder="e.g. Sowing, Fertigation" value={activity} onChange={e => setActivity(e.target.value)} required />
+                <Input label="Cost (₹)" type="number" placeholder="0" value={cost} onChange={e => setCost(e.target.value)} />
+                <Input label="Notes" placeholder="Additional details..." value={notes} onChange={e => setNotes(e.target.value)} />
+                <div style={{ gridColumn: '1 / -1', display: 'flex', justifyContent: 'flex-end', gap: '0.5rem' }}>
+                  <Button type="button" variant="secondary" size="sm" onClick={() => setShowAdd(false)}>Cancel</Button>
+                  <Button type="submit" size="sm">Save Entry</Button>
+                </div>
+              </form>
+            )}
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              {records.map(rec => (
+                <div key={rec.id} style={{ padding: '1rem', background: 'var(--bg-main)', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '0.75rem' }}>
+                  <div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                      <span className="badge badge-primary">{rec.crop}</span>
+                      <span style={{ fontSize: '0.75rem', color: 'var(--text-light)' }}>{rec.date}</span>
+                    </div>
+                    <h4 style={{ marginTop: '0.4rem', fontSize: '1.05rem', fontWeight: 600, color: 'var(--text-main)' }}>{rec.activity}</h4>
+                    <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>{rec.notes}</p>
+                  </div>
+                  <div style={{ textAlign: 'right' }}>
+                    <p style={{ fontSize: '1.15rem', fontWeight: 700, color: 'var(--primary)' }}>₹{rec.cost.toLocaleString('en-IN')}</p>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Input Cost</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </Card>
+        </div>
+
+        {/* Right Column (Span 4): Seasonal Expense Summary & Record Details (Stitch reference) */}
+        <div className="col-span-4" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+          <Card title="Seasonal Financial Summary" subtitle="Total tracked expenses for active Rabi season.">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '0.5rem' }}>
+              <div style={{ padding: '1rem', background: '#F0FDF4', borderRadius: 'var(--radius-sm)', border: '1px solid #B8E1C4' }}>
+                <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 600 }}>TOTAL EXPENDITURE</span>
+                <h3 style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--primary)', margin: '0.25rem 0' }}>
+                  ₹{totalExpense.toLocaleString('en-IN')}
+                </h3>
+                <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Across 3 logged activity passes</p>
               </div>
-              <div style={{ textAlign: 'right' }}>
-                <p style={{ fontSize: '1.1rem', fontWeight: 600, color: 'var(--primary)' }}>₹{rec.cost.toLocaleString('en-IN')}</p>
-                <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{rec.date}</p>
+
+              <div style={{ padding: '0.75rem', background: 'var(--bg-main)', borderRadius: '6px', border: '1px solid var(--border-color)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', marginBottom: '0.4rem' }}>
+                  <span style={{ color: 'var(--text-muted)' }}>Fertilizers & Chemicals</span>
+                  <strong style={{ color: 'var(--text-main)' }}>₹3,600</strong>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
+                  <span style={{ color: 'var(--text-muted)' }}>Labor & Machinery</span>
+                  <strong style={{ color: 'var(--text-main)' }}>₹650</strong>
+                </div>
               </div>
             </div>
           </Card>
-        ))}
+
+          <Card title="Export & Audit">
+            <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', lineHeight: '1.5' }}>
+              Export farm logs as certified PDF records for bank loan verification or organic certification compliance.
+            </p>
+            <Button variant="secondary" size="sm" style={{ width: '100%', marginTop: '0.75rem' }}>
+              📄 Export Certified Logs (PDF)
+            </Button>
+          </Card>
+        </div>
       </div>
     </div>
   );
