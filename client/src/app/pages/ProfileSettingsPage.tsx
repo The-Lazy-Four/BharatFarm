@@ -8,6 +8,7 @@ import { useLanguage } from '../../context/LanguageContext.js';
 export const ProfileSettingsPage: React.FC = () => {
   const { user } = useAuth();
   const { language, setLanguage } = useLanguage();
+  const [activeTab, setActiveTab] = useState<'account' | 'preferences' | 'offline' | 'security'>('account');
   const [name, setName] = useState(user?.fullName || 'Ramesh Patel');
   const [phone, setPhone] = useState('+91 9831200001');
   const [state, setState] = useState(user?.state || 'Punjab');
@@ -22,44 +23,166 @@ export const ProfileSettingsPage: React.FC = () => {
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', maxWidth: '800px', margin: '0 auto' }}>
-      <Card title="Farmer Profile & Account Settings" subtitle="Manage your personal details, farm location, preferred language, and notification preferences.">
-        <form onSubmit={handleSave} style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem' }}>
-            <Input label="Full Name" value={name} onChange={e => setName(e.target.value)} required />
-            <Input label="Phone Number" value={phone} onChange={e => setPhone(e.target.value)} required />
-            <Input label="State" value={state} onChange={e => setState(e.target.value)} required />
-            <Input label="District" value={district} onChange={e => setDistrict(e.target.value)} required />
-            <Input label="Total Land Holding (Acres)" type="number" value={landAcres} onChange={e => setLandAcres(e.target.value)} required />
-            
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-              <label style={{ fontSize: '0.85rem', fontWeight: 500, color: 'var(--text-muted)' }}>App Language</label>
-              <select
-                value={language}
-                onChange={e => setLanguage(e.target.value)}
-                style={{
-                  background: 'var(--bg-card)',
-                  border: '1px solid var(--border-color)',
-                  borderRadius: 'var(--radius)',
-                  padding: '0.66rem 1rem',
-                  color: 'var(--text-main)',
-                  fontSize: '0.95rem'
-                }}
-              >
-                <option value="en">English</option>
-                <option value="hi">हिंदी (Hindi)</option>
-                <option value="bn">বাংলা (Bengali)</option>
-              </select>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', maxWidth: '1280px', margin: '0 auto' }}>
+      {/* Header Banner */}
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        flexWrap: 'wrap',
+        gap: '1rem',
+        padding: '1.5rem',
+        background: '#FFFFFF',
+        borderRadius: 'var(--radius)',
+        border: '1px solid var(--border-color)',
+        boxShadow: 'var(--shadow-sm)'
+      }}>
+        <div>
+          <span className="badge badge-primary" style={{ marginBottom: '0.35rem' }}>Farmer Account Control</span>
+          <h1 style={{ fontSize: '1.75rem', fontWeight: 700, color: 'var(--text-main)' }}>
+            Profile & Account Settings
+          </h1>
+          <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginTop: '0.2rem' }}>
+            Manage your personal profile, land registration records, offline sync preferences, and security options.
+          </p>
+        </div>
+      </div>
+
+      {/* Main Grid Layout matching Stitch */}
+      <div className="grid-dashboard">
+        {/* Left Column (Span 4): Settings Navigation & Sync Telemetry (Stitch reference) */}
+        <div className="col-span-4" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+          {/* User Profile Card */}
+          <Card>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', paddingBottom: '1rem', borderBottom: '1px solid var(--border-color)' }}>
+              <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: '#E6F4EA', border: '2px solid var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.6rem' }}>
+                👨‍🌾
+              </div>
+              <div>
+                <h3 style={{ fontSize: '1.2rem', fontWeight: 700, color: 'var(--text-main)' }}>{name}</h3>
+                <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '0.2rem' }}>
+                  <span>📍</span> {district}, {state}
+                </p>
+              </div>
             </div>
-          </div>
 
-          {saved && <p style={{ color: 'var(--primary)', fontWeight: 600, fontSize: '0.9rem' }}>✓ Profile saved successfully!</p>}
+            {/* Vertical Navigation Tabs matching Stitch */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', marginTop: '1rem' }}>
+              {[
+                { id: 'account', label: '👤 Account & Land Info' },
+                { id: 'preferences', label: '🎛️ Language & Preferences' },
+                { id: 'offline', label: '☁️ Offline & Telemetry Sync' },
+                { id: 'security', label: '🛡️ Privacy & Security' }
+              ].map(tab => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id as any)}
+                  style={{
+                    padding: '0.75rem 1rem',
+                    textAlign: 'left',
+                    borderRadius: 'var(--radius-sm)',
+                    border: activeTab === tab.id ? '1px solid var(--primary)' : '1px solid transparent',
+                    background: activeTab === tab.id ? '#F0FDF4' : 'transparent',
+                    color: activeTab === tab.id ? 'var(--primary)' : 'var(--text-main)',
+                    fontWeight: activeTab === tab.id ? 600 : 400,
+                    fontSize: '0.9rem',
+                    cursor: 'pointer',
+                    transition: 'var(--transition)'
+                  }}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+          </Card>
 
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem' }}>
-            <Button type="submit">Save Changes</Button>
-          </div>
-        </form>
-      </Card>
+          {/* Sync Status Banner Card (Stitch reference) */}
+          <Card title="Offline Telemetry Status">
+            <div style={{ padding: '0.85rem', background: '#F0FDF4', borderRadius: 'var(--radius-sm)', border: '1px solid #B8E1C4' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--primary)' }}>Sync Status</span>
+                <span className="badge badge-primary">Up to date</span>
+              </div>
+              <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.35rem' }}>
+                Last synchronized: Just now (Auto PWA sync enabled)
+              </p>
+            </div>
+          </Card>
+        </div>
+
+        {/* Right Column (Span 8): Settings Form Area */}
+        <div className="col-span-8">
+          <Card title={activeTab === 'account' ? 'Account & Personal Information' : activeTab === 'preferences' ? 'App & Language Preferences' : activeTab === 'offline' ? 'Offline & Data Sync' : 'Privacy & Security Controls'}>
+            <form onSubmit={handleSave} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', marginTop: '0.5rem' }}>
+              {activeTab === 'account' && (
+                <>
+                  <h4 style={{ fontSize: '0.95rem', fontWeight: 600, color: 'var(--primary)', marginBottom: '0.2rem' }}>📛 Personal Details</h4>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem' }}>
+                    <Input label="Full Name" value={name} onChange={e => setName(e.target.value)} required />
+                    <Input label="Mobile Phone Number" value={phone} onChange={e => setPhone(e.target.value)} required />
+                  </div>
+
+                  <h4 style={{ fontSize: '0.95rem', fontWeight: 600, color: 'var(--primary)', marginTop: '1rem', marginBottom: '0.2rem' }}>🌾 Land & Farm Registration</h4>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem' }}>
+                    <Input label="State" value={state} onChange={e => setState(e.target.value)} required />
+                    <Input label="District" value={district} onChange={e => setDistrict(e.target.value)} required />
+                    <Input label="Total Cultivated Area (Acres)" type="number" value={landAcres} onChange={e => setLandAcres(e.target.value)} required />
+                  </div>
+                </>
+              )}
+
+              {activeTab === 'preferences' && (
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                    <label style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-muted)' }}>Primary Language</label>
+                    <select
+                      value={language}
+                      onChange={e => setLanguage(e.target.value)}
+                      style={{
+                        background: '#FFFFFF',
+                        border: '1px solid var(--border-color)',
+                        borderRadius: 'var(--radius-sm)',
+                        padding: '0.65rem 1rem',
+                        color: 'var(--text-main)',
+                        fontSize: '0.95rem'
+                      }}
+                    >
+                      <option value="en">English (US/IN)</option>
+                      <option value="hi">हिंदी (Hindi)</option>
+                      <option value="bn">বাংলা (Bengali)</option>
+                    </select>
+                  </div>
+                </div>
+              )}
+
+              {activeTab === 'offline' && (
+                <div style={{ padding: '1rem', background: 'var(--bg-main)', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-color)' }}>
+                  <h5 style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--text-main)' }}>Local Cache Storage</h5>
+                  <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
+                    2.4 MB of weather forecasts, crop diagnostic guides, and offline forms cached locally.
+                  </p>
+                  <Button type="button" variant="secondary" size="sm" style={{ marginTop: '0.75rem' }}>Clear Local Storage Cache</Button>
+                </div>
+              )}
+
+              {activeTab === 'security' && (
+                <div style={{ padding: '1rem', background: 'var(--bg-main)', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-color)' }}>
+                  <h5 style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--text-main)' }}>Aadhaar & KCC Verification Status</h5>
+                  <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
+                    Your identity is verified under PM-KISAN beneficiary record #492019.
+                  </p>
+                </div>
+              )}
+
+              {saved && <p style={{ color: 'var(--primary)', fontWeight: 600, fontSize: '0.9rem', marginTop: '0.5rem' }}>✓ Settings updated and saved!</p>}
+
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem', marginTop: '1rem' }}>
+                <Button type="submit" variant="primary">Save Changes</Button>
+              </div>
+            </form>
+          </Card>
+        </div>
+      </div>
     </div>
   );
 };
