@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Card } from '../../components/ui/Card.js';
 import { Button } from '../../components/ui/Button.js';
 import { Input } from '../../components/ui/Input.js';
+import { FEATURE_IMAGES } from '../../constants/featureImages.js';
 
 interface FarmRecord {
   id: string;
@@ -70,18 +71,7 @@ export const FarmRecordsPage: React.FC = () => {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', maxWidth: '1280px', margin: '0 auto' }}>
       {/* Header Banner */}
-      <div style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        flexWrap: 'wrap',
-        gap: '1rem',
-        padding: '1.5rem',
-        background: 'linear-gradient(135deg, rgba(15, 56, 34, 0.97) 0%, rgba(20, 83, 45, 0.93) 100%)',
-        borderRadius: 'var(--radius)',
-        boxShadow: 'var(--shadow-3d)',
-        color: '#FFFFFF'
-      }}>
+      <div className="page-header-banner">
         <div>
           <span className="badge badge-primary" style={{ marginBottom: '0.35rem' }}>Field Telemetry & Log</span>
           <h1 style={{ fontSize: '1.75rem', fontWeight: 700, color: '#FFFFFF' }}>
@@ -99,81 +89,94 @@ export const FarmRecordsPage: React.FC = () => {
 
       {/* Main Grid Layout matching Stitch */}
       <div className="grid-dashboard">
-        {/* Left Column (Span 8): Recent Activity Logs */}
+        {/* Left Column (Span 8): Logger Form & Activity Table */}
         <div className="col-span-8" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-          <Card title="Activity & Expense Logs" subtitle="Historical record of all farm operations and input applications.">
-            {showAdd && (
-              <form onSubmit={handleAdd} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '1.5rem', padding: '1.25rem', background: '#FFFDF5', border: '1px solid #FCD34D', borderRadius: 'var(--radius-sm)' }}>
-                <Input label="Crop Name" placeholder="e.g. Wheat (PBW 725)" value={crop} onChange={e => setCrop(e.target.value)} required />
-                <Input label="Activity / Task" placeholder="e.g. Sowing, Fertigation" value={activity} onChange={e => setActivity(e.target.value)} required />
-                <Input label="Cost (₹)" type="number" placeholder="0" value={cost} onChange={e => setCost(e.target.value)} />
-                <Input label="Notes" placeholder="Additional details..." value={notes} onChange={e => setNotes(e.target.value)} />
-                <div style={{ gridColumn: '1 / -1', display: 'flex', justifyContent: 'flex-end', gap: '0.5rem' }}>
-                  <Button type="button" variant="secondary" size="sm" onClick={() => setShowAdd(false)}>Cancel</Button>
-                  <Button type="submit" size="sm">Save Entry</Button>
+          {showAdd && (
+            <Card title="📝 Log New Activity" subtitle="Record input applications, labor charges, or field operations.">
+              <form onSubmit={handleAdd} style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '0.5rem' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+                  <Input label="Crop Name" placeholder="e.g. Wheat (PBW 725)" value={crop} onChange={e => setCrop(e.target.value)} required />
+                  <Input label="Activity Type" placeholder="e.g. Fertilizer, Spray, Sowing" value={activity} onChange={e => setActivity(e.target.value)} required />
+                  <Input label="Total Cost (₹)" type="number" placeholder="e.g. 2500" value={cost} onChange={e => setCost(e.target.value)} />
+                </div>
+                <Input label="Notes & Observations" placeholder="e.g. Split application before expected rain" value={notes} onChange={e => setNotes(e.target.value)} />
+                <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end' }}>
+                  <Button type="button" variant="secondary" onClick={() => setShowAdd(false)}>Cancel</Button>
+                  <Button type="submit">Save Activity Log</Button>
                 </div>
               </form>
-            )}
+            </Card>
+          )}
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              {records.map(rec => (
-                <div key={rec.id} style={{ padding: '1rem', background: 'var(--card-gray)', borderRadius: '12px', border: '1px solid rgba(34,37,31,0.1)', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '0.75rem' }}>
-                  <div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                      <span className="badge badge-primary">{rec.crop}</span>
-                      <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{rec.date}</span>
+          <Card title="📋 Recent Agronomic Log Entries" subtitle="Chronological record of field activities and input expenditures.">
+            {records.length === 0 ? (
+              <p style={{ color: 'var(--text-muted)', textAlign: 'center', padding: '2rem 0' }}>
+                No farm records logged yet. Click "Add Field Record" above to start tracking.
+              </p>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem', marginTop: '0.5rem' }}>
+                {records.map(record => (
+                  <div key={record.id} className="card-glass" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem', padding: '1rem' }}>
+                    <div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <span className="badge badge-primary">{record.crop}</span>
+                        <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>{record.date}</span>
+                      </div>
+                      <h4 style={{ fontSize: '0.98rem', fontWeight: 700, color: 'var(--text-primary)', marginTop: '0.3rem' }}>
+                        {record.activity}
+                      </h4>
+                      {record.notes && (
+                        <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '0.15rem' }}>
+                          {record.notes}
+                        </p>
+                      )}
                     </div>
-                    <h4 style={{ marginTop: '0.4rem', fontSize: '1.05rem', fontWeight: 700, color: 'var(--dark-text)' }}>{rec.activity}</h4>
-                    <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>{rec.notes}</p>
+
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                      <strong style={{ fontSize: '1.1rem', color: 'var(--text-primary)' }}>₹{record.cost.toLocaleString()}</strong>
+                      <Button variant="danger" size="sm" onClick={() => handleDelete(record.id)}>
+                        Delete
+                      </Button>
+                    </div>
                   </div>
-                  <div style={{ textAlign: 'right', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.25rem' }}>
-                    <p style={{ fontSize: '1.15rem', fontWeight: 800, color: 'var(--dark-text)' }}>₹{rec.cost.toLocaleString('en-IN')}</p>
-                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Input Cost</span>
-                    <button
-                      onClick={() => handleDelete(rec.id)}
-                      style={{ background: 'transparent', border: 'none', color: 'var(--danger)', fontSize: '0.75rem', cursor: 'pointer', marginTop: '0.2rem' }}
-                    >
-                      🗑️ Delete
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </Card>
         </div>
 
-        {/* Right Column (Span 4): Seasonal Expense Summary & Record Details (Stitch reference) */}
+        {/* Right Column (Span 4): Hero Card & Financial Summary */}
         <div className="col-span-4" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-          <Card title="Seasonal Financial Summary" subtitle="Total tracked expenses for active Rabi season.">
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '0.5rem' }}>
-              <div style={{ padding: '1rem', background: 'rgba(215, 242, 26, 0.1)', borderRadius: 'var(--radius-sm)', border: '1px solid var(--signal-lime)' }}>
-                <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 600 }}>TOTAL EXPENDITURE</span>
-                <h3 style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--dark-text)', margin: '0.25rem 0' }}>
-                  ₹{totalExpense.toLocaleString('en-IN')}
+          {/* Farm Records Image Hero Card */}
+          <div className="card-feature-backed" style={{ minHeight: '150px' }}>
+            <img src={FEATURE_IMAGES.records.url} alt="Field Operations Log" className="card-feature-bg" />
+            <div className="card-feature-overlay" />
+            <div className="card-feature-content">
+              <span className="badge badge-primary">Digital Register</span>
+              <h4 style={{ fontSize: '1.1rem', fontWeight: 800, marginTop: '0.3rem', color: '#FFFFFF' }}>Agronomic Field Register</h4>
+              <p style={{ fontSize: '0.75rem', opacity: 0.88, color: '#FFFFFF' }}>Maintain verifiable records for crop loan applications & subsidy compliance.</p>
+            </div>
+          </div>
+
+          <Card title="📊 Seasonal Expenditure Summary">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem', marginTop: '0.5rem' }}>
+              <div className="inset-stat">
+                <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 600 }}>TOTAL LOGGED EXPENSE</span>
+                <h3 style={{ fontSize: '1.6rem', fontWeight: 800, color: 'var(--text-primary)', margin: '0.2rem 0' }}>
+                  ₹{totalExpense.toLocaleString()}
                 </h3>
-                <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Across {records.length} logged activity passes</p>
+                <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>across {records.length} field operations</span>
               </div>
 
-              <div style={{ padding: '0.75rem', background: 'var(--card-gray)', borderRadius: '12px', border: '1px solid rgba(34,37,31,0.1)' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', marginBottom: '0.4rem' }}>
-                  <span style={{ color: 'var(--text-muted)' }}>Fertilizers & Chemicals</span>
-                  <strong style={{ color: 'var(--dark-text)' }}>₹3,600</strong>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
-                  <span style={{ color: 'var(--text-muted)' }}>Labor & Machinery</span>
-                  <strong style={{ color: 'var(--dark-text)' }}>₹650</strong>
-                </div>
+              <div className="alert-info">
+                <h5 style={{ fontSize: '0.85rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>tips_and_updates</span> Smart Record Tip
+                </h5>
+                <p style={{ fontSize: '0.78rem', opacity: 0.85, marginTop: '0.2rem', lineHeight: '1.4' }}>
+                  Consistently logging fertilizer split dates helps KrishiBot provide exact harvest window estimates.
+                </p>
               </div>
             </div>
-          </Card>
-
-          <Card title="Export & Audit">
-            <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', lineHeight: '1.5' }}>
-              Export farm logs as certified PDF records for bank loan verification or organic certification compliance.
-            </p>
-            <Button variant="secondary" size="sm" style={{ width: '100%', marginTop: '0.75rem' }}>
-              📄 Export Certified Logs (PDF)
-            </Button>
           </Card>
         </div>
       </div>

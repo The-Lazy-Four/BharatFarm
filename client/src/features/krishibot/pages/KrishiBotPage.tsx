@@ -7,6 +7,7 @@ import { VoiceButton } from '../components/VoiceButton.js';
 import { SuggestedActions } from '../components/SuggestedActions.js';
 import { useKrishiBot } from '../hooks/useKrishiBot.js';
 import { useLanguage } from '../../../context/LanguageContext.js';
+import { FEATURE_IMAGES } from '../../../constants/featureImages.js';
 
 const LANGUAGE_OPTIONS = [
   { code: 'en', label: 'English' },
@@ -28,18 +29,7 @@ export const KrishiBotPage: React.FC = () => {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', maxWidth: '1280px', margin: '0 auto' }}>
       {/* Page Header */}
-      <div style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        flexWrap: 'wrap',
-        gap: '1rem',
-        padding: '1.5rem',
-        background: 'linear-gradient(135deg, rgba(15, 56, 34, 0.97) 0%, rgba(20, 83, 45, 0.93) 100%)',
-        borderRadius: 'var(--radius)',
-        boxShadow: 'var(--shadow-3d)',
-        color: '#FFFFFF'
-      }}>
+      <div className="page-header-banner">
         <div>
           <span className="badge badge-primary" style={{ marginBottom: '0.35rem' }}>AI Agronomist • Active</span>
           <h1 style={{ fontSize: '1.75rem', fontWeight: 700, color: '#FFFFFF' }}>
@@ -55,12 +45,9 @@ export const KrishiBotPage: React.FC = () => {
           <select
             value={language}
             onChange={e => setLanguage(e.target.value)}
+            className="input-field"
             style={{
-              background: '#FFFFFF',
-              border: '1px solid rgba(34,37,31,0.15)',
-              borderRadius: 'var(--radius-sm)',
               padding: '0.5rem 0.85rem',
-              color: 'var(--dark-text)',
               fontSize: '0.9rem',
               fontWeight: 500,
               outline: 'none'
@@ -81,11 +68,11 @@ export const KrishiBotPage: React.FC = () => {
         <div className="col-span-8">
           <Card style={{ height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
             <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: '0.75rem', borderBottom: '1px solid rgba(34,37,31,0.1)', marginBottom: '1rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: '0.75rem', borderBottom: '1px solid var(--border-default)', marginBottom: '1rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-                  <span className="material-symbols-outlined" style={{ fontSize: '24px', color: 'var(--dark-text)' }}>smart_toy</span>
+                  <span className="material-symbols-outlined" style={{ fontSize: '24px', color: 'var(--text-primary)' }}>smart_toy</span>
                   <div>
-                    <h3 style={{ fontSize: '1.05rem', fontWeight: 700, color: 'var(--dark-text)' }}>KrishiBot Conversation</h3>
+                    <h3 style={{ fontSize: '1.05rem', fontWeight: 700, color: 'var(--text-primary)' }}>KrishiBot Conversation</h3>
                     <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Multilingual Natural Language Assistant</p>
                   </div>
                 </div>
@@ -97,67 +84,62 @@ export const KrishiBotPage: React.FC = () => {
               {error && <p style={{ color: 'var(--danger)', fontSize: '0.85rem', marginTop: '0.5rem' }}>⚠️ {error}</p>}
             </div>
 
-            <div style={{ marginTop: '1.25rem', paddingTop: '1rem', borderTop: '1px solid rgba(34,37,31,0.1)' }}>
-              <div style={{ display: 'flex', gap: '0.5rem' }}>
-                <Input
-                  placeholder="Type your agricultural query..."
-                  value={inputText}
-                  onChange={e => setInputText(e.target.value)}
-                  onKeyDown={e => e.key === 'Enter' && handleSend()}
-                />
-                <VoiceButton language={language} onSpeechRecognized={text => sendMessage(text, true)} />
-                <Button onClick={handleSend} isLoading={isLoading}>
-                  Send
+            <div style={{ marginTop: '1.25rem', paddingTop: '1rem', borderTop: '1px solid var(--border-default)' }}>
+              <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                <VoiceButton language={language} onSpeechRecognized={(text: string) => sendMessage(text)} />
+                <div style={{ flex: 1 }}>
+                  <Input
+                    placeholder="Type your question in English, Hindi, or Bengali..."
+                    value={inputText}
+                    onChange={e => setInputText(e.target.value)}
+                    onKeyDown={e => e.key === 'Enter' && handleSend()}
+                  />
+                </div>
+                <Button onClick={handleSend} disabled={isLoading}>
+                  {isLoading ? 'Sending...' : 'Send'}
                 </Button>
               </div>
-              <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.5rem', textAlign: 'center' }}>
-                Press the microphone to speak naturally to KrishiBot.
-              </p>
             </div>
           </Card>
         </div>
 
-        {/* Right Column (Span 4): Farm Context & Local Telemetry Panel (Stitch reference) */}
+        {/* Right Column (Span 4): Agronomist Image Card & Advisory Context */}
         <div className="col-span-4" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-          {/* Active Farm Context */}
-          <Card title="Active Farm Context" subtitle="Data passed automatically to KrishiBot for precise advice.">
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem', marginTop: '0.5rem' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.6rem', background: 'var(--card-gray)', borderRadius: '12px' }}>
-                <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Active Crop</span>
-                <strong style={{ fontSize: '0.85rem', color: 'var(--dark-text)' }}>Wheat (PBW 725)</strong>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.6rem', background: 'var(--card-gray)', borderRadius: '12px' }}>
-                <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Growth Stage</span>
-                <strong style={{ fontSize: '0.85rem', color: 'var(--dark-text)' }}>Vegetative (Day 42)</strong>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.6rem', background: 'var(--card-gray)', borderRadius: '12px' }}>
-                <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Field Location</span>
-                <strong style={{ fontSize: '0.85rem', color: 'var(--dark-text)' }}>Ludhiana, Punjab</strong>
-              </div>
+          {/* KrishiBot Featured Advisory Image Card */}
+          <div className="card-feature-backed" style={{ minHeight: '160px' }}>
+            <img src={FEATURE_IMAGES.krishibot.url} alt="KrishiBot Agronomist" className="card-feature-bg" />
+            <div className="card-feature-overlay" />
+            <div className="card-feature-content">
+              <span className="badge badge-primary">Multilingual voice AI</span>
+              <h4 style={{ fontSize: '1.1rem', fontWeight: 800, marginTop: '0.3rem', color: '#FFFFFF' }}>Instant Agronomic Advisory</h4>
+              <p style={{ fontSize: '0.75rem', opacity: 0.88, color: '#FFFFFF' }}>Powered by OpenRouter LLM trained on PAU agricultural guidelines.</p>
             </div>
-          </Card>
+          </div>
 
-          {/* Recent Telemetry & Scans */}
-          <Card title="Recent Field Scans">
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-              <div style={{ padding: '0.75rem', background: '#FFFDF5', border: '1px solid #FCD34D', borderRadius: 'var(--radius-sm)' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--dark-text)' }}>Yellow Rust Alert</span>
-                  <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>2 days ago</span>
+          <Card title="Example Prompt Topics" subtitle="Ideas on what you can ask KrishiBot">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginTop: '0.5rem' }}>
+              <div className="alert-info" style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem' }}>
+                <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>bug_report</span>
+                <div>
+                  <h5 style={{ fontSize: '0.85rem', fontWeight: 700 }}>Pest & Disease Remedies</h5>
+                  <p style={{ fontSize: '0.75rem', opacity: 0.85 }}>"What organic spray controls yellow rust in wheat?"</p>
                 </div>
-                <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
-                  Fungicide recommendation issued for Block A.
-                </p>
               </div>
 
-              <div style={{ padding: '0.75rem', background: 'rgba(215, 242, 26, 0.1)', border: '1px solid var(--signal-lime)', borderRadius: 'var(--radius-sm)' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--dark-text)' }}>Soil Moisture Optimal</span>
-                  <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Yesterday</span>
+              <div className="alert-success" style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem' }}>
+                <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>water_drop</span>
+                <div>
+                  <h5 style={{ fontSize: '0.85rem', fontWeight: 700 }}>Irrigation Schedules</h5>
+                  <p style={{ fontSize: '0.75rem', opacity: 0.85 }}>"How often should I water Basmati rice at flowering stage?"</p>
                 </div>
-                <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
-                  Humidity check 52% — ideal for fertigation.
-                </p>
+              </div>
+
+              <div className="alert-warning" style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem' }}>
+                <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>trending_up</span>
+                <div>
+                  <h5 style={{ fontSize: '0.85rem', fontWeight: 700 }}>Mandi Price Benchmarks</h5>
+                  <p style={{ fontSize: '0.75rem', opacity: 0.85 }}>"What is the MSP rate for Mustard in Alwar today?"</p>
+                </div>
               </div>
             </div>
           </Card>

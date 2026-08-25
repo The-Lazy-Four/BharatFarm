@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Card } from '../../components/ui/Card.js';
+import { FEATURE_IMAGES } from '../../constants/featureImages.js';
 
 interface Order {
   id: string;
@@ -62,18 +63,7 @@ export const OrdersDeliveryPage: React.FC = () => {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', maxWidth: '1280px', margin: '0 auto' }}>
       {/* Header Banner */}
-      <div style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        flexWrap: 'wrap',
-        gap: '1rem',
-        padding: '1.5rem',
-        background: 'linear-gradient(135deg, rgba(15, 56, 34, 0.97) 0%, rgba(20, 83, 45, 0.93) 100%)',
-        borderRadius: 'var(--radius)',
-        boxShadow: 'var(--shadow-3d)',
-        color: '#FFFFFF'
-      }}>
+      <div className="page-header-banner">
         <div>
           <span className="badge badge-primary" style={{ marginBottom: '0.35rem' }}>Logistics Telemetry</span>
           <h1 style={{ fontSize: '1.75rem', fontWeight: 700, color: '#FFFFFF' }}>
@@ -95,27 +85,26 @@ export const OrdersDeliveryPage: React.FC = () => {
                 <div
                   key={ord.id}
                   onClick={() => setSelectedOrderId(ord.id)}
+                  className="card-glass"
                   style={{
                     padding: '1.25rem',
-                    background: selectedOrderId === ord.id ? 'rgba(215, 242, 26, 0.15)' : 'var(--card-gray)',
-                    borderRadius: 'var(--radius-sm)',
-                    border: `1px solid ${selectedOrderId === ord.id ? 'var(--signal-lime)' : 'transparent'}`,
-                    cursor: 'pointer',
-                    transition: 'var(--transition)'
+                    background: selectedOrderId === ord.id ? 'var(--surface-2)' : 'var(--surface-1)',
+                    border: selectedOrderId === ord.id ? '1.5px solid var(--border-lime)' : '1px solid var(--border-default)',
+                    cursor: 'pointer'
                   }}
                 >
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '0.5rem' }}>
-                    <div>
-                      <span className={`badge ${ord.status === 'DELIVERED' ? 'badge-primary' : 'badge-warning'}`}>
-                        {ord.status.replace('_', ' ')}
-                      </span>
-                      <h4 style={{ fontSize: '1.05rem', fontWeight: 700, marginTop: '0.4rem', color: 'var(--dark-text)' }}>{ord.item}</h4>
-                      <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>Supplier: {ord.vendor} • #{ord.id}</p>
-                    </div>
-                    <div style={{ textAlign: 'right' }}>
-                      <p style={{ fontSize: '1.15rem', fontWeight: 800, color: 'var(--dark-text)' }}>₹{ord.amount.toLocaleString('en-IN')}</p>
-                      <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>{ord.estimatedDelivery}</p>
-                    </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-muted)' }}>{ord.id}</span>
+                    <span className={`badge badge-${ord.status === 'IN_TRANSIT' ? 'warning' : 'success'}`}>
+                      {ord.status.replace('_', ' ')}
+                    </span>
+                  </div>
+                  <h4 style={{ fontSize: '1.05rem', fontWeight: 700, color: 'var(--text-primary)', marginTop: '0.4rem' }}>
+                    {ord.item}
+                  </h4>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '0.75rem', fontSize: '0.85rem' }}>
+                    <span style={{ color: 'var(--text-muted)' }}>Vendor: {ord.vendor}</span>
+                    <strong style={{ color: 'var(--text-primary)' }}>₹{ord.amount}</strong>
                   </div>
                 </div>
               ))}
@@ -123,51 +112,45 @@ export const OrdersDeliveryPage: React.FC = () => {
           </Card>
         </div>
 
-        {/* Right Column (Span 6): Selected Order Detail, Live Timeline & Delivery Verification OTP (Stitch reference) */}
+        {/* Right Column (Span 6): Order Details & Delivery Proof Card */}
         <div className="col-span-6" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-          <Card title={`Order Details — #${selectedOrder.id}`} subtitle={`Status: ${selectedOrder.status.replace('_', ' ')}`}>
-            {/* Dispatch & Address Info */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', padding: '1rem', background: 'var(--card-gray)', borderRadius: 'var(--radius-sm)', border: '1px solid rgba(34,37,31,0.1)', marginBottom: '1.5rem' }}>
-              <div>
-                <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 600 }}>BUYER & DELIVERY ADDRESS</span>
-                <h5 style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--dark-text)', marginTop: '0.2rem' }}>{selectedOrder.buyerName}</h5>
-                <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{selectedOrder.buyerPhone}</p>
-                <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>{selectedOrder.deliveryAddress}</p>
-              </div>
-
-              <div>
-                <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 600 }}>SUPPLIER & PICKUP HUB</span>
-                <h5 style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--dark-text)', marginTop: '0.2rem' }}>{selectedOrder.vendor}</h5>
-                <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Verified Regional Distribution Hub</p>
-              </div>
+          {/* Order Delivery Image Hero Card */}
+          <div className="card-feature-backed" style={{ minHeight: '150px' }}>
+            <img src={FEATURE_IMAGES.marketplace.url} alt="Agri Delivery" className="card-feature-bg" />
+            <div className="card-feature-overlay" />
+            <div className="card-feature-content">
+              <span className="badge badge-primary">Direct Freight Logistics</span>
+              <h4 style={{ fontSize: '1.1rem', fontWeight: 800, marginTop: '0.3rem', color: '#FFFFFF' }}>Doorstep Farm Delivery</h4>
+              <p style={{ fontSize: '0.75rem', opacity: 0.88, color: '#FFFFFF' }}>OTP-protected handoff by regional agricultural delivery partners.</p>
             </div>
+          </div>
 
-            {/* Tracking Progress Bar matching Stitch */}
-            <h4 style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--dark-text)', marginBottom: '1rem' }}>Fulfillment Timeline</h4>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', paddingLeft: '0.5rem', borderLeft: '2px solid var(--dark-text)' }}>
-              <div style={{ paddingLeft: '0.75rem' }}>
-                <h5 style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--dark-text)' }}>✔ Order Placed & Payment Confirmed</h5>
-                <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Aug 24, 2026 • 10:15 AM</p>
-              </div>
-              <div style={{ paddingLeft: '0.75rem' }}>
-                <h5 style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--dark-text)' }}>✔ Dispatched from Regional Warehouse</h5>
-                <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Aug 25, 2026 • 06:30 AM</p>
-              </div>
-              <div style={{ paddingLeft: '0.75rem' }}>
-                <h5 style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--dark-text)' }}>🚚 Out for Doorstep Delivery</h5>
-                <p style={{ fontSize: '0.75rem', color: 'var(--dark-text)', fontWeight: 500 }}>{selectedOrder.estimatedDelivery}</p>
-              </div>
-            </div>
-
-            {/* Delivery Verification Code Box (Stitch reference) */}
-            <div style={{ marginTop: '1.5rem', padding: '1rem', background: '#FFFDF5', border: '1px solid #FCD34D', borderRadius: 'var(--radius-sm)' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Card title={`Order Tracking — ${selectedOrder.id}`} subtitle={`Fulfillment Status: ${selectedOrder.status.replace('_', ' ')}`}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', marginTop: '0.5rem' }}>
+              <div className="alert-warning" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem' }}>
                 <div>
-                  <h5 style={{ fontSize: '0.9rem', fontWeight: 700, color: '#92400E' }}>Delivery Verification Code (OTP)</h5>
-                  <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>Share this code with the delivery partner upon arrival.</p>
+                  <span style={{ fontSize: '0.75rem', opacity: 0.85, fontWeight: 600 }}>DELIVERY OTP</span>
+                  <h3 style={{ fontSize: '1.75rem', fontWeight: 800, letterSpacing: '0.1em' }}>{selectedOrder.otp}</h3>
                 </div>
-                <div style={{ padding: '0.5rem 1rem', background: '#FFFFFF', border: '2px dashed #F59E0B', borderRadius: '12px', fontSize: '1.4rem', fontWeight: 800, color: 'var(--dark-text)', letterSpacing: '2px' }}>
-                  {selectedOrder.otp}
+                <div style={{ textAlign: 'right' }}>
+                  <span style={{ fontSize: '0.75rem', opacity: 0.85, display: 'block' }}>ESTIMATED ARRIVAL</span>
+                  <strong style={{ fontSize: '0.95rem' }}>{selectedOrder.estimatedDelivery}</strong>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                <div className="inset-stat">
+                  <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 600 }}>DELIVERY ADDRESS</span>
+                  <p style={{ fontSize: '0.88rem', fontWeight: 600, color: 'var(--text-primary)', marginTop: '0.2rem' }}>
+                    {selectedOrder.deliveryAddress}
+                  </p>
+                </div>
+
+                <div className="inset-stat">
+                  <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 600 }}>RECIPIENT CONTACT</span>
+                  <p style={{ fontSize: '0.88rem', fontWeight: 600, color: 'var(--text-primary)', marginTop: '0.2rem' }}>
+                    {selectedOrder.buyerName} ({selectedOrder.buyerPhone})
+                  </p>
                 </div>
               </div>
             </div>

@@ -4,14 +4,25 @@ import { AuthUser } from '@bharatfarm/shared';
 interface AuthContextType {
   user: AuthUser | null;
   isAuthenticated: boolean;
+  profileImage: string | null;
+  getUserInitials: () => string;
   login: (email: string) => void;
   logout: () => void;
   updateProfile: (profile: { name: string; state: string }) => void;
+  setProfileImage: (imageDataUrl: string | null) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [profileImage, setProfileStateImage] = useState<string | null>(() => {
+    try {
+      return localStorage.getItem('bf_user_profile_image') || null;
+    } catch {
+      return null;
+    }
+  });
+
   const [user, setUser] = useState<AuthUser | null>(() => {
     const defaultUser: AuthUser = {
       id: 'mock-farmer-01',
@@ -36,6 +47,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return defaultUser;
   });
 
+  const setProfileImage = (imageDataUrl: string | null) => {
+    setProfileStateImage(imageDataUrl);
+    try {
+      if (imageDataUrl) {
+        localStorage.setItem('bf_user_profile_image', imageDataUrl);
+      } else {
+        localStorage.removeItem('bf_user_profile_image');
+      }
+    } catch {
+      // ignore storage error
+    }
+  };
+
+  const getUserInitials = () => {
+    if (!user || !user.fullName) return 'RP';
+    const parts = user.fullName.trim().split(/\s+/);
+    if (parts.length >= 2) {
+      return (parts[0][0] + parts[1][0]).toUpperCase();
+    }
+    return parts[0][0].toUpperCase();
+  };
+
   const login = (email: string) => {
     setUser({ id: 'user-id', email, role: 'farmer', fullName: 'Logged Farmer', state: 'Punjab' });
   };
@@ -47,7 +80,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated: !!user, login, logout, updateProfile }}>
+    <AuthContext.Provider value={{
+      user,
+      isAuthenticated: !!user,
+      profileImage,
+      getUserInitials,
+      login,
+      logout,
+      updateProfile,
+      setProfileImage
+    }}>
       {children}
     </AuthContext.Provider>
   );

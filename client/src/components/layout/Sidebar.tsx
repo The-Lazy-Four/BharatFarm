@@ -1,11 +1,7 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext.js';
-
-/**
- * Sidebar — Desktop fixed navigation.
- * Uses natural surface variables for dual-theme support.
- */
+import { useTheme } from '../../context/ThemeContext.js';
 
 const navItems = [
   { path: '/', label: 'Dashboard', icon: 'dashboard' },
@@ -22,7 +18,8 @@ const navItems = [
 ];
 
 export const Sidebar: React.FC = () => {
-  const { user } = useAuth();
+  const { user, profileImage, getUserInitials } = useAuth();
+  const { theme, toggleTheme } = useTheme();
 
   return (
     <aside
@@ -76,34 +73,51 @@ export const Sidebar: React.FC = () => {
         ))}
       </nav>
 
-      {/* Bottom: Notification & User */}
+      {/* Bottom: Theme Control & User Profile */}
       <div style={{ padding: '0 1.5rem', marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: '0.75rem', paddingTop: '1.25rem' }}>
-        <a href="#" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', color: 'var(--text-muted)', transition: 'var(--transition)', textDecoration: 'none', fontSize: '0.85rem' }}>
-          <span className="material-symbols-outlined" style={{ fontSize: '19px' }}>notifications</span>
-          <span style={{ fontWeight: 500 }}>Notifications</span>
-          <span style={{
-            marginLeft: 'auto',
-            background: 'var(--signal-lime)',
-            color: 'var(--text-on-lime)',
-            fontSize: '9px',
-            fontWeight: 800,
-            padding: '0.12rem 0.42rem',
-            borderRadius: 'var(--radius-pill)'
-          }}>2</span>
-        </a>
+        {/* Desktop Theme Switcher */}
+        <button
+          onClick={toggleTheme}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            padding: '0.5rem 0.85rem',
+            borderRadius: '12px',
+            background: 'var(--surface-1)',
+            border: '1px solid var(--border-default)',
+            color: 'var(--text-primary)',
+            fontSize: '0.82rem',
+            fontWeight: 600,
+            cursor: 'pointer',
+            transition: 'var(--transition)'
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <span className="material-symbols-outlined" style={{ fontSize: '18px', color: 'var(--emerald-primary)' }}>
+              {theme === 'light' ? 'light_mode' : 'dark_mode'}
+            </span>
+            <span>{theme === 'light' ? 'Light Mode' : 'Dark Mode'}</span>
+          </div>
+          <span className="badge badge-secondary" style={{ fontSize: '0.65rem' }}>Switch</span>
+        </button>
 
-        {/* User Profile */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0.65rem',
-          paddingTop: '1rem',
-          marginTop: '0.25rem',
-          borderTop: '1px solid var(--border-default)'
-        }}>
+        {/* User Profile Footer */}
+        <NavLink
+          to="/profile"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.65rem',
+            paddingTop: '0.85rem',
+            marginTop: '0.25rem',
+            borderTop: '1px solid var(--border-default)',
+            textDecoration: 'none'
+          }}
+        >
           <div style={{
-            width: '34px',
-            height: '34px',
+            width: '36px',
+            height: '36px',
             borderRadius: '50%',
             background: 'var(--signal-lime)',
             display: 'flex',
@@ -112,9 +126,14 @@ export const Sidebar: React.FC = () => {
             fontSize: '0.88rem',
             fontWeight: 700,
             color: 'var(--text-on-lime)',
-            flexShrink: 0
+            flexShrink: 0,
+            overflow: 'hidden'
           }}>
-            {user?.fullName ? user.fullName.charAt(0).toUpperCase() : 'R'}
+            {profileImage ? (
+              <img src={profileImage} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            ) : (
+              getUserInitials()
+            )}
           </div>
           <div>
             <span style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)', display: 'block' }}>
@@ -124,7 +143,7 @@ export const Sidebar: React.FC = () => {
               {user?.state || 'Punjab'} • Farmer
             </span>
           </div>
-        </div>
+        </NavLink>
       </div>
     </aside>
   );

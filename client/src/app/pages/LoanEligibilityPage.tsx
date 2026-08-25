@@ -2,23 +2,13 @@ import React from 'react';
 import { Card } from '../../components/ui/Card.js';
 import { Button } from '../../components/ui/Button.js';
 import { Link } from 'react-router-dom';
+import { FEATURE_IMAGES } from '../../constants/featureImages.js';
 
 export const LoanEligibilityPage: React.FC = () => {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', maxWidth: '1280px', margin: '0 auto' }}>
       {/* Header Banner */}
-      <div style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        flexWrap: 'wrap',
-        gap: '1rem',
-        padding: '1.5rem',
-        background: 'linear-gradient(135deg, rgba(15, 56, 34, 0.97) 0%, rgba(20, 83, 45, 0.93) 100%)',
-        borderRadius: 'var(--radius)',
-        boxShadow: 'var(--shadow-3d)',
-        color: '#FFFFFF'
-      }}>
+      <div className="page-header-banner">
         <div>
           <span className="badge badge-primary" style={{ marginBottom: '0.35rem' }}>Agronomic Credit Scoring Engine</span>
           <h1 style={{ fontSize: '1.75rem', fontWeight: 700, color: '#FFFFFF' }}>
@@ -36,14 +26,14 @@ export const LoanEligibilityPage: React.FC = () => {
         <div className="col-span-8" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
           {/* Assessment Output Card */}
           <Card title="Assessment Results" subtitle="Based on your verified land records, crop history, and platform telemetry.">
-            <div style={{ padding: '1.25rem', background: 'rgba(215, 242, 26, 0.15)', borderRadius: 'var(--radius-sm)', border: '1px solid var(--signal-lime)', marginBottom: '1.5rem' }}>
+            <div className="alert-success" style={{ padding: '1.25rem', marginBottom: '1.5rem' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
                 <div>
                   <span className="badge badge-primary">High Eligibility Tier (Grade A)</span>
-                  <h2 style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--dark-text)', margin: '0.35rem 0 0.25rem 0' }}>
+                  <h2 style={{ fontSize: '1.8rem', fontWeight: 800, margin: '0.35rem 0 0.25rem 0' }}>
                     Est. Credit Limit: ₹3,50,000
                   </h2>
-                  <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+                  <p style={{ fontSize: '0.85rem', opacity: 0.88 }}>
                     Based on 5.0 acres in Ludhiana, Punjab (Wheat & Paddy rotational cycle).
                   </p>
                 </div>
@@ -54,24 +44,24 @@ export const LoanEligibilityPage: React.FC = () => {
             </div>
 
             {/* Key Assessment Factors Grid */}
-            <h4 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--dark-text)', marginBottom: '0.85rem' }}>Key Evaluation Factors</h4>
+            <h4 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '0.85rem' }}>Key Evaluation Factors</h4>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
-              <div style={{ padding: '0.85rem', background: 'var(--card-gray)', borderRadius: '12px', border: '1px solid rgba(34,37,31,0.1)' }}>
+              <div className="inset-stat">
                 <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Land Ownership</span>
-                <h5 style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--dark-text)', marginTop: '0.2rem' }}>5.0 Acres (Clear Title)</h5>
-                <span style={{ fontSize: '0.7rem', color: 'var(--dark-text)', fontWeight: 600 }}>✔ Verified via Khatauni</span>
+                <h5 style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--text-primary)', marginTop: '0.2rem' }}>5.0 Acres (Clear Title)</h5>
+                <span style={{ fontSize: '0.7rem', color: 'var(--emerald-primary)', fontWeight: 600 }}>✔ Verified via Khatauni</span>
               </div>
 
-              <div style={{ padding: '0.85rem', background: 'var(--card-gray)', borderRadius: '12px', border: '1px solid rgba(34,37,31,0.1)' }}>
+              <div className="inset-stat">
                 <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>NDVI Health Rating</span>
-                <h5 style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--dark-text)', marginTop: '0.2rem' }}>0.78 / 1.0 (Optimal)</h5>
-                <span style={{ fontSize: '0.7rem', color: 'var(--dark-text)', fontWeight: 600 }}>✔ Low Crop Failure Risk</span>
+                <h5 style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--text-primary)', marginTop: '0.2rem' }}>0.78 / 1.0 (Optimal)</h5>
+                <span style={{ fontSize: '0.7rem', color: 'var(--emerald-primary)', fontWeight: 600 }}>✔ Low Crop Failure Risk</span>
               </div>
 
-              <div style={{ padding: '0.85rem', background: 'var(--card-gray)', borderRadius: '12px', border: '1px solid rgba(34,37,31,0.1)' }}>
+              <div className="inset-stat">
                 <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Collateral Exemption</span>
-                <h5 style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--dark-text)', marginTop: '0.2rem' }}>Up to ₹1,60,000</h5>
-                <span style={{ fontSize: '0.7rem', color: 'var(--dark-text)', fontWeight: 600 }}>Zero Collateral Required</span>
+                <h5 style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--text-primary)', marginTop: '0.2rem' }}>Up to ₹1,60,000</h5>
+                <span style={{ fontSize: '0.7rem', color: 'var(--emerald-primary)', fontWeight: 600 }}>Zero Collateral Required</span>
               </div>
             </div>
           </Card>
@@ -79,44 +69,61 @@ export const LoanEligibilityPage: React.FC = () => {
           {/* Recommended Financial Offerings Panel (Stitch reference) */}
           <Card title="Recommended Financial Products" subtitle="Curated credit lines backed by NABARD & partner banks.">
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '0.5rem' }}>
-              <div style={{ padding: '1rem', background: 'var(--card-gray)', borderRadius: 'var(--radius-sm)', border: '1px solid rgba(34,37,31,0.1)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem' }}>
+              <div className="card-glass" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem', padding: '1rem' }}>
                 <div>
-                  <h5 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--dark-text)' }}>Kisan Credit Card (KCC) Limit Enhancement</h5>
+                  <h5 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-primary)' }}>Kisan Credit Card (KCC) Limit Enhancement</h5>
                   <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>
                     Upgrade existing limit with 4% interest subvention under PM-KISAN tie-up.
                   </p>
                 </div>
-                <Button variant="outline" size="sm">Explore Scheme ➔</Button>
+                <Link to="/schemes">
+                  <Button variant="outline" size="sm">Explore Scheme ➔</Button>
+                </Link>
               </div>
 
-              <div style={{ padding: '1rem', background: 'var(--card-gray)', borderRadius: 'var(--radius-sm)', border: '1px solid rgba(34,37,31,0.1)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem' }}>
+              <div className="card-glass" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem', padding: '1rem' }}>
                 <div>
-                  <h5 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--dark-text)' }}>Solar Pumpset & Equipment Financing</h5>
+                  <h5 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-primary)' }}>Solar Pumpset & Equipment Financing</h5>
                   <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>
                     High approval odds for PM-KUSUM solar pump subsidy and tractor loans.
                   </p>
                 </div>
-                <Button variant="outline" size="sm">View Partners ➔</Button>
+                <Link to="/schemes">
+                  <Button variant="outline" size="sm">View Partners ➔</Button>
+                </Link>
               </div>
             </div>
           </Card>
         </div>
 
-        {/* Right Column (Span 4): Advisor Contact & Legal Disclaimer (Stitch reference) */}
+        {/* Right Column (Span 4): Financial Credit Image Hero Card & Document Checklist */}
         <div className="col-span-4" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-          <Card title="Connect with Agri Financial Advisor">
-            <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', lineHeight: '1.5' }}>
-              Speak with a dedicated NABARD agronomist to assist with paperwork, collateral waiver certificates, and bank branch submission.
-            </p>
-            <Button variant="secondary" size="md" style={{ width: '100%', marginTop: '1rem' }}>
-              📞 Request Advisor Call
-            </Button>
-          </Card>
+          {/* Financial Credit Image Hero Card */}
+          <div className="card-feature-backed" style={{ minHeight: '150px' }}>
+            <img src={FEATURE_IMAGES.schemes.url} alt="Kisan Credit Card" className="card-feature-bg" />
+            <div className="card-feature-overlay" />
+            <div className="card-feature-content">
+              <span className="badge badge-primary">NABARD Benchmark</span>
+              <h4 style={{ fontSize: '1.1rem', fontWeight: 800, marginTop: '0.3rem', color: '#FFFFFF' }}>Institutional Credit Assessment</h4>
+              <p style={{ fontSize: '0.75rem', opacity: 0.88, color: '#FFFFFF' }}>Fast-track loan approval with satellite crop health score validation.</p>
+            </div>
+          </div>
 
-          <Card title="Disclaimer & Notice">
-            <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', lineHeight: '1.5' }}>
-              The BharatFarm Eligibility Assessment is a proprietary indicative tool designed to evaluate readiness for agricultural credit products based on farm telemetry. This is NOT an official credit bureau score (CIBIL). Final interest rates and sanction limits are governed by individual partner bank policies.
-            </p>
+          <Card title="📑 Required Document Checklist" subtitle="Keep these documents ready for bank branch submission.">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginTop: '0.5rem' }}>
+              <div className="alert-info" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>check_circle</span>
+                <span style={{ fontSize: '0.82rem', fontWeight: 600 }}>Aadhaar & Bank Account Passbook</span>
+              </div>
+              <div className="alert-info" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>check_circle</span>
+                <span style={{ fontSize: '0.82rem', fontWeight: 600 }}>Land Registry Extract (Khatauni / Khasra)</span>
+              </div>
+              <div className="alert-info" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>check_circle</span>
+                <span style={{ fontSize: '0.82rem', fontWeight: 600 }}>Latest Harvest Mandi Receipts</span>
+              </div>
+            </div>
           </Card>
         </div>
       </div>
