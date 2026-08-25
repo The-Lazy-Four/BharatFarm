@@ -6,6 +6,7 @@ import { ScanButton } from '../components/ScanButton.js';
 import { ScanResult } from '../components/ScanResult.js';
 import { useScanner } from '../hooks/useScanner.js';
 import { Button } from '../../../components/ui/Button.js';
+import { FEATURE_IMAGES } from '../../../constants/featureImages.js';
 
 export const ScannerPage: React.FC = () => {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
@@ -18,19 +19,8 @@ export const ScannerPage: React.FC = () => {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', maxWidth: '1280px', margin: '0 auto' }}>
-      {/* Header Banner */}
-      <div style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        flexWrap: 'wrap',
-        gap: '1rem',
-        padding: '1.5rem',
-        background: 'linear-gradient(135deg, rgba(15, 56, 34, 0.97) 0%, rgba(20, 83, 45, 0.93) 100%)',
-        borderRadius: 'var(--radius)',
-        boxShadow: 'var(--shadow-3d)',
-        color: '#FFFFFF'
-      }}>
+      {/* Visual Header Banner */}
+      <div className="page-header-banner">
         <div>
           <span className="badge badge-primary" style={{ marginBottom: '0.35rem' }}>AI Vision Telemetry</span>
           <h1 style={{ fontSize: '1.75rem', fontWeight: 700, color: '#FFFFFF' }}>
@@ -41,7 +31,6 @@ export const ScannerPage: React.FC = () => {
           </p>
         </div>
       </div>
-
 
       {/* Main Grid Layout matching Stitch */}
       <div className="grid-dashboard">
@@ -64,66 +53,57 @@ export const ScannerPage: React.FC = () => {
             )}
 
             {result && (
-              <div style={{ marginTop: '1.5rem', paddingTop: '1.5rem', borderTop: '1px solid rgba(34,37,31,0.1)' }}>
+              <div style={{ marginTop: '1.5rem', paddingTop: '1.5rem', borderTop: '1px solid var(--border-default)' }}>
                 <ScanResult result={result} />
               </div>
             )}
           </Card>
         </div>
 
-        {/* Right Column (Span 4): Best Practices Guide & Recent Scans (Stitch reference) */}
+        {/* Right Column (Span 4): Best Practices Guide & Image Hero Card */}
         <div className="col-span-4" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+          {/* Diagnostic Imagery Hero Card */}
+          <div className="card-feature-backed" style={{ minHeight: '140px' }}>
+            <img src={FEATURE_IMAGES.scanner.url} alt="Leaf Disease Diagnosis" className="card-feature-bg" />
+            <div className="card-feature-overlay" />
+            <div className="card-feature-content">
+              <span className="badge badge-success">Neural Vision v3</span>
+              <h4 style={{ fontSize: '1.1rem', fontWeight: 800, marginTop: '0.3rem', color: '#FFFFFF' }}>Instant Pathogen Identification</h4>
+              <p style={{ fontSize: '0.75rem', opacity: 0.88, color: '#FFFFFF' }}>Trained on 50,000+ Indian crop disease samples.</p>
+            </div>
+          </div>
+
           {/* Capturing a Good Image Guidance */}
           <Card title="Capturing a Good Image" subtitle="Tips for maximum AI vision accuracy">
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '0.5rem' }}>
-              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', padding: '0.75rem', background: 'rgba(215, 242, 26, 0.1)', borderRadius: 'var(--radius-sm)', border: '1px solid var(--signal-lime)' }}>
-                <span className="material-symbols-outlined" style={{ color: 'var(--dark-text)' }}>wb_sunny</span>
+              <div className="alert-success" style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
+                <span className="material-symbols-outlined">wb_sunny</span>
                 <div>
-                  <h5 style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--dark-text)' }}>Natural Lighting</h5>
-                  <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>
+                  <h5 style={{ fontSize: '0.9rem', fontWeight: 700 }}>Natural Lighting</h5>
+                  <p style={{ fontSize: '0.8rem', opacity: 0.85, marginTop: '0.2rem' }}>
                     Ensure even natural light; avoid harsh shadows or camera flash glares.
                   </p>
                 </div>
               </div>
 
-              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', padding: '0.75rem', background: '#FFFDF5', borderRadius: 'var(--radius-sm)', border: '1px solid #FCD34D' }}>
-                <span className="material-symbols-outlined" style={{ color: '#D97706' }}>center_focus_weak</span>
+              <div className="alert-warning" style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
+                <span className="material-symbols-outlined">center_focus_weak</span>
                 <div>
-                  <h5 style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--dark-text)' }}>Focus & Isolation</h5>
-                  <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>
+                  <h5 style={{ fontSize: '0.9rem', fontWeight: 700 }}>Focus & Isolation</h5>
+                  <p style={{ fontSize: '0.8rem', opacity: 0.85, marginTop: '0.2rem' }}>
                     Tap to focus directly on the lesion or discolored area of the individual leaf.
                   </p>
                 </div>
               </div>
 
-              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', padding: '0.75rem', background: 'rgba(2, 132, 199, 0.1)', borderRadius: 'var(--radius-sm)', border: '1px solid #7DD3FC' }}>
-                <span className="material-symbols-outlined" style={{ color: '#0284C7' }}>image</span>
+              <div className="alert-info" style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
+                <span className="material-symbols-outlined">image</span>
                 <div>
-                  <h5 style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--dark-text)' }}>Background Clarity</h5>
-                  <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>
-                    Keep camera steady and isolate a single leaf against a clear background.
+                  <h5 style={{ fontSize: '0.9rem', fontWeight: 700 }}>Single Leaf Close-up</h5>
+                  <p style={{ fontSize: '0.8rem', opacity: 0.85, marginTop: '0.2rem' }}>
+                    Fill 70% of the camera viewfinder frame with the affected crop leaf area.
                   </p>
                 </div>
-              </div>
-            </div>
-          </Card>
-
-          {/* Recent Scans History Panel */}
-          <Card title="Recent Scans History">
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-              <div style={{ padding: '0.75rem', background: 'var(--card-gray)', borderRadius: '12px', border: '1px solid rgba(34,37,31,0.1)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div>
-                  <h5 style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--dark-text)' }}>Wheat Leaf Blight</h5>
-                  <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Confidence: 94% • 2 days ago</p>
-                </div>
-                <span className="badge badge-warning" style={{ fontSize: '0.65rem' }}>Fungicide Issued</span>
-              </div>
-              <div style={{ padding: '0.75rem', background: 'var(--card-gray)', borderRadius: '12px', border: '1px solid rgba(34,37,31,0.1)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div>
-                  <h5 style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--dark-text)' }}>Healthy Rice Canopy</h5>
-                  <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Confidence: 98% • 5 days ago</p>
-                </div>
-                <span className="badge badge-primary" style={{ fontSize: '0.65rem' }}>Normal</span>
               </div>
             </div>
           </Card>

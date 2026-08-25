@@ -7,6 +7,7 @@ import { ForecastList } from '../components/ForecastList.js';
 import { FarmingRecommendation } from '../components/FarmingRecommendation.js';
 import { useWeather } from '../hooks/useWeather.js';
 import { Spinner } from '../../../components/ui/Spinner.js';
+import { FEATURE_IMAGES } from '../../../constants/featureImages.js';
 
 export const WeatherPage: React.FC = () => {
   const { weather, isLoading, error, searchLocation, useMyLocation } = useWeather();
@@ -20,18 +21,7 @@ export const WeatherPage: React.FC = () => {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', maxWidth: '1280px', margin: '0 auto' }}>
       {/* Header Banner */}
-      <div style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        flexWrap: 'wrap',
-        gap: '1rem',
-        padding: '1.5rem',
-        background: 'linear-gradient(135deg, rgba(15, 56, 34, 0.97) 0%, rgba(20, 83, 45, 0.93) 100%)',
-        borderRadius: 'var(--radius)',
-        boxShadow: 'var(--shadow-3d)',
-        color: '#FFFFFF'
-      }}>
+      <div className="page-header-banner">
         <div>
           <span className="badge badge-primary" style={{ marginBottom: '0.35rem' }}>Live Microclimate Telemetry</span>
           <h1 style={{ fontSize: '1.75rem', fontWeight: 700, color: '#FFFFFF' }}>
@@ -53,9 +43,8 @@ export const WeatherPage: React.FC = () => {
         </form>
       </div>
 
-
       {error && (
-        <div style={{ padding: '0.75rem 1rem', background: '#FFFDF5', border: '1px solid #FCD34D', borderRadius: 'var(--radius-sm)', color: '#92400E', fontSize: '0.85rem' }}>
+        <div className="alert-warning">
           ⚠️ {error}
         </div>
       )}
@@ -71,57 +60,50 @@ export const WeatherPage: React.FC = () => {
             <ForecastList daily={weather.daily} />
           </div>
 
-          {/* Right Column (Span 4): Activity Impact & Climate Trend Panels */}
+          {/* Right Column (Span 4): Weather Hero Card & Activity Impact */}
           <div className="col-span-4" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+            {/* Contextual Weather Hero Card */}
+            <div className="card-feature-backed" style={{ minHeight: '140px' }}>
+              <img src={FEATURE_IMAGES.weather.url} alt="Weather Field Advisory" className="card-feature-bg" />
+              <div className="card-feature-overlay" />
+              <div className="card-feature-content">
+                <span className="badge badge-primary">Hyperlocal Radar</span>
+                <h4 style={{ fontSize: '1.1rem', fontWeight: 800, marginTop: '0.3rem', color: '#FFFFFF' }}>Irrigation & Spray Advisory</h4>
+                <p style={{ fontSize: '0.75rem', opacity: 0.88, color: '#FFFFFF' }}>Real-time microclimate predictions for crop protection.</p>
+              </div>
+            </div>
+
             {/* Activity Impact Guidance Panel */}
             <Card title="Activity Impact Guide" subtitle="Weather suitability breakdown for scheduled farm tasks.">
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem', marginTop: '0.5rem' }}>
-                <div style={{ padding: '0.85rem', background: 'rgba(215, 242, 26, 0.1)', borderRadius: 'var(--radius-sm)', border: '1px solid var(--signal-lime)' }}>
+                <div className="alert-success">
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <h5 style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--dark-text)' }}>💦 Irrigation</h5>
+                    <h5 style={{ fontSize: '0.9rem', fontWeight: 700 }}>💦 Irrigation</h5>
                     <span className="badge badge-primary" style={{ fontSize: '0.65rem' }}>Favorable</span>
                   </div>
-                  <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
+                  <p style={{ fontSize: '0.8rem', opacity: 0.85, marginTop: '0.25rem' }}>
                     Optimal low wind and soil absorption rates expected after 4:00 PM.
                   </p>
                 </div>
 
-                <div style={{ padding: '0.85rem', background: '#FFFDF5', borderRadius: 'var(--radius-sm)', border: '1px solid #FCD34D' }}>
+                <div className="alert-warning">
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <h5 style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--dark-text)' }}>🧪 Foliar Spraying</h5>
+                    <h5 style={{ fontSize: '0.9rem', fontWeight: 700 }}>🧪 Foliar Spraying</h5>
                     <span className="badge badge-warning" style={{ fontSize: '0.65rem' }}>Caution</span>
                   </div>
-                  <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
+                  <p style={{ fontSize: '0.8rem', opacity: 0.85, marginTop: '0.25rem' }}>
                     Light gusty winds (14 km/h) — spray during early morning hours to prevent drift.
                   </p>
                 </div>
 
-                <div style={{ padding: '0.85rem', background: 'rgba(2, 132, 199, 0.1)', borderRadius: 'var(--radius-sm)', border: '1px solid #7DD3FC' }}>
+                <div className="alert-info">
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <h5 style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--dark-text)' }}>🚜 Harvesting & Drying</h5>
-                    <span className="badge badge-secondary" style={{ fontSize: '0.65rem' }}>Good</span>
+                    <h5 style={{ fontSize: '0.9rem', fontWeight: 700 }}>🌾 Harvesting</h5>
+                    <span className="badge badge-primary" style={{ fontSize: '0.65rem' }}>High Suitability</span>
                   </div>
-                  <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
-                    Low rainfall risk for next 48 hours; dry storage conditions favorable.
+                  <p style={{ fontSize: '0.8rem', opacity: 0.85, marginTop: '0.25rem' }}>
+                    Dry canopy conditions ideal for combine harvester operations.
                   </p>
-                </div>
-              </div>
-            </Card>
-
-            {/* Climate & Trend Analysis Panel */}
-            <Card title="Trend Analysis" subtitle="7-day temperature and moisture trajectory.">
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.6rem', background: 'var(--card-gray)', borderRadius: '12px' }}>
-                  <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Avg Max Temperature</span>
-                  <strong style={{ fontSize: '0.85rem', color: 'var(--dark-text)' }}>33.2°C</strong>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.6rem', background: 'var(--card-gray)', borderRadius: '12px' }}>
-                  <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Accumulated Rain</span>
-                  <strong style={{ fontSize: '0.85rem', color: 'var(--dark-text)' }}>8.5 mm</strong>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.6rem', background: 'var(--card-gray)', borderRadius: '12px' }}>
-                  <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Fungal Spore Risk</span>
-                  <strong style={{ fontSize: '0.85rem', color: 'var(--dark-text)' }}>Low-Moderate</strong>
                 </div>
               </div>
             </Card>

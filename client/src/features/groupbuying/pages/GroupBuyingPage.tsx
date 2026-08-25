@@ -5,6 +5,7 @@ import { GroupBuyCard } from '../components/GroupBuyCard.js';
 import { useGroupBuying } from '../hooks/useGroupBuying.js';
 import { Spinner } from '../../../components/ui/Spinner.js';
 import { EmptyState } from '../../../components/ui/EmptyState.js';
+import { FEATURE_IMAGES } from '../../../constants/featureImages.js';
 
 const CATEGORIES = ['all', 'fertilizer', 'seeds', 'machinery'] as const;
 
@@ -22,18 +23,7 @@ export const GroupBuyingPage: React.FC = () => {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', maxWidth: '1280px', margin: '0 auto' }}>
       {/* Header Banner */}
-      <div style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        flexWrap: 'wrap',
-        gap: '1rem',
-        padding: '1.5rem',
-        background: 'linear-gradient(135deg, rgba(15, 56, 34, 0.97) 0%, rgba(20, 83, 45, 0.93) 100%)',
-        borderRadius: 'var(--radius)',
-        boxShadow: 'var(--shadow-3d)',
-        color: '#FFFFFF'
-      }}>
+      <div className="page-header-banner">
         <div>
           <span className="badge badge-primary" style={{ marginBottom: '0.35rem' }}>Collective Bargaining Hub</span>
           <h1 style={{ fontSize: '1.75rem', fontWeight: 700, color: '#FFFFFF' }}>
@@ -45,31 +35,53 @@ export const GroupBuyingPage: React.FC = () => {
         </div>
       </div>
 
-
       {/* Overview Stat Cards matching Stitch */}
       <div className="grid-dashboard">
         <div className="col-span-4">
-          <Card>
+          <Card variant="3d">
             <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 600 }}>TOTAL ACTIVE GROUPS</span>
-            <h3 style={{ fontSize: '1.8rem', fontWeight: 800, color: 'var(--dark-text)', margin: '0.25rem 0' }}>24 Pools</h3>
+            <h3 style={{ fontSize: '1.8rem', fontWeight: 800, color: 'var(--text-primary)', margin: '0.25rem 0' }}>24 Pools</h3>
             <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Active across 12 neighboring districts</p>
           </Card>
         </div>
 
         <div className="col-span-4">
-          <Card>
+          <Card variant="3d">
             <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 600 }}>NEARBY OPPORTUNITIES</span>
-            <h3 style={{ fontSize: '1.8rem', fontWeight: 800, color: 'var(--dark-text)', margin: '0.25rem 0' }}>8 Nearby</h3>
+            <h3 style={{ fontSize: '1.8rem', fontWeight: 800, color: 'var(--text-primary)', margin: '0.25rem 0' }}>8 Nearby</h3>
             <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Within 15 km radius of your location</p>
           </Card>
         </div>
 
         <div className="col-span-4">
-          <Card>
+          <Card variant="3d">
             <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 600 }}>ESTIMATED SAVINGS POTENTIAL</span>
-            <h3 style={{ fontSize: '1.8rem', fontWeight: 800, color: 'var(--dark-text)', margin: '0.25rem 0' }}>₹42,500</h3>
+            <h3 style={{ fontSize: '1.8rem', fontWeight: 800, color: 'var(--text-primary)', margin: '0.25rem 0' }}>₹42,500</h3>
             <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Average seasonal input cost reduction</p>
           </Card>
+        </div>
+      </div>
+
+      {/* Featured Input Image Card */}
+      <div className="mobile-grid-2">
+        <div className="card-feature-backed" style={{ minHeight: '120px' }}>
+          <img src={FEATURE_IMAGES.groupbuying.url} alt="Bulk Fertilizer" className="card-feature-bg" />
+          <div className="card-feature-overlay" />
+          <div className="card-feature-content">
+            <span className="badge badge-success">Bulk Subsidy</span>
+            <h4 style={{ fontSize: '1.05rem', fontWeight: 800, marginTop: '0.25rem', color: '#FFFFFF' }}>DAP & NPK Fertilizer Pools</h4>
+            <p style={{ fontSize: '0.72rem', opacity: 0.88, color: '#FFFFFF' }}>Direct factory freight savings for local farmer groups</p>
+          </div>
+        </div>
+
+        <div className="card-feature-backed" style={{ minHeight: '120px' }}>
+          <img src={FEATURE_IMAGES.marketplace.url} alt="Hybrid Seeds" className="card-feature-bg" />
+          <div className="card-feature-overlay" />
+          <div className="card-feature-content">
+            <span className="badge badge-primary">Certified Quality</span>
+            <h4 style={{ fontSize: '1.05rem', fontWeight: 800, marginTop: '0.25rem', color: '#FFFFFF' }}>Hybrid Seed Varieties</h4>
+            <p style={{ fontSize: '0.72rem', opacity: 0.88, color: '#FFFFFF' }}>High-yield wheat & mustard certified seed batches</p>
+          </div>
         </div>
       </div>
 
@@ -88,8 +100,8 @@ export const GroupBuyingPage: React.FC = () => {
                     padding: '0.4rem 1.25rem',
                     borderRadius: 'var(--radius-pill)',
                     border: 'none',
-                    background: category === cat ? 'var(--signal-lime)' : 'var(--card-gray)',
-                    color: 'var(--dark-text)',
+                    background: category === cat ? 'var(--signal-lime)' : 'var(--surface-input)',
+                    color: category === cat ? 'var(--text-on-lime)' : 'var(--text-primary)',
                     fontSize: '0.85rem',
                     fontWeight: 700,
                     cursor: 'pointer',
@@ -101,60 +113,50 @@ export const GroupBuyingPage: React.FC = () => {
                 </button>
               ))}
             </div>
-            {error && <p style={{ color: 'var(--danger)', fontSize: '0.85rem', marginTop: '0.5rem' }}>⚠️ {error}</p>}
+            {error && <p style={{ color: 'var(--danger)', fontSize: '0.85rem', marginTop: '0.75rem' }}>⚠️ {error}</p>}
           </Card>
 
           {isLoading ? (
             <Spinner />
           ) : filtered.length === 0 ? (
-            <EmptyState message="No active groups found in your area. You can start a new group or expand your search radius." />
+            <EmptyState message="No active group buying pools found matching your filter." />
           ) : (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1.5rem' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               {filtered.map(pool => (
-                <GroupBuyCard key={pool.id} pool={pool} onJoin={qty => joinPool(pool.id, qty)} />
+                <GroupBuyCard key={pool.id} pool={pool} onJoin={(qty) => joinPool(pool.id, qty)} />
               ))}
             </div>
           )}
         </div>
 
-        {/* Right Column (Span 4): Participation Timeline & Terms (Stitch reference) */}
+        {/* Right Column (Span 4): How Group Buying Works & District Stats */}
         <div className="col-span-4" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-          {/* Participation Timeline Panel */}
-          <Card title="Participation Timeline" subtitle="How group orders move from creation to doorstep delivery.">
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '0.5rem' }}>
-              <div style={{ display: 'flex', gap: '0.75rem' }}>
-                <span style={{ background: 'var(--signal-lime)', color: 'var(--dark-text)', width: '28px', height: '28px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '0.8rem' }}>1</span>
+          <Card title="How Group Buying Works" subtitle="4 simple steps to save on farm inputs">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem', marginTop: '0.5rem' }}>
+              <div className="alert-success" style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+                <span style={{ fontSize: '1rem', fontWeight: 800 }}>1</span>
                 <div>
-                  <h5 style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--dark-text)' }}>Group Formation</h5>
-                  <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Gathering minimum required participants and target quantity.</p>
+                  <h5 style={{ fontSize: '0.88rem', fontWeight: 700 }}>Browse Active Pools</h5>
+                  <p style={{ fontSize: '0.75rem', opacity: 0.85 }}>Select inputs needed for your upcoming crop cycle.</p>
                 </div>
               </div>
 
-              <div style={{ display: 'flex', gap: '0.75rem' }}>
-                <span style={{ background: '#FEF3C7', color: '#92400E', width: '28px', height: '28px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '0.8rem' }}>2</span>
+              <div className="alert-info" style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+                <span style={{ fontSize: '1rem', fontWeight: 800 }}>2</span>
                 <div>
-                  <h5 style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--dark-text)' }}>Supplier Negotiation</h5>
-                  <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Finalizing bulk discount terms with manufacturer.</p>
+                  <h5 style={{ fontSize: '0.88rem', fontWeight: 700 }}>Pledge Order Quantity</h5>
+                  <p style={{ fontSize: '0.75rem', opacity: 0.85 }}>Commit quantity to unlock tiered wholesale prices.</p>
                 </div>
               </div>
 
-              <div style={{ display: 'flex', gap: '0.75rem' }}>
-                <span style={{ background: 'rgba(2, 132, 199, 0.1)', color: '#0369A1', width: '28px', height: '28px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '0.8rem' }}>3</span>
+              <div className="alert-warning" style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+                <span style={{ fontSize: '1rem', fontWeight: 800 }}>3</span>
                 <div>
-                  <h5 style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--dark-text)' }}>Fulfillment & Delivery</h5>
-                  <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Expected bulk dispatch to regional distribution centers.</p>
+                  <h5 style={{ fontSize: '0.88rem', fontWeight: 700 }}>Direct Mandi Dispatch</h5>
+                  <p style={{ fontSize: '0.75rem', opacity: 0.85 }}>Bulk shipment delivered to your regional hub.</p>
                 </div>
               </div>
             </div>
-          </Card>
-
-          {/* Terms & Refund Policy Card */}
-          <Card title="Pooling Terms & Policy">
-            <ul style={{ fontSize: '0.85rem', color: 'var(--text-muted)', lineHeight: '1.5', paddingLeft: '1.25rem', margin: 0 }}>
-              <li style={{ marginBottom: '0.4rem' }}>A 10% refundable deposit is required to lock your bulk tier rate.</li>
-              <li style={{ marginBottom: '0.4rem' }}>If threshold is not met by deadline, full refund is credited automatically.</li>
-              <li>Doorstep delivery available for orders exceeding 50 bags.</li>
-            </ul>
           </Card>
         </div>
       </div>

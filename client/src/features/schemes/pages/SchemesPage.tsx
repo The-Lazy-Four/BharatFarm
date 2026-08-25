@@ -7,6 +7,7 @@ import { LoanEligibilityCard } from '../components/LoanEligibilityCard.js';
 import { useSchemes } from '../hooks/useSchemes.js';
 import { Spinner } from '../../../components/ui/Spinner.js';
 import { EmptyState } from '../../../components/ui/EmptyState.js';
+import { FEATURE_IMAGES } from '../../../constants/featureImages.js';
 
 export const SchemesPage: React.FC = () => {
   const { allSchemes, matchedSchemes, assessment, isLoading, isChecking, error, checkEligibility, reset } = useSchemes();
@@ -14,18 +15,7 @@ export const SchemesPage: React.FC = () => {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', maxWidth: '1280px', margin: '0 auto' }}>
       {/* Header Banner */}
-      <div style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        flexWrap: 'wrap',
-        gap: '1rem',
-        padding: '1.5rem',
-        background: 'linear-gradient(135deg, rgba(15, 56, 34, 0.97) 0%, rgba(20, 83, 45, 0.93) 100%)',
-        borderRadius: 'var(--radius)',
-        boxShadow: 'var(--shadow-3d)',
-        color: '#FFFFFF'
-      }}>
+      <div className="page-header-banner">
         <div>
           <span className="badge badge-primary" style={{ marginBottom: '0.35rem' }}>Government DB Sync • Verified</span>
           <h1 style={{ fontSize: '1.75rem', fontWeight: 700, color: '#FFFFFF' }}>
@@ -36,7 +26,6 @@ export const SchemesPage: React.FC = () => {
           </p>
         </div>
       </div>
-
 
       {/* Main Grid Layout matching Stitch */}
       <div className="grid-dashboard">
@@ -50,7 +39,7 @@ export const SchemesPage: React.FC = () => {
           {matchedSchemes !== null ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <h3 style={{ fontSize: '1.15rem', fontWeight: 700, color: 'var(--dark-text)' }}>Matched Schemes ({matchedSchemes.length})</h3>
+                <h3 style={{ fontSize: '1.15rem', fontWeight: 700, color: 'var(--text-primary)' }}>Matched Schemes ({matchedSchemes.length})</h3>
                 <Button variant="secondary" size="sm" onClick={reset}>
                   Reset Filter
                 </Button>
@@ -70,7 +59,7 @@ export const SchemesPage: React.FC = () => {
             </div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              <h3 style={{ fontSize: '1.15rem', fontWeight: 700, color: 'var(--dark-text)' }}>Available Central & State Schemes</h3>
+              <h3 style={{ fontSize: '1.15rem', fontWeight: 700, color: 'var(--text-primary)' }}>Available Central & State Schemes</h3>
               {isLoading ? (
                 <Spinner />
               ) : (
@@ -84,46 +73,40 @@ export const SchemesPage: React.FC = () => {
           )}
         </div>
 
-        {/* Right Column (Span 4): Scheme Detail Preview & Official Source Proof (Stitch reference) */}
+        {/* Right Column (Span 4): Government Welfare Hero Card & Scheme Criteria Preview */}
         <div className="col-span-4" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+          {/* Government Welfare Hero Card */}
+          <div className="card-feature-backed" style={{ minHeight: '140px' }}>
+            <img src={FEATURE_IMAGES.schemes.url} alt="Government Schemes" className="card-feature-bg" />
+            <div className="card-feature-overlay" />
+            <div className="card-feature-content">
+              <span className="badge badge-primary">Direct Benefit Transfer</span>
+              <h4 style={{ fontSize: '1.1rem', fontWeight: 800, marginTop: '0.3rem', color: '#FFFFFF' }}>PM-KISAN & Subsidies</h4>
+              <p style={{ fontSize: '0.75rem', opacity: 0.88, color: '#FFFFFF' }}>Instant DBT credit tracking & simple online application portal.</p>
+            </div>
+          </div>
+
           {/* Scheme Criteria Preview Panel */}
           <Card title="Featured Scheme Preview" subtitle="PM-KISAN Samman Nidhi Scheme">
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '0.5rem' }}>
-              <div style={{ padding: '0.75rem', background: 'rgba(215, 242, 26, 0.1)', borderRadius: 'var(--radius-sm)', border: '1px solid var(--signal-lime)' }}>
-                <h5 style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--dark-text)', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+              <div className="alert-success">
+                <h5 style={{ fontSize: '0.85rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
                   <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>group</span> Target Demographic & Eligibility
                 </h5>
-                <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '0.25rem', lineHeight: '1.4' }}>
+                <p style={{ fontSize: '0.8rem', opacity: 0.85, marginTop: '0.25rem', lineHeight: '1.4' }}>
                   Small and marginal landholder farmer families with cultivable landholding up to 2 hectares.
                 </p>
               </div>
 
-              <div style={{ padding: '0.75rem', background: '#FFFDF5', borderRadius: 'var(--radius-sm)', border: '1px solid #FCD34D' }}>
-                <h5 style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--dark-text)', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-                  <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>featured_play_list</span> Direct Benefits
+              <div className="alert-info">
+                <h5 style={{ fontSize: '0.85rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>payments</span> Benefit Structure
                 </h5>
-                <ul style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '0.25rem', paddingLeft: '1.2rem', lineHeight: '1.4', margin: 0 }}>
-                  <li>₹6,000 per year direct income support in 3 equal installments.</li>
-                  <li>Direct Benefit Transfer (DBT) into Aadhaar linked bank account.</li>
-                </ul>
-              </div>
-
-              <div style={{ padding: '0.75rem', background: 'var(--card-gray)', borderRadius: 'var(--radius-sm)', border: '1px solid rgba(34,37,31,0.1)' }}>
-                <h5 style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--dark-text)', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-                  <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>description</span> Required Documents
-                </h5>
-                <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '0.25rem', lineHeight: '1.4' }}>
-                  Aadhaar Card, Land Record Certificate (Khatauni), Active Bank Passbook.
+                <p style={{ fontSize: '0.8rem', opacity: 0.85, marginTop: '0.25rem', lineHeight: '1.4' }}>
+                  Financial benefit of ₹6,000/- per year per family payable in three equal four-monthly installments.
                 </p>
               </div>
             </div>
-          </Card>
-
-          {/* Source Verification Trust Note */}
-          <Card title="Official Government Verification">
-            <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', lineHeight: '1.5' }}>
-              Information provided is synchronized daily from official portal (<code>pmkisan.gov.in</code>). BharatFarm verifies criteria eligibility automatically.
-            </p>
           </Card>
         </div>
       </div>

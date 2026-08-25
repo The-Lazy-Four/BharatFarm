@@ -8,6 +8,7 @@ import { useMarketplace } from '../hooks/useMarketplace.js';
 import { Spinner } from '../../../components/ui/Spinner.js';
 import { EmptyState } from '../../../components/ui/EmptyState.js';
 import { Button } from '../../../components/ui/Button.js';
+import { FEATURE_IMAGES } from '../../../constants/featureImages.js';
 
 export const MarketplacePage: React.FC = () => {
   const { listings, isLoading, error } = useMarketplace();
@@ -27,19 +28,8 @@ export const MarketplacePage: React.FC = () => {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', maxWidth: '1280px', margin: '0 auto' }}>
-      {/* Header Banner */}
-      <div style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        flexWrap: 'wrap',
-        gap: '1rem',
-        padding: '1.5rem',
-        background: 'linear-gradient(135deg, rgba(15, 56, 34, 0.97) 0%, rgba(20, 83, 45, 0.93) 100%)',
-        borderRadius: 'var(--radius)',
-        boxShadow: 'var(--shadow-3d)',
-        color: '#FFFFFF'
-      }}>
+      {/* Visual Agricultural Header Banner */}
+      <div className="page-header-banner">
         <div>
           <span className="badge badge-primary" style={{ marginBottom: '0.35rem' }}>Direct Trade Ecosystem</span>
           <h1 style={{ fontSize: '1.75rem', fontWeight: 700, color: '#FFFFFF' }}>
@@ -57,8 +47,38 @@ export const MarketplacePage: React.FC = () => {
         </Link>
       </div>
 
+      {/* Featured Market Categories (Image-backed) */}
+      <div className="mobile-grid-2">
+        <div
+          className="card-feature-backed"
+          onClick={() => setCategory('crops')}
+          style={{ minHeight: '110px' }}
+        >
+          <img src={FEATURE_IMAGES.marketplace.url} alt="Crops" className="card-feature-bg" />
+          <div className="card-feature-overlay" />
+          <div className="card-feature-content">
+            <span className="badge badge-primary">Direct Produce</span>
+            <h4 style={{ fontSize: '1rem', fontWeight: 800, marginTop: '0.25rem', color: '#FFFFFF' }}>Fresh Harvest Crops</h4>
+            <p style={{ fontSize: '0.72rem', opacity: 0.88, color: '#FFFFFF' }}>Wheat, Paddy, Pulses & Vegetables</p>
+          </div>
+        </div>
 
-      {/* Main Layout Grid matching Stitch */}
+        <div
+          className="card-feature-backed"
+          onClick={() => setCategory('seeds')}
+          style={{ minHeight: '110px' }}
+        >
+          <img src={FEATURE_IMAGES.groupbuying.url} alt="Seeds & Inputs" className="card-feature-bg" />
+          <div className="card-feature-overlay" />
+          <div className="card-feature-content">
+            <span className="badge badge-success">Certified Inputs</span>
+            <h4 style={{ fontSize: '1rem', fontWeight: 800, marginTop: '0.25rem', color: '#FFFFFF' }}>Seeds & Fertilizers</h4>
+            <p style={{ fontSize: '0.72rem', opacity: 0.88, color: '#FFFFFF' }}>Bio-pesticides & Hybrid Seeds</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Layout Grid */}
       <div className="grid-dashboard">
         {/* Main Product Catalog Section (Span 8) */}
         <div className="col-span-8" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
@@ -79,51 +99,43 @@ export const MarketplacePage: React.FC = () => {
           )}
         </div>
 
-        {/* Right Sidebar: Live Mandi Benchmark Prices & Direct Seller Stats (Stitch reference) */}
+        {/* Right Sidebar: Live Mandi Benchmark Prices */}
         <div className="col-span-4" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-          {/* Mandi Benchmark Prices Panel */}
           <Card title="Live Mandi Price Benchmarks" subtitle="Governed MSP & Regional Market Spot Rates">
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginTop: '0.5rem' }}>
-              <div style={{ padding: '0.75rem', background: 'rgba(215, 242, 26, 0.1)', borderRadius: 'var(--radius-sm)', border: '1px solid var(--signal-lime)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div className="alert-success" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
-                  <h5 style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--dark-text)' }}>Wheat (Sharbati)</h5>
-                  <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Khanna Mandi • Punjab</p>
+                  <h5 style={{ fontSize: '0.9rem', fontWeight: 700 }}>Wheat (Sharbati)</h5>
+                  <p style={{ fontSize: '0.75rem', opacity: 0.85 }}>Khanna Mandi • Punjab</p>
                 </div>
                 <div style={{ textAlign: 'right' }}>
-                  <strong style={{ fontSize: '1rem', color: 'var(--dark-text)' }}>₹2,275 / qtl</strong>
-                  <span style={{ display: 'block', fontSize: '0.7rem', color: 'var(--dark-text)', fontWeight: 700 }}>▲ +2.4%</span>
+                  <strong style={{ fontSize: '1rem' }}>₹2,275 / qtl</strong>
+                  <span style={{ display: 'block', fontSize: '0.7rem', fontWeight: 700 }}>▲ +2.4%</span>
                 </div>
               </div>
 
-              <div style={{ padding: '0.75rem', background: '#FFFDF5', borderRadius: 'var(--radius-sm)', border: '1px solid #FCD34D', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div className="alert-warning" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
-                  <h5 style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--dark-text)' }}>Paddy (Basmati 1121)</h5>
-                  <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Tarn Taran • Punjab</p>
+                  <h5 style={{ fontSize: '0.9rem', fontWeight: 700 }}>Paddy (Basmati 1121)</h5>
+                  <p style={{ fontSize: '0.75rem', opacity: 0.85 }}>Karnal Mandi • Haryana</p>
                 </div>
                 <div style={{ textAlign: 'right' }}>
-                  <strong style={{ fontSize: '1rem', color: '#92400E' }}>₹4,150 / qtl</strong>
-                  <span style={{ display: 'block', fontSize: '0.7rem', color: 'var(--text-muted)' }}>Stable</span>
+                  <strong style={{ fontSize: '1rem' }}>₹4,150 / qtl</strong>
+                  <span style={{ display: 'block', fontSize: '0.7rem', fontWeight: 700 }}>▲ +1.1%</span>
                 </div>
               </div>
 
-              <div style={{ padding: '0.75rem', background: 'var(--card-gray)', borderRadius: 'var(--radius-sm)', border: '1px solid rgba(34,37,31,0.1)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div className="alert-info" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
-                  <h5 style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--dark-text)' }}>Mustard Seed</h5>
-                  <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Bhatinda Mandi</p>
+                  <h5 style={{ fontSize: '0.9rem', fontWeight: 700 }}>Mustard (Pusa 30)</h5>
+                  <p style={{ fontSize: '0.75rem', opacity: 0.85 }}>Alwar Mandi • Rajasthan</p>
                 </div>
                 <div style={{ textAlign: 'right' }}>
-                  <strong style={{ fontSize: '1rem', color: 'var(--dark-text)' }}>₹5,450 / qtl</strong>
-                  <span style={{ display: 'block', fontSize: '0.7rem', color: 'var(--dark-text)', fontWeight: 700 }}>▲ +1.1%</span>
+                  <strong style={{ fontSize: '1rem' }}>₹5,400 / qtl</strong>
+                  <span style={{ display: 'block', fontSize: '0.7rem', fontWeight: 700 }}>▲ +0.8%</span>
                 </div>
               </div>
             </div>
-          </Card>
-
-          {/* Seller Trust & Verification Note */}
-          <Card title="Farmer Direct Guarantee">
-            <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', lineHeight: '1.5' }}>
-              All listings are verified against local Krishi Bhavan land registrations to eliminate middlemen fees and ensure fair pricing.
-            </p>
           </Card>
         </div>
       </div>

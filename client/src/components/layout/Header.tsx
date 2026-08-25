@@ -1,159 +1,127 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React from 'react';
+import { useTheme } from '../../context/ThemeContext.js';
 import { useAuth } from '../../context/AuthContext.js';
 
-/**
- * Mobile Top Bar Header Component
- * Farmer-first, compact header for mobile/PWA viewports.
- * Displays Logo, title, theme switcher, notification badge, and profile avatar.
- */
 export const Header: React.FC = () => {
+  const { theme, toggleTheme } = useTheme();
   const { user } = useAuth();
-  const [isDark, setIsDark] = useState(false);
 
   return (
     <header
       className="app-mobile-top-bar"
       style={{
         height: '56px',
-        display: 'flex',
+        padding: '0 1rem',
+        background: 'var(--surface-nav)',
+        backdropFilter: 'blur(16px)',
+        WebkitBackdropFilter: 'blur(16px)',
+        borderBottom: '1px solid var(--border-default)',
         alignItems: 'center',
         justifyContent: 'space-between',
-        padding: '0 1rem',
-        background: 'rgba(15, 56, 34, 0.95)', // Deep forest green
-        backdropFilter: 'blur(12px)',
-        WebkitBackdropFilter: 'blur(12px)',
-        color: '#FFFFFF',
         position: 'sticky',
         top: 0,
-        zIndex: 100,
-        borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
-        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)'
+        zIndex: 50,
+        boxShadow: 'var(--shadow-sm)'
       }}
     >
-      {/* LEFT: Logo & Name */}
-      <Link
-        to="/"
-        style={{
+      {/* Brand / Logo */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+        <div style={{
+          width: '32px',
+          height: '32px',
+          borderRadius: '8px',
+          background: 'var(--signal-lime)',
           display: 'flex',
           alignItems: 'center',
-          gap: '0.5rem',
-          color: '#FFFFFF',
-          textDecoration: 'none'
-        }}
-      >
-        <div
-          style={{
-            width: '32px',
-            height: '32px',
-            borderRadius: '10px',
-            background: 'var(--signal-lime)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: 'var(--dark-text)',
-            fontWeight: 800
-          }}
-        >
-          <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>
+          justifyContent: 'center',
+          flexShrink: 0
+        }}>
+          <span className="material-symbols-outlined" style={{ fontSize: '20px', color: 'var(--text-on-lime)' }}>
             agriculture
           </span>
         </div>
-        <div style={{ display: 'flex', flexDirection: 'column' }}>
-          <span style={{ fontSize: '1.05rem', fontWeight: 800, letterSpacing: '-0.02em', lineHeight: 1.1 }}>
+        <div>
+          <h1 style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--text-primary)', lineHeight: 1 }}>
             BharatFarm
-          </span>
-          <span style={{ fontSize: '0.65rem', color: '#D7F21A', fontWeight: 600 }}>
+          </h1>
+          <span style={{ fontSize: '0.6rem', color: 'var(--emerald-primary)', fontWeight: 600 }}>
             Smart Farmer AI
           </span>
         </div>
-      </Link>
+      </div>
 
-      {/* RIGHT: Actions (Theme Toggle, Notifications, Profile Avatar) */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+      {/* Right Controls: Theme Toggle, Notifications, Profile */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
         {/* Theme Toggle Button */}
         <button
-          onClick={() => setIsDark(!isDark)}
-          title="Toggle Display Mode"
+          onClick={toggleTheme}
+          title={`Switch to ${theme === 'light' ? 'Dark' : 'Light'} Mode`}
           style={{
-            background: 'rgba(255, 255, 255, 0.12)',
-            border: 'none',
+            background: 'var(--surface-1)',
+            border: '1px solid var(--border-default)',
             borderRadius: '50%',
-            width: '32px',
-            height: '32px',
+            width: '34px',
+            height: '34px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            color: '#FFFFFF',
-            cursor: 'pointer'
+            cursor: 'pointer',
+            color: 'var(--text-primary)',
+            transition: 'var(--transition)'
           }}
         >
           <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
-            {isDark ? 'dark_mode' : 'light_mode'}
+            {theme === 'light' ? 'dark_mode' : 'light_mode'}
           </span>
         </button>
 
-        {/* Notifications Icon with Badge */}
-        <Link
-          to="/profile"
+        {/* Notification Bell */}
+        <button
           style={{
-            position: 'relative',
-            background: 'rgba(255, 255, 255, 0.12)',
+            background: 'var(--surface-1)',
+            border: '1px solid var(--border-default)',
             borderRadius: '50%',
-            width: '32px',
-            height: '32px',
+            width: '34px',
+            height: '34px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            color: '#FFFFFF',
-            textDecoration: 'none'
+            cursor: 'pointer',
+            color: 'var(--text-primary)',
+            position: 'relative'
           }}
         >
           <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
             notifications
           </span>
-          <span
-            style={{
-              position: 'absolute',
-              top: '-2px',
-              right: '-2px',
-              background: 'var(--signal-lime)',
-              color: 'var(--dark-text)',
-              fontSize: '9px',
-              fontWeight: 800,
-              width: '15px',
-              height: '15px',
-              borderRadius: '50%',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center'
-            }}
-          >
-            2
-          </span>
-        </Link>
-
-        {/* Profile Avatar */}
-        <Link
-          to="/profile"
-          style={{
-            width: '32px',
-            height: '32px',
+          <span style={{
+            position: 'absolute',
+            top: '2px',
+            right: '2px',
+            width: '8px',
+            height: '8px',
             borderRadius: '50%',
-            background: 'var(--signal-lime)',
-            border: '1px solid rgba(255,255,255,0.4)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: 'var(--dark-text)',
-            fontWeight: 700,
-            fontSize: '0.85rem'
-          }}
-        >
+            background: 'var(--signal-lime)'
+          }} />
+        </button>
+
+        {/* User Avatar */}
+        <div style={{
+          width: '32px',
+          height: '32px',
+          borderRadius: '50%',
+          background: 'var(--signal-lime)',
+          color: 'var(--text-on-lime)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize: '0.85rem',
+          fontWeight: 700,
+          flexShrink: 0
+        }}>
           {user?.fullName ? user.fullName.charAt(0).toUpperCase() : 'R'}
-        </Link>
+        </div>
       </div>
     </header>
   );
 };
-
