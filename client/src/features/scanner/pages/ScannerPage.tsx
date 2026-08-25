@@ -28,12 +28,11 @@ export const ScannerPage: React.FC = () => {
         padding: '1.5rem',
         background: '#FFFFFF',
         borderRadius: 'var(--radius)',
-        border: '1px solid var(--border-color)',
-        boxShadow: 'var(--shadow-sm)'
+        boxShadow: 'var(--shadow-md)'
       }}>
         <div>
           <span className="badge badge-primary" style={{ marginBottom: '0.35rem' }}>AI Vision Telemetry</span>
-          <h1 style={{ fontSize: '1.75rem', fontWeight: 700, color: 'var(--text-main)' }}>
+          <h1 style={{ fontSize: '1.75rem', fontWeight: 700, color: 'var(--dark-text)' }}>
             Leaf Scanner — AI-Powered Crop Health Intelligence
           </h1>
           <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginTop: '0.2rem' }}>
@@ -63,7 +62,7 @@ export const ScannerPage: React.FC = () => {
             )}
 
             {result && (
-              <div style={{ marginTop: '1.5rem', paddingTop: '1.5rem', borderTop: '1px solid var(--border-color)' }}>
+              <div style={{ marginTop: '1.5rem', paddingTop: '1.5rem', borderTop: '1px solid rgba(34,37,31,0.1)' }}>
                 <ScanResult result={result} />
               </div>
             )}
@@ -75,10 +74,10 @@ export const ScannerPage: React.FC = () => {
           {/* Capturing a Good Image Guidance */}
           <Card title="Capturing a Good Image" subtitle="Tips for maximum AI vision accuracy">
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '0.5rem' }}>
-              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', padding: '0.75rem', background: '#F0FDF4', borderRadius: 'var(--radius-sm)', border: '1px solid #B8E1C4' }}>
-                <span style={{ fontSize: '1.25rem' }}>☀️</span>
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', padding: '0.75rem', background: 'rgba(215, 242, 26, 0.1)', borderRadius: 'var(--radius-sm)', border: '1px solid var(--signal-lime)' }}>
+                <span className="material-symbols-outlined" style={{ color: 'var(--dark-text)' }}>wb_sunny</span>
                 <div>
-                  <h5 style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--text-main)' }}>Natural Lighting</h5>
+                  <h5 style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--dark-text)' }}>Natural Lighting</h5>
                   <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>
                     Ensure even natural light; avoid harsh shadows or camera flash glares.
                   </p>
@@ -86,19 +85,19 @@ export const ScannerPage: React.FC = () => {
               </div>
 
               <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', padding: '0.75rem', background: '#FFFDF5', borderRadius: 'var(--radius-sm)', border: '1px solid #FCD34D' }}>
-                <span style={{ fontSize: '1.25rem' }}>🎯</span>
+                <span className="material-symbols-outlined" style={{ color: '#D97706' }}>center_focus_weak</span>
                 <div>
-                  <h5 style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--text-main)' }}>Focus & Isolation</h5>
+                  <h5 style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--dark-text)' }}>Focus & Isolation</h5>
                   <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>
                     Tap to focus directly on the lesion or discolored area of the individual leaf.
                   </p>
                 </div>
               </div>
 
-              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', padding: '0.75rem', background: '#E0F2FE', borderRadius: 'var(--radius-sm)', border: '1px solid #7DD3FC' }}>
-                <span style={{ fontSize: '1.25rem' }}>🖼️</span>
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', padding: '0.75rem', background: 'rgba(2, 132, 199, 0.1)', borderRadius: 'var(--radius-sm)', border: '1px solid #7DD3FC' }}>
+                <span className="material-symbols-outlined" style={{ color: '#0284C7' }}>image</span>
                 <div>
-                  <h5 style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--text-main)' }}>Background Clarity</h5>
+                  <h5 style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--dark-text)' }}>Background Clarity</h5>
                   <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>
                     Keep camera steady and isolate a single leaf against a clear background.
                   </p>
@@ -110,16 +109,16 @@ export const ScannerPage: React.FC = () => {
           {/* Recent Scans History Panel */}
           <Card title="Recent Scans History">
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-              <div style={{ padding: '0.75rem', background: 'var(--bg-main)', borderRadius: '6px', border: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ padding: '0.75rem', background: 'var(--card-gray)', borderRadius: '12px', border: '1px solid rgba(34,37,31,0.1)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
-                  <h5 style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-main)' }}>Wheat Leaf Blight</h5>
+                  <h5 style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--dark-text)' }}>Wheat Leaf Blight</h5>
                   <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Confidence: 94% • 2 days ago</p>
                 </div>
                 <span className="badge badge-warning" style={{ fontSize: '0.65rem' }}>Fungicide Issued</span>
               </div>
-              <div style={{ padding: '0.75rem', background: 'var(--bg-main)', borderRadius: '6px', border: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ padding: '0.75rem', background: 'var(--card-gray)', borderRadius: '12px', border: '1px solid rgba(34,37,31,0.1)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
-                  <h5 style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-main)' }}>Healthy Rice Canopy</h5>
+                  <h5 style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--dark-text)' }}>Healthy Rice Canopy</h5>
                   <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Confidence: 98% • 5 days ago</p>
                 </div>
                 <span className="badge badge-primary" style={{ fontSize: '0.65rem' }}>Normal</span>

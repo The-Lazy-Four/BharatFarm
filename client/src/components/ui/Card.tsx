@@ -21,11 +21,11 @@ export const Card: React.FC<CardProps> = ({
     <div className={`card-glass ${className}`} style={{ background: '#FFFFFF', ...style }}>
       {(title || action) && (
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: subtitle ? '0.25rem' : '1rem' }}>
-          {title && <h3 style={{ fontSize: '1.15rem', fontWeight: 600, color: 'var(--text-main)' }}>{title}</h3>}
+          {title && <h3 style={{ fontSize: '1.15rem', fontWeight: 700, color: 'var(--dark-text)' }}>{title}</h3>}
           {action && <div>{action}</div>}
         </div>
       )}
-      {subtitle && <p style={{ fontSize: '0.85rem', color: 'var(--text-light)', marginBottom: '1rem' }}>{subtitle}</p>}
+      {subtitle && <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '1rem' }}>{subtitle}</p>}
       {children}
     </div>
   );

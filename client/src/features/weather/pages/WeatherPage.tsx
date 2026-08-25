@@ -29,12 +29,11 @@ export const WeatherPage: React.FC = () => {
         padding: '1.5rem',
         background: '#FFFFFF',
         borderRadius: 'var(--radius)',
-        border: '1px solid var(--border-color)',
-        boxShadow: 'var(--shadow-sm)'
+        boxShadow: 'var(--shadow-md)'
       }}>
         <div>
           <span className="badge badge-primary" style={{ marginBottom: '0.35rem' }}>Live Microclimate Telemetry</span>
-          <h1 style={{ fontSize: '1.75rem', fontWeight: 700, color: 'var(--text-main)' }}>
+          <h1 style={{ fontSize: '1.75rem', fontWeight: 700, color: 'var(--dark-text)' }}>
             Weather Intelligence — Field-Ready Decision Support
           </h1>
           <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginTop: '0.2rem' }}>
@@ -48,7 +47,7 @@ export const WeatherPage: React.FC = () => {
           </div>
           <Button type="submit" size="sm">Search</Button>
           <Button type="button" variant="secondary" size="sm" onClick={useMyLocation}>
-            📍 My Location
+            <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>my_location</span> My Location
           </Button>
         </form>
       </div>
@@ -70,14 +69,14 @@ export const WeatherPage: React.FC = () => {
             <ForecastList daily={weather.daily} />
           </div>
 
-          {/* Right Column (Span 4): Activity Impact & Climate Trend Panels (Stitch reference) */}
+          {/* Right Column (Span 4): Activity Impact & Climate Trend Panels */}
           <div className="col-span-4" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
             {/* Activity Impact Guidance Panel */}
             <Card title="Activity Impact Guide" subtitle="Weather suitability breakdown for scheduled farm tasks.">
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem', marginTop: '0.5rem' }}>
-                <div style={{ padding: '0.85rem', background: '#F0FDF4', borderRadius: 'var(--radius-sm)', border: '1px solid #B8E1C4' }}>
+                <div style={{ padding: '0.85rem', background: 'rgba(215, 242, 26, 0.1)', borderRadius: 'var(--radius-sm)', border: '1px solid var(--signal-lime)' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <h5 style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--text-main)' }}>💦 Irrigation</h5>
+                    <h5 style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--dark-text)' }}>💦 Irrigation</h5>
                     <span className="badge badge-primary" style={{ fontSize: '0.65rem' }}>Favorable</span>
                   </div>
                   <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
@@ -87,7 +86,7 @@ export const WeatherPage: React.FC = () => {
 
                 <div style={{ padding: '0.85rem', background: '#FFFDF5', borderRadius: 'var(--radius-sm)', border: '1px solid #FCD34D' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <h5 style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--text-main)' }}>🧪 Foliar Spraying</h5>
+                    <h5 style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--dark-text)' }}>🧪 Foliar Spraying</h5>
                     <span className="badge badge-warning" style={{ fontSize: '0.65rem' }}>Caution</span>
                   </div>
                   <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
@@ -95,9 +94,9 @@ export const WeatherPage: React.FC = () => {
                   </p>
                 </div>
 
-                <div style={{ padding: '0.85rem', background: '#E0F2FE', borderRadius: 'var(--radius-sm)', border: '1px solid #7DD3FC' }}>
+                <div style={{ padding: '0.85rem', background: 'rgba(2, 132, 199, 0.1)', borderRadius: 'var(--radius-sm)', border: '1px solid #7DD3FC' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <h5 style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--text-main)' }}>🚜 Harvesting & Drying</h5>
+                    <h5 style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--dark-text)' }}>🚜 Harvesting & Drying</h5>
                     <span className="badge badge-secondary" style={{ fontSize: '0.65rem' }}>Good</span>
                   </div>
                   <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
@@ -110,17 +109,17 @@ export const WeatherPage: React.FC = () => {
             {/* Climate & Trend Analysis Panel */}
             <Card title="Trend Analysis" subtitle="7-day temperature and moisture trajectory.">
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.6rem', background: 'var(--bg-main)', borderRadius: '6px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.6rem', background: 'var(--card-gray)', borderRadius: '12px' }}>
                   <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Avg Max Temperature</span>
-                  <strong style={{ fontSize: '0.85rem', color: 'var(--text-main)' }}>33.2°C</strong>
+                  <strong style={{ fontSize: '0.85rem', color: 'var(--dark-text)' }}>33.2°C</strong>
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.6rem', background: 'var(--bg-main)', borderRadius: '6px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.6rem', background: 'var(--card-gray)', borderRadius: '12px' }}>
                   <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Accumulated Rain</span>
-                  <strong style={{ fontSize: '0.85rem', color: 'var(--primary)' }}>8.5 mm</strong>
+                  <strong style={{ fontSize: '0.85rem', color: 'var(--dark-text)' }}>8.5 mm</strong>
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.6rem', background: 'var(--bg-main)', borderRadius: '6px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.6rem', background: 'var(--card-gray)', borderRadius: '12px' }}>
                   <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Fungal Spore Risk</span>
-                  <strong style={{ fontSize: '0.85rem', color: 'var(--accent-amber)' }}>Low-Moderate</strong>
+                  <strong style={{ fontSize: '0.85rem', color: 'var(--dark-text)' }}>Low-Moderate</strong>
                 </div>
               </div>
             </Card>

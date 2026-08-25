@@ -2,7 +2,6 @@ import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { AppLayout } from '../components/layout/AppLayout.js';
 import { MasterDashboardPage } from './pages/MasterDashboardPage.js';
-import { KrishiBotPage } from '../features/krishibot/index.js';
 import { ScannerPage } from '../features/scanner/index.js';
 import { MarketplacePage, CreateListingPage, ProductPage } from '../features/marketplace/index.js';
 import { WeatherPage } from '../features/weather/index.js';
@@ -19,7 +18,6 @@ export const AppRouter: React.FC = () => {
     <AppLayout>
       <Routes>
         <Route path="/" element={<MasterDashboardPage />} />
-        <Route path="/krishibot" element={<KrishiBotPage />} />
         <Route path="/scanner" element={<ScannerPage />} />
         <Route path="/marketplace" element={<MarketplacePage />} />
         <Route path="/marketplace/new" element={<CreateListingPage />} />

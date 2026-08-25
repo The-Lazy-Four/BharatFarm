@@ -79,12 +79,11 @@ export const FarmRecordsPage: React.FC = () => {
         padding: '1.5rem',
         background: '#FFFFFF',
         borderRadius: 'var(--radius)',
-        border: '1px solid var(--border-color)',
-        boxShadow: 'var(--shadow-sm)'
+        boxShadow: 'var(--shadow-md)'
       }}>
         <div>
           <span className="badge badge-primary" style={{ marginBottom: '0.35rem' }}>Field Telemetry & Log</span>
-          <h1 style={{ fontSize: '1.75rem', fontWeight: 700, color: 'var(--text-main)' }}>
+          <h1 style={{ fontSize: '1.75rem', fontWeight: 700, color: 'var(--dark-text)' }}>
             Farm Records — Input & Activity Tracker
           </h1>
           <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginTop: '0.2rem' }}>
@@ -117,17 +116,17 @@ export const FarmRecordsPage: React.FC = () => {
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               {records.map(rec => (
-                <div key={rec.id} style={{ padding: '1rem', background: 'var(--bg-main)', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '0.75rem' }}>
+                <div key={rec.id} style={{ padding: '1rem', background: 'var(--card-gray)', borderRadius: '12px', border: '1px solid rgba(34,37,31,0.1)', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '0.75rem' }}>
                   <div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                       <span className="badge badge-primary">{rec.crop}</span>
-                      <span style={{ fontSize: '0.75rem', color: 'var(--text-light)' }}>{rec.date}</span>
+                      <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{rec.date}</span>
                     </div>
-                    <h4 style={{ marginTop: '0.4rem', fontSize: '1.05rem', fontWeight: 600, color: 'var(--text-main)' }}>{rec.activity}</h4>
+                    <h4 style={{ marginTop: '0.4rem', fontSize: '1.05rem', fontWeight: 700, color: 'var(--dark-text)' }}>{rec.activity}</h4>
                     <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>{rec.notes}</p>
                   </div>
                   <div style={{ textAlign: 'right', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.25rem' }}>
-                    <p style={{ fontSize: '1.15rem', fontWeight: 700, color: 'var(--primary)' }}>₹{rec.cost.toLocaleString('en-IN')}</p>
+                    <p style={{ fontSize: '1.15rem', fontWeight: 800, color: 'var(--dark-text)' }}>₹{rec.cost.toLocaleString('en-IN')}</p>
                     <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Input Cost</span>
                     <button
                       onClick={() => handleDelete(rec.id)}
@@ -146,22 +145,22 @@ export const FarmRecordsPage: React.FC = () => {
         <div className="col-span-4" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
           <Card title="Seasonal Financial Summary" subtitle="Total tracked expenses for active Rabi season.">
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '0.5rem' }}>
-              <div style={{ padding: '1rem', background: '#F0FDF4', borderRadius: 'var(--radius-sm)', border: '1px solid #B8E1C4' }}>
+              <div style={{ padding: '1rem', background: 'rgba(215, 242, 26, 0.1)', borderRadius: 'var(--radius-sm)', border: '1px solid var(--signal-lime)' }}>
                 <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 600 }}>TOTAL EXPENDITURE</span>
-                <h3 style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--primary)', margin: '0.25rem 0' }}>
+                <h3 style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--dark-text)', margin: '0.25rem 0' }}>
                   ₹{totalExpense.toLocaleString('en-IN')}
                 </h3>
-                <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Across 3 logged activity passes</p>
+                <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Across {records.length} logged activity passes</p>
               </div>
 
-              <div style={{ padding: '0.75rem', background: 'var(--bg-main)', borderRadius: '6px', border: '1px solid var(--border-color)' }}>
+              <div style={{ padding: '0.75rem', background: 'var(--card-gray)', borderRadius: '12px', border: '1px solid rgba(34,37,31,0.1)' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', marginBottom: '0.4rem' }}>
                   <span style={{ color: 'var(--text-muted)' }}>Fertilizers & Chemicals</span>
-                  <strong style={{ color: 'var(--text-main)' }}>₹3,600</strong>
+                  <strong style={{ color: 'var(--dark-text)' }}>₹3,600</strong>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
                   <span style={{ color: 'var(--text-muted)' }}>Labor & Machinery</span>
-                  <strong style={{ color: 'var(--text-main)' }}>₹650</strong>
+                  <strong style={{ color: 'var(--dark-text)' }}>₹650</strong>
                 </div>
               </div>
             </div>

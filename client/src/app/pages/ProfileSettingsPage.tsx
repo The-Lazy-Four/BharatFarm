@@ -7,7 +7,7 @@ import { useAuth } from '../../context/AuthContext.js';
 import { useLanguage } from '../../context/LanguageContext.js';
 
 export const ProfileSettingsPage: React.FC = () => {
-  const { user } = useAuth();
+  const { user, updateProfile } = useAuth();
   const { language, setLanguage } = useLanguage();
   const [activeTab, setActiveTab] = useState<'account' | 'preferences' | 'offline' | 'security'>('account');
 
@@ -34,6 +34,8 @@ export const ProfileSettingsPage: React.FC = () => {
     } catch {
       // ignore
     }
+    // Update the AuthContext so other pages sync reactively
+    updateProfile({ name, state });
     setSaved(true);
     setTimeout(() => setSaved(false), 3000);
   };
@@ -50,12 +52,11 @@ export const ProfileSettingsPage: React.FC = () => {
         padding: '1.5rem',
         background: '#FFFFFF',
         borderRadius: 'var(--radius)',
-        border: '1px solid var(--border-color)',
-        boxShadow: 'var(--shadow-sm)'
+        boxShadow: 'var(--shadow-md)'
       }}>
         <div>
           <span className="badge badge-primary" style={{ marginBottom: '0.35rem' }}>Farmer Account Control</span>
-          <h1 style={{ fontSize: '1.75rem', fontWeight: 700, color: 'var(--text-main)' }}>
+          <h1 style={{ fontSize: '1.75rem', fontWeight: 700, color: 'var(--dark-text)' }}>
             Profile & Account Settings
           </h1>
           <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginTop: '0.2rem' }}>
@@ -70,14 +71,14 @@ export const ProfileSettingsPage: React.FC = () => {
         <div className="col-span-4" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
           {/* User Profile Card */}
           <Card>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', paddingBottom: '1rem', borderBottom: '1px solid var(--border-color)' }}>
-              <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: '#E6F4EA', border: '2px solid var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.6rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', paddingBottom: '1rem', borderBottom: '1px solid rgba(34,37,31,0.1)' }}>
+              <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: 'rgba(215, 242, 26, 0.15)', border: '2px solid var(--signal-lime)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.6rem' }}>
                 👨‍🌾
               </div>
               <div>
-                <h3 style={{ fontSize: '1.2rem', fontWeight: 700, color: 'var(--text-main)' }}>{name}</h3>
+                <h3 style={{ fontSize: '1.2rem', fontWeight: 700, color: 'var(--dark-text)' }}>{name}</h3>
                 <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '0.2rem' }}>
-                  <span>📍</span> {district}, {state}
+                  <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>location_on</span> {district}, {state}
                 </p>
               </div>
             </div>
@@ -97,10 +98,10 @@ export const ProfileSettingsPage: React.FC = () => {
                     padding: '0.75rem 1rem',
                     textAlign: 'left',
                     borderRadius: 'var(--radius-sm)',
-                    border: activeTab === tab.id ? '1px solid var(--primary)' : '1px solid transparent',
-                    background: activeTab === tab.id ? '#F0FDF4' : 'transparent',
-                    color: activeTab === tab.id ? 'var(--primary)' : 'var(--text-main)',
-                    fontWeight: activeTab === tab.id ? 600 : 400,
+                    border: 'none',
+                    background: activeTab === tab.id ? 'var(--signal-lime)' : 'transparent',
+                    color: 'var(--dark-text)',
+                    fontWeight: activeTab === tab.id ? 700 : 500,
                     fontSize: '0.9rem',
                     cursor: 'pointer',
                     transition: 'var(--transition)'
@@ -114,9 +115,9 @@ export const ProfileSettingsPage: React.FC = () => {
 
           {/* Sync Status Banner Card (Stitch reference) */}
           <Card title="Offline Telemetry Status">
-            <div style={{ padding: '0.85rem', background: '#F0FDF4', borderRadius: 'var(--radius-sm)', border: '1px solid #B8E1C4' }}>
+            <div style={{ padding: '0.85rem', background: 'rgba(215, 242, 26, 0.1)', borderRadius: 'var(--radius-sm)', border: '1px solid var(--signal-lime)' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--primary)' }}>Sync Status</span>
+                <span style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--dark-text)' }}>Sync Status</span>
                 <span className="badge badge-primary">Up to date</span>
               </div>
               <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.35rem' }}>
@@ -132,13 +133,13 @@ export const ProfileSettingsPage: React.FC = () => {
             <form onSubmit={handleSave} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', marginTop: '0.5rem' }}>
               {activeTab === 'account' && (
                 <>
-                  <h4 style={{ fontSize: '0.95rem', fontWeight: 600, color: 'var(--primary)', marginBottom: '0.2rem' }}>📛 Personal Details</h4>
+                  <h4 style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--dark-text)', marginBottom: '0.2rem' }}>Personal Details</h4>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem' }}>
                     <Input label="Full Name" value={name} onChange={e => setName(e.target.value)} required />
                     <Input label="Mobile Phone Number" value={phone} onChange={e => setPhone(e.target.value)} required />
                   </div>
 
-                  <h4 style={{ fontSize: '0.95rem', fontWeight: 600, color: 'var(--primary)', marginTop: '1rem', marginBottom: '0.2rem' }}>🌾 Land & Farm Registration</h4>
+                  <h4 style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--dark-text)', marginTop: '1rem', marginBottom: '0.2rem' }}>Land & Farm Registration</h4>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem' }}>
                     <Input label="State" value={state} onChange={e => setState(e.target.value)} required />
                     <Input label="District" value={district} onChange={e => setDistrict(e.target.value)} required />
@@ -156,11 +157,12 @@ export const ProfileSettingsPage: React.FC = () => {
                       onChange={e => setLanguage(e.target.value)}
                       style={{
                         background: '#FFFFFF',
-                        border: '1px solid var(--border-color)',
+                        border: '1px solid rgba(34,37,31,0.15)',
                         borderRadius: 'var(--radius-sm)',
                         padding: '0.65rem 1rem',
-                        color: 'var(--text-main)',
-                        fontSize: '0.95rem'
+                        color: 'var(--dark-text)',
+                        fontSize: '0.95rem',
+                        outline: 'none'
                       }}
                     >
                       <option value="en">English (US/IN)</option>
@@ -172,8 +174,8 @@ export const ProfileSettingsPage: React.FC = () => {
               )}
 
               {activeTab === 'offline' && (
-                <div style={{ padding: '1rem', background: 'var(--bg-main)', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-color)' }}>
-                  <h5 style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--text-main)' }}>Local Cache Storage</h5>
+                <div style={{ padding: '1rem', background: 'var(--card-gray)', borderRadius: '12px', border: '1px solid rgba(34,37,31,0.1)' }}>
+                  <h5 style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--dark-text)' }}>Local Cache Storage</h5>
                   <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
                     2.4 MB of weather forecasts, crop diagnostic guides, and offline forms cached locally.
                   </p>
@@ -182,15 +184,15 @@ export const ProfileSettingsPage: React.FC = () => {
               )}
 
               {activeTab === 'security' && (
-                <div style={{ padding: '1rem', background: 'var(--bg-main)', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-color)' }}>
-                  <h5 style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--text-main)' }}>Aadhaar & KCC Verification Status</h5>
+                <div style={{ padding: '1rem', background: 'var(--card-gray)', borderRadius: '12px', border: '1px solid rgba(34,37,31,0.1)' }}>
+                  <h5 style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--dark-text)' }}>Aadhaar & KCC Verification Status</h5>
                   <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
                     Your identity is verified under PM-KISAN beneficiary record #492019.
                   </p>
                 </div>
               )}
 
-              {saved && <p style={{ color: 'var(--primary)', fontWeight: 600, fontSize: '0.9rem', marginTop: '0.5rem' }}>✓ Settings updated and saved!</p>}
+              {saved && <p style={{ color: 'var(--dark-text)', fontWeight: 700, fontSize: '0.9rem', marginTop: '0.5rem' }}>✓ Settings updated and saved!</p>}
 
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem', marginTop: '1rem' }}>
                 <Button type="submit" variant="primary">Save Changes</Button>

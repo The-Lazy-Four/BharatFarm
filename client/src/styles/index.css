@@ -1,36 +1,39 @@
+/* ============================================================
+   BharatFarm — Stitch "Master Style Fix" Design System
+   Urbanist font, Signal-Lime accent, Warm Gray palette
+   ============================================================ */
+
 :root {
-  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-family: 'Urbanist', sans-serif;
 
-  /* Stitch Light Green / Cream Color Palette */
-  --bg-main: #F7FAF7;
-  --bg-card: #FFFFFF;
-  --bg-card-hover: #F0FDF4;
-  --bg-cream: #FFFDF5;
-  --bg-sidebar: #FFFFFF;
-  
-  --border-color: #D7E3D8;
-  --border-muted: #E2ECE3;
+  /* Stitch Warm Palette */
+  --signal-lime: #D7F21A;
+  --dark-text: #22251F;
+  --sidebar-bg: #E9EAE5;
+  --app-bg: #F3F3F1;
+  --card-bg: #FFFFFF;
+  --card-gray: #F3F3F1;
 
-  --primary: #166534;
-  --primary-hover: #14532D;
-  --primary-glow: rgba(22, 101, 52, 0.15);
+  /* Text opacity variants */
+  --text-main: #22251F;
+  --text-muted: rgba(34, 37, 31, 0.7);
+  --text-light: rgba(34, 37, 31, 0.5);
 
-  --accent-leaf: #22C55E;
-  --accent-brown: #8B5E34;
-  --accent-amber: #D97706;
-  --accent-blue: #0284C7;
-
-  --text-main: #131E17;
-  --text-muted: #404940;
-  --text-light: #657367;
-
+  /* Semantic colors (kept for info/warning/success contexts) */
+  --info-blue: #0284C7;
   --danger: #DC2626;
+  --amber: #D97706;
 
-  --radius: 12px;
-  --radius-sm: 8px;
-  --radius-lg: 16px;
-  --shadow-sm: 0 1px 3px rgba(19, 30, 23, 0.05);
-  --shadow-md: 0 4px 12px rgba(19, 30, 23, 0.08);
+  /* Layout tokens */
+  --radius: 24px;
+  --radius-sm: 16px;
+  --radius-lg: 28px;
+  --radius-pill: 9999px;
+
+  /* Shadows */
+  --shadow-sm: 0 4px 16px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 8px 32px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.1);
 
   --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -43,7 +46,7 @@
 
 body {
   font-family: var(--font-family);
-  background-color: var(--bg-main);
+  background-color: var(--app-bg);
   color: var(--text-main);
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
@@ -54,35 +57,55 @@ a {
   text-decoration: none;
 }
 
-/* Glassmorphic / Card styling according to Stitch light system */
+/* Glass Panel card style — borderless with ambient shadow */
 .card-glass {
-  background: var(--bg-card);
-  border: 1px solid var(--border-color);
+  background: var(--card-bg);
+  border: none;
   border-radius: var(--radius);
   padding: 1.5rem;
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--shadow-md);
   transition: var(--transition);
 }
 
 .card-glass:hover {
-  border-color: var(--primary);
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-lg);
 }
 
+/* Ambient shadow utility */
+.ambient-shadow {
+  box-shadow: var(--shadow-lg);
+}
+
+/* Badge — pill-shaped, no borders */
 .badge {
   display: inline-flex;
   align-items: center;
   padding: 0.25rem 0.75rem;
-  border-radius: 9999px;
+  border-radius: var(--radius-pill);
   font-size: 0.75rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
+  border: none;
 }
 
-.badge-primary { background: #E6F4EA; color: var(--primary); border: 1px solid #B8E1C4; }
-.badge-warning { background: #FEF3C7; color: #92400E; border: 1px solid #FCD34D; }
-.badge-secondary { background: #F3F4F6; color: var(--text-muted); border: 1px solid var(--border-color); }
+/* Signal-lime primary badge */
+.badge-primary {
+  background: var(--signal-lime);
+  color: var(--dark-text);
+}
+
+/* Amber warning badge */
+.badge-warning {
+  background: #FEF3C7;
+  color: #92400E;
+}
+
+/* Gray secondary badge */
+.badge-secondary {
+  background: var(--card-gray);
+  color: var(--text-muted);
+}
 
 /* Grid Layouts */
 .grid-dashboard {
@@ -93,10 +116,12 @@ a {
 
 .col-span-12 { grid-column: span 12; }
 .col-span-8 { grid-column: span 12; }
+.col-span-6 { grid-column: span 12; }
 .col-span-4 { grid-column: span 12; }
 
 @media (min-width: 1024px) {
   .col-span-8 { grid-column: span 8; }
+  .col-span-6 { grid-column: span 6; }
   .col-span-4 { grid-column: span 4; }
 }
 
@@ -113,6 +138,10 @@ a {
 .app-main {
   padding: 1rem !important;
   padding-bottom: 5rem !important;
+  background-image: url('./bg2.jpg');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
 }
 
 @media (min-width: 768px) {
@@ -129,4 +158,9 @@ a {
     padding: 2rem !important;
     padding-bottom: 2rem !important;
   }
+}
+
+/* Material Symbols sizing helper */
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
 }

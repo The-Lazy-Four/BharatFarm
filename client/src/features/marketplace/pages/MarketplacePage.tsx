@@ -37,12 +37,11 @@ export const MarketplacePage: React.FC = () => {
         padding: '1.5rem',
         background: '#FFFFFF',
         borderRadius: 'var(--radius)',
-        border: '1px solid var(--border-color)',
-        boxShadow: 'var(--shadow-sm)'
+        boxShadow: 'var(--shadow-md)'
       }}>
         <div>
           <span className="badge badge-primary" style={{ marginBottom: '0.35rem' }}>Direct Trade Ecosystem</span>
-          <h1 style={{ fontSize: '1.75rem', fontWeight: 700, color: 'var(--text-main)' }}>
+          <h1 style={{ fontSize: '1.75rem', fontWeight: 700, color: 'var(--dark-text)' }}>
             Marketplace — Connect Directly with Buyers & Sellers
           </h1>
           <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginTop: '0.2rem' }}>
@@ -52,7 +51,7 @@ export const MarketplacePage: React.FC = () => {
 
         <Link to="/marketplace/new">
           <Button variant="primary" size="md">
-            <span style={{ fontSize: '1.1rem' }}>➕</span> List My Produce
+            <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>add</span> List My Produce
           </Button>
         </Link>
       </div>
@@ -83,36 +82,36 @@ export const MarketplacePage: React.FC = () => {
           {/* Mandi Benchmark Prices Panel */}
           <Card title="Live Mandi Price Benchmarks" subtitle="Governed MSP & Regional Market Spot Rates">
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginTop: '0.5rem' }}>
-              <div style={{ padding: '0.75rem', background: '#F0FDF4', borderRadius: 'var(--radius-sm)', border: '1px solid #B8E1C4', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ padding: '0.75rem', background: 'rgba(215, 242, 26, 0.1)', borderRadius: 'var(--radius-sm)', border: '1px solid var(--signal-lime)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
-                  <h5 style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--text-main)' }}>Wheat (Sharbati)</h5>
+                  <h5 style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--dark-text)' }}>Wheat (Sharbati)</h5>
                   <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Khanna Mandi • Punjab</p>
                 </div>
                 <div style={{ textAlign: 'right' }}>
-                  <strong style={{ fontSize: '1rem', color: 'var(--primary)' }}>₹2,275 / qtl</strong>
-                  <span style={{ display: 'block', fontSize: '0.7rem', color: 'var(--primary)' }}>▲ +2.4%</span>
+                  <strong style={{ fontSize: '1rem', color: 'var(--dark-text)' }}>₹2,275 / qtl</strong>
+                  <span style={{ display: 'block', fontSize: '0.7rem', color: 'var(--dark-text)', fontWeight: 700 }}>▲ +2.4%</span>
                 </div>
               </div>
 
               <div style={{ padding: '0.75rem', background: '#FFFDF5', borderRadius: 'var(--radius-sm)', border: '1px solid #FCD34D', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
-                  <h5 style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--text-main)' }}>Paddy (Basmati 1121)</h5>
+                  <h5 style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--dark-text)' }}>Paddy (Basmati 1121)</h5>
                   <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Tarn Taran • Punjab</p>
                 </div>
                 <div style={{ textAlign: 'right' }}>
-                  <strong style={{ fontSize: '1rem', color: 'var(--accent-amber)' }}>₹4,150 / qtl</strong>
+                  <strong style={{ fontSize: '1rem', color: '#92400E' }}>₹4,150 / qtl</strong>
                   <span style={{ display: 'block', fontSize: '0.7rem', color: 'var(--text-muted)' }}>Stable</span>
                 </div>
               </div>
 
-              <div style={{ padding: '0.75rem', background: 'var(--bg-main)', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ padding: '0.75rem', background: 'var(--card-gray)', borderRadius: 'var(--radius-sm)', border: '1px solid rgba(34,37,31,0.1)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
-                  <h5 style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--text-main)' }}>Mustard Seed</h5>
+                  <h5 style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--dark-text)' }}>Mustard Seed</h5>
                   <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Bhatinda Mandi</p>
                 </div>
                 <div style={{ textAlign: 'right' }}>
-                  <strong style={{ fontSize: '1rem', color: 'var(--text-main)' }}>₹5,450 / qtl</strong>
-                  <span style={{ display: 'block', fontSize: '0.7rem', color: 'var(--primary)' }}>▲ +1.1%</span>
+                  <strong style={{ fontSize: '1rem', color: 'var(--dark-text)' }}>₹5,450 / qtl</strong>
+                  <span style={{ display: 'block', fontSize: '0.7rem', color: 'var(--dark-text)', fontWeight: 700 }}>▲ +1.1%</span>
                 </div>
               </div>
             </div>

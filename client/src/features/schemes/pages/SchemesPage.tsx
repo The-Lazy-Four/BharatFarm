@@ -23,12 +23,11 @@ export const SchemesPage: React.FC = () => {
         padding: '1.5rem',
         background: '#FFFFFF',
         borderRadius: 'var(--radius)',
-        border: '1px solid var(--border-color)',
-        boxShadow: 'var(--shadow-sm)'
+        boxShadow: 'var(--shadow-md)'
       }}>
         <div>
           <span className="badge badge-primary" style={{ marginBottom: '0.35rem' }}>Government DB Sync • Verified</span>
-          <h1 style={{ fontSize: '1.75rem', fontWeight: 700, color: 'var(--text-main)' }}>
+          <h1 style={{ fontSize: '1.75rem', fontWeight: 700, color: 'var(--dark-text)' }}>
             Government Schemes & Direct Subsidies
           </h1>
           <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginTop: '0.2rem' }}>
@@ -49,7 +48,7 @@ export const SchemesPage: React.FC = () => {
           {matchedSchemes !== null ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <h3 style={{ fontSize: '1.15rem', fontWeight: 700, color: 'var(--text-main)' }}>Matched Schemes ({matchedSchemes.length})</h3>
+                <h3 style={{ fontSize: '1.15rem', fontWeight: 700, color: 'var(--dark-text)' }}>Matched Schemes ({matchedSchemes.length})</h3>
                 <Button variant="secondary" size="sm" onClick={reset}>
                   Reset Filter
                 </Button>
@@ -69,7 +68,7 @@ export const SchemesPage: React.FC = () => {
             </div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              <h3 style={{ fontSize: '1.15rem', fontWeight: 700, color: 'var(--text-main)' }}>Available Central & State Schemes</h3>
+              <h3 style={{ fontSize: '1.15rem', fontWeight: 700, color: 'var(--dark-text)' }}>Available Central & State Schemes</h3>
               {isLoading ? (
                 <Spinner />
               ) : (
@@ -88,9 +87,9 @@ export const SchemesPage: React.FC = () => {
           {/* Scheme Criteria Preview Panel */}
           <Card title="Featured Scheme Preview" subtitle="PM-KISAN Samman Nidhi Scheme">
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '0.5rem' }}>
-              <div style={{ padding: '0.75rem', background: '#F0FDF4', borderRadius: 'var(--radius-sm)', border: '1px solid #B8E1C4' }}>
-                <h5 style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-                  👥 Target Demographic & Eligibility
+              <div style={{ padding: '0.75rem', background: 'rgba(215, 242, 26, 0.1)', borderRadius: 'var(--radius-sm)', border: '1px solid var(--signal-lime)' }}>
+                <h5 style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--dark-text)', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>group</span> Target Demographic & Eligibility
                 </h5>
                 <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '0.25rem', lineHeight: '1.4' }}>
                   Small and marginal landholder farmer families with cultivable landholding up to 2 hectares.
@@ -98,8 +97,8 @@ export const SchemesPage: React.FC = () => {
               </div>
 
               <div style={{ padding: '0.75rem', background: '#FFFDF5', borderRadius: 'var(--radius-sm)', border: '1px solid #FCD34D' }}>
-                <h5 style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-                  🎁 Direct Benefits
+                <h5 style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--dark-text)', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>featured_play_list</span> Direct Benefits
                 </h5>
                 <ul style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '0.25rem', paddingLeft: '1.2rem', lineHeight: '1.4', margin: 0 }}>
                   <li>₹6,000 per year direct income support in 3 equal installments.</li>
@@ -107,9 +106,9 @@ export const SchemesPage: React.FC = () => {
                 </ul>
               </div>
 
-              <div style={{ padding: '0.75rem', background: 'var(--bg-main)', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-color)' }}>
-                <h5 style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-                  📑 Required Documents
+              <div style={{ padding: '0.75rem', background: 'var(--card-gray)', borderRadius: 'var(--radius-sm)', border: '1px solid rgba(34,37,31,0.1)' }}>
+                <h5 style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--dark-text)', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>description</span> Required Documents
                 </h5>
                 <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '0.25rem', lineHeight: '1.4' }}>
                   Aadhaar Card, Land Record Certificate (Khatauni), Active Bank Passbook.
@@ -121,7 +120,7 @@ export const SchemesPage: React.FC = () => {
           {/* Source Verification Trust Note */}
           <Card title="Official Government Verification">
             <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', lineHeight: '1.5' }}>
-              Information provided is synchronized daily from official portal (<code style={{ fontSize: '0.75rem' }}>pmkisan.gov.in</code>). BharatFarm verifies criteria eligibility automatically.
+              Information provided is synchronized daily from official portal (<code>pmkisan.gov.in</code>). BharatFarm verifies criteria eligibility automatically.
             </p>
           </Card>
         </div>
