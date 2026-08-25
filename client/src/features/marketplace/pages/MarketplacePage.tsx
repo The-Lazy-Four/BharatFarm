@@ -35,16 +35,17 @@ export const MarketplacePage: React.FC = () => {
         flexWrap: 'wrap',
         gap: '1rem',
         padding: '1.5rem',
-        background: '#FFFFFF',
+        background: 'linear-gradient(135deg, rgba(15, 56, 34, 0.97) 0%, rgba(20, 83, 45, 0.93) 100%)',
         borderRadius: 'var(--radius)',
-        boxShadow: 'var(--shadow-md)'
+        boxShadow: 'var(--shadow-3d)',
+        color: '#FFFFFF'
       }}>
         <div>
           <span className="badge badge-primary" style={{ marginBottom: '0.35rem' }}>Direct Trade Ecosystem</span>
-          <h1 style={{ fontSize: '1.75rem', fontWeight: 700, color: 'var(--dark-text)' }}>
+          <h1 style={{ fontSize: '1.75rem', fontWeight: 700, color: '#FFFFFF' }}>
             Marketplace — Connect Directly with Buyers & Sellers
           </h1>
-          <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginTop: '0.2rem' }}>
+          <p style={{ color: 'rgba(255,255,255,0.85)', fontSize: '0.9rem', marginTop: '0.2rem' }}>
             Trade crops, certified seeds, organic fertilizers, and heavy farm equipment directly.
           </p>
         </div>
@@ -55,6 +56,7 @@ export const MarketplacePage: React.FC = () => {
           </Button>
         </Link>
       </div>
+
 
       {/* Main Layout Grid matching Stitch */}
       <div className="grid-dashboard">

@@ -35,22 +35,23 @@ export const KrishiBotPage: React.FC = () => {
         flexWrap: 'wrap',
         gap: '1rem',
         padding: '1.5rem',
-        background: '#FFFFFF',
+        background: 'linear-gradient(135deg, rgba(15, 56, 34, 0.97) 0%, rgba(20, 83, 45, 0.93) 100%)',
         borderRadius: 'var(--radius)',
-        boxShadow: 'var(--shadow-md)'
+        boxShadow: 'var(--shadow-3d)',
+        color: '#FFFFFF'
       }}>
         <div>
           <span className="badge badge-primary" style={{ marginBottom: '0.35rem' }}>AI Agronomist • Active</span>
-          <h1 style={{ fontSize: '1.75rem', fontWeight: 700, color: 'var(--dark-text)' }}>
+          <h1 style={{ fontSize: '1.75rem', fontWeight: 700, color: '#FFFFFF' }}>
             KrishiBot — Your AI Farm Assistant
           </h1>
-          <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginTop: '0.2rem' }}>
+          <p style={{ color: 'rgba(255,255,255,0.85)', fontSize: '0.9rem', marginTop: '0.2rem' }}>
             Ask questions about your crops, weather, or market conditions in natural text or voice.
           </p>
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <label style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-muted)' }}>Language:</label>
+          <label style={{ fontSize: '0.85rem', fontWeight: 600, color: 'rgba(255,255,255,0.9)' }}>Language:</label>
           <select
             value={language}
             onChange={e => setLanguage(e.target.value)}

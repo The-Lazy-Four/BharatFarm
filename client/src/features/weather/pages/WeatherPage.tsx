@@ -27,16 +27,17 @@ export const WeatherPage: React.FC = () => {
         flexWrap: 'wrap',
         gap: '1rem',
         padding: '1.5rem',
-        background: '#FFFFFF',
+        background: 'linear-gradient(135deg, rgba(15, 56, 34, 0.97) 0%, rgba(20, 83, 45, 0.93) 100%)',
         borderRadius: 'var(--radius)',
-        boxShadow: 'var(--shadow-md)'
+        boxShadow: 'var(--shadow-3d)',
+        color: '#FFFFFF'
       }}>
         <div>
           <span className="badge badge-primary" style={{ marginBottom: '0.35rem' }}>Live Microclimate Telemetry</span>
-          <h1 style={{ fontSize: '1.75rem', fontWeight: 700, color: 'var(--dark-text)' }}>
+          <h1 style={{ fontSize: '1.75rem', fontWeight: 700, color: '#FFFFFF' }}>
             Weather Intelligence — Field-Ready Decision Support
           </h1>
-          <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginTop: '0.2rem' }}>
+          <p style={{ color: 'rgba(255,255,255,0.85)', fontSize: '0.9rem', marginTop: '0.2rem' }}>
             Precision rainfall probability, humidity alerts, and crop activity advisories for your farm location.
           </p>
         </div>
@@ -51,6 +52,7 @@ export const WeatherPage: React.FC = () => {
           </Button>
         </form>
       </div>
+
 
       {error && (
         <div style={{ padding: '0.75rem 1rem', background: '#FFFDF5', border: '1px solid #FCD34D', borderRadius: 'var(--radius-sm)', color: '#92400E', fontSize: '0.85rem' }}>
