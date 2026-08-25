@@ -1,5 +1,5 @@
 import React from 'react';
-import { AuthProvider, OfflineProvider, LanguageProvider, ThemeProvider } from '../context/index.js';
+import { AuthProvider, OfflineProvider, LanguageProvider, ThemeProvider, WeatherProvider } from '../context/index.js';
 
 export const AppProviders: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return (
@@ -7,7 +7,9 @@ export const AppProviders: React.FC<{ children: React.ReactNode }> = ({ children
       <AuthProvider>
         <OfflineProvider>
           <LanguageProvider>
-            {children}
+            <WeatherProvider>
+              {children}
+            </WeatherProvider>
           </LanguageProvider>
         </OfflineProvider>
       </AuthProvider>

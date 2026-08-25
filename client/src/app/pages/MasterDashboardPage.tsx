@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Card } from '../../components/ui/Card.js';
 import { Button } from '../../components/ui/Button.js';
 import { useAuth } from '../../context/AuthContext.js';
+import { useWeatherContext } from '../../context/WeatherContext.js';
 import { FEATURE_IMAGES } from '../../constants/featureImages.js';
 
 export const MasterDashboardPage: React.FC = () => {
@@ -280,47 +281,79 @@ export const MasterDashboardPage: React.FC = () => {
 
         {/* Right Column (Span 4): Weather Advisory Panel */}
         <div className="col-span-4">
-          <Card title="Today's Weather Intelligence">
-            <div style={{ marginTop: '0.25rem', display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', paddingBottom: '0.75rem', borderBottom: '1px solid var(--border-subtle)' }}>
-                <span className="material-symbols-outlined" style={{ fontSize: '2.5rem', color: 'var(--emerald-primary)' }}>partly_cloudy_day</span>
-                <div>
-                  <h3 style={{ fontSize: '1.75rem', fontWeight: 800, color: 'var(--text-primary)' }}>32°C</h3>
-                  <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>Ludhiana, Punjab • Partly Cloudy</p>
-                </div>
-              </div>
-
-              <div className="alert-warning">
-                <p style={{ fontSize: '0.8rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-                  <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>warning</span> Advisory
-                </p>
-                <p style={{ fontSize: '0.75rem', marginTop: '0.25rem', lineHeight: '1.35' }}>
-                  Skip overhead sprinkler irrigation today due to expected late evening showers.
-                </p>
-              </div>
-
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem', fontSize: '0.8rem' }}>
-                <div className="inset-stat">
-                  <span style={{ display: 'block', fontSize: '0.7rem', color: 'var(--text-muted)' }}>Wind Speed</span>
-                  <strong style={{ color: 'var(--text-primary)', fontSize: '0.88rem' }}>14 km/h</strong>
-                </div>
-                <div className="inset-stat">
-                  <span style={{ display: 'block', fontSize: '0.7rem', color: 'var(--text-muted)' }}>Humidity</span>
-                  <strong style={{ color: 'var(--text-primary)', fontSize: '0.88rem' }}>65%</strong>
-                </div>
-                <div className="inset-stat">
-                  <span style={{ display: 'block', fontSize: '0.7rem', color: 'var(--text-muted)' }}>Rain Chance</span>
-                  <strong style={{ color: 'var(--text-primary)', fontSize: '0.88rem' }}>20%</strong>
-                </div>
-                <div className="inset-stat">
-                  <span style={{ display: 'block', fontSize: '0.7rem', color: 'var(--text-muted)' }}>UV Index</span>
-                  <strong style={{ color: 'var(--text-primary)', fontSize: '0.88rem' }}>5 (Mod)</strong>
-                </div>
-              </div>
-            </div>
-          </Card>
+          <DashboardWeatherPanel />
         </div>
       </div>
     </div>
+  );
+};
+
+const DashboardWeatherPanel: React.FC = () => {
+  const { weather, visual, advisoryText, isLoading } = useWeatherContext();
+
+  if (isLoading) {
+    return (
+      <Card title="Today's Weather Intelligence">
+        <div style={{ padding: '2rem 0', textAlign: 'center' }}>
+          <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Fetching live field weather telemetry...</p>
+        </div>
+      </Card>
+    );
+  }
+
+  return (
+    <Card title="Today's Weather Intelligence" action={<Link to="/weather" style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--emerald-primary)' }}>Full Radar →</Link>}>
+      {/* Dynamic Weather Card Backdrop Header */}
+      <div className="card-feature-backed" style={{ minHeight: '110px', borderRadius: '8px', overflow: 'hidden', marginBottom: '0.75rem' }}>
+        <img src={visual.url} alt={visual.label} className="card-feature-bg" style={{ filter: 'brightness(1.05)' }} />
+        <div className="card-feature-overlay" style={{ background: visual.overlayGradient }} />
+        <div className="card-feature-content" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+              <span style={{ fontSize: '1.8rem', lineHeight: 1 }}>{visual.icon}</span>
+              <h3 style={{ fontSize: '1.8rem', fontWeight: 900, color: '#FFFFFF', lineHeight: 1 }}>{weather.temperatureCelsius}°C</h3>
+            </div>
+            <p style={{ fontSize: '0.78rem', color: 'rgba(255,255,255,0.95)', marginTop: '0.2rem', fontWeight: 600 }}>
+              📍 {weather.location} • {weather.condition}
+            </p>
+          </div>
+          <span className={`badge ${weather.source === 'LIVE' ? 'badge-success' : 'badge-warning'}`} style={{ fontSize: '0.65rem' }}>
+            {weather.source}
+          </span>
+        </div>
+      </div>
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+        {/* Agronomist Dynamic Advisory Alert */}
+        <div className="alert-warning" style={{ padding: '0.65rem 0.75rem', borderRadius: '8px', borderLeft: '3px solid var(--emerald-primary)' }}>
+          <p style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '0.3rem', textTransform: 'uppercase' }}>
+            <span className="material-symbols-outlined" style={{ fontSize: '15px' }}>psychology</span> Field Advisory
+          </p>
+          <p style={{ fontSize: '0.76rem', marginTop: '0.2rem', lineHeight: 1.35, color: 'var(--text-primary)' }}>
+            {advisoryText}
+          </p>
+        </div>
+
+        {/* Real-time Telemetry Inset Stats */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem', fontSize: '0.8rem' }}>
+          <div className="inset-stat" style={{ padding: '0.5rem', borderRadius: '6px' }}>
+            <span style={{ display: 'block', fontSize: '0.68rem', color: 'var(--text-muted)', fontWeight: 600 }}>WIND SPEED</span>
+            <strong style={{ color: 'var(--text-primary)', fontSize: '0.88rem' }}>💨 {weather.windSpeedKmh} km/h</strong>
+          </div>
+          <div className="inset-stat" style={{ padding: '0.5rem', borderRadius: '6px' }}>
+            <span style={{ display: 'block', fontSize: '0.68rem', color: 'var(--text-muted)', fontWeight: 600 }}>HUMIDITY</span>
+            <strong style={{ color: 'var(--text-primary)', fontSize: '0.88rem' }}>💧 {weather.humidityPercent}%</strong>
+          </div>
+          <div className="inset-stat" style={{ padding: '0.5rem', borderRadius: '6px' }}>
+            <span style={{ display: 'block', fontSize: '0.68rem', color: 'var(--text-muted)', fontWeight: 600 }}>RAIN CHANCE</span>
+            <strong style={{ color: 'var(--text-primary)', fontSize: '0.88rem' }}>☔ {weather.rainfallProbability}%</strong>
+          </div>
+          <div className="inset-stat" style={{ padding: '0.5rem', borderRadius: '6px' }}>
+            <span style={{ display: 'block', fontSize: '0.68rem', color: 'var(--text-muted)', fontWeight: 600 }}>TODAY'S RAIN</span>
+            <strong style={{ color: 'var(--text-primary)', fontSize: '0.88rem' }}>🌧️ {weather.daily?.[0]?.precipitationSum || 0} mm</strong>
+          </div>
+        </div>
+      </div>
+    </Card>
   );
 };
