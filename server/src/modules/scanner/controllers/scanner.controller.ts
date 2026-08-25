@@ -11,6 +11,6 @@ export class ScannerController {
 
   analyze = async (req: Request, res: Response): Promise<void> => {
     const result = await this.service.analyzeLeafImage(req.body);
-    ApiResponse.success(res, result, 'Leaf image analyzed successfully (Mock Mode)');
+    ApiResponse.success(res, result, 'Leaf image analyzed successfully');
   };
 }

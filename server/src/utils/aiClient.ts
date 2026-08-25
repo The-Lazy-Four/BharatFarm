@@ -8,7 +8,7 @@ import { logger } from './logger.js';
  */
 
 const AI_PROVIDER_URL = 'https://openrouter.ai/api/v1/chat/completions';
-const AI_PROVIDER_MODEL = 'google/gemini-2.0-flash-lite-001';
+const DEFAULT_TEXT_MODEL = 'google/gemini-2.0-flash-001';
 const REQUEST_TIMEOUT_MS = 45000;
 
 export interface AiMessageContentPart {
@@ -28,16 +28,20 @@ export class AiClient {
     return !!config.openRouterApiKey;
   }
 
-  static async chat(messages: AiMessage[]): Promise<string> {
+  static async chat(messages: AiMessage[], modelOverride?: string): Promise<string> {
     const apiKey = config.openRouterApiKey;
     if (!apiKey) {
-      throw new Error('OPENROUTER_API_KEY is not configured');
+      logger.error('[AiClient] OPENROUTER_API_KEY is not configured in server environment (.env)');
+      throw new Error('OPENROUTER_API_KEY is not configured on server');
     }
+
+    const model = modelOverride || DEFAULT_TEXT_MODEL;
 
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
 
     try {
+      logger.info(`[AiClient] Sending request to OpenRouter (Model: ${model})`);
       const response = await fetch(AI_PROVIDER_URL, {
         method: 'POST',
         headers: {
@@ -46,19 +50,35 @@ export class AiClient {
           'HTTP-Referer': 'https://bharatfarm.app',
           'X-Title': 'BharatFarm'
         },
-        body: JSON.stringify({ model: AI_PROVIDER_MODEL, messages }),
+        body: JSON.stringify({ model, messages, max_tokens: 1000 }),
         signal: controller.signal
       });
 
       const raw = await response.text();
 
       if (!response.ok) {
-        logger.error('OpenRouter AI provider returned a non-OK status', { status: response.status, raw });
-        throw new Error(`OpenRouter AI provider returned status ${response.status}: ${raw}`);
+        logger.error(`[AiClient] OpenRouter API Error - HTTP Status ${response.status}`, {
+          status: response.status,
+          statusText: response.statusText,
+          model,
+          responseBody: raw
+        });
+        throw new Error(`OpenRouter API error (Status ${response.status}): ${raw}`);
       }
 
       const data = JSON.parse(raw);
-      return data.choices?.[0]?.message?.content ?? '';
+      const content = data.choices?.[0]?.message?.content ?? '';
+      if (!content) {
+        logger.warn('[AiClient] OpenRouter returned empty response choices', { data });
+      }
+      return content;
+    } catch (err: any) {
+      if (err.name === 'AbortError') {
+        logger.error(`[AiClient] OpenRouter request timed out after ${REQUEST_TIMEOUT_MS}ms`);
+        throw new Error(`AI request timed out after ${REQUEST_TIMEOUT_MS / 1000}s`);
+      }
+      logger.error('[AiClient] AI request exception:', { message: err.message });
+      throw err;
     } finally {
       clearTimeout(timeout);
     }

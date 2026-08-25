@@ -26,7 +26,7 @@ export const useKrishiBot = (language: string) => {
 
     try {
       const res = await KrishiBotApi.sendMessage(text, language);
-      const replyText = res?.reply || 'KrishiBot is temporarily unavailable. Please try again.';
+      const replyText = res?.reply || 'KrishiBot produced an empty response.';
 
       const botMsg: ChatMessage = {
         id: `${Date.now()}-bot`,
@@ -37,8 +37,9 @@ export const useKrishiBot = (language: string) => {
       setMessages(prev => [...prev, botMsg]);
 
       if (autoSpeakRef.current) speakText(replyText, language);
-    } catch {
-      setError('KrishiBot could not respond right now. Please check your connection and try again.');
+    } catch (err: any) {
+      const errMsg = err?.message || 'KrishiBot could not respond right now.';
+      setError(errMsg);
     } finally {
       setIsLoading(false);
     }

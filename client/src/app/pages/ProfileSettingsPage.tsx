@@ -1,3 +1,4 @@
+// agent-edit-test
 import React, { useState } from 'react';
 import { Card } from '../../components/ui/Card.js';
 import { Input } from '../../components/ui/Input.js';
@@ -9,15 +10,30 @@ export const ProfileSettingsPage: React.FC = () => {
   const { user } = useAuth();
   const { language, setLanguage } = useLanguage();
   const [activeTab, setActiveTab] = useState<'account' | 'preferences' | 'offline' | 'security'>('account');
-  const [name, setName] = useState(user?.fullName || 'Ramesh Patel');
-  const [phone, setPhone] = useState('+91 9831200001');
-  const [state, setState] = useState(user?.state || 'Punjab');
-  const [district, setDistrict] = useState('Ludhiana');
-  const [landAcres, setLandAcres] = useState('5.0');
+
+  const savedProfile = (() => {
+    try {
+      const data = localStorage.getItem('bf_user_profile');
+      return data ? JSON.parse(data) : {};
+    } catch {
+      return {};
+    }
+  })();
+
+  const [name, setName] = useState(savedProfile.name || user?.fullName || 'Ramesh Patel');
+  const [phone, setPhone] = useState(savedProfile.phone || '+91 9831200001');
+  const [state, setState] = useState(savedProfile.state || user?.state || 'Punjab');
+  const [district, setDistrict] = useState(savedProfile.district || 'Ludhiana');
+  const [landAcres, setLandAcres] = useState(savedProfile.landAcres || '5.0');
   const [saved, setSaved] = useState(false);
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
+    try {
+      localStorage.setItem('bf_user_profile', JSON.stringify({ name, phone, state, district, landAcres }));
+    } catch {
+      // ignore
+    }
     setSaved(true);
     setTimeout(() => setSaved(false), 3000);
   };

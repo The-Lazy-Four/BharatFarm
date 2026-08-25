@@ -19,7 +19,14 @@ const MOCK_RECORDS: FarmRecord[] = [
 ];
 
 export const FarmRecordsPage: React.FC = () => {
-  const [records, setRecords] = useState<FarmRecord[]>(MOCK_RECORDS);
+  const [records, setRecords] = useState<FarmRecord[]>(() => {
+    try {
+      const saved = localStorage.getItem('bf_farm_records');
+      return saved ? JSON.parse(saved) : MOCK_RECORDS;
+    } catch {
+      return MOCK_RECORDS;
+    }
+  });
   const [showAdd, setShowAdd] = useState(false);
   const [crop, setCrop] = useState('');
   const [activity, setActivity] = useState('');
@@ -37,9 +44,25 @@ export const FarmRecordsPage: React.FC = () => {
       cost: Number(cost) || 0,
       notes
     };
-    setRecords([newRecord, ...records]);
+    const updated = [newRecord, ...records];
+    setRecords(updated);
+    try {
+      localStorage.setItem('bf_farm_records', JSON.stringify(updated));
+    } catch {
+      // ignore
+    }
     setCrop(''); setActivity(''); setCost(''); setNotes('');
     setShowAdd(false);
+  };
+
+  const handleDelete = (id: string) => {
+    const updated = records.filter(r => r.id !== id);
+    setRecords(updated);
+    try {
+      localStorage.setItem('bf_farm_records', JSON.stringify(updated));
+    } catch {
+      // ignore
+    }
   };
 
   const totalExpense = records.reduce((acc, curr) => acc + curr.cost, 0);
@@ -103,9 +126,15 @@ export const FarmRecordsPage: React.FC = () => {
                     <h4 style={{ marginTop: '0.4rem', fontSize: '1.05rem', fontWeight: 600, color: 'var(--text-main)' }}>{rec.activity}</h4>
                     <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>{rec.notes}</p>
                   </div>
-                  <div style={{ textAlign: 'right' }}>
+                  <div style={{ textAlign: 'right', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.25rem' }}>
                     <p style={{ fontSize: '1.15rem', fontWeight: 700, color: 'var(--primary)' }}>₹{rec.cost.toLocaleString('en-IN')}</p>
                     <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Input Cost</span>
+                    <button
+                      onClick={() => handleDelete(rec.id)}
+                      style={{ background: 'transparent', border: 'none', color: 'var(--danger)', fontSize: '0.75rem', cursor: 'pointer', marginTop: '0.2rem' }}
+                    >
+                      🗑️ Delete
+                    </button>
                   </div>
                 </div>
               ))}

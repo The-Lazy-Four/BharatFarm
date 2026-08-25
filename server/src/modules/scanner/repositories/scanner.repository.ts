@@ -51,8 +51,8 @@ export class ScannerRepository {
       return await this.analyzeWithAiProvider(scanReq);
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Unknown error';
-      logger.error('[Scanner] AI analysis failed, falling back to mock result', { error: message });
-      return this.buildMockResult();
+      logger.error('[Scanner] AI analysis failed with error', { error: message });
+      throw new Error(`Leaf analysis error: ${message}`);
     }
   }
 
@@ -71,15 +71,18 @@ export class ScannerRepository {
         : `data:image/jpeg;base64,${scanReq.imageBase64}`
       : scanReq.imageUrl!;
 
-    const raw = await AiClient.chat([
-      {
-        role: 'user',
-        content: [
-          { type: 'text', text: VISION_PROMPT },
-          { type: 'image_url', image_url: { url: imageUrl } }
-        ]
-      }
-    ]);
+    const raw = await AiClient.chat(
+      [
+        {
+          role: 'user',
+          content: [
+            { type: 'text', text: VISION_PROMPT },
+            { type: 'image_url', image_url: { url: imageUrl } }
+          ]
+        }
+      ],
+      'google/gemini-2.0-flash-001'
+    );
 
     const parsed = AiClient.parseJsonResponse<RawLeafAnalysis>(raw);
     const isNotPlant = parsed.status === 'not_a_plant';

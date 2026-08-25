@@ -8,6 +8,9 @@ export class KrishiBotApi {
     farmerContext?: { location?: string; crop?: string }
   ): Promise<ChatResponse | null> {
     const res = await ApiClient.post<ChatResponse>('/krishibot/chat', { message, language, farmerContext });
-    return res.data || null;
+    if (res.success && res.data) {
+      return res.data;
+    }
+    throw new Error(res.error?.message || 'Failed to connect to KrishiBot');
   }
 }
