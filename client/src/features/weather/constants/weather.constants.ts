@@ -1,0 +1,3 @@
+export const WEATHER_CONSTANTS = {
+  REFRESH_INTERVAL_MS: 300000
+};

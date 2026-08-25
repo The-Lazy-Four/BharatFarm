@@ -1,0 +1,3 @@
+export const GROUPBUYING_CONSTANTS = {
+  MIN_DISCOUNT_PERCENT: 15
+};
