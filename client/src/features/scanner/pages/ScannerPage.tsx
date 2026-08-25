@@ -17,24 +17,117 @@ export const ScannerPage: React.FC = () => {
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', maxWidth: '800px', margin: '0 auto' }}>
-      <Card title="AI Crop Leaf Health Scanner" subtitle="Instant disease detection with actionable treatment recommendations to protect your yield.">
-        {!selectedImage ? (
-          <ScannerCamera onCapture={base64 => setSelectedImage(base64)} />
-        ) : (
-          <div>
-            <ImagePreview imageUrl={selectedImage} />
-            <div style={{ display: 'flex', gap: '0.5rem' }}>
-              <ScanButton isScanning={isScanning} onClick={() => scanLeaf(selectedImage)} />
-              <Button variant="secondary" onClick={handleReset} disabled={isScanning}>
-                Retake
-              </Button>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', maxWidth: '1280px', margin: '0 auto' }}>
+      {/* Header Banner */}
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        flexWrap: 'wrap',
+        gap: '1rem',
+        padding: '1.5rem',
+        background: '#FFFFFF',
+        borderRadius: 'var(--radius)',
+        border: '1px solid var(--border-color)',
+        boxShadow: 'var(--shadow-sm)'
+      }}>
+        <div>
+          <span className="badge badge-primary" style={{ marginBottom: '0.35rem' }}>AI Vision Telemetry</span>
+          <h1 style={{ fontSize: '1.75rem', fontWeight: 700, color: 'var(--text-main)' }}>
+            Leaf Scanner — AI-Powered Crop Health Intelligence
+          </h1>
+          <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginTop: '0.2rem' }}>
+            Capture or upload leaf images for instant pathogen identification and recommended dosage.
+          </p>
+        </div>
+      </div>
+
+      {/* Main Grid Layout matching Stitch */}
+      <div className="grid-dashboard">
+        {/* Left Column (Span 8): Scanner Frame & Active Analysis */}
+        <div className="col-span-8">
+          <Card title="Capture Leaf Image" subtitle="Position the leaf within the camera frame ensuring good natural lighting and sharp focus.">
+            {!selectedImage ? (
+              <ScannerCamera onCapture={base64 => setSelectedImage(base64)} />
+            ) : (
+              <div>
+                <ImagePreview imageUrl={selectedImage} />
+                <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1rem' }}>
+                  <ScanButton isScanning={isScanning} onClick={() => scanLeaf(selectedImage)} />
+                  <Button variant="secondary" onClick={handleReset} disabled={isScanning}>
+                    Retake Image
+                  </Button>
+                </div>
+                {error && <p style={{ color: 'var(--danger)', fontSize: '0.85rem', marginTop: '0.75rem' }}>⚠️ {error}</p>}
+              </div>
+            )}
+
+            {result && (
+              <div style={{ marginTop: '1.5rem', paddingTop: '1.5rem', borderTop: '1px solid var(--border-color)' }}>
+                <ScanResult result={result} />
+              </div>
+            )}
+          </Card>
+        </div>
+
+        {/* Right Column (Span 4): Best Practices Guide & Recent Scans (Stitch reference) */}
+        <div className="col-span-4" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+          {/* Capturing a Good Image Guidance */}
+          <Card title="Capturing a Good Image" subtitle="Tips for maximum AI vision accuracy">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '0.5rem' }}>
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', padding: '0.75rem', background: '#F0FDF4', borderRadius: 'var(--radius-sm)', border: '1px solid #B8E1C4' }}>
+                <span style={{ fontSize: '1.25rem' }}>☀️</span>
+                <div>
+                  <h5 style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--text-main)' }}>Natural Lighting</h5>
+                  <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>
+                    Ensure even natural light; avoid harsh shadows or camera flash glares.
+                  </p>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', padding: '0.75rem', background: '#FFFDF5', borderRadius: 'var(--radius-sm)', border: '1px solid #FCD34D' }}>
+                <span style={{ fontSize: '1.25rem' }}>🎯</span>
+                <div>
+                  <h5 style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--text-main)' }}>Focus & Isolation</h5>
+                  <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>
+                    Tap to focus directly on the lesion or discolored area of the individual leaf.
+                  </p>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', padding: '0.75rem', background: '#E0F2FE', borderRadius: 'var(--radius-sm)', border: '1px solid #7DD3FC' }}>
+                <span style={{ fontSize: '1.25rem' }}>🖼️</span>
+                <div>
+                  <h5 style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--text-main)' }}>Background Clarity</h5>
+                  <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>
+                    Keep camera steady and isolate a single leaf against a clear background.
+                  </p>
+                </div>
+              </div>
             </div>
-            {error && <p style={{ color: 'var(--danger)', fontSize: '0.85rem', marginTop: '0.75rem' }}>⚠️ {error}</p>}
-          </div>
-        )}
-      </Card>
-      {result && <ScanResult result={result} />}
+          </Card>
+
+          {/* Recent Scans History Panel */}
+          <Card title="Recent Scans History">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              <div style={{ padding: '0.75rem', background: 'var(--bg-main)', borderRadius: '6px', border: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div>
+                  <h5 style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-main)' }}>Wheat Leaf Blight</h5>
+                  <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Confidence: 94% • 2 days ago</p>
+                </div>
+                <span className="badge badge-warning" style={{ fontSize: '0.65rem' }}>Fungicide Issued</span>
+              </div>
+              <div style={{ padding: '0.75rem', background: 'var(--bg-main)', borderRadius: '6px', border: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div>
+                  <h5 style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-main)' }}>Healthy Rice Canopy</h5>
+                  <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Confidence: 98% • 5 days ago</p>
+                </div>
+                <span className="badge badge-primary" style={{ fontSize: '0.65rem' }}>Normal</span>
+              </div>
+            </div>
+          </Card>
+        </div>
+      </div>
     </div>
   );
 };
