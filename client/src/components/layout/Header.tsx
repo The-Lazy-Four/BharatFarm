@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 
 export const Header: React.FC = () => {
   return (
-    <header style={{
+    <header className="app-header" style={{
       height: '64px',
       borderBottom: '1px solid var(--border-color)',
       display: 'flex',

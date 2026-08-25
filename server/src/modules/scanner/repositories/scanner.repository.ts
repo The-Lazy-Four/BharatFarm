@@ -3,6 +3,7 @@ import { MOCK_SCAN_RESULT } from '../mock/scanner.mock.js';
 import { SCANNER_CONSTANTS } from '../constants/scanner.constants.js';
 import { AiClient } from '../../../utils/aiClient.js';
 import { logger } from '../../../utils/logger.js';
+import { config } from '../../../config/env.js';
 
 /**
  * Adapted from the OLD project's `POST /api/analyze-leaf` route (server.js),
@@ -43,6 +44,10 @@ export class ScannerRepository {
     }
 
     if (!AiClient.isConfigured()) {
+      if (!config.useMockData) {
+        logger.error('[Scanner] OPENROUTER_API_KEY missing while Mock Mode is false.');
+        throw new Error('OPENROUTER_API_KEY is not configured on server');
+      }
       logger.info('[Scanner] AI provider not configured, returning mock analysis');
       return this.buildMockResult();
     }

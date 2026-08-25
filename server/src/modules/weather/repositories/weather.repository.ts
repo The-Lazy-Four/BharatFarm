@@ -236,14 +236,22 @@ export class WeatherRepository {
     location: string,
     w: { temperatureCelsius: number; humidityPercent: number; windSpeedKmh: number; rainfallProbability: number; condition: string }
   ): Promise<string> {
-    if (AiClient.isConfigured()) {
+    if (!AiClient.isConfigured()) {
+      if (!config.useMockData) {
+        logger.error('[Weather] OPENROUTER_API_KEY missing while Mock Mode is false.');
+        throw new Error('OPENROUTER_API_KEY is not configured on server');
+      }
+    } else {
       try {
         const prompt = `You are a crop weather expert. Today's weather in ${location}: Temperature ${w.temperatureCelsius}°C, Humidity ${w.humidityPercent}%, Rain probability ${w.rainfallProbability}%, Wind speed ${w.windSpeedKmh} km/h, Condition ${w.condition}. Provide two short, practical sentences of advice for farmers. Respond with plain text only, no markdown.`;
         const advice = await AiClient.chat([{ role: 'user', content: prompt }]);
         if (advice.trim()) return advice.trim();
       } catch (err) {
         const message = err instanceof Error ? err.message : 'Unknown error';
-        logger.warn('[Weather] AI advisory generation failed, using rule-based fallback', { error: message });
+        logger.error('[Weather] AI advisory generation failed', { error: message });
+        if (!config.useMockData) {
+          throw new Error(`Weather AI advisory error: ${message}`);
+        }
       }
     }
 

@@ -101,6 +101,9 @@ a {
 }
 
 /* App Shell Responsive Rules */
+.app-header {
+  padding: 0 1rem !important;
+}
 .app-sidebar {
   display: none;
 }
@@ -108,10 +111,14 @@ a {
   display: flex;
 }
 .app-main {
-  padding-bottom: 5rem;
+  padding: 1rem !important;
+  padding-bottom: 5rem !important;
 }
 
 @media (min-width: 768px) {
+  .app-header {
+    padding: 0 2rem !important;
+  }
   .app-sidebar {
     display: flex;
   }
@@ -119,6 +126,7 @@ a {
     display: none;
   }
   .app-main {
-    padding-bottom: 2rem;
+    padding: 2rem !important;
+    padding-bottom: 2rem !important;
   }
 }

@@ -14,6 +14,11 @@ const startServer = async () => {
       logger.info(`  BharatFarm Server running on port ${config.port}`);
       logger.info(`  Environment: ${config.env}`);
       logger.info(`  Mock Mode: ${config.useMockData}`);
+      if (config.openRouterApiKey) {
+        logger.info(`  OpenRouter API Key: Loaded (${config.openRouterApiKey.substring(0, 8)}...)`);
+      } else {
+        logger.warn(`  OpenRouter API Key: MISSING from .env!`);
+      }
       logger.info(`  Health Endpoint: http://localhost:${config.port}/api/health`);
       logger.info(`==================================================`);
     });

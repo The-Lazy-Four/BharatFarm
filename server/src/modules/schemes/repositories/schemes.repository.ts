@@ -3,6 +3,7 @@ import { MOCK_SCHEMES } from '../mock/schemes.mock.js';
 import { SCHEMES_CONSTANTS } from '../constants/schemes.constants.js';
 import { AiClient } from '../../../utils/aiClient.js';
 import { logger } from '../../../utils/logger.js';
+import { config } from '../../../config/env.js';
 
 /**
  * Adapted from the OLD project's `POST /api/schemes` route (server.js),
@@ -25,16 +26,24 @@ export class SchemesRepository {
       return this.schemes.filter(s => s.id === 'bhumihin-krishak-bandhu' || s.id === 'krishak-bandhu');
     }
 
-    if (AiClient.isConfigured()) {
-      try {
-        return await this.matchWithAi(request);
-      } catch (err) {
-        const message = err instanceof Error ? err.message : 'Unknown error';
-        logger.warn('[Schemes] AI matching failed, falling back to static eligibility filter', { error: message });
+    if (!AiClient.isConfigured()) {
+      if (!config.useMockData) {
+        logger.error('[Schemes] OPENROUTER_API_KEY missing while Mock Mode is false.');
+        throw new Error('OPENROUTER_API_KEY is not configured on server');
       }
+      return this.filterStaticSchemes(request);
     }
 
-    return this.filterStaticSchemes(request);
+    try {
+      return await this.matchWithAi(request);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Unknown error';
+      logger.error('[Schemes] AI matching failed', { error: message });
+      if (!config.useMockData) {
+        throw new Error(`Government Schemes AI error: ${message}`);
+      }
+      return this.filterStaticSchemes(request);
+    }
   }
 
   private filterStaticSchemes(request: EligibilityCheckRequest): Scheme[] {

@@ -2,6 +2,7 @@ import { ChatRequest, ChatResponse } from '../types/krishiBot.types.js';
 import { KRISHIBOT_CONSTANTS } from '../constants/krishiBot.constants.js';
 import { AiClient, AiMessage } from '../../../utils/aiClient.js';
 import { logger } from '../../../utils/logger.js';
+import { config } from '../../../config/env.js';
 
 /**
  * Adapted from the OLD project's `POST /api/chat` route (server.js) and
@@ -17,6 +18,10 @@ export class KrishiBotRepository {
     const language = request.language || KRISHIBOT_CONSTANTS.DEFAULT_LANGUAGE;
 
     if (!AiClient.isConfigured()) {
+      if (!config.useMockData) {
+        logger.error('[KrishiBot] OPENROUTER_API_KEY missing while Mock Mode is false.');
+        throw new Error('OPENROUTER_API_KEY is not configured on server');
+      }
       return this.buildFallbackResponse(request.message, language);
     }
 
@@ -24,7 +29,10 @@ export class KrishiBotRepository {
       return await this.queryAiProvider(request, language);
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Unknown error';
-      logger.warn('[KrishiBot] AI query failed, using rule-based fallback', { error: message });
+      logger.error('[KrishiBot] AI query failed', { error: message });
+      if (!config.useMockData) {
+        throw new Error(`KrishiBot AI error: ${message}`);
+      }
       return this.buildFallbackResponse(request.message, language);
     }
   }
