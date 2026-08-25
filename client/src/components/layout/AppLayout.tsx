@@ -2,7 +2,7 @@ import React from 'react';
 import { Sidebar } from './Sidebar.js';
 import { Header } from './Header.js';
 import { MobileNavigation } from './MobileNavigation.js';
-import { FloatingKrishiBot } from '../../features/krishibot/index.js';
+import { FloatingKrishiBot, SpeakToAiControl } from '../../features/krishibot/index.js';
 
 /**
  * AppLayout — Unified BharatFarm Layout.
@@ -24,6 +24,7 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children })
         </main>
       </div>
       <MobileNavigation />
+      <SpeakToAiControl />
       <FloatingKrishiBot />
     </div>
   );

@@ -276,7 +276,7 @@ a {
   position: relative;
   border-radius: var(--radius);
   overflow: hidden;
-  min-height: 170px;
+  min-height: 195px;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
@@ -284,7 +284,7 @@ a {
   color: #FFFFFF;
   box-shadow: var(--shadow-3d);
   transition: var(--transition);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.20);
   text-decoration: none;
   cursor: pointer;
 }
@@ -295,18 +295,20 @@ a {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+  filter: brightness(1.08) contrast(1.05);
+  transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), filter 0.3s ease;
   z-index: 0;
 }
 
+/* Subtle gradient overlay — keeps images bright while guaranteeing text readability */
 .card-feature-overlay {
   position: absolute;
   inset: 0;
   background: linear-gradient(
     180deg,
-    rgba(10, 30, 14, 0.30) 0%,
-    rgba(8, 25, 12, 0.80) 60%,
-    rgba(5, 18, 8, 0.95) 100%
+    rgba(0, 0, 0, 0.15) 0%,
+    rgba(6, 20, 10, 0.45) 50%,
+    rgba(4, 14, 7, 0.82) 100%
   );
   z-index: 1;
   transition: background 0.30s ease;
@@ -452,7 +454,8 @@ a {
     gap: 1.25rem;
   }
   .telemetry-grid {
-    grid-template-columns: repeat(4, 1fr);
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1.4fr;
     gap: 1.25rem;
   }
   .mobile-only-sahayak {
