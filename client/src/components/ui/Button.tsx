@@ -17,7 +17,7 @@ export const Button: React.FC<ButtonProps> = ({
 }) => {
   const baseStyle = {
     fontFamily: 'var(--font-family)',
-    borderRadius: 'var(--radius)',
+    borderRadius: 'var(--radius-sm)',
     fontWeight: 600,
     cursor: disabled || isLoading ? 'not-allowed' : 'pointer',
     transition: 'var(--transition)',
@@ -29,15 +29,15 @@ export const Button: React.FC<ButtonProps> = ({
   };
 
   const sizes = {
-    sm: { padding: '0.4rem 0.8rem', fontSize: '0.85rem' },
+    sm: { padding: '0.4rem 0.85rem', fontSize: '0.85rem' },
     md: { padding: '0.66rem 1.25rem', fontSize: '0.95rem' },
     lg: { padding: '0.9rem 1.75rem', fontSize: '1.05rem' }
   };
 
   const variants = {
-    primary: { background: 'var(--primary)', color: '#fff' },
-    secondary: { background: 'var(--bg-card-hover)', color: 'var(--text-main)', border: '1px solid var(--border-color)' },
-    danger: { background: 'var(--danger)', color: '#fff' },
+    primary: { background: 'var(--primary)', color: '#FFFFFF' },
+    secondary: { background: '#F0FDF4', color: 'var(--primary)', border: '1px solid var(--border-color)' },
+    danger: { background: 'var(--danger)', color: '#FFFFFF' },
     outline: { background: 'transparent', color: 'var(--primary)', border: '1px solid var(--primary)' }
   };
 
