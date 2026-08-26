@@ -1,5 +1,13 @@
 import dotenv from 'dotenv';
-dotenv.config();
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+// Resolve __dirname for ESM modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Always load .env from the server package root (two levels up from src/config/)
+dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 
 export const config = {
   env: process.env.NODE_ENV || 'development',

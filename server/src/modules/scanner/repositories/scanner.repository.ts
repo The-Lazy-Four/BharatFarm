@@ -92,7 +92,7 @@ export class ScannerRepository {
           ]
         }
       ],
-      'google/gemini-2.0-flash-001'
+      'google/gemini-2.5-flash'
     );
 
     const parsed = AiClient.parseJsonResponse<RawLeafAnalysis>(raw);
