@@ -1,6 +1,9 @@
 import React from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext.js';
 import { AppLayout } from '../components/layout/AppLayout.js';
+import { LoginPage } from './pages/LoginPage.js';
+import { RegisterPage } from './pages/RegisterPage.js';
 import { MasterDashboardPage } from './pages/MasterDashboardPage.js';
 import { ScannerPage } from '../features/scanner/index.js';
 import { MarketplacePage, CreateListingPage, ProductPage } from '../features/marketplace/index.js';
@@ -15,29 +18,120 @@ import { LoanEligibilityPage } from './pages/LoanEligibilityPage.js';
 import { SahayakPage } from './pages/SahayakPage.js';
 import { CropRoadmapPage } from './pages/CropRoadmapPage.js';
 
+/**
+ * ProtectedRoute component — Redirects unauthenticated users to /login
+ */
+const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { isAuthenticated, isLoading } = useAuth();
+  const location = useLocation();
+
+  if (isLoading) {
+    return (
+      <div style={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: 'var(--surface-bg)',
+        color: 'var(--text-primary)',
+        flexDirection: 'column',
+        gap: '1rem'
+      }}>
+        <div style={{
+          width: '48px',
+          height: '48px',
+          borderRadius: '12px',
+          background: 'var(--signal-lime)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}>
+          <span className="material-symbols-outlined spin" style={{ fontSize: '28px', color: 'var(--text-on-lime)' }}>
+            agriculture
+          </span>
+        </div>
+        <p style={{ fontWeight: 600, fontSize: '0.95rem', color: 'var(--text-muted)' }}>
+          Loading BharatFarm...
+        </p>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  return <>{children}</>;
+};
+
+/**
+ * PublicRoute component — Redirects authenticated users from /login and /register to /
+ */
+const PublicRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { isAuthenticated, isLoading } = useAuth();
+
+  if (isLoading) {
+    return null;
+  }
+
+  if (isAuthenticated) {
+    return <Navigate to="/" replace />;
+  }
+
+  return <>{children}</>;
+};
+
 export const AppRouter: React.FC = () => {
   return (
-    <AppLayout>
-      <Routes>
-        <Route path="/" element={<MasterDashboardPage />} />
-        <Route path="/sahayak" element={<SahayakPage />} />
-        <Route path="/scanner" element={<ScannerPage />} />
-        <Route path="/marketplace" element={<MarketplacePage />} />
-        <Route path="/marketplace/new" element={<CreateListingPage />} />
-        <Route path="/marketplace/:id" element={<ProductPage />} />
-        <Route path="/weather" element={<WeatherPage />} />
-        <Route path="/groupbuying" element={<GroupBuyingPage />} />
-        <Route path="/groupbuying/:id" element={<GroupDetailsPage />} />
-        <Route path="/schemes" element={<SchemesPage />} />
-        <Route path="/schemes/:id" element={<SchemeDetailsPage />} />
-        <Route path="/records" element={<FarmRecordsPage />} />
-        <Route path="/calculator" element={<FarmCalculatorPage />} />
-        <Route path="/crop-roadmap" element={<CropRoadmapPage />} />
-        <Route path="/loan-eligibility" element={<LoanEligibilityPage />} />
-        <Route path="/orders" element={<OrdersDeliveryPage />} />
-        <Route path="/profile" element={<ProfileSettingsPage />} />
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    </AppLayout>
+    <Routes>
+      {/* Public Auth Routes */}
+      <Route
+        path="/login"
+        element={
+          <PublicRoute>
+            <LoginPage />
+          </PublicRoute>
+        }
+      />
+      <Route
+        path="/register"
+        element={
+          <PublicRoute>
+            <RegisterPage />
+          </PublicRoute>
+        }
+      />
+
+      {/* Protected Application Routes wrapped in AppLayout */}
+      <Route
+        path="/*"
+        element={
+          <ProtectedRoute>
+            <AppLayout>
+              <Routes>
+                <Route path="/" element={<MasterDashboardPage />} />
+                <Route path="/sahayak" element={<SahayakPage />} />
+                <Route path="/scanner" element={<ScannerPage />} />
+                <Route path="/marketplace" element={<MarketplacePage />} />
+                <Route path="/marketplace/new" element={<CreateListingPage />} />
+                <Route path="/marketplace/:id" element={<ProductPage />} />
+                <Route path="/weather" element={<WeatherPage />} />
+                <Route path="/groupbuying" element={<GroupBuyingPage />} />
+                <Route path="/groupbuying/:id" element={<GroupDetailsPage />} />
+                <Route path="/schemes" element={<SchemesPage />} />
+                <Route path="/schemes/:id" element={<SchemeDetailsPage />} />
+                <Route path="/records" element={<FarmRecordsPage />} />
+                <Route path="/calculator" element={<FarmCalculatorPage />} />
+                <Route path="/crop-roadmap" element={<CropRoadmapPage />} />
+                <Route path="/loan-eligibility" element={<LoanEligibilityPage />} />
+                <Route path="/orders" element={<OrdersDeliveryPage />} />
+                <Route path="/profile" element={<ProfileSettingsPage />} />
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Routes>
+            </AppLayout>
+          </ProtectedRoute>
+        }
+      />
+    </Routes>
   );
 };

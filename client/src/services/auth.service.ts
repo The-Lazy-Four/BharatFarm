@@ -15,7 +15,8 @@ export class AuthService {
   static async login(email: string, password?: string): Promise<ApiResponse<AuthSession>> {
     const res = await ApiClient.post<AuthSession>('/auth/login', { email, password });
     if (res.success && res.data) {
-      ApiClient.setToken(res.data.accessToken || (res.data as any).token || null);
+      const token = res.data.accessToken || (res.data as unknown as Record<string, string>).token || null;
+      ApiClient.setToken(token);
     }
     return res;
   }
@@ -23,7 +24,8 @@ export class AuthService {
   static async register(payload: RegisterPayload): Promise<ApiResponse<AuthSession>> {
     const res = await ApiClient.post<AuthSession>('/auth/register', payload);
     if (res.success && res.data) {
-      ApiClient.setToken(res.data.accessToken || (res.data as any).token || null);
+      const token = res.data.accessToken || (res.data as unknown as Record<string, string>).token || null;
+      ApiClient.setToken(token);
     }
     return res;
   }

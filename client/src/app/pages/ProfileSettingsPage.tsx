@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card } from '../../components/ui/Card.js';
 import { Input } from '../../components/ui/Input.js';
 import { Button } from '../../components/ui/Button.js';
@@ -6,8 +7,9 @@ import { useAuth } from '../../context/AuthContext.js';
 import { useLanguage } from '../../context/LanguageContext.js';
 
 export const ProfileSettingsPage: React.FC = () => {
-  const { user, updateProfile, profileImage, setProfileImage, getUserInitials } = useAuth();
+  const { user, updateProfile, profileImage, setProfileImage, getUserInitials, logout } = useAuth();
   const { language, setLanguage } = useLanguage();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<'account' | 'preferences' | 'offline' | 'security'>('account');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [imageError, setImageError] = useState<string | null>(null);
@@ -69,10 +71,15 @@ export const ProfileSettingsPage: React.FC = () => {
     setTimeout(() => setSaved(false), 3000);
   };
 
+  const handleLogout = () => {
+    logout();
+    navigate('/login', { replace: true });
+  };
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', maxWidth: '1280px', margin: '0 auto' }}>
       {/* Header Banner */}
-      <div className="page-header-banner">
+      <div className="page-header-banner" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
           <span className="badge badge-primary" style={{ marginBottom: '0.35rem' }}>Farmer Account Control</span>
           <h1 style={{ fontSize: '1.75rem', fontWeight: 700, color: '#FFFFFF' }}>
@@ -82,6 +89,11 @@ export const ProfileSettingsPage: React.FC = () => {
             Manage your personal profile, photo avatar, land records, offline sync, and security options.
           </p>
         </div>
+
+        <Button type="button" variant="danger" size="md" onClick={handleLogout} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexShrink: 0 }}>
+          <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>logout</span>
+          Sign Out
+        </Button>
       </div>
 
       {/* Main Grid Layout */}
@@ -119,6 +131,9 @@ export const ProfileSettingsPage: React.FC = () => {
                 <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--text-primary)' }}>{name}</h3>
                 <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.2rem', marginTop: '0.15rem' }}>
                   <span className="material-symbols-outlined" style={{ fontSize: '15px' }}>location_on</span> {district}, {state}
+                </p>
+                <p style={{ fontSize: '0.78rem', color: 'var(--emerald-primary)', fontWeight: 600, marginTop: '0.25rem' }}>
+                  {user?.email}
                 </p>
               </div>
 

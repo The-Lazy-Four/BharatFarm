@@ -1,7 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { AuthUser, ApiResponse } from '@bharatfarm/shared';
 import { AuthService, RegisterPayload } from '../services/auth.service.js';
-import { ApiClient } from '../services/apiClient.js';
 
 interface AuthContextType {
   user: AuthUser | null;
@@ -9,8 +8,8 @@ interface AuthContextType {
   isLoading: boolean;
   profileImage: string | null;
   getUserInitials: () => string;
-  login: (email: string, password?: string) => Promise<ApiResponse<any>>;
-  register: (payload: RegisterPayload) => Promise<ApiResponse<any>>;
+  login: (email: string, password?: string) => Promise<ApiResponse<unknown>>;
+  register: (payload: RegisterPayload) => Promise<ApiResponse<unknown>>;
   logout: () => void;
   updateProfile: (profile: { name: string; state: string }) => void;
   setProfileImage: (imageDataUrl: string | null) => void;
@@ -21,6 +20,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [user, setUser] = useState<AuthUser | null>(null);
 
   const [profileImage, setProfileStateImage] = useState<string | null>(() => {
     try {
@@ -30,31 +30,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   });
 
-  const [user, setUser] = useState<AuthUser | null>(() => {
-    const defaultUser: AuthUser = {
-      id: 'mock-farmer-01',
-      email: 'farmer@bharatfarm.org',
-      role: 'farmer',
-      fullName: 'Ramesh Patel',
-      state: 'Punjab'
-    };
-    try {
-      const saved = localStorage.getItem('bf_user_profile');
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        return {
-          ...defaultUser,
-          fullName: parsed.name || defaultUser.fullName,
-          state: parsed.state || defaultUser.state
-        };
-      }
-    } catch {
-      // ignore
-    }
-    return defaultUser;
-  });
-
-  // Hydrate user session on mount
+  // Hydrate user session on mount from real token / stored profile
   useEffect(() => {
     const initAuth = async () => {
       const token = localStorage.getItem('auth_token');
@@ -62,10 +38,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const res = await AuthService.getCurrentUser();
         if (res.success && res.data?.user) {
           setUser(res.data.user);
-        } else if (!res.success && res.error?.code === 'UNAUTHORIZED') {
-          // Token expired or invalid
+        } else {
+          // Token expired or invalid — clear state
           AuthService.logout();
+          setUser(null);
         }
+      } else {
+        setUser(null);
       }
       setIsLoading(false);
     };
@@ -86,7 +65,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const getUserInitials = () => {
-    if (!user || !user.fullName) return 'RP';
+    if (!user || !user.fullName) return 'BF';
     const parts = user.fullName.trim().split(/\s+/);
     if (parts.length >= 2) {
       return (parts[0][0] + parts[1][0]).toUpperCase();
@@ -94,7 +73,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return parts[0][0].toUpperCase();
   };
 
-  const login = async (email: string, password?: string): Promise<ApiResponse<any>> => {
+  const login = async (email: string, password?: string): Promise<ApiResponse<unknown>> => {
     const res = await AuthService.login(email, password);
     if (res.success && res.data?.user) {
       setUser(res.data.user);
@@ -102,7 +81,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return res;
   };
 
-  const register = async (payload: RegisterPayload): Promise<ApiResponse<any>> => {
+  const register = async (payload: RegisterPayload): Promise<ApiResponse<unknown>> => {
     const res = await AuthService.register(payload);
     if (res.success && res.data?.user) {
       setUser(res.data.user);
