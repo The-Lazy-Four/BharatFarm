@@ -108,7 +108,8 @@ export class WeatherRepository {
 
   private async reverseGeocode(lat: number, lon: number): Promise<string> {
     try {
-      const url = `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=en`;
+      const apiKeyParam = config.weatherApiKey ? `&key=${config.weatherApiKey}` : '';
+      const url = `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=en${apiKeyParam}`;
       const response = await fetch(url, {
         headers: { 'User-Agent': 'BharatFarm-Production/1.0' },
         signal: AbortSignal.timeout(8000)

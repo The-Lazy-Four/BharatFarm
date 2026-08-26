@@ -6,7 +6,13 @@ import { getWeatherVisual } from '../utils/weatherVisuals.js';
 
 export const WeatherCard: React.FC<{ weather: WeatherForecast }> = ({ weather }) => {
   const visual = getWeatherVisual(weather.condition);
-  const updatedTimeStr = weather.updatedAt ? new Date(weather.updatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Just now';
+  let updatedTimeStr = 'Just now';
+  if (weather.updatedAt) {
+    const parsedDate = new Date(weather.updatedAt);
+    if (!isNaN(parsedDate.getTime())) {
+      updatedTimeStr = parsedDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    }
+  }
 
   return (
     <Card action={<WeatherStatus source={weather.source} />}>
