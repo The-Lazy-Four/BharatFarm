@@ -7,6 +7,7 @@ import marketplaceRoutes from '../modules/marketplace/routes/marketplace.routes.
 import weatherRoutes from '../modules/weather/routes/weather.routes.js';
 import groupBuyingRoutes from '../modules/groupbuying/routes/groupBuying.routes.js';
 import schemesRoutes from '../modules/schemes/routes/schemes.routes.js';
+import roadmapRoutes from '../modules/roadmap/routes/roadmap.routes.js';
 
 const aggregateRouter = Router();
 
@@ -18,5 +19,6 @@ aggregateRouter.use('/marketplace', marketplaceRoutes);
 aggregateRouter.use('/weather', weatherRoutes);
 aggregateRouter.use('/groupbuying', groupBuyingRoutes);
 aggregateRouter.use('/schemes', schemesRoutes);
+aggregateRouter.use('/roadmap', roadmapRoutes);
 
 export default aggregateRouter;

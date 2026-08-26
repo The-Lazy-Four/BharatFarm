@@ -8,6 +8,7 @@ const navItems = [
   { path: '/sahayak', label: 'Sahayak Assistance', icon: 'handshake' },
   { path: '/scanner', label: 'Leaf Scanner AI', icon: 'biotech' },
   { path: '/weather', label: 'Weather Intelligence', icon: 'cloud' },
+  { path: '/crop-roadmap', label: 'Crop Roadmap', icon: 'route' },
   { path: '/marketplace', label: 'Marketplace', icon: 'storefront' },
   { path: '/groupbuying', label: 'Group Buying', icon: 'group' },
   { path: '/records', label: 'Farm Records', icon: 'description' },

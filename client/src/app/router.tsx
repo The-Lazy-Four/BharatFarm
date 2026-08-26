@@ -13,6 +13,7 @@ import { OrdersDeliveryPage } from './pages/OrdersDeliveryPage.js';
 import { ProfileSettingsPage } from './pages/ProfileSettingsPage.js';
 import { LoanEligibilityPage } from './pages/LoanEligibilityPage.js';
 import { SahayakPage } from './pages/SahayakPage.js';
+import { CropRoadmapPage } from './pages/CropRoadmapPage.js';
 
 export const AppRouter: React.FC = () => {
   return (
@@ -31,6 +32,7 @@ export const AppRouter: React.FC = () => {
         <Route path="/schemes/:id" element={<SchemeDetailsPage />} />
         <Route path="/records" element={<FarmRecordsPage />} />
         <Route path="/calculator" element={<FarmCalculatorPage />} />
+        <Route path="/crop-roadmap" element={<CropRoadmapPage />} />
         <Route path="/loan-eligibility" element={<LoanEligibilityPage />} />
         <Route path="/orders" element={<OrdersDeliveryPage />} />
         <Route path="/profile" element={<ProfileSettingsPage />} />
