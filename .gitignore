@@ -1,5 +1,227 @@
-node_modules
-dist
+# ============================================================
+# BharatFarm - Root Git Ignore
+# ============================================================
+
+# -------------------------
+# Environment / Secrets
+# -------------------------
 .env
-.DS_Store
+.env.*
+!.env.example
+!.env.template
+
+# Local secrets / credentials
+*.pem
+*.key
+*.p12
+*.pfx
+credentials.json
+service-account.json
+secrets.json
+
+# Supabase local secrets
+supabase/.env
+supabase/.temp/
+supabase/.branches/
+
+# -------------------------
+# Dependencies
+# -------------------------
+node_modules/
+**/node_modules/
+
+# -------------------------
+# Build outputs
+# -------------------------
+dist/
+**/dist/
+build/
+**/build/
+
+# Vite
+.vite/
+**/.vite/
+
+# TypeScript
+*.tsbuildinfo
+
+# -------------------------
+# Test / Coverage
+# -------------------------
+coverage/
+**/coverage/
+.nyc_output/
+.vitest/
+playwright-report/
+test-results/
+
+# -------------------------
+# Logs
+# -------------------------
 *.log
+logs/
+**/logs/
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# -------------------------
+# Cache
+# -------------------------
+.cache/
+**/.cache/
+.tmp/
+**/.tmp/
+temp/
+**/temp/
+
+# ESLint cache
+.eslintcache
+
+# Prettier cache
+.prettier-cache
+
+# -------------------------
+# OS Files
+# -------------------------
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Windows
+ehthumbs.db
+
+# -------------------------
+# IDE / Editors
+# -------------------------
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+
+.idea/
+*.iml
+
+# Antigravity / AI editor generated files
+.antigravity/
+**/.antigravity/
+
+# Gemini / AI temporary files
+.gemini/
+**/.gemini/
+
+# Claude temporary files
+.claude/
+**/.claude/
+
+# -------------------------
+# Temporary files
+# -------------------------
+*.tmp
+*.temp
+*.bak
+*.swp
+*.swo
+*~
+
+# -------------------------
+# Generated documentation
+# -------------------------
+# Keep important project docs tracked.
+# Ignore only temporary/generated reports if needed.
+*.generated.md
+*.generated.json
+
+# -------------------------
+# Local databases
+# -------------------------
+*.sqlite
+*.sqlite3
+*.db
+*.db-shm
+*.db-wal
+
+# -------------------------
+# Supabase local development
+# -------------------------
+supabase/.branches/
+supabase/.temp/
+
+# Keep these tracked:
+# supabase/config.toml
+# supabase/migrations/
+# supabase/seed.sql
+
+# -------------------------
+# Package manager files
+# -------------------------
+.npm/
+.pnpm-store/
+.yarn/
+.yarn-cache/
+
+# Don't ignore lockfiles:
+# package-lock.json
+# pnpm-lock.yaml
+# yarn.lock
+
+# -------------------------
+# React Native / Expo
+# -------------------------
+.expo/
+.expo-shared/
+.metro-health-check*
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+*.jks
+*.keystore
+
+# Android
+android/.gradle/
+android/local.properties
+android/**/build/
+android/captures/
+android/.cxx/
+
+# iOS
+ios/Pods/
+ios/build/
+ios/DerivedData/
+*.xcworkspace/xcuserdata/
+*.xcuserdatad/
+
+# -------------------------
+# Vercel / Netlify / Render
+# -------------------------
+.vercel/
+.netlify/
+
+# -------------------------
+# Generated archives
+# -------------------------
+*.zip
+*.rar
+*.7z
+*.tar
+*.gz
+
+# -------------------------
+# Generated media / exports
+# -------------------------
+*.mp4
+*.mov
+*.avi
+*.webm
+
+# Ignore large local exports
+exports/
+screenshots/
+recordings/
+
+# -------------------------
+# Misc generated files
+# -------------------------
+*.orig
+*.rej

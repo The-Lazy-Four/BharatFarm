@@ -1,20 +1,27 @@
-import React, { createContext, useContext, useState } from 'react';
-import { AuthUser } from '@bharatfarm/shared';
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import { AuthUser, ApiResponse } from '@bharatfarm/shared';
+import { AuthService, RegisterPayload } from '../services/auth.service.js';
+import { ApiClient } from '../services/apiClient.js';
 
 interface AuthContextType {
   user: AuthUser | null;
   isAuthenticated: boolean;
+  isLoading: boolean;
   profileImage: string | null;
   getUserInitials: () => string;
-  login: (email: string) => void;
+  login: (email: string, password?: string) => Promise<ApiResponse<any>>;
+  register: (payload: RegisterPayload) => Promise<ApiResponse<any>>;
   logout: () => void;
   updateProfile: (profile: { name: string; state: string }) => void;
   setProfileImage: (imageDataUrl: string | null) => void;
+  refreshUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+
   const [profileImage, setProfileStateImage] = useState<string | null>(() => {
     try {
       return localStorage.getItem('bf_user_profile_image') || null;
@@ -47,6 +54,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return defaultUser;
   });
 
+  // Hydrate user session on mount
+  useEffect(() => {
+    const initAuth = async () => {
+      const token = localStorage.getItem('auth_token');
+      if (token) {
+        const res = await AuthService.getCurrentUser();
+        if (res.success && res.data?.user) {
+          setUser(res.data.user);
+        } else if (!res.success && res.error?.code === 'UNAUTHORIZED') {
+          // Token expired or invalid
+          AuthService.logout();
+        }
+      }
+      setIsLoading(false);
+    };
+    initAuth();
+  }, []);
+
   const setProfileImage = (imageDataUrl: string | null) => {
     setProfileStateImage(imageDataUrl);
     try {
@@ -69,11 +94,33 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return parts[0][0].toUpperCase();
   };
 
-  const login = (email: string) => {
-    setUser({ id: 'user-id', email, role: 'farmer', fullName: 'Logged Farmer', state: 'Punjab' });
+  const login = async (email: string, password?: string): Promise<ApiResponse<any>> => {
+    const res = await AuthService.login(email, password);
+    if (res.success && res.data?.user) {
+      setUser(res.data.user);
+    }
+    return res;
   };
 
-  const logout = () => setUser(null);
+  const register = async (payload: RegisterPayload): Promise<ApiResponse<any>> => {
+    const res = await AuthService.register(payload);
+    if (res.success && res.data?.user) {
+      setUser(res.data.user);
+    }
+    return res;
+  };
+
+  const logout = () => {
+    AuthService.logout();
+    setUser(null);
+  };
+
+  const refreshUser = async () => {
+    const res = await AuthService.getCurrentUser();
+    if (res.success && res.data?.user) {
+      setUser(res.data.user);
+    }
+  };
 
   const updateProfile = (profile: { name: string; state: string }) => {
     setUser(prev => prev ? { ...prev, fullName: profile.name, state: profile.state } : null);
@@ -83,12 +130,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     <AuthContext.Provider value={{
       user,
       isAuthenticated: !!user,
+      isLoading,
       profileImage,
       getUserInitials,
       login,
+      register,
       logout,
       updateProfile,
-      setProfileImage
+      setProfileImage,
+      refreshUser
     }}>
       {children}
     </AuthContext.Provider>
