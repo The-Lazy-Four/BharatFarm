@@ -25,6 +25,7 @@ export const RegisterPage: React.FC = () => {
 
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [imgFailed, setImgFailed] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -79,6 +80,10 @@ export const RegisterPage: React.FC = () => {
     }
   };
 
+  const heroImageUrl = imgFailed
+    ? '/assets/bg2-1FrgOhjU.jpg'
+    : 'https://images.unsplash.com/photo-1500937386664-56d1dfef3854?auto=format&fit=crop&w=1200&q=80';
+
   return (
     <div style={{
       minHeight: '100vh',
@@ -89,7 +94,7 @@ export const RegisterPage: React.FC = () => {
       overflow: 'hidden'
     }}>
       {/* Theme Toggle Top Bar */}
-      <div style={{ position: 'absolute', top: '1.25rem', right: '1.25rem', zIndex: 20 }}>
+      <div style={{ position: 'absolute', top: '1.25rem', right: '1.25rem', zIndex: 30 }}>
         <button
           onClick={toggleTheme}
           title={`Switch to ${theme === 'light' ? 'Dark' : 'Light'} Mode`}
@@ -117,54 +122,75 @@ export const RegisterPage: React.FC = () => {
       {/* Main Container Layout */}
       <div style={{
         display: 'flex',
+        flexDirection: 'row',
         width: '100%',
         minHeight: '100vh'
       }}>
-        {/* Left Visual Branding Panel (Desktop Only) */}
+        {/* Left Visual Branding Panel (Desktop & Tablet) */}
         <div style={{
           flex: '1 1 45%',
-          background: 'linear-gradient(135deg, rgba(20, 40, 20, 0.92) 0%, rgba(30, 65, 35, 0.85) 100%), url("/assets/bg2-1FrgOhjU.jpg") center/cover no-repeat',
-          display: 'flex',
+          background: `linear-gradient(135deg, rgba(15, 35, 18, 0.90) 0%, rgba(24, 55, 28, 0.85) 100%), url("${heroImageUrl}") center/cover no-repeat`,
           flexDirection: 'column',
           justifyContent: 'space-between',
           padding: '3rem',
           position: 'relative',
           color: '#FFFFFF'
-        }} className="app-sidebar">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+        }} className="auth-hero-panel">
+          <img
+            src={heroImageUrl}
+            alt="BharatFarm Agricultural Landscape"
+            onError={() => setImgFailed(true)}
+            style={{ display: 'none' }}
+          />
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', zIndex: 2 }}>
             <div style={{
-              width: '44px',
-              height: '44px',
-              borderRadius: '12px',
+              width: '48px',
+              height: '48px',
+              borderRadius: '14px',
               background: 'var(--signal-lime)',
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'center'
+              justifyContent: 'center',
+              boxShadow: '0 4px 14px rgba(163, 230, 53, 0.4)'
             }}>
-              <span className="material-symbols-outlined" style={{ fontSize: '28px', color: 'var(--text-on-lime)' }}>
+              <span className="material-symbols-outlined" style={{ fontSize: '30px', color: 'var(--text-on-lime)' }}>
                 agriculture
               </span>
             </div>
             <div>
-              <h2 style={{ fontSize: '1.5rem', fontWeight: 800, letterSpacing: '-0.02em', lineHeight: 1 }}>BharatFarm</h2>
-              <span style={{ fontSize: '0.75rem', color: '#A3E635', fontWeight: 600 }}>Smart Farmer AI</span>
+              <h2 style={{ fontSize: '1.6rem', fontWeight: 800, letterSpacing: '-0.02em', lineHeight: 1, color: '#FFFFFF' }}>BharatFarm</h2>
+              <span style={{ fontSize: '0.78rem', color: '#A3E635', fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase' }}>Smart Farmer AI</span>
             </div>
           </div>
 
-          <div style={{ marginTop: 'auto', marginBottom: 'auto', maxWidth: '480px' }}>
-            <span className="badge badge-primary" style={{ background: 'rgba(163, 230, 53, 0.2)', color: '#A3E635', border: '1px solid rgba(163, 230, 53, 0.4)', padding: '0.35rem 0.75rem', fontSize: '0.75rem', marginBottom: '1.25rem', display: 'inline-block' }}>
-              🤝 Join 100,000+ Smart Farmers
+          <div style={{ marginTop: 'auto', marginBottom: 'auto', maxWidth: '480px', zIndex: 2, padding: '2rem 0' }}>
+            <span className="badge" style={{
+              background: 'rgba(163, 230, 53, 0.25)',
+              color: '#A3E635',
+              border: '1px solid rgba(163, 230, 53, 0.45)',
+              padding: '0.4rem 0.85rem',
+              fontSize: '0.8rem',
+              fontWeight: 700,
+              marginBottom: '1.25rem',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.4rem',
+              borderRadius: '20px'
+            }}>
+              <span>🤝 Join 100,000+ Smart Farmers</span>
             </span>
-            <h1 style={{ fontSize: '2.2rem', fontWeight: 800, lineHeight: 1.2, color: '#FFFFFF', marginBottom: '1rem' }}>
+            <h1 style={{ fontSize: '2.4rem', fontWeight: 800, lineHeight: 1.2, color: '#FFFFFF', marginBottom: '1.25rem', letterSpacing: '-0.02em' }}>
               Start Your Smart Agriculture Journey
             </h1>
-            <p style={{ fontSize: '0.95rem', opacity: 0.9, lineHeight: 1.6, color: '#E2E8F0' }}>
+            <p style={{ fontSize: '1rem', opacity: 0.95, lineHeight: 1.65, color: '#E2E8F0' }}>
               Register your farm to receive tailored crop advice, local weather alerts, direct access to government schemes, and community group buying deals.
             </p>
           </div>
 
-          <div style={{ fontSize: '0.8rem', opacity: 0.7, borderTop: '1px solid rgba(255, 255, 255, 0.15)', paddingTop: '1.5rem' }}>
-            © {new Date().getFullYear()} BharatFarm. Smart India Hackathon Innovation.
+          <div style={{ fontSize: '0.82rem', opacity: 0.8, borderTop: '1px solid rgba(255, 255, 255, 0.15)', paddingTop: '1.25rem', zIndex: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span>© {new Date().getFullYear()} BharatFarm</span>
+            <span>Smart India Hackathon Innovation</span>
           </div>
         </div>
 
@@ -172,40 +198,48 @@ export const RegisterPage: React.FC = () => {
         <div style={{
           flex: '1 1 55%',
           display: 'flex',
+          flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          padding: '2rem 1.5rem',
+          padding: '2.5rem 1.5rem',
+          minHeight: '100vh',
+          width: '100%',
           overflowY: 'auto'
         }}>
           <div style={{
             width: '100%',
-            maxWidth: '520px',
+            maxWidth: '500px',
             display: 'flex',
             flexDirection: 'column',
             gap: '1.25rem'
           }}>
+            {/* Mobile-Only Header Brand Banner */}
+            <div className="auth-mobile-header" style={{ alignItems: 'center', gap: '0.75rem', marginBottom: '0.25rem' }}>
+              <div style={{
+                width: '40px',
+                height: '40px',
+                borderRadius: '12px',
+                background: 'var(--signal-lime)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}>
+                <span className="material-symbols-outlined" style={{ fontSize: '24px', color: 'var(--text-on-lime)' }}>
+                  agriculture
+                </span>
+              </div>
+              <div>
+                <h2 style={{ fontSize: '1.35rem', fontWeight: 800, color: 'var(--text-primary)', lineHeight: 1 }}>BharatFarm</h2>
+                <span style={{ fontSize: '0.72rem', color: 'var(--emerald-primary)', fontWeight: 700 }}>Smart Farmer AI</span>
+              </div>
+            </div>
+
             {/* Header */}
             <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                <div style={{
-                  width: '36px',
-                  height: '36px',
-                  borderRadius: '10px',
-                  background: 'var(--signal-lime)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}>
-                  <span className="material-symbols-outlined" style={{ fontSize: '22px', color: 'var(--text-on-lime)' }}>
-                    agriculture
-                  </span>
-                </div>
-                <span style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--text-primary)' }}>BharatFarm</span>
-              </div>
-              <h2 style={{ fontSize: '1.65rem', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>
-                Create your account
+              <h2 style={{ fontSize: '1.75rem', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>
+                Create Farmer Account
               </h2>
-              <p style={{ fontSize: '0.88rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>
+              <p style={{ fontSize: '0.88rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
                 Enter your details to register as a BharatFarm member.
               </p>
             </div>
@@ -227,7 +261,7 @@ export const RegisterPage: React.FC = () => {
 
             {/* Registration Form */}
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
                   <label style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)' }}>
                     Full Name *
@@ -314,7 +348,7 @@ export const RegisterPage: React.FC = () => {
                 </div>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
                   <label style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)' }}>
                     State
@@ -393,7 +427,7 @@ export const RegisterPage: React.FC = () => {
                   </>
                 ) : (
                   <>
-                    <span>Create Account</span>
+                    <span>Create BharatFarm Account</span>
                     <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>arrow_forward</span>
                   </>
                 )}

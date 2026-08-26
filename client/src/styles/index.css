@@ -860,3 +860,25 @@ a {
 ::-webkit-scrollbar-track  { background: transparent; }
 ::-webkit-scrollbar-thumb  { background: var(--border-strong); border-radius: 9999px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--emerald-primary); }
+
+/* ============================================================
+   AUTHENTICATION RESPONSIVE LAYOUT
+   ============================================================ */
+.auth-hero-panel {
+  display: flex;
+}
+
+.auth-mobile-header {
+  display: none;
+}
+
+@media (max-width: 899px) {
+  .auth-hero-panel {
+    display: none !important;
+  }
+
+  .auth-mobile-header {
+    display: flex !important;
+  }
+}
+

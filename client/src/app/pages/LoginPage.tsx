@@ -13,6 +13,7 @@ export const LoginPage: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [imgFailed, setImgFailed] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -56,6 +57,11 @@ export const LoginPage: React.FC = () => {
     }
   };
 
+  // High quality Unsplash agricultural photo with fallback
+  const heroImageUrl = imgFailed
+    ? '/assets/bg2-1FrgOhjU.jpg'
+    : 'https://images.unsplash.com/photo-1500937386664-56d1dfef3854?auto=format&fit=crop&w=1200&q=80';
+
   return (
     <div style={{
       minHeight: '100vh',
@@ -66,7 +72,7 @@ export const LoginPage: React.FC = () => {
       overflow: 'hidden'
     }}>
       {/* Theme Toggle Top Bar */}
-      <div style={{ position: 'absolute', top: '1.25rem', right: '1.25rem', zIndex: 20 }}>
+      <div style={{ position: 'absolute', top: '1.25rem', right: '1.25rem', zIndex: 30 }}>
         <button
           onClick={toggleTheme}
           title={`Switch to ${theme === 'light' ? 'Dark' : 'Light'} Mode`}
@@ -94,102 +100,147 @@ export const LoginPage: React.FC = () => {
       {/* Main Container Layout */}
       <div style={{
         display: 'flex',
+        flexDirection: 'row',
         width: '100%',
         minHeight: '100vh'
       }}>
-        {/* Left Visual Branding Panel (Desktop Only) */}
+        {/* Left Visual Branding Hero Panel (Desktop & Tablet) */}
         <div style={{
           flex: '1 1 50%',
-          background: 'linear-gradient(135deg, rgba(20, 40, 20, 0.92) 0%, rgba(30, 65, 35, 0.85) 100%), url("/assets/bg2-1FrgOhjU.jpg") center/cover no-repeat',
-          display: 'flex',
+          background: `linear-gradient(135deg, rgba(15, 35, 18, 0.90) 0%, rgba(24, 55, 28, 0.85) 100%), url("${heroImageUrl}") center/cover no-repeat`,
           flexDirection: 'column',
-          justifyContent: 'between',
+          justifyContent: 'space-between',
           padding: '3rem',
           position: 'relative',
           color: '#FFFFFF'
-        }} className="app-sidebar">
-          {/* Top Brand Logo */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+        }} className="auth-hero-panel">
+          {/* Fallback image handler */}
+          <img
+            src={heroImageUrl}
+            alt="BharatFarm Agricultural Landscape"
+            onError={() => setImgFailed(true)}
+            style={{ display: 'none' }}
+          />
+
+          {/* Top Brand Header */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', zIndex: 2 }}>
             <div style={{
-              width: '44px',
-              height: '44px',
-              borderRadius: '12px',
+              width: '48px',
+              height: '48px',
+              borderRadius: '14px',
               background: 'var(--signal-lime)',
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'center'
+              justifyContent: 'center',
+              boxShadow: '0 4px 14px rgba(163, 230, 53, 0.4)'
             }}>
-              <span className="material-symbols-outlined" style={{ fontSize: '28px', color: 'var(--text-on-lime)' }}>
+              <span className="material-symbols-outlined" style={{ fontSize: '30px', color: 'var(--text-on-lime)' }}>
                 agriculture
               </span>
             </div>
             <div>
-              <h2 style={{ fontSize: '1.5rem', fontWeight: 800, letterSpacing: '-0.02em', lineHeight: 1 }}>BharatFarm</h2>
-              <span style={{ fontSize: '0.75rem', color: '#A3E635', fontWeight: 600 }}>Smart Farmer AI</span>
+              <h2 style={{ fontSize: '1.6rem', fontWeight: 800, letterSpacing: '-0.02em', lineHeight: 1, color: '#FFFFFF' }}>BharatFarm</h2>
+              <span style={{ fontSize: '0.78rem', color: '#A3E635', fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase' }}>Smart Farmer AI</span>
             </div>
           </div>
 
-          {/* Center Agricultural Value Message */}
-          <div style={{ marginTop: 'auto', marginBottom: 'auto', maxWidth: '480px' }}>
-            <span className="badge badge-primary" style={{ background: 'rgba(163, 230, 53, 0.2)', color: '#A3E635', border: '1px solid rgba(163, 230, 53, 0.4)', padding: '0.35rem 0.75rem', fontSize: '0.75rem', marginBottom: '1.25rem', display: 'inline-block' }}>
-              🌾 Empowering Indian Agriculture
+          {/* Center Farmer Value Proposition */}
+          <div style={{ marginTop: 'auto', marginBottom: 'auto', maxWidth: '520px', zIndex: 2, padding: '2rem 0' }}>
+            <span className="badge" style={{
+              background: 'rgba(163, 230, 53, 0.25)',
+              color: '#A3E635',
+              border: '1px solid rgba(163, 230, 53, 0.45)',
+              padding: '0.4rem 0.85rem',
+              fontSize: '0.8rem',
+              fontWeight: 700,
+              marginBottom: '1.25rem',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.4rem',
+              borderRadius: '20px'
+            }}>
+              <span>🌾 Built for Indian Farmers</span>
             </span>
-            <h1 style={{ fontSize: '2.5rem', fontWeight: 800, lineHeight: 1.2, color: '#FFFFFF', marginBottom: '1rem' }}>
-              Your Digital Farming Companion
+            <h1 style={{ fontSize: '2.6rem', fontWeight: 800, lineHeight: 1.2, color: '#FFFFFF', marginBottom: '1.25rem', letterSpacing: '-0.02em' }}>
+              Empowering Every Field With Intelligence
             </h1>
-            <p style={{ fontSize: '1rem', opacity: 0.9, lineHeight: 1.6, color: '#E2E8F0' }}>
-              Access AI crop disease diagnostics, hyper-local weather advisory, group buying discounts, and government schemes in one unified platform.
+            <p style={{ fontSize: '1.05rem', opacity: 0.95, lineHeight: 1.65, color: '#E2E8F0', fontWeight: 400 }}>
+              Connect with instant AI crop disease diagnostics, hyper-local weather advisory, direct government scheme applications, and community group buying power.
             </p>
+
+            {/* Feature highlights bullets */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.85rem', marginTop: '2rem' }}>
+              {[
+                { icon: 'energy_savings_leaf', text: 'AI Crop Diagnostic' },
+                { icon: 'partly_cloudy_day', text: 'Live Weather Advisory' },
+                { icon: 'groups', text: 'Group Buying Savings' },
+                { icon: 'account_balance', text: 'PM-KISAN & Schemes' }
+              ].map((item, idx) => (
+                <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'rgba(255, 255, 255, 0.08)', padding: '0.5rem 0.75rem', borderRadius: '8px', backdropFilter: 'blur(8px)' }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: '18px', color: '#A3E635' }}>{item.icon}</span>
+                  <span style={{ fontSize: '0.82rem', fontWeight: 600, color: '#FFFFFF' }}>{item.text}</span>
+                </div>
+              ))}
+            </div>
           </div>
 
-          {/* Bottom Footer Details */}
-          <div style={{ fontSize: '0.8rem', opacity: 0.7, borderTop: '1px solid rgba(255, 255, 255, 0.15)', paddingTop: '1.5rem' }}>
-            © {new Date().getFullYear()} BharatFarm. Smart India Hackathon Innovation.
+          {/* Bottom Footer Attribution */}
+          <div style={{ fontSize: '0.82rem', opacity: 0.8, borderTop: '1px solid rgba(255, 255, 255, 0.15)', paddingTop: '1.25rem', zIndex: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span>© {new Date().getFullYear()} BharatFarm</span>
+            <span>Smart India Hackathon Innovation</span>
           </div>
         </div>
 
-        {/* Right Form Card Panel */}
+        {/* Right Authentication Form Container */}
         <div style={{
           flex: '1 1 50%',
           display: 'flex',
+          flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          padding: '2rem 1.5rem'
+          padding: '2.5rem 1.5rem',
+          minHeight: '100vh',
+          width: '100%'
         }}>
           <div style={{
             width: '100%',
-            maxWidth: '440px',
+            maxWidth: '420px',
             display: 'flex',
             flexDirection: 'column',
             gap: '1.5rem'
           }}>
-            {/* Header / Title */}
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
-                <div style={{
-                  width: '36px',
-                  height: '36px',
-                  borderRadius: '10px',
-                  background: 'var(--signal-lime)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}>
-                  <span className="material-symbols-outlined" style={{ fontSize: '22px', color: 'var(--text-on-lime)' }}>
-                    agriculture
-                  </span>
-                </div>
-                <span style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--text-primary)' }}>BharatFarm</span>
+            {/* Mobile-Only Header Brand Banner */}
+            <div className="auth-mobile-header" style={{ alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
+              <div style={{
+                width: '40px',
+                height: '40px',
+                borderRadius: '12px',
+                background: 'var(--signal-lime)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}>
+                <span className="material-symbols-outlined" style={{ fontSize: '24px', color: 'var(--text-on-lime)' }}>
+                  agriculture
+                </span>
               </div>
+              <div>
+                <h2 style={{ fontSize: '1.35rem', fontWeight: 800, color: 'var(--text-primary)', lineHeight: 1 }}>BharatFarm</h2>
+                <span style={{ fontSize: '0.72rem', color: 'var(--emerald-primary)', fontWeight: 700 }}>Smart Farmer AI</span>
+              </div>
+            </div>
+
+            {/* Title Block */}
+            <div>
               <h2 style={{ fontSize: '1.75rem', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>
-                Welcome back
+                Farmer Sign In
               </h2>
-              <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
-                Sign in to manage your crops, advisory, and farm records.
+              <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginTop: '0.35rem', lineHeight: 1.4 }}>
+                Enter your credentials to access crop diagnostics, weather alerts, and group buying discounts.
               </p>
             </div>
 
-            {/* Error Message Alert */}
+            {/* Error Banner */}
             {errorMsg && (
               <div className="alert-danger" style={{
                 padding: '0.85rem 1rem',
@@ -205,7 +256,7 @@ export const LoginPage: React.FC = () => {
             )}
 
             {/* Login Form */}
-            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.1rem' }}>
+            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.15rem' }}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
                 <label style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)' }}>
                   Email Address
@@ -317,7 +368,7 @@ export const LoginPage: React.FC = () => {
                   </>
                 ) : (
                   <>
-                    <span>Sign In</span>
+                    <span>Sign In to BharatFarm</span>
                     <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>arrow_forward</span>
                   </>
                 )}
@@ -327,14 +378,14 @@ export const LoginPage: React.FC = () => {
             {/* Footer Registration Redirect */}
             <div style={{
               textAlign: 'center',
-              paddingTop: '1rem',
+              paddingTop: '1.25rem',
               borderTop: '1px solid var(--border-default)',
               fontSize: '0.9rem',
               color: 'var(--text-muted)'
             }}>
-              Don't have an account yet?{' '}
+              New to BharatFarm?{' '}
               <Link to="/register" style={{ color: 'var(--emerald-primary)', fontWeight: 700, textDecoration: 'none' }}>
-                Register here
+                Register your farm here
               </Link>
             </div>
           </div>
