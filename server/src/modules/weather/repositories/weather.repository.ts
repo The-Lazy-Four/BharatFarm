@@ -81,9 +81,12 @@ export class WeatherRepository {
       logger.info(`[Weather] Requesting live Open-Meteo forecast for ${resolvedLocation} (${lat}, ${lon})`);
       const forecast = await this.fetchForecast(lat, lon, resolvedLocation);
       return forecast;
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'Unknown error';
-      logger.warn('[Weather] Live fetch failed, serving offline fallback', { error: message });
+    } catch (err: any) {
+      const message = err instanceof Error ? err.message : String(err);
+      const stack = err instanceof Error ? err.stack : undefined;
+      logger.error('[Weather Production Error] Live fetch failed in WeatherRepository', { error: message, stack, params });
+      
+      // If USE_MOCK_DATA is explicitly true or network completely failed, return offline fallback but log clearly
       return {
         ...MOCK_WEATHER_DATA,
         location: params.location || MOCK_WEATHER_DATA.location,
@@ -96,7 +99,10 @@ export class WeatherRepository {
   private async reverseGeocode(lat: number, lon: number): Promise<string> {
     try {
       const url = `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=en`;
-      const response = await fetch(url, { signal: AbortSignal.timeout(4000) });
+      const response = await fetch(url, {
+        headers: { 'User-Agent': 'BharatFarm-Production/1.0' },
+        signal: AbortSignal.timeout(8000)
+      });
       if (response.ok) {
         const data = await response.json();
         const cityOrLocality = data.locality || data.city || data.principalSubdivision;
@@ -106,8 +112,8 @@ export class WeatherRepository {
         }
         if (cityOrLocality) return cityOrLocality;
       }
-    } catch (err) {
-      logger.warn('[Weather] Reverse geocoding failed, falling back to coordinate label');
+    } catch (err: any) {
+      logger.warn('[Weather] Reverse geocoding failed, falling back to coordinate label', { error: err?.message || String(err) });
     }
     return `Location (${lat.toFixed(2)}°, ${lon.toFixed(2)}°)`;
   }
@@ -119,13 +125,16 @@ export class WeatherRepository {
 
     try {
       const url = `${GEOCODE_URL}?name=${encodeURIComponent(city.trim())}&count=5&language=en&format=json`;
-      const response = await fetch(url, { signal: AbortSignal.timeout(5000) });
+      const response = await fetch(url, {
+        headers: { 'User-Agent': 'BharatFarm-Production/1.0' },
+        signal: AbortSignal.timeout(10000)
+      });
       if (!response.ok) throw new Error(`Geocoding API responded with status ${response.status}`);
       const data = await response.json();
       return (data.results || []) as GeocodeResult[];
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'Unknown error';
-      logger.warn('[Weather] Geocoding failed, serving offline fallback locations', { error: message });
+    } catch (err: any) {
+      const message = err instanceof Error ? err.message : String(err);
+      logger.error('[Weather Production Error] Geocoding failed', { city, error: message });
       return this.fallbackGeocode(city);
     }
   }
@@ -155,8 +164,11 @@ export class WeatherRepository {
       `&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum,wind_speed_10m_max,precipitation_probability_max` +
       `&timezone=auto&forecast_days=7`;
 
-    const response = await fetch(url, { signal: AbortSignal.timeout(5000) });
-    if (!response.ok) throw new Error(`Weather API responded with status ${response.status}`);
+    const response = await fetch(url, {
+      headers: { 'User-Agent': 'BharatFarm-Production/1.0' },
+      signal: AbortSignal.timeout(10000)
+    });
+    if (!response.ok) throw new Error(`Open-Meteo forecast API responded with status ${response.status}`);
     const data = await response.json();
 
     const current = data.current;

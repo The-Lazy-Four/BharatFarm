@@ -1,6 +1,15 @@
 import { ApiResponse } from '@bharatfarm/shared';
 
-const BASE_URL = '/api';
+const getBaseUrl = (): string => {
+  const envApiUrl = (import.meta as any).env?.VITE_API_URL;
+  if (envApiUrl) {
+    const trimmed = String(envApiUrl).trim().replace(/\/+$/, '');
+    return trimmed.endsWith('/api') ? trimmed : `${trimmed}/api`;
+  }
+  return '/api';
+};
+
+const BASE_URL = getBaseUrl();
 
 export class ApiClient {
   private static token: string | null = localStorage.getItem('auth_token');

@@ -62,24 +62,42 @@ export const WeatherProvider: React.FC<{ children: React.ReactNode }> = ({ child
     }
 
     setIsLoading(true);
+    const handleSuccess = (position: GeolocationPosition) => {
+      const lat = position.coords.latitude;
+      const lon = position.coords.longitude;
+      setGpsCoords({ lat, lon });
+      setLocationPermissionState('granted');
+      fetchWeather({ lat, lon });
+    };
+
+    const handleError = (err: GeolocationPositionError) => {
+      if (err.code === err.TIMEOUT) {
+        // Fallback to low accuracy search if high accuracy times out
+        navigator.geolocation.getCurrentPosition(
+          handleSuccess,
+          () => {
+            setLocationPermissionState('denied');
+            setError('Location request timed out. Displaying regional forecast for West Bengal.');
+            fetchWeather({ location: 'Hooghly, West Bengal' });
+          },
+          { enableHighAccuracy: false, timeout: 5000 }
+        );
+        return;
+      }
+
+      setLocationPermissionState('denied');
+      let msg = 'Location permission is needed for local weather and farm advice.';
+      if (err.code === err.PERMISSION_DENIED) {
+        msg = 'Location permission denied. Showing regional forecast for West Bengal.';
+      }
+      setError(msg);
+      fetchWeather({ location: 'Hooghly, West Bengal' });
+    };
+
     navigator.geolocation.getCurrentPosition(
-      position => {
-        const lat = position.coords.latitude;
-        const lon = position.coords.longitude;
-        setGpsCoords({ lat, lon });
-        setLocationPermissionState('granted');
-        fetchWeather({ lat, lon });
-      },
-      err => {
-        setLocationPermissionState('denied');
-        let msg = 'Location permission is needed for local weather and farm advice.';
-        if (err.code === err.PERMISSION_DENIED) {
-          msg = 'Location permission denied. Showing regional forecast for West Bengal.';
-        }
-        setError(msg);
-        fetchWeather({ location: 'Hooghly, West Bengal' });
-      },
-      { enableHighAccuracy: true, timeout: 8000, maximumAge: 60000 }
+      handleSuccess,
+      handleError,
+      { enableHighAccuracy: true, timeout: 5000, maximumAge: 300000 }
     );
   }, [fetchWeather]);
 
