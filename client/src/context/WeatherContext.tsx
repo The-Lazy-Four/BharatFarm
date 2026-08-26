@@ -40,14 +40,14 @@ export const WeatherProvider: React.FC<{ children: React.ReactNode }> = ({ child
     try {
       const data = await WeatherApi.getWeather(params);
       if (data) {
-        applyWeatherData(data);
+        setWeather(data);
+        setError(null);
       } else {
-        setWeather(prev => ({ ...prev, source: 'OFFLINE' }));
-        setError('Could not reach live weather server. Showing cached forecast.');
+        setError('Weather API returned null/empty response from server.');
       }
-    } catch (err) {
-      setWeather(prev => ({ ...prev, source: 'OFFLINE' }));
-      setError('Network error fetching weather. Showing cached forecast.');
+    } catch (err: any) {
+      const msg = err?.message || String(err);
+      setError(`Production Weather Error: ${msg}`);
     } finally {
       setIsLoading(false);
     }

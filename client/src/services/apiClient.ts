@@ -31,16 +31,24 @@ export class ApiClient {
   }
 
   static async get<T>(path: string): Promise<ApiResponse<T>> {
+    const fullUrl = `${BASE_URL}${path}`;
     try {
-      const response = await fetch(`${BASE_URL}${path}`, {
+      const response = await fetch(fullUrl, {
         method: 'GET',
         headers: this.getHeaders()
       });
+      if (!response.ok) {
+        const text = await response.text().catch(() => '');
+        return {
+          success: false,
+          error: { code: `HTTP_${response.status}`, message: `GET ${fullUrl} failed with status ${response.status}: ${text}` }
+        };
+      }
       return await response.json();
     } catch (error: any) {
       return {
         success: false,
-        error: { code: 'NETWORK_ERROR', message: error.message || 'Failed to connect to server' }
+        error: { code: 'NETWORK_ERROR', message: `GET ${fullUrl} network failure: ${error?.message || 'Failed to connect to server'}` }
       };
     }
   }

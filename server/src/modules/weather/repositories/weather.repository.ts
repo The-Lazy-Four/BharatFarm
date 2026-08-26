@@ -78,21 +78,31 @@ export class WeatherRepository {
         resolvedLocation = await this.reverseGeocode(lat, lon);
       }
 
-      logger.info(`[Weather] Requesting live Open-Meteo forecast for ${resolvedLocation} (${lat}, ${lon})`);
+      logger.info(`[Weather Production] Requesting live Open-Meteo forecast for ${resolvedLocation} (${lat}, ${lon})`);
       const forecast = await this.fetchForecast(lat, lon, resolvedLocation);
       return forecast;
     } catch (err: any) {
       const message = err instanceof Error ? err.message : String(err);
       const stack = err instanceof Error ? err.stack : undefined;
-      logger.error('[Weather Production Error] Live fetch failed in WeatherRepository', { error: message, stack, params });
+      logger.error('[Weather Production CRITICAL ERROR] Live fetch failed in WeatherRepository', {
+        error: message,
+        stack,
+        params,
+        time: new Date().toISOString()
+      });
       
-      // If USE_MOCK_DATA is explicitly true or network completely failed, return offline fallback but log clearly
-      return {
-        ...MOCK_WEATHER_DATA,
-        location: params.location || MOCK_WEATHER_DATA.location,
-        source: 'OFFLINE',
-        updatedAt: new Date().toISOString()
-      };
+      // If server is configured with USE_MOCK_DATA=true, serve mock fallback
+      if (config.useMockData) {
+        return {
+          ...MOCK_WEATHER_DATA,
+          location: params.location || MOCK_WEATHER_DATA.location,
+          source: 'OFFLINE',
+          updatedAt: new Date().toISOString()
+        };
+      }
+
+      // Re-throw raw production error so it surfaces in Render API response & logs
+      throw new Error(`Open-Meteo Weather Fetch Failed: ${message}`);
     }
   }
 
@@ -164,11 +174,23 @@ export class WeatherRepository {
       `&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum,wind_speed_10m_max,precipitation_probability_max` +
       `&timezone=auto&forecast_days=7`;
 
-    const response = await fetch(url, {
-      headers: { 'User-Agent': 'BharatFarm-Production/1.0' },
-      signal: AbortSignal.timeout(10000)
-    });
-    if (!response.ok) throw new Error(`Open-Meteo forecast API responded with status ${response.status}`);
+    logger.info(`[Weather Production Request] GET ${url}`);
+    let response: Response;
+    try {
+      response = await fetch(url, {
+        headers: { 'User-Agent': 'BharatFarm-Production/1.0' },
+        signal: AbortSignal.timeout(10000)
+      });
+    } catch (err: any) {
+      logger.error(`[Weather Production Network Error] Fetch to Open-Meteo failed for URL ${url}`, { error: err?.message || String(err) });
+      throw err;
+    }
+
+    if (!response.ok) {
+      const errText = await response.text().catch(() => '');
+      logger.error(`[Weather Production API Error] Open-Meteo HTTP ${response.status} for ${url}`, { responseBody: errText });
+      throw new Error(`Open-Meteo forecast API responded with status ${response.status}: ${errText}`);
+    }
     const data = await response.json();
 
     const current = data.current;

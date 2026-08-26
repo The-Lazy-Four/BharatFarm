@@ -27,13 +27,11 @@ describe('Weather Intelligence Backend Module Integration', () => {
     await expect(service.getWeatherForecast({ lat: 120, lon: 88 })).rejects.toThrow('Invalid latitude');
   });
 
-  it('handles offline fallback gracefully when network fetch fails', async () => {
+  it('throws error when network fetch fails and USE_MOCK_DATA is false', async () => {
     const fetchSpy = vi.spyOn(globalThis, 'fetch').mockImplementation(async () => {
       throw new Error('Network timeout');
     });
-    const result = await repository.getWeather({ location: 'Hooghly' });
-    expect(result.source).toBe('OFFLINE');
-    expect(result.location).toBe('Hooghly');
+    await expect(repository.getWeather({ location: 'Hooghly' })).rejects.toThrow('Open-Meteo Weather Fetch Failed');
     fetchSpy.mockRestore();
   });
 });
