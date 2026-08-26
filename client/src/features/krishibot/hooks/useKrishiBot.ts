@@ -4,6 +4,8 @@ import { INITIAL_MOCK_MESSAGES } from '../mock/krishiBot.mock.js';
 import { KrishiBotApi } from '../services/krishiBotApi.js';
 import { speakText } from '../utils/krishiBot.utils.js';
 
+const IS_DEVELOPMENT = typeof window !== 'undefined' && ['localhost', '127.0.0.1'].includes(window.location.hostname);
+
 export const useKrishiBot = (language: string) => {
   const [messages, setMessages] = useState<ChatMessage[]>(INITIAL_MOCK_MESSAGES);
   const [isLoading, setIsLoading] = useState(false);
@@ -38,8 +40,8 @@ export const useKrishiBot = (language: string) => {
 
       if (autoSpeakRef.current) speakText(replyText, language);
     } catch (err: any) {
-      const errMsg = err?.message || 'KrishiBot could not respond right now.';
-      setError(errMsg);
+      if (IS_DEVELOPMENT) console.error('[KrishiBot] Message request failed', err);
+      setError('KrishiBot could not respond right now. Please try again in a moment.');
     } finally {
       setIsLoading(false);
     }

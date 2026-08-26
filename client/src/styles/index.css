@@ -717,6 +717,111 @@ a {
 }
 
 /* ============================================================
+   CROP ROADMAP — SPACIOUS FORM WORKSPACE
+   ============================================================ */
+.roadmap-workspace {
+  width: 100%;
+  max-width: 1120px;
+  margin-top: 1.5rem;
+}
+
+.roadmap-workspace > :first-child {
+  min-width: 0;
+}
+
+.roadmap-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.35rem;
+  margin-top: 1.25rem;
+}
+
+.roadmap-form-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1.15rem;
+}
+
+.roadmap-form-grid > div {
+  min-width: 0;
+}
+
+.roadmap-select-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.roadmap-select-field label,
+.roadmap-form-grid label {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.roadmap-form-grid input,
+.roadmap-form-grid select {
+  width: 100%;
+  min-height: 48px;
+}
+
+.roadmap-form-grid select {
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+}
+
+.roadmap-ai-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  background: var(--surface-inset);
+  color: var(--text-secondary);
+  font-size: 0.88rem;
+  line-height: 1.45;
+}
+
+.roadmap-ai-note .material-symbols-outlined {
+  color: var(--emerald-primary);
+  font-size: 1.15rem;
+}
+
+.roadmap-form-error {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+}
+
+.roadmap-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  border-top: 1px solid var(--border-subtle);
+  padding-top: 1.35rem;
+}
+
+@media (min-width: 700px) {
+  .roadmap-form-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 1.35rem;
+    row-gap: 1.25rem;
+  }
+}
+
+@media (min-width: 900px) {
+  .roadmap-workspace > :first-child {
+    padding: 2rem;
+  }
+}
+
+@media (max-width: 699px) {
+  .roadmap-form-actions > button {
+    width: 100%;
+  }
+}
+
+/* ============================================================
    INSET STAT ROWS (e.g. weather data cells)
    ============================================================ */
 .inset-stat {

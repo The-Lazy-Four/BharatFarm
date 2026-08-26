@@ -16,6 +16,7 @@ const extraItems = [
   { path: '/records', label: 'Farm Records', icon: 'description' },
   { path: '/schemes', label: 'Govt Schemes', icon: 'account_balance' },
   { path: '/calculator', label: 'Farm Calculator', icon: 'calculate' },
+  { path: '/crop-roadmap', label: 'Crop Roadmap', icon: 'route' },
   { path: '/loan-eligibility', label: 'Loan Eligibility', icon: 'credit_card' },
   { path: '/orders', label: 'Orders', icon: 'local_shipping' },
   { path: '/profile', label: 'Profile', icon: 'settings' }
