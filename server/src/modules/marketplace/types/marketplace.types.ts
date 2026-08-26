@@ -24,6 +24,6 @@ export interface CreateListingDto {
   unit: string;
   quantityAvailable: number;
   location: string;
-  sellerPhone?: string;
+  sellerPhone: string;
   imageUrl?: string;
 }

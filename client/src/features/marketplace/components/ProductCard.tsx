@@ -20,6 +20,26 @@ export const ProductCard: React.FC<{ product: ProductListing }> = ({ product }) 
       }
     >
       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+        {product.imageUrl && (
+          <div style={{
+            width: '100%',
+            height: '130px',
+            overflow: 'hidden',
+            borderRadius: 'var(--radius-sm)',
+            marginBottom: '0.5rem',
+            background: 'rgba(255,255,255,0.05)',
+            border: '1px solid rgba(255,255,255,0.1)'
+          }}>
+            <img
+              src={product.imageUrl}
+              alt={product.title}
+              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              onError={(e) => {
+                (e.target as HTMLElement).style.display = 'none';
+              }}
+            />
+          </div>
+        )}
         <p style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--primary)' }}>
           {formatCurrency(product.price)}{' '}
           <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>/ {product.unit}</span>

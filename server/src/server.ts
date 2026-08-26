@@ -19,6 +19,11 @@ const startServer = async () => {
       } else {
         logger.warn(`  OpenRouter API Key: MISSING from .env!`);
       }
+      if (config.weatherApiKey) {
+        logger.info(`  Weather API Key: Loaded (OpenWeatherMap)`);
+      } else {
+        logger.info(`  Weather API Key: Not set (using Open-Meteo fallback)`);
+      }
       logger.info(`  Health Endpoint: http://localhost:${config.port}/api/health`);
       logger.info(`==================================================`);
     });

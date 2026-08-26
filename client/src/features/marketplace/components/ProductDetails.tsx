@@ -6,6 +6,25 @@ import { formatCurrency } from '../utils/marketplace.utils.js';
 export const ProductDetails: React.FC<{ product: ProductListing }> = ({ product }) => {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+      {product.imageUrl && (
+        <div style={{
+          width: '100%',
+          height: '220px',
+          overflow: 'hidden',
+          borderRadius: 'var(--radius)',
+          background: 'rgba(255,255,255,0.05)',
+          border: '1px solid rgba(255,255,255,0.1)'
+        }}>
+          <img
+            src={product.imageUrl}
+            alt={product.title}
+            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+            onError={(e) => {
+              (e.target as HTMLElement).style.display = 'none';
+            }}
+          />
+        </div>
+      )}
       <div>
         <h2 style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--text-main)' }}>{product.title}</h2>
         <p style={{ color: 'var(--text-muted)', textTransform: 'capitalize' }}>{product.category}</p>

@@ -42,6 +42,10 @@
   --text-disabled: rgba(26, 35, 22, 0.32);
   --text-inverse: #FFFFFF;
   --text-on-lime: #1A2316;
+  --dark-text: #1A2316;
+
+  /* Card and Button gray */
+  --card-gray: rgba(100, 130, 80, 0.12);
 
   /* Borders */
   --border-default: rgba(100, 130, 80, 0.18);
@@ -116,6 +120,10 @@
   --text-disabled: rgba(232, 240, 228, 0.30);
   --text-inverse: #1A2316;
   --text-on-lime: #1A2316;
+  --dark-text: #1A2316;
+
+  /* Card and Button gray */
+  --card-gray: rgba(100, 160, 80, 0.18);
 
   /* Brand colours remain consistent */
   --signal-lime: #C8E21A;
