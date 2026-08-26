@@ -1,6 +1,15 @@
 import { ApiResponse } from '@bharatfarm/shared';
 
-const BASE_URL = '/api';
+const getBaseUrl = (): string => {
+  const envApiUrl = (import.meta as any).env?.VITE_API_URL;
+  if (envApiUrl) {
+    const trimmed = String(envApiUrl).trim().replace(/\/+$/, '');
+    return trimmed.endsWith('/api') ? trimmed : `${trimmed}/api`;
+  }
+  return '/api';
+};
+
+const BASE_URL = getBaseUrl();
 const IS_DEVELOPMENT = typeof window !== 'undefined' && ['localhost', '127.0.0.1'].includes(window.location.hostname);
 
 export class ApiClient {
@@ -86,8 +95,9 @@ export class ApiClient {
   }
 
   static async get<T>(path: string): Promise<ApiResponse<T>> {
+    const fullUrl = `${BASE_URL}${path}`;
     try {
-      const response = await fetch(`${BASE_URL}${path}`, {
+      const response = await fetch(fullUrl, {
         method: 'GET',
         headers: this.getHeaders()
       });
@@ -95,7 +105,7 @@ export class ApiClient {
     } catch (error: any) {
       return {
         success: false,
-        error: { code: 'NETWORK_ERROR', message: error.message || 'Failed to connect to server' }
+        error: { code: 'NETWORK_ERROR', message: `GET ${fullUrl} network failure: ${error?.message || 'Failed to connect to server'}` }
       };
     }
   }

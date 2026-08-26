@@ -14,7 +14,16 @@ const startServer = async () => {
       logger.info(`  BharatFarm Server running on port ${config.port}`);
       logger.info(`  Environment: ${config.env}`);
       logger.info(`  Mock Mode: ${config.useMockData}`);
-      logger.info(`  OpenRouter API key configured: ${Boolean(config.openRouterApiKey)}`);
+      if (config.openRouterApiKey) {
+        logger.info(`  OpenRouter API Key: Loaded (${config.openRouterApiKey.substring(0, 8)}...)`);
+      } else {
+        logger.warn(`  OpenRouter API Key: MISSING from .env!`);
+      }
+      if (config.weatherApiKey) {
+        logger.info(`  Weather API Key: Loaded (OpenWeatherMap)`);
+      } else {
+        logger.info(`  Weather API Key: Not set (using Open-Meteo fallback)`);
+      }
       logger.info(`  Health Endpoint: http://localhost:${config.port}/api/health`);
       logger.info(`==================================================`);
     });

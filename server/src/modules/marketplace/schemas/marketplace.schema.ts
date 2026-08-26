@@ -20,6 +20,12 @@ export const marketplaceSchema = {
     if (!body.location || typeof body.location !== 'string') {
       return { error: { message: 'location is required' } };
     }
+    if (!body.sellerPhone || typeof body.sellerPhone !== 'string' || !body.sellerPhone.trim()) {
+      return { error: { message: 'mobile number is required' } };
+    }
+    if (!/^(?:\+91[\s-]?)?[6-9]\d{9}$/.test(body.sellerPhone.replace(/\s/g, ''))) {
+      return { error: { message: 'sellerPhone must be a valid 10 digit Indian mobile number' } };
+    }
     return { error: null };
   }
 };

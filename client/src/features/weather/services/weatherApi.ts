@@ -9,6 +9,9 @@ export class WeatherApi {
     if (params.lon !== undefined) query.set('lon', String(params.lon));
     const qs = query.toString();
     const res = await ApiClient.get<WeatherForecast>(`/weather${qs ? `?${qs}` : ''}`);
+    if (!res.success) {
+      throw new Error(res.error?.message || 'Server error fetching weather forecast');
+    }
     return res.data || null;
   }
 
