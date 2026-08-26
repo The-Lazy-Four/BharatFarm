@@ -23,5 +23,6 @@ export interface CreateListingInput {
   unit: string;
   quantityAvailable: number;
   location: string;
-  sellerPhone?: string;
+  sellerPhone: string;
+  imageUrl?: string;
 }
