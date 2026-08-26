@@ -15,18 +15,16 @@ import { logger } from '../utils/logger.js';
  */
 
 let _supabase: SupabaseClient | null = null;
-let _initialized = false;
+let _supabaseAdmin: SupabaseClient | null = null;
 
 export function getSupabaseClient(): SupabaseClient | null {
-  if (_initialized) return _supabase;
-  _initialized = true;
+  if (_supabase) return _supabase;
 
   const url = config.supabase.url;
-  const key = config.supabase.serviceRoleKey || config.supabase.anonKey;
+  const key = config.supabase.anonKey || config.supabase.serviceRoleKey;
 
   if (!url || !key) {
-    logger.warn('[Supabase] URL or Key not configured — database operations will be unavailable. Set SUPABASE_URL and SUPABASE_ANON_KEY (or SUPABASE_SERVICE_ROLE_KEY) in .env');
-    _supabase = null;
+    logger.warn('[Supabase] URL or Key not configured — database operations will be unavailable.');
     return null;
   }
 
@@ -37,9 +35,30 @@ export function getSupabaseClient(): SupabaseClient | null {
     },
   });
 
-  logger.info(`[Supabase] Client initialized (URL: ${url.substring(0, 30)}...)`);
   return _supabase;
 }
+
+export function getSupabaseAdminClient(): SupabaseClient | null {
+  if (_supabaseAdmin) return _supabaseAdmin;
+
+  const url = config.supabase.url;
+  const serviceKey = config.supabase.serviceRoleKey;
+
+  if (!url || !serviceKey) {
+    logger.warn('[Supabase Admin] SUPABASE_SERVICE_ROLE_KEY is missing — administrative actions will fail or fallback to client key.');
+    return getSupabaseClient();
+  }
+
+  _supabaseAdmin = createClient(url, serviceKey, {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false,
+    },
+  });
+
+  return _supabaseAdmin;
+}
+
 
 /**
  * Quick connectivity check — runs a trivial query against a known

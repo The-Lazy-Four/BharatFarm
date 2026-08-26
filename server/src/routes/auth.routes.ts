@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { ApiResponse } from '../utils/apiResponse.js';
 import { config } from '../config/env.js';
-import { getSupabaseClient } from '../config/supabase.js';
+import { getSupabaseClient, getSupabaseAdminClient } from '../config/supabase.js';
 
 const router = Router();
 
@@ -36,45 +36,77 @@ router.post('/register', async (req, res) => {
   }
 
   const supabase = getSupabaseClient();
-  if (!supabase) {
+  const supabaseAdmin = getSupabaseAdminClient();
+
+  if (!supabase || !supabaseAdmin) {
     return ApiResponse.error(res, 'Supabase auth service is not configured', 'SERVER_ERROR', 500);
   }
 
   try {
-    // 1. Sign up user via Supabase Auth
-    const { data: authData, error: authError } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
+    // 1. Create user via Supabase Auth (admin.createUser auto-confirms email and bypasses rate limits when service role key is available)
+    let authData: { user: any; session?: any } | null = null;
+    let authError: any = null;
+
+    if (config.supabase.serviceRoleKey) {
+      const { data, error } = await supabaseAdmin.auth.admin.createUser({
+        email,
+        password,
+        email_confirm: true,
+        user_metadata: {
           full_name: fullName,
           role
         }
+      });
+      authError = error;
+      if (data?.user) {
+        // Sign in immediately to generate a session token for the response
+        const { data: sessionData } = await supabase.auth.signInWithPassword({ email, password });
+        authData = { user: data.user, session: sessionData?.session || null };
       }
-    });
+    } else {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            full_name: fullName,
+            role
+          }
+        }
+      });
+      authData = data;
+      authError = error;
+    }
 
     if (authError) {
-      if (authError.message.includes('already registered')) {
+      if (
+        authError.message.includes('already registered') ||
+        authError.message.includes('already been registered') ||
+        authError.code === 'user_already_exists'
+      ) {
         return ApiResponse.error(res, 'An account with this email already exists', 'DUPLICATE_EMAIL', 409);
       }
       return ApiResponse.error(res, authError.message, 'AUTH_ERROR', 400);
     }
 
-    if (!authData.user) {
+    if (!authData || !authData.user) {
       return ApiResponse.error(res, 'Failed to create user account', 'AUTH_ERROR', 500);
     }
 
     const userId = authData.user.id;
 
-    // 2. Ensure linked profile exists in public.profiles (upsert safely)
-    const { data: profile, error: profileError } = await supabase
+    // Normalize phone field name for DB column phone
+    const phoneValue = phone || null;
+
+    // 2. Ensure linked profile exists in public.profiles using admin client (bypasses RLS during registration)
+    const { data: profile, error: profileError } = await supabaseAdmin
       .from('profiles')
       .upsert({
         id: userId,
         full_name: fullName,
         email,
         role,
-        phone_number: phone || null,
+        phone: phoneValue,
         state,
         district: district || null
       })
@@ -82,8 +114,16 @@ router.post('/register', async (req, res) => {
       .single();
 
     if (profileError) {
-      // Return clear error without leaking raw DB details
-      return ApiResponse.error(res, 'Account created, but profile initialization failed. Please contact support.', 'PROFILE_ERROR', 500);
+      // Attempt safe rollback of auth.users if profile initialization fails
+      if (config.supabase.serviceRoleKey) {
+        await supabaseAdmin.auth.admin.deleteUser(userId).catch(() => {});
+      }
+      return ApiResponse.error(
+        res,
+        `Account registration failed during profile initialization: ${profileError.message}`,
+        'PROFILE_ERROR',
+        500
+      );
     }
 
     const session = authData.session;
@@ -95,7 +135,7 @@ router.post('/register', async (req, res) => {
         email: profile.email,
         role: profile.role,
         fullName: profile.full_name,
-        phone: profile.phone_number || undefined,
+        phone: profile.phone || undefined,
         state: profile.state || undefined
       }
     }, 'Registration successful');
@@ -166,7 +206,7 @@ router.post('/login', async (req, res) => {
       email: authData.user.email || email,
       role: profile?.role || 'farmer',
       fullName: profile?.full_name || authData.user.user_metadata?.full_name || email.split('@')[0],
-      phone: profile?.phone_number || undefined,
+      phone: profile?.phone || undefined,
       state: profile?.state || undefined
     };
 
@@ -230,7 +270,7 @@ router.get('/me', async (req, res) => {
         email: authUser.email || '',
         role: profile?.role || 'farmer',
         fullName: profile?.full_name || authUser.user_metadata?.full_name || '',
-        phone: profile?.phone_number || undefined,
+        phone: profile?.phone || undefined,
         state: profile?.state || undefined
       }
     });
