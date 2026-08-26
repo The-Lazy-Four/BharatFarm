@@ -8,7 +8,7 @@ import { logger } from './logger.js';
  */
 
 const AI_PROVIDER_URL = 'https://openrouter.ai/api/v1/chat/completions';
-const DEFAULT_TEXT_MODEL = 'google/gemini-2.0-flash-001';
+const DEFAULT_TEXT_MODEL = 'google/gemini-2.5-flash';
 const REQUEST_TIMEOUT_MS = 45000;
 
 export interface AiMessageContentPart {
