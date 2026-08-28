@@ -13,6 +13,9 @@ export const connectDatabase = async (): Promise<void> => {
   const isConnected = await checkSupabaseConnection();
   if (isConnected) {
     logger.info('[DATABASE] Supabase connection verified.');
+    // Trigger idempotent database seed for marketplace
+    const { seedMarketplaceProducts } = await import('../modules/marketplace/seed/marketplace.seed.js');
+    await seedMarketplaceProducts();
   } else {
     logger.warn('[DATABASE] Supabase connection unavailable — features requiring database will fall back to in-memory/mock data.');
   }

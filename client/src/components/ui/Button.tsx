@@ -35,10 +35,10 @@ export const Button: React.FC<ButtonProps> = ({
   };
 
   const variants = {
-    primary: { background: 'var(--signal-lime)', color: 'var(--dark-text)' },
-    secondary: { background: 'var(--card-gray)', color: 'var(--dark-text)' },
+    primary: { background: 'var(--signal-lime)', color: '#FFFFFF' },
+    secondary: { background: 'var(--card-gray)', color: 'var(--text-primary)' },
     danger: { background: 'var(--danger)', color: '#FFFFFF' },
-    outline: { background: 'transparent', color: 'var(--dark-text)', border: '1px solid rgba(34,37,31,0.2)' }
+    outline: { background: 'transparent', color: 'var(--text-primary)', border: '1px solid var(--border-strong)' }
   };
 
   return (

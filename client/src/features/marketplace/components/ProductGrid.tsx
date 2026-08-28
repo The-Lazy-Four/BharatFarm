@@ -4,7 +4,7 @@ import { ProductCard } from './ProductCard.js';
 
 export const ProductGrid: React.FC<{ products: ProductListing[] }> = ({ products }) => {
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1.5rem' }}>
+    <div className="product-catalog-grid">
       {products.map(prod => (
         <ProductCard key={prod.id} product={prod} />
       ))}

@@ -1,16 +1,8 @@
 import { GroupBuyPool } from '../types/groupBuying.types.js';
 
-/**
- * NOTE: Group Buying has no equivalent feature in the OLD BharatFarm
- * project (verified — no matching files, routes, or UI anywhere in the
- * old repo). This dataset is fresh, built directly from the Stitch
- * `group_buying_skeleton` reference (product card with category,
- * participants/target, time remaining, standard vs bulk price, "Join
- * Group" CTA) rather than adapted from old app logic.
- */
 export const MOCK_GROUP_BUYS: GroupBuyPool[] = [
   {
-    id: 'group-201',
+    id: 'b1000000-0000-0000-0000-000000000001',
     itemTitle: 'IFFCO NPK Fertilizer 50kg Bags',
     category: 'fertilizer',
     originalPricePerUnit: 1475,
@@ -23,7 +15,7 @@ export const MOCK_GROUP_BUYS: GroupBuyPool[] = [
     location: 'Ambala Region, Haryana'
   },
   {
-    id: 'group-202',
+    id: 'b1000000-0000-0000-0000-000000000002',
     itemTitle: 'Certified Hybrid Paddy Seeds (25kg)',
     category: 'seeds',
     originalPricePerUnit: 3200,
@@ -36,7 +28,7 @@ export const MOCK_GROUP_BUYS: GroupBuyPool[] = [
     location: 'Krishna Region, Andhra Pradesh'
   },
   {
-    id: 'group-203',
+    id: 'b1000000-0000-0000-0000-000000000003',
     itemTitle: 'Power Weeder (4-Stroke) — Shared Purchase',
     category: 'machinery',
     originalPricePerUnit: 42000,
@@ -49,7 +41,7 @@ export const MOCK_GROUP_BUYS: GroupBuyPool[] = [
     location: 'Ludhiana Region, Punjab'
   },
   {
-    id: 'group-204',
+    id: 'b1000000-0000-0000-0000-000000000004',
     itemTitle: 'DAP Fertilizer 50kg Bags',
     category: 'fertilizer',
     originalPricePerUnit: 1350,
@@ -60,5 +52,83 @@ export const MOCK_GROUP_BUYS: GroupBuyPool[] = [
     status: 'OPEN',
     deadline: new Date(Date.now() + 86400000 * 7).toISOString(),
     location: 'Hooghly Region, West Bengal'
+  },
+  {
+    id: 'b1000000-0000-0000-0000-000000000005',
+    itemTitle: 'Neem Coated Urea (45kg Bulk Lot)',
+    category: 'fertilizer',
+    originalPricePerUnit: 300,
+    discountedPricePerUnit: 242,
+    targetQuantity: 200,
+    currentQuantity: 140,
+    participantCount: 18,
+    status: 'OPEN',
+    deadline: new Date(Date.now() + 86400000 * 4).toISOString(),
+    location: 'Karnal, Haryana'
+  },
+  {
+    id: 'b1000000-0000-0000-0000-000000000006',
+    itemTitle: 'High-Yield HD-3086 Wheat Seeds (40kg)',
+    category: 'seeds',
+    originalPricePerUnit: 1850,
+    discountedPricePerUnit: 1480,
+    targetQuantity: 60,
+    currentQuantity: 45,
+    participantCount: 11,
+    status: 'OPEN',
+    deadline: new Date(Date.now() + 86400000 * 3).toISOString(),
+    location: 'Indore, Madhya Pradesh'
+  },
+  {
+    id: 'b1000000-0000-0000-0000-000000000007',
+    itemTitle: 'Automatic Solar Drip Irrigation Kit',
+    category: 'machinery',
+    originalPricePerUnit: 15500,
+    discountedPricePerUnit: 11900,
+    targetQuantity: 15,
+    currentQuantity: 12,
+    participantCount: 8,
+    status: 'OPEN',
+    deadline: new Date(Date.now() + 86400000 * 6).toISOString(),
+    location: 'Nashik, Maharashtra'
+  },
+  {
+    id: 'b1000000-0000-0000-0000-000000000008',
+    itemTitle: 'Organic Vermicompost Bulk (500kg Pack)',
+    category: 'fertilizer',
+    originalPricePerUnit: 4500,
+    discountedPricePerUnit: 3400,
+    targetQuantity: 20,
+    currentQuantity: 20,
+    participantCount: 14,
+    status: 'THRESHOLD_REACHED',
+    deadline: new Date(Date.now() + 86400000 * 2).toISOString(),
+    location: 'Coimbatore, Tamil Nadu'
+  },
+  {
+    id: 'b1000000-0000-0000-0000-000000000009',
+    itemTitle: 'Hybrid Tomato & Chili Vegetable Seeds Kit',
+    category: 'seeds',
+    originalPricePerUnit: 1200,
+    discountedPricePerUnit: 890,
+    targetQuantity: 50,
+    currentQuantity: 15,
+    participantCount: 4,
+    status: 'OPEN',
+    deadline: new Date(Date.now() + 86400000 * 8).toISOString(),
+    location: 'Guntur, Andhra Pradesh'
+  },
+  {
+    id: 'b1000000-0000-0000-0000-000000000010',
+    itemTitle: 'Multi-Crop Battery Knapsack Sprayer (16L)',
+    category: 'machinery',
+    originalPricePerUnit: 3400,
+    discountedPricePerUnit: 2550,
+    targetQuantity: 25,
+    currentQuantity: 25,
+    participantCount: 19,
+    status: 'COMPLETED',
+    deadline: new Date(Date.now() - 86400000 * 1).toISOString(),
+    location: 'Rajkot, Gujarat'
   }
 ];

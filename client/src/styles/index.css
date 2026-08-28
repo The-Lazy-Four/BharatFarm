@@ -13,12 +13,12 @@
 [data-theme="light"] {
   --font-family: 'Urbanist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 
-  /* Brand Palette */
-  --signal-lime: #C8E21A;
-  --signal-lime-soft: rgba(200, 226, 26, 0.18);
-  --signal-lime-glow: rgba(200, 226, 26, 0.35);
-  --emerald-primary: #166534;
-  --emerald-mid: #15803D;
+  /* Brand Palette — Kelly Green & Agricultural Surfaces */
+  --signal-lime: #16A34A;                              /* Kelly Green Primary */
+  --signal-lime-soft: rgba(22, 163, 74, 0.14);
+  --signal-lime-glow: rgba(22, 163, 74, 0.30);
+  --emerald-primary: #15803D;
+  --emerald-mid: #166534;
   --emerald-dark: #0F5128;
   --emerald-deep: #0A3B1E;
   --amber: #D97706;
@@ -41,7 +41,7 @@
   --text-muted: rgba(26, 35, 22, 0.52);
   --text-disabled: rgba(26, 35, 22, 0.32);
   --text-inverse: #FFFFFF;
-  --text-on-lime: #1A2316;
+  --text-on-lime: #FFFFFF;
   --dark-text: #1A2316;
 
   /* Card and Button gray */
@@ -50,7 +50,7 @@
   /* Borders */
   --border-default: rgba(100, 130, 80, 0.18);
   --border-strong: rgba(100, 130, 80, 0.32);
-  --border-lime: rgba(200, 226, 26, 0.55);
+  --border-lime: rgba(22, 163, 74, 0.45);
   --border-subtle: rgba(100, 130, 80, 0.10);
 
   /* Semantic */
@@ -65,7 +65,7 @@
 
   /* Badge */
   --badge-primary-bg: var(--signal-lime);
-  --badge-primary-text: var(--text-on-lime);
+  --badge-primary-text: #FFFFFF;
   --badge-success-bg: rgba(22, 101, 52, 0.14);
   --badge-success-text: #166534;
   --badge-warning-bg: rgba(217, 119, 6, 0.14);
@@ -85,11 +85,11 @@
   --shadow-nav: 0 -2px 16px rgba(26, 35, 22, 0.08);
 
   /* Layout */
-  --radius: 20px;
-  --radius-sm: 12px;
-  --radius-lg: 28px;
+  --radius: 14px;
+  --radius-sm: 10px;
+  --radius-lg: 20px;
   --radius-pill: 9999px;
-  --transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  --transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 
   /* Page header bar */
   --header-bg: linear-gradient(135deg, rgba(15,65,35,0.97) 0%, rgba(22,90,48,0.93) 100%);
@@ -119,16 +119,16 @@
   --text-muted: rgba(232, 240, 228, 0.52);
   --text-disabled: rgba(232, 240, 228, 0.30);
   --text-inverse: #1A2316;
-  --text-on-lime: #1A2316;
+  --text-on-lime: #FFFFFF;
   --dark-text: #1A2316;
 
   /* Card and Button gray */
   --card-gray: rgba(100, 160, 80, 0.18);
 
   /* Brand colours remain consistent */
-  --signal-lime: #C8E21A;
-  --signal-lime-soft: rgba(200, 226, 26, 0.14);
-  --signal-lime-glow: rgba(200, 226, 26, 0.28);
+  --signal-lime: #22C55E;                              /* Bright Kelly Green for Dark Mode */
+  --signal-lime-soft: rgba(34, 197, 94, 0.16);
+  --signal-lime-glow: rgba(34, 197, 94, 0.30);
   --emerald-primary: #22C55E;
   --emerald-mid: #16A34A;
   --emerald-dark: #86EFAC;
@@ -426,7 +426,20 @@ a {
 .mobile-grid-2 {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 0.75rem;
+  gap: 0.5rem;
+}
+
+.product-catalog-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.55rem;
+}
+
+@media (min-width: 640px) {
+  .product-catalog-grid {
+    grid-template-columns: repeat(auto-fill, minmax(185px, 1fr));
+    gap: 0.85rem;
+  }
 }
 
 .mobile-feature-grid {

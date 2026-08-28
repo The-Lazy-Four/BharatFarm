@@ -1,17 +1,10 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import express from 'express';
-import marketplaceRoutes from '../src/modules/marketplace/routes/marketplace.routes.js';
 import { MarketplaceRepository } from '../src/modules/marketplace/repositories/marketplace.repository.js';
 import { config } from '../src/config/env.js';
 
 describe('Marketplace API Endpoints & Seller Security', () => {
-  let app: express.Express;
-
   beforeEach(() => {
     (config as any).useMockData = true;
-    app = express();
-    app.use(express.json());
-    app.use('/api/marketplace', marketplaceRoutes);
   });
 
   it('GET /api/marketplace/listings returns marketplace listings', async () => {
@@ -55,10 +48,12 @@ describe('Marketplace API Endpoints & Seller Security', () => {
         price: 1800,
         unit: 'quintal',
         quantityAvailable: 20,
-        location: 'Karnal, Haryana'
+        location: 'Karnal, Haryana',
+        sellerPhone: '9876543210'
       },
       ownerId,
-      'Ramesh Patel'
+      'Ramesh Patel',
+      '9876543210'
     );
 
     await expect(repository.delete(created.id, attackerId)).rejects.toThrow('FORBIDDEN_SELLER_OPERATION');
@@ -74,10 +69,12 @@ describe('Marketplace API Endpoints & Seller Security', () => {
         price: 5200,
         unit: 'quintal',
         quantityAvailable: 15,
-        location: 'Alwar, Rajasthan'
+        location: 'Alwar, Rajasthan',
+        sellerPhone: '9876543210'
       },
       ownerId,
-      'Ramesh Patel'
+      'Ramesh Patel',
+      '9876543210'
     );
 
     const deleted = await repository.delete(created.id, ownerId);

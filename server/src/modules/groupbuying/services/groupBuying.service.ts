@@ -1,5 +1,5 @@
-import { GroupBuyingRepository } from '../repositories/groupBuying.repository.js';
-import { GroupBuyPool } from '../types/groupBuying.types.js';
+import { GroupBuyingRepository, PoolFilterParams } from '../repositories/groupBuying.repository.js';
+import { GroupBuyPool, CreateGroupBuyPoolDto, GroupBuyMember } from '../types/groupBuying.types.js';
 
 export class GroupBuyingService {
   private repository: GroupBuyingRepository;
@@ -8,15 +8,31 @@ export class GroupBuyingService {
     this.repository = new GroupBuyingRepository();
   }
 
-  async getAllPools(): Promise<GroupBuyPool[]> {
-    return await this.repository.findAll();
+  async getAllPools(filters?: PoolFilterParams): Promise<GroupBuyPool[]> {
+    return await this.repository.findAll(filters);
   }
 
   async getPoolById(id: string): Promise<GroupBuyPool | null> {
     return await this.repository.findById(id);
   }
 
-  async joinGroupBuy(id: string, quantity: number): Promise<{ pool: GroupBuyPool | null; error?: string }> {
-    return await this.repository.joinPool(id, quantity);
+  async createPool(dto: CreateGroupBuyPoolDto, creatorId: string): Promise<GroupBuyPool> {
+    return await this.repository.create(dto, creatorId);
+  }
+
+  async joinGroupBuy(
+    id: string,
+    quantity: number,
+    userId?: string
+  ): Promise<{ pool: GroupBuyPool | null; error?: string }> {
+    return await this.repository.joinPool(id, quantity, userId);
+  }
+
+  async getPoolMembers(poolId: string): Promise<GroupBuyMember[]> {
+    return await this.repository.getPoolMembers(poolId);
+  }
+
+  async seedDemoPools(): Promise<{ seededCount: number; message: string }> {
+    return await this.repository.seedDemoPools();
   }
 }
