@@ -1,9 +1,34 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ProductListing } from '../types/marketplace.types.js';
 import { SellerInfo } from './SellerInfo.js';
 import { formatCurrency } from '../utils/marketplace.utils.js';
+import { useAuth } from '../../../context/AuthContext.js';
+import { useMarketplace } from '../hooks/useMarketplace.js';
+import { Button } from '../../../components/ui/Button.js';
 
 export const ProductDetails: React.FC<{ product: ProductListing }> = ({ product }) => {
+  const { user } = useAuth();
+  const { deleteListing } = useMarketplace();
+  const navigate = useNavigate();
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+
+  const isOwner = user && (user.id === product.sellerId || user.email?.split('@')[0] === product.sellerName);
+
+  const handleDelete = async () => {
+    if (!window.confirm('Are you sure you want to remove this listing from the Marketplace?')) return;
+    setIsDeleting(true);
+    setDeleteError(null);
+    try {
+      await deleteListing(product.id);
+      navigate('/marketplace');
+    } catch (err: any) {
+      setDeleteError(err?.message || 'Failed to delete listing.');
+      setIsDeleting(false);
+    }
+  };
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
       {product.imageUrl && (
@@ -25,10 +50,21 @@ export const ProductDetails: React.FC<{ product: ProductListing }> = ({ product 
           />
         </div>
       )}
-      <div>
-        <h2 style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--text-main)' }}>{product.title}</h2>
-        <p style={{ color: 'var(--text-muted)', textTransform: 'capitalize' }}>{product.category}</p>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+        <div>
+          <h2 style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--text-main)' }}>{product.title}</h2>
+          <p style={{ color: 'var(--text-muted)', textTransform: 'capitalize' }}>{product.category}</p>
+        </div>
+        {isOwner && (
+          <Button variant="danger" size="sm" onClick={handleDelete} isLoading={isDeleting}>
+            Deactivate Listing
+          </Button>
+        )}
       </div>
+
+      {deleteError && (
+        <p style={{ color: 'var(--danger)', fontSize: '0.85rem' }}>⚠ {deleteError}</p>
+      )}
 
       <p style={{ fontSize: '2rem', fontWeight: 700, color: 'var(--primary)' }}>
         {formatCurrency(product.price)}
@@ -53,7 +89,7 @@ export const ProductDetails: React.FC<{ product: ProductListing }> = ({ product 
       </div>
 
       <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '1rem' }}>
-        <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>Seller</p>
+        <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>Seller Information</p>
         <SellerInfo
           name={product.sellerName}
           rating={product.sellerRating}
@@ -65,3 +101,4 @@ export const ProductDetails: React.FC<{ product: ProductListing }> = ({ product 
     </div>
   );
 };
+

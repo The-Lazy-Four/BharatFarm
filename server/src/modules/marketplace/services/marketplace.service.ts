@@ -1,4 +1,4 @@
-import { MarketplaceRepository } from '../repositories/marketplace.repository.js';
+import { MarketplaceRepository, ListingFilterParams } from '../repositories/marketplace.repository.js';
 import { ProductListing, CreateListingDto } from '../types/marketplace.types.js';
 
 export class MarketplaceService {
@@ -8,23 +8,33 @@ export class MarketplaceService {
     this.repository = new MarketplaceRepository();
   }
 
-  async getAllListings(): Promise<ProductListing[]> {
-    return await this.repository.findAll();
+  async getAllListings(filters?: ListingFilterParams): Promise<ProductListing[]> {
+    return await this.repository.findAll(filters);
   }
 
   async getListingById(id: string): Promise<ProductListing | null> {
     return await this.repository.findById(id);
   }
 
-  async createListing(dto: CreateListingDto, sellerId: string, sellerName?: string): Promise<ProductListing> {
-    return await this.repository.create(dto, sellerId, sellerName);
+  async createListing(
+    dto: CreateListingDto,
+    sellerId: string,
+    sellerName?: string,
+    sellerPhone?: string
+  ): Promise<ProductListing> {
+    return await this.repository.create(dto, sellerId, sellerName, sellerPhone);
   }
 
-  async updateListing(id: string, dto: Partial<CreateListingDto>): Promise<ProductListing | null> {
-    return await this.repository.update(id, dto);
+  async updateListing(
+    id: string,
+    dto: Partial<CreateListingDto>,
+    sellerId?: string
+  ): Promise<ProductListing | null> {
+    return await this.repository.update(id, dto, sellerId);
   }
 
-  async deleteListing(id: string): Promise<boolean> {
-    return await this.repository.delete(id);
+  async deleteListing(id: string, sellerId?: string): Promise<boolean> {
+    return await this.repository.delete(id, sellerId);
   }
 }
+
