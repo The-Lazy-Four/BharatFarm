@@ -11,7 +11,7 @@ interface AuthContextType {
   login: (email: string, password?: string) => Promise<ApiResponse<unknown>>;
   register: (payload: RegisterPayload) => Promise<ApiResponse<unknown>>;
   logout: () => void;
-  updateProfile: (profile: { name: string; state: string }) => void;
+  updateProfile: (profile: Partial<AuthUser>) => void;
   setProfileImage: (imageDataUrl: string | null) => void;
   refreshUser: () => Promise<void>;
 }
@@ -101,8 +101,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const updateProfile = (profile: { name: string; state: string }) => {
-    setUser(prev => prev ? { ...prev, fullName: profile.name, state: profile.state } : null);
+  const updateProfile = (profile: Partial<AuthUser>) => {
+    setUser(prev => prev ? { ...prev, ...profile } : null);
   };
 
   return (

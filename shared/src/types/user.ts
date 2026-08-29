@@ -7,6 +7,8 @@ export interface UserProfile {
   role: UserRole;
   avatarUrl?: string;
   phoneNumber?: string;
+  state?: string;
+  district?: string;
   location?: {
     state: string;
     district: string;
@@ -14,6 +16,8 @@ export interface UserProfile {
   };
   landSizeAcres?: number;
   primaryCrops?: string[];
+  preferredLanguage?: string;
   createdAt: string;
   updatedAt: string;
 }
+

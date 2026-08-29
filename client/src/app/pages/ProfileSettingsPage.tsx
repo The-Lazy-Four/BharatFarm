@@ -7,28 +7,53 @@ import { useAuth } from '../../context/AuthContext.js';
 import { useLanguage } from '../../context/LanguageContext.js';
 
 export const ProfileSettingsPage: React.FC = () => {
-  const { user, updateProfile, profileImage, setProfileImage, getUserInitials, logout } = useAuth();
+  const { user, updateProfile: updateAuthUser, profileImage, setProfileImage, getUserInitials, logout } = useAuth();
   const { language, setLanguage } = useLanguage();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<'account' | 'preferences' | 'offline' | 'security'>('account');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [imageError, setImageError] = useState<string | null>(null);
 
-  const savedProfile = (() => {
-    try {
-      const data = localStorage.getItem('bf_user_profile');
-      return data ? JSON.parse(data) : {};
-    } catch {
-      return {};
-    }
-  })();
-
-  const [name, setName] = useState(savedProfile.name || user?.fullName || 'Ramesh Patel');
-  const [phone, setPhone] = useState(savedProfile.phone || '+91 9831200001');
-  const [state, setState] = useState(savedProfile.state || user?.state || 'Punjab');
-  const [district, setDistrict] = useState(savedProfile.district || 'Ludhiana');
-  const [landAcres, setLandAcres] = useState(savedProfile.landAcres || '5.0');
+  const [name, setName] = useState(user?.fullName || 'Ramesh Patel');
+  const [phone, setPhone] = useState(user?.phone || '+91 9831200001');
+  const [state, setState] = useState(user?.state || 'Punjab');
+  const [district, setDistrict] = useState(user?.district || 'Ludhiana');
+  const [landAcres, setLandAcres] = useState<string>(user?.landSizeAcres ? String(user.landSizeAcres) : '5.0');
+  const [primaryCropsStr, setPrimaryCropsStr] = useState<string>(user?.primaryCrops ? user.primaryCrops.join(', ') : 'Wheat, Rice');
+  const [isSaving, setIsSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  // Load server-persisted profile on mount
+  React.useEffect(() => {
+    let isMounted = true;
+    import('../../services/profile.service.js').then(({ ProfileService }) => {
+      ProfileService.getProfile().then(res => {
+        if (isMounted && res.success && res.data) {
+          const p = res.data;
+          setName(p.fullName);
+          if (p.phoneNumber) setPhone(p.phoneNumber);
+          if (p.state) setState(p.state);
+          if (p.district) setDistrict(p.district);
+          if (p.landSizeAcres != null) setLandAcres(String(p.landSizeAcres));
+          if (p.primaryCrops) setPrimaryCropsStr(p.primaryCrops.join(', '));
+          if (p.avatarUrl) setProfileImage(p.avatarUrl);
+          
+          updateAuthUser({
+            fullName: p.fullName,
+            phone: p.phoneNumber,
+            state: p.state,
+            district: p.district,
+            landSizeAcres: p.landSizeAcres,
+            primaryCrops: p.primaryCrops,
+            preferredLanguage: p.preferredLanguage,
+            avatarUrl: p.avatarUrl
+          });
+        }
+      }).catch(() => {});
+    });
+    return () => { isMounted = false; };
+  }, []);
 
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     setImageError(null);
@@ -48,7 +73,11 @@ export const ProfileSettingsPage: React.FC = () => {
     const reader = new FileReader();
     reader.onload = () => {
       if (typeof reader.result === 'string') {
-        setProfileImage(reader.result);
+        const dataUrl = reader.result;
+        setProfileImage(dataUrl);
+        import('../../services/profile.service.js').then(({ ProfileService }) => {
+          ProfileService.updateProfile({ avatarUrl: dataUrl }).catch(() => {});
+        });
       }
     };
     reader.readAsDataURL(file);
@@ -57,18 +86,61 @@ export const ProfileSettingsPage: React.FC = () => {
   const handleRemoveImage = () => {
     setProfileImage(null);
     if (fileInputRef.current) fileInputRef.current.value = '';
+    import('../../services/profile.service.js').then(({ ProfileService }) => {
+      ProfileService.updateProfile({ avatarUrl: '' }).catch(() => {});
+    });
   };
 
-  const handleSave = (e: React.FormEvent) => {
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSaving(true);
+    setErrorMsg(null);
+    setSaved(false);
+
     try {
-      localStorage.setItem('bf_user_profile', JSON.stringify({ name, phone, state, district, landAcres }));
-    } catch {
-      // ignore
+      const parsedLand = parseFloat(landAcres);
+      if (isNaN(parsedLand) || parsedLand < 0) {
+        setErrorMsg('Land size must be a valid positive number');
+        setIsSaving(false);
+        return;
+      }
+
+      const cropsList = primaryCropsStr
+        .split(',')
+        .map(c => c.trim())
+        .filter(Boolean);
+
+      const { ProfileService } = await import('../../services/profile.service.js');
+      const res = await ProfileService.updateProfile({
+        fullName: name,
+        phone,
+        state,
+        district,
+        landSizeAcres: parsedLand,
+        primaryCrops: cropsList,
+        preferredLanguage: language
+      });
+
+      if (res.success && res.data) {
+        updateAuthUser({
+          fullName: res.data.fullName,
+          phone: res.data.phoneNumber,
+          state: res.data.state,
+          district: res.data.district,
+          landSizeAcres: res.data.landSizeAcres,
+          primaryCrops: res.data.primaryCrops,
+          preferredLanguage: res.data.preferredLanguage
+        });
+        setSaved(true);
+        setTimeout(() => setSaved(false), 3000);
+      } else {
+        setErrorMsg(res.error?.message || 'Failed to update farmer profile');
+      }
+    } catch (err: any) {
+      setErrorMsg(err?.message || 'An unexpected error occurred while saving profile');
+    } finally {
+      setIsSaving(false);
     }
-    updateProfile({ name, state });
-    setSaved(true);
-    setTimeout(() => setSaved(false), 3000);
   };
 
   const handleLogout = () => {
@@ -220,7 +292,8 @@ export const ProfileSettingsPage: React.FC = () => {
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem' }}>
                     <Input label="State" value={state} onChange={e => setState(e.target.value)} required />
                     <Input label="District" value={district} onChange={e => setDistrict(e.target.value)} required />
-                    <Input label="Total Cultivated Area (Acres)" type="number" value={landAcres} onChange={e => setLandAcres(e.target.value)} required />
+                    <Input label="Total Cultivated Area (Acres)" type="number" step="0.1" value={landAcres} onChange={e => setLandAcres(e.target.value)} required />
+                    <Input label="Primary Crops (comma-separated)" value={primaryCropsStr} onChange={e => setPrimaryCropsStr(e.target.value)} placeholder="Wheat, Rice, Cotton" required />
                   </div>
                 </>
               )}
@@ -266,10 +339,13 @@ export const ProfileSettingsPage: React.FC = () => {
                 </div>
               )}
 
-              {saved && <p style={{ color: 'var(--success)', fontWeight: 700, fontSize: '0.9rem', marginTop: '0.5rem' }}>✓ Settings updated and saved!</p>}
+              {errorMsg && <p style={{ color: 'var(--danger)', fontWeight: 700, fontSize: '0.9rem', marginTop: '0.5rem' }}>❌ {errorMsg}</p>}
+              {saved && <p style={{ color: 'var(--success)', fontWeight: 700, fontSize: '0.9rem', marginTop: '0.5rem' }}>✓ Settings updated and saved to server!</p>}
 
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem', marginTop: '1rem' }}>
-                <Button type="submit" variant="primary">Save Changes</Button>
+                <Button type="submit" variant="primary" disabled={isSaving}>
+                  {isSaving ? 'Saving...' : 'Save Changes'}
+                </Button>
               </div>
             </form>
           </Card>

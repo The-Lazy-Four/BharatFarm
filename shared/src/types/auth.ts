@@ -7,6 +7,11 @@ export interface AuthUser {
   fullName: string;
   phone?: string;
   state?: string;
+  district?: string;
+  landSizeAcres?: number;
+  primaryCrops?: string[];
+  preferredLanguage?: string;
+  avatarUrl?: string;
 }
 
 export interface AuthSession {

@@ -8,7 +8,13 @@ export interface AuthenticatedUser {
   email: string;
   role: string;
   fullName?: string;
+  phone?: string;
   state?: string;
+  district?: string;
+  landSizeAcres?: number;
+  primaryCrops?: string[];
+  preferredLanguage?: string;
+  avatarUrl?: string;
 }
 
 export interface AuthenticatedRequest extends Request {
@@ -26,14 +32,36 @@ export const authenticateToken = async (req: AuthenticatedRequest, res: Response
   // MOCK MODE FALLBACK
   if (config.useMockData) {
     if (!authHeader) {
-      req.user = { id: 'mock-user-123', email: 'farmer@bharatfarm.org', role: 'farmer', fullName: 'Ramesh Patel', state: 'Punjab' };
+      req.user = {
+        id: 'mock-user-123',
+        email: 'farmer@bharatfarm.org',
+        role: 'farmer',
+        fullName: 'Ramesh Patel',
+        phone: '+91 9831200001',
+        state: 'Punjab',
+        district: 'Ludhiana',
+        landSizeAcres: 5.0,
+        primaryCrops: ['Wheat', 'Rice'],
+        preferredLanguage: 'en'
+      };
       return next();
     }
     const token = authHeader.split(' ')[1];
     if (!token) {
       return ApiResponse.error(res, 'Authentication token missing', 'UNAUTHORIZED', 401);
     }
-    req.user = { id: 'mock-user-123', email: 'farmer@bharatfarm.org', role: 'farmer', fullName: 'Ramesh Patel', state: 'Punjab' };
+    req.user = {
+      id: 'mock-user-123',
+      email: 'farmer@bharatfarm.org',
+      role: 'farmer',
+      fullName: 'Ramesh Patel',
+      phone: '+91 9831200001',
+      state: 'Punjab',
+      district: 'Ludhiana',
+      landSizeAcres: 5.0,
+      primaryCrops: ['Wheat', 'Rice'],
+      preferredLanguage: 'en'
+    };
     return next();
   }
 
@@ -60,10 +88,10 @@ export const authenticateToken = async (req: AuthenticatedRequest, res: Response
       return ApiResponse.error(res, 'Invalid or expired access token', 'UNAUTHORIZED', 401);
     }
 
-    // Fetch corresponding profile for role & full name context
+    // Fetch corresponding profile for role & full name & farm context
     const { data: profile } = await supabase
       .from('profiles')
-      .select('role, full_name, state')
+      .select('*')
       .eq('id', authUser.id)
       .single();
 
@@ -72,7 +100,13 @@ export const authenticateToken = async (req: AuthenticatedRequest, res: Response
       email: authUser.email || '',
       role: profile?.role || (authUser.user_metadata?.role as string) || 'farmer',
       fullName: profile?.full_name || authUser.user_metadata?.full_name,
-      state: profile?.state
+      phone: profile?.phone || undefined,
+      state: profile?.state || undefined,
+      district: profile?.district || undefined,
+      landSizeAcres: profile?.land_size_acres != null ? Number(profile.land_size_acres) : undefined,
+      primaryCrops: profile?.primary_crops || undefined,
+      preferredLanguage: profile?.preferred_language || undefined,
+      avatarUrl: profile?.avatar_url || undefined
     };
 
     return next();

@@ -273,20 +273,33 @@ export class KrishiBotRepository {
     const contextParts: string[] = [];
     const actions: { label: string; action: string; target: string }[] = [];
 
-    if (farmerContext?.location || farmerContext?.state) {
-      contextParts.push(`Farmer Location: ${farmerContext.location || farmerContext.state}`);
+    // Fetch user profile from Supabase to enrich context if client-provided farmerContext is partial
+    let profileData: any = null;
+    const supabaseAdmin = getSupabaseAdminClient();
+    if (supabaseAdmin && userId) {
+      try {
+        const { data } = await supabaseAdmin.from('profiles').select('*').eq('id', userId).single();
+        if (data) profileData = data;
+      } catch (err: any) {
+        logger.warn(`[KrishiBot] Profile context fetch warning: ${err.message}`);
+      }
     }
-    if (farmerContext?.crop) {
-      contextParts.push(`Primary Crop: ${farmerContext.crop}`);
-    }
-    if (farmerContext?.landSize) {
-      contextParts.push(`Land Size: ${farmerContext.landSize} Acres`);
-    }
+
+    const stateLocation = farmerContext?.location || farmerContext?.state || profileData?.state || 'Punjab';
+    const districtLocation = farmerContext?.district || profileData?.district || 'Ludhiana';
+    const primaryCrop = farmerContext?.crop || (profileData?.primary_crops ? (Array.isArray(profileData.primary_crops) ? profileData.primary_crops.join(', ') : profileData.primary_crops) : 'Wheat');
+    const landSize = farmerContext?.landSize || (profileData?.land_size_acres != null ? profileData.land_size_acres : 5.0);
+    const preferredLang = farmerContext?.language || profileData?.preferred_language || 'en';
+
+    contextParts.push(`Farmer Location: ${districtLocation}, ${stateLocation}`);
+    contextParts.push(`Primary Crops: ${primaryCrop}`);
+    contextParts.push(`Land Cultivated Area: ${landSize} Acres`);
+    contextParts.push(`Preferred Language: ${preferredLang}`);
 
     // 1. Weather Intent & Telemetry
     if (text.includes('rain') || text.includes('weather') || text.includes('baarish') || text.includes('मौसम') || text.includes('আবহাওয়া') || text.includes('water') || text.includes('spray') || text.includes('irrigate')) {
       try {
-        const weather = await this.weatherRepo.getWeather(farmerContext?.location || farmerContext?.state || 'Punjab');
+        const weather = await this.weatherRepo.getWeather(districtLocation || stateLocation);
         contextParts.push(`Live Weather Telemetry: Location: ${weather.location}, Temp: ${weather.temperatureCelsius}°C, Condition: ${weather.condition}, Humidity: ${weather.humidityPercent}%, Rain Chance: ${weather.rainfallProbability}%, Wind: ${weather.windSpeedKmh} km/h.`);
         actions.push({ label: '🌦️ View Weather Telemetry', action: 'navigate', target: '/weather' });
       } catch (err: any) {
