@@ -69,38 +69,57 @@ export class ScannerRepository {
     };
   }
 
+  private buildAiUnavailableResult(cropHint?: string): ScanAnalysisResult {
+    return {
+      scanId: `scan-${Date.now()}`,
+      status: 'ai_unavailable',
+      disease: 'AI Diagnosis Temporarily Unavailable',
+      confidence: 0,
+      cropName: cropHint || 'Crop',
+      severity: 'none',
+      symptoms: ['AI vision provider is currently unreachable or out of capacity.'],
+      recommendations: [
+        'AI analysis is temporarily unavailable. Please try scanning again shortly.',
+        'If symptoms persist, consult a local Krishi Vigyan Kendra (KVK) or agricultural extension officer.'
+      ],
+      preventativeMeasures: [
+        'Ensure proper spacing and aeration around affected crops.',
+        'Avoid excessive overhead irrigation to prevent fungal spread.'
+      ],
+      disclaimer: 'AI vision provider is currently unavailable. No disease diagnosis was generated for this image.',
+      scannedAt: new Date().toISOString(),
+      aiUnavailable: true
+    };
+  }
+
   async saveAndAnalyzeScan(scanReq: ScanRequest, userId?: string): Promise<ScanAnalysisResult> {
     if (!scanReq.imageBase64 && !scanReq.imageUrl) {
       throw new Error('No plant image data provided');
     }
 
-    if (!AiClient.isConfigured()) {
-      if (!config.useMockData) {
-        logger.error('[Scanner] OPENROUTER_API_KEY missing while Mock Mode is false.');
-        throw new Error('OPENROUTER_API_KEY is not configured on server');
-      }
-      logger.info('[Scanner] AI provider not configured, returning mock analysis');
+    if (config.useMockData) {
+      logger.info('[Scanner] Mock Mode enabled, returning deterministic mock analysis');
       const mockResult = this.buildMockResult(scanReq.cropHint);
       if (userId) await this.persistScanResult(userId, scanReq, mockResult);
       return mockResult;
     }
 
+    if (!AiClient.isConfigured()) {
+      logger.error('[Scanner] OPENROUTER_API_KEY missing while Mock Mode is false.');
+      return this.buildAiUnavailableResult(scanReq.cropHint);
+    }
+
     try {
       const result = await this.analyzeWithAiProvider(scanReq);
-      if (userId && result.status !== 'not_a_plant') {
+      if (userId && result.status === 'success') {
         const savedId = await this.persistScanResult(userId, scanReq, result);
         if (savedId) result.scanId = savedId;
       }
       return result;
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Unknown error';
-      logger.error('[Scanner] AI vision analysis failed:', { error: message });
-      if (!config.useMockData) {
-        throw new Error(`Leaf analysis error: ${message}`);
-      }
-      const mockResult = this.buildMockResult(scanReq.cropHint);
-      if (userId) await this.persistScanResult(userId, scanReq, mockResult);
-      return mockResult;
+      logger.error('[Scanner] AI vision analysis provider failure:', { error: message });
+      return this.buildAiUnavailableResult(scanReq.cropHint);
     }
   }
 

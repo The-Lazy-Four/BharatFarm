@@ -34,6 +34,29 @@ export const ScanResult: React.FC<{ result: IScanResult }> = ({ result }) => {
     navigate(`/roadmap?crop=${encodeURIComponent(result.cropName)}`);
   };
 
+  const isAiUnavailable = result.status === 'ai_unavailable' || result.aiUnavailable;
+
+  if (isAiUnavailable) {
+    return (
+      <Card title="📡 AI Analysis Temporarily Unavailable" subtitle="Our AI vision provider is currently experiencing high load or limits.">
+        <div style={{ padding: '1.25rem', background: 'rgba(234, 179, 8, 0.08)', borderRadius: 'var(--radius)', border: '1px solid rgba(234, 179, 8, 0.3)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--warning)', fontWeight: 700, fontSize: '1rem', marginBottom: '0.5rem' }}>
+            <span className="material-symbols-outlined">cloud_off</span>
+            <span>AI Provider Reachability Issue</span>
+          </div>
+          <p style={{ fontSize: '0.85rem', color: 'var(--text-main)', lineHeight: 1.5 }}>
+            AI analysis is temporarily unavailable. Please try scanning again shortly. No automated disease diagnosis was fabricated for this image.
+          </p>
+          <div style={{ marginTop: '1rem', display: 'flex', gap: '0.75rem' }}>
+            <Button variant="primary" onClick={() => window.location.reload()} style={{ fontSize: '0.85rem' }}>
+              🔄 Try Again
+            </Button>
+          </div>
+        </div>
+      </Card>
+    );
+  }
+
   if (isNotPlant) {
     return (
       <Card title="⚠️ Invalid Image" subtitle="The AI vision model did not detect a plant or crop leaf in this picture.">

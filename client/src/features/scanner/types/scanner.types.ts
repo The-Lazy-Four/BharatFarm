@@ -1,6 +1,6 @@
 export interface ScanResult {
   scanId: string;
-  status: 'success' | 'failed' | 'not_a_plant';
+  status: 'success' | 'failed' | 'not_a_plant' | 'ai_unavailable';
   disease: string;
   confidence: number;
   cropName: string;
@@ -13,6 +13,7 @@ export interface ScanResult {
   imageStoragePath?: string;
   weatherWarning?: string;
   roadmapStage?: string;
+  aiUnavailable?: boolean;
 }
 
 export interface ScanRequestParams {

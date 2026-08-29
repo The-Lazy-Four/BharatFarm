@@ -1,5 +1,3 @@
-import { WeatherForecast } from '../types/weather.types.js';
-
 export interface WeatherVisualConfig {
   code: number;
   label: string;
