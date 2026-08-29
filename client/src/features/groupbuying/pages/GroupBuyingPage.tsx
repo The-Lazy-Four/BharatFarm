@@ -59,17 +59,17 @@ export const GroupBuyingPage: React.FC = () => {
       </div>
 
       {/* Tab Navigation */}
-      <div style={{ display: 'flex', gap: '1rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem' }}>
+      <div style={{ display: 'inline-flex', gap: '0.4rem', padding: '0.35rem', background: 'var(--surface-2)', border: '1px solid var(--surface-2-border)', borderRadius: '12px', width: 'fit-content', boxShadow: 'var(--shadow-sm)' }}>
         <button
           onClick={() => handleTabChange('pools')}
           style={{
-            padding: '0.5rem 1.25rem',
-            borderRadius: 'var(--radius)',
+            padding: '0.45rem 1.1rem',
+            borderRadius: '8px',
             border: 'none',
-            background: activeTab === 'pools' ? 'var(--primary)' : 'transparent',
+            background: activeTab === 'pools' ? 'var(--signal-lime)' : 'transparent',
             color: activeTab === 'pools' ? '#FFFFFF' : 'var(--text-primary)',
-            fontSize: '0.95rem',
-            fontWeight: 700,
+            fontSize: '0.88rem',
+            fontWeight: activeTab === 'pools' ? 800 : 650,
             cursor: 'pointer',
             transition: 'var(--transition)'
           }}
@@ -79,13 +79,13 @@ export const GroupBuyingPage: React.FC = () => {
         <button
           onClick={() => handleTabChange('my-purchases')}
           style={{
-            padding: '0.5rem 1.25rem',
-            borderRadius: 'var(--radius)',
+            padding: '0.45rem 1.1rem',
+            borderRadius: '8px',
             border: 'none',
-            background: activeTab === 'my-purchases' ? 'var(--primary)' : 'transparent',
+            background: activeTab === 'my-purchases' ? 'var(--signal-lime)' : 'transparent',
             color: activeTab === 'my-purchases' ? '#FFFFFF' : 'var(--text-primary)',
-            fontSize: '0.95rem',
-            fontWeight: 700,
+            fontSize: '0.88rem',
+            fontWeight: activeTab === 'my-purchases' ? 800 : 650,
             cursor: 'pointer',
             transition: 'var(--transition)'
           }}
@@ -97,26 +97,26 @@ export const GroupBuyingPage: React.FC = () => {
       {/* Overview Stat Cards matching Stitch */}
       <div className="grid-dashboard">
         <div className="col-span-4">
-          <Card variant="3d">
-            <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 600 }}>TOTAL ACTIVE GROUPS</span>
-            <h3 style={{ fontSize: '1.8rem', fontWeight: 800, color: 'var(--text-primary)', margin: '0.25rem 0' }}>24 Pools</h3>
-            <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Active across 12 neighboring districts</p>
+          <Card variant="surface2">
+            <span style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', fontWeight: 750, letterSpacing: '0.04em' }}>TOTAL ACTIVE GROUPS</span>
+            <h3 style={{ fontSize: '1.65rem', fontWeight: 850, color: 'var(--text-primary)', margin: '0.15rem 0' }}>24 Pools</h3>
+            <p style={{ fontSize: '0.74rem', color: 'var(--text-secondary)', margin: 0 }}>Active across 12 neighboring districts</p>
           </Card>
         </div>
 
         <div className="col-span-4">
-          <Card variant="3d">
-            <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 600 }}>NEARBY OPPORTUNITIES</span>
-            <h3 style={{ fontSize: '1.8rem', fontWeight: 800, color: 'var(--text-primary)', margin: '0.25rem 0' }}>8 Nearby</h3>
-            <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Within 15 km radius of your location</p>
+          <Card variant="surface2">
+            <span style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', fontWeight: 750, letterSpacing: '0.04em' }}>NEARBY OPPORTUNITIES</span>
+            <h3 style={{ fontSize: '1.65rem', fontWeight: 850, color: 'var(--text-primary)', margin: '0.15rem 0' }}>8 Nearby</h3>
+            <p style={{ fontSize: '0.74rem', color: 'var(--text-secondary)', margin: 0 }}>Within 15 km radius of your location</p>
           </Card>
         </div>
 
         <div className="col-span-4">
-          <Card variant="3d">
-            <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 600 }}>ESTIMATED SAVINGS POTENTIAL</span>
-            <h3 style={{ fontSize: '1.8rem', fontWeight: 800, color: 'var(--text-primary)', margin: '0.25rem 0' }}>₹42,500</h3>
-            <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Average seasonal input cost reduction</p>
+          <Card variant="surface2">
+            <span style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', fontWeight: 750, letterSpacing: '0.04em' }}>ESTIMATED SAVINGS POTENTIAL</span>
+            <h3 style={{ fontSize: '1.65rem', fontWeight: 850, color: 'var(--signal-lime)', margin: '0.15rem 0' }}>₹42,500</h3>
+            <p style={{ fontSize: '0.74rem', color: 'var(--text-secondary)', margin: 0 }}>Average seasonal input cost reduction</p>
           </Card>
         </div>
       </div>
@@ -125,23 +125,23 @@ export const GroupBuyingPage: React.FC = () => {
         <>
           {/* Featured Input Image Card */}
           <div className="mobile-grid-2">
-            <div className="card-feature-backed" style={{ minHeight: '120px' }}>
+            <div className="card-feature-backed" style={{ minHeight: '110px' }}>
               <img src={FEATURE_IMAGES.groupbuying.url} alt="Bulk Fertilizer" className="card-feature-bg" />
               <div className="card-feature-overlay" />
               <div className="card-feature-content">
                 <span className="badge badge-success">Bulk Subsidy</span>
-                <h4 style={{ fontSize: '1.05rem', fontWeight: 800, marginTop: '0.25rem', color: '#FFFFFF' }}>DAP & NPK Fertilizer Pools</h4>
-                <p style={{ fontSize: '0.72rem', opacity: 0.88, color: '#FFFFFF' }}>Direct factory freight savings for local farmer groups</p>
+                <h4 className="text-embossed" style={{ fontSize: '1rem', fontWeight: 850, marginTop: '0.2rem' }}>DAP & NPK Fertilizer Pools</h4>
+                <p style={{ fontSize: '0.72rem', color: '#FFFFFF', textShadow: '0 1px 3px rgba(0,0,0,0.85)' }}>Direct factory freight savings for local farmer groups</p>
               </div>
             </div>
 
-            <div className="card-feature-backed" style={{ minHeight: '120px' }}>
+            <div className="card-feature-backed" style={{ minHeight: '110px' }}>
               <img src={FEATURE_IMAGES.marketplace.url} alt="Hybrid Seeds" className="card-feature-bg" />
               <div className="card-feature-overlay" />
               <div className="card-feature-content">
                 <span className="badge badge-primary">Certified Quality</span>
-                <h4 style={{ fontSize: '1.05rem', fontWeight: 800, marginTop: '0.25rem', color: '#FFFFFF' }}>Hybrid Seed Varieties</h4>
-                <p style={{ fontSize: '0.72rem', opacity: 0.88, color: '#FFFFFF' }}>High-yield wheat & mustard certified seed batches</p>
+                <h4 className="text-embossed" style={{ fontSize: '1rem', fontWeight: 850, marginTop: '0.2rem' }}>Hybrid Seed Varieties</h4>
+                <p style={{ fontSize: '0.72rem', color: '#FFFFFF', textShadow: '0 1px 3px rgba(0,0,0,0.85)' }}>High-yield wheat & mustard certified seed batches</p>
               </div>
             </div>
           </div>
@@ -149,21 +149,21 @@ export const GroupBuyingPage: React.FC = () => {
           {/* Main Content Layout Grid */}
           <div className="grid-dashboard">
             {/* Left Column (Span 8): Search, Category Filter & Active Pools */}
-            <div className="col-span-8" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+            <div className="col-span-8" style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
               <Card title="Active Cooperative Pools">
                 <Input placeholder="Search fertilizer, seeds, heavy machinery..." value={search} onChange={e => setSearch(e.target.value)} />
-                <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginTop: '0.85rem' }}>
+                <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap', marginTop: '0.85rem' }}>
                   {CATEGORIES.map(cat => (
                     <button
                       key={cat}
                       onClick={() => setCategory(cat)}
                       style={{
-                        padding: '0.4rem 1.25rem',
+                        padding: '0.35rem 1rem',
                         borderRadius: 'var(--radius-pill)',
-                        border: 'none',
-                        background: category === cat ? 'var(--primary)' : 'var(--surface-input)',
+                        border: category === cat ? 'none' : '1px solid var(--border-default)',
+                        background: category === cat ? 'var(--signal-lime)' : 'var(--surface-3)',
                         color: category === cat ? '#FFFFFF' : 'var(--text-primary)',
-                        fontSize: '0.85rem',
+                        fontSize: '0.82rem',
                         fontWeight: 700,
                         cursor: 'pointer',
                         textTransform: 'capitalize',
@@ -176,6 +176,7 @@ export const GroupBuyingPage: React.FC = () => {
                 </div>
                 {error && <p style={{ color: 'var(--danger)', fontSize: '0.85rem', marginTop: '0.75rem' }}>⚠️ {error}</p>}
               </Card>
+
 
               {isLoading ? (
                 <Spinner />

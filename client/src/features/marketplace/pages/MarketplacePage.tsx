@@ -58,8 +58,8 @@ export const MarketplacePage: React.FC = () => {
           <div className="card-feature-overlay" />
           <div className="card-feature-content">
             <span className="badge badge-primary" style={{ fontSize: '0.6rem', padding: '0.15rem 0.4rem' }}>Direct Produce</span>
-            <h4 style={{ fontSize: '0.88rem', fontWeight: 800, marginTop: '0.15rem', color: '#FFFFFF' }}>Fresh Harvest Crops</h4>
-            <p style={{ fontSize: '0.68rem', opacity: 0.88, color: '#FFFFFF' }}>Wheat, Paddy, Pulses & Produce</p>
+            <h4 className="text-embossed" style={{ fontSize: '0.9rem', fontWeight: 800, marginTop: '0.15rem' }}>Fresh Harvest Crops</h4>
+            <p style={{ fontSize: '0.68rem', color: '#FFFFFF', textShadow: '0 1px 3px rgba(0,0,0,0.85)' }}>Wheat, Paddy, Pulses & Produce</p>
           </div>
         </div>
 
@@ -72,10 +72,11 @@ export const MarketplacePage: React.FC = () => {
           <div className="card-feature-overlay" />
           <div className="card-feature-content">
             <span className="badge badge-success" style={{ fontSize: '0.6rem', padding: '0.15rem 0.4rem' }}>Certified Inputs</span>
-            <h4 style={{ fontSize: '0.88rem', fontWeight: 800, marginTop: '0.15rem', color: '#FFFFFF' }}>Seeds & Fertilizers</h4>
-            <p style={{ fontSize: '0.68rem', opacity: 0.88, color: '#FFFFFF' }}>Bio-pesticides & Hybrids</p>
+            <h4 className="text-embossed" style={{ fontSize: '0.9rem', fontWeight: 800, marginTop: '0.15rem' }}>Seeds & Fertilizers</h4>
+            <p style={{ fontSize: '0.68rem', color: '#FFFFFF', textShadow: '0 1px 3px rgba(0,0,0,0.85)' }}>Bio-pesticides & Hybrids</p>
           </div>
         </div>
+
       </div>
 
       {/* Main Layout Grid */}

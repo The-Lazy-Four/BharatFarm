@@ -327,19 +327,20 @@ export const MasterDashboardPage: React.FC = () => {
 
       {/* 2. QUICK ACCESS VISUAL CARDS (FARMER COMPANION SERVICES) */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 0.25rem' }}>
+        <div className="image-section-header">
           <div>
-            <h2 style={{ fontSize: '1.15rem', fontWeight: 800, color: 'var(--text-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+            <h2 style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--text-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
               <span>🌾</span> Farmer Companion Services
             </h2>
-            <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', margin: 0 }}>
+            <p style={{ fontSize: '0.76rem', color: 'var(--text-secondary)', margin: 0 }}>
               Quick access to daily intelligent farming tools
             </p>
           </div>
-          <Link to="/schemes" style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--signal-lime)', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '2px' }}>
+          <Link to="/schemes" style={{ fontSize: '0.78rem', fontWeight: 750, color: 'var(--signal-lime)', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '2px', padding: '0.25rem 0.6rem', borderRadius: '6px', background: 'rgba(34, 197, 94, 0.10)', border: '1px solid var(--border-subtle)' }}>
             Explore All <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>chevron_right</span>
           </Link>
         </div>
+
 
         {/* Responsive Grid: 2-column on mobile, 3-column on desktop */}
         <div className="mobile-feature-grid">
@@ -378,13 +379,14 @@ export const MasterDashboardPage: React.FC = () => {
                 
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginTop: '0.15rem' }}>
                   <div>
-                    <h3 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#FFFFFF', margin: 0, textShadow: '0 1px 3px rgba(0,0,0,0.6)' }}>
+                    <h3 className="text-embossed" style={{ fontSize: '1.08rem', fontWeight: 850, margin: 0 }}>
                       {service.title}
                     </h3>
-                    <p style={{ fontSize: '0.74rem', color: 'rgba(255,255,255,0.9)', margin: 0, lineHeight: 1.25 }}>
+                    <p style={{ fontSize: '0.74rem', color: '#FFFFFF', textShadow: '0 1px 3px rgba(0,0,0,0.85)', margin: 0, lineHeight: 1.25 }}>
                       {service.description}
                     </p>
                   </div>
+
                   <div className="card-feature-action" aria-label={`Open ${service.title}`}>
                     ➔
                   </div>

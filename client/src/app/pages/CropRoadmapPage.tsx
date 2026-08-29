@@ -431,22 +431,23 @@ export const CropRoadmapPage: React.FC = () => {
       <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', marginTop: '1.5rem' }}>
 
         {/* Header Actions */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+        <div className="page-header-banner">
           <div>
-            <h2 style={{ fontSize: '1.5rem', fontWeight: 800 }}>{roadmapInput.crop} Cultivation Roadmap</h2>
-            <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>
-              {roadmapInput.district}, {roadmapInput.state} {'\u2022'} {roadmapInput.landSize} {roadmapInput.landUnit}
+            <h2 style={{ fontSize: '1.5rem', fontWeight: 800, margin: 0 }}>{roadmapInput.crop} Cultivation Roadmap</h2>
+            <p style={{ fontSize: '0.9rem', margin: '0.25rem 0 0 0' }}>
+              📍 {roadmapInput.district}, {roadmapInput.state} {'\u2022'} 📏 {roadmapInput.landSize} {roadmapInput.landUnit}
             </p>
           </div>
           <div style={{ display: 'flex', gap: '0.75rem' }}>
-            <Button variant="outline" onClick={handleReset} disabled={isLoading}>
+            <Button variant="outline" onClick={handleReset} disabled={isLoading} style={{ borderColor: 'rgba(255,255,255,0.4)', color: '#FFFFFF' }}>
               Change Crop
             </Button>
-            <Button onClick={() => handleGenerate(undefined, roadmapInput)} disabled={isLoading}>
+            <Button onClick={() => handleGenerate(undefined, roadmapInput)} disabled={isLoading} variant="primary">
               {isLoading ? <><Spinner /> Generating...</> : <><span className="material-symbols-outlined">refresh</span> Regenerate</>}
             </Button>
           </div>
         </div>
+
 
         {/* Live Weather & Advisory Banner */}
         {activeRoadmap.weatherAdvisory && (

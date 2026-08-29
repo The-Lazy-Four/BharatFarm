@@ -7,84 +7,105 @@
 @import url('https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;600;700;800&display=swap');
 
 /* ============================================================
-   LIGHT MODE (DEFAULT) — Natural Agricultural Surfaces
+   LIGHT MODE — Premium Earth + Emerald + Sage Surface System
+   ============================================================ */
+/* ============================================================
+   LIGHT MODE — Genuine Warm Ivory, Light Sage & Forest Typography
    ============================================================ */
 :root,
 [data-theme="light"] {
   --font-family: 'Urbanist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 
-  /* Brand Palette — Kelly Green & Agricultural Surfaces */
-  --signal-lime: #16A34A;                              /* Kelly Green Primary */
-  --signal-lime-soft: rgba(22, 163, 74, 0.14);
-  --signal-lime-glow: rgba(22, 163, 74, 0.30);
+  /* Brand Palette — BharatFarm Kelly Green & Accents */
+  --signal-lime: #16A34A;                              /* BharatFarm Green */
+  --signal-lime-soft: rgba(22, 163, 74, 0.12);
+  --signal-lime-glow: rgba(22, 163, 74, 0.25);
   --emerald-primary: #15803D;
   --emerald-mid: #166534;
   --emerald-dark: #0F5128;
   --emerald-deep: #0A3B1E;
   --amber: #D97706;
 
-  /* Natural Surface System — Soft Sage & Agrarian Warm Tint */
-  --app-bg: #E8EFE5;                                   /* Natural agrarian soft sage background */
-  --surface-0: #E8EFE5;                                /* Page background */
-  --surface-1: rgba(242, 247, 240, 0.88);              /* Translucent natural card surface */
-  --surface-2: rgba(246, 250, 244, 0.96);              /* Elevated natural card surface */
-  --surface-glass: rgba(232, 239, 229, 0.80);          /* Glass / backdrop */
-  --surface-input: rgba(248, 252, 246, 0.95);          /* Form inputs */
-  --surface-inset: rgba(195, 212, 186, 0.40);          /* Inset / trough */
-  --surface-nav: rgba(220, 230, 215, 0.94);            /* Sidebar / nav */
-  --surface-nav-glass: rgba(212, 224, 206, 0.90);      /* Mobile nav */
-  --surface-overlay: rgba(12, 28, 10, 0.50);           /* Modal backdrop */
+  /* Atmospheric Page Background & Overlay */
+  --app-bg: #E8EFE5;                                   /* Natural light sage atmospheric base */
+  --surface-0: #E8EFE5;
+  --app-main-gradient: linear-gradient(rgba(18, 38, 20, 0.15), rgba(18, 38, 20, 0.22));
 
-  /* Text */
-  --text-primary: #1A2316;
-  --text-secondary: rgba(26, 35, 22, 0.72);
-  --text-muted: rgba(26, 35, 22, 0.52);
-  --text-disabled: rgba(26, 35, 22, 0.32);
+
+  /* Surface Hierarchy System — Light Mode */
+  /* SURFACE 1: Hero / Feature / Command Surface (Warm Light Ivory with subtle green accent tint) */
+  --surface-1: #FFFFFF;
+  --surface-1-border: rgba(22, 163, 74, 0.28);
+  --surface-1-text: #142416;
+
+  /* SURFACE 2: Standard Card Surface (Warm Ivory / Light Sage) */
+  --surface-2: #F4F8F2;
+  --surface-2-border: rgba(100, 150, 90, 0.22);
+  --surface-2-text: #142416;
+
+  /* SURFACE 3: Crisp Cream / Off-White Data Panel (High readability tables, forms, details) */
+  --surface-3: #FAFCF8;
+  --surface-3-border: rgba(100, 150, 90, 0.18);
+  --surface-3-text: #142416;
+
+  /* Elevated Surface */
+  --surface-elevated: #FFFFFF;
+
+  /* Utility Surfaces */
+  --surface-glass: rgba(255, 255, 255, 0.92);          /* Clean white glass backdrop */
+  --surface-input: #FFFFFF;                            /* White form inputs */
+  --surface-inset: #E6EFE3;                            /* Trough / Inset stats */
+  --surface-nav: #EDF3EB;                              /* Sidebar / nav */
+  --surface-nav-glass: rgba(237, 243, 235, 0.92);      /* Mobile nav */
+  --surface-overlay: rgba(10, 24, 12, 0.50);           /* Modal backdrop */
+
+  /* Text & Typography Tokens — Light Mode (Dark Forest Typography) */
+  --text-primary: #142416;                             /* Deep forest main text */
+  --text-secondary: rgba(20, 36, 22, 0.78);
+  --text-muted: rgba(20, 36, 22, 0.55);
+  --text-disabled: rgba(20, 36, 22, 0.32);
   --text-inverse: #FFFFFF;
   --text-on-lime: #FFFFFF;
-  --dark-text: #1A2316;
+  --dark-text: #142416;
 
   /* Card and Button gray */
-  --card-gray: rgba(100, 130, 80, 0.12);
+  --card-gray: rgba(100, 150, 90, 0.10);
 
   /* Borders */
-  --border-default: rgba(100, 130, 80, 0.18);
-  --border-strong: rgba(100, 130, 80, 0.32);
-  --border-lime: rgba(22, 163, 74, 0.45);
-  --border-subtle: rgba(100, 130, 80, 0.10);
+  --border-default: rgba(100, 150, 90, 0.20);
+  --border-strong: rgba(22, 163, 74, 0.40);
+  --border-lime: rgba(22, 163, 74, 0.55);
+  --border-subtle: rgba(100, 150, 90, 0.12);
 
-  /* Semantic */
+  /* Semantic Colors */
   --info: #0284C7;
   --info-bg: rgba(2, 132, 199, 0.10);
-  --success: #166534;
-  --success-bg: rgba(22, 101, 52, 0.10);
+  --success: #16A34A;
+  --success-bg: rgba(22, 163, 74, 0.10);
   --warning: #D97706;
   --warning-bg: rgba(217, 119, 6, 0.10);
   --danger: #DC2626;
   --danger-bg: rgba(220, 38, 38, 0.10);
 
-  /* Badge */
+  /* Badge Tokens */
   --badge-primary-bg: var(--signal-lime);
   --badge-primary-text: #FFFFFF;
-  --badge-success-bg: rgba(22, 101, 52, 0.14);
-  --badge-success-text: #166534;
+  --badge-success-bg: rgba(22, 163, 74, 0.14);
+  --badge-success-text: #15803D;
   --badge-warning-bg: rgba(217, 119, 6, 0.14);
-  --badge-warning-text: #92400E;
-  --badge-secondary-bg: rgba(100, 130, 80, 0.12);
+  --badge-warning-text: #B45309;
+  --badge-secondary-bg: rgba(100, 150, 90, 0.14);
   --badge-secondary-text: var(--text-secondary);
 
   /* Shadows */
-  --shadow-sm: 0 1px 4px rgba(26, 35, 22, 0.06), 0 1px 2px rgba(26, 35, 22, 0.04);
-  --shadow-md: 0 4px 16px rgba(26, 35, 22, 0.08), 0 2px 6px rgba(26, 35, 22, 0.05);
-  --shadow-lg: 0 12px 32px rgba(26, 35, 22, 0.10), 0 4px 12px rgba(26, 35, 22, 0.06);
-  --shadow-3d: 0 8px 24px rgba(26, 35, 22, 0.10),
-               0 0 0 1px rgba(255,255,255,0.70) inset,
-               0 -2px 4px rgba(26, 35, 22, 0.04) inset;
-  --shadow-card-hover: 0 16px 40px rgba(26, 35, 22, 0.14),
-                       0 0 0 1.5px var(--border-lime);
-  --shadow-nav: 0 -2px 16px rgba(26, 35, 22, 0.08);
+  --shadow-sm: 0 1px 4px rgba(20, 36, 22, 0.06);
+  --shadow-md: 0 4px 16px rgba(20, 36, 22, 0.08);
+  --shadow-lg: 0 12px 32px rgba(20, 36, 22, 0.12);
+  --shadow-3d: 0 6px 20px rgba(20, 36, 22, 0.07), 0 0 0 1px rgba(255,255,255,0.80) inset;
+  --shadow-card-hover: 0 12px 32px rgba(20, 36, 22, 0.12), 0 0 0 1.5px var(--border-lime);
+  --shadow-nav: 0 -2px 16px rgba(20, 36, 22, 0.08);
 
-  /* Layout */
+  /* Layout Tokens */
   --radius: 14px;
   --radius-sm: 10px;
   --radius-lg: 20px;
@@ -92,43 +113,60 @@
   --transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 
   /* Page header bar */
-  --header-bg: linear-gradient(135deg, rgba(15,65,35,0.97) 0%, rgba(22,90,48,0.93) 100%);
+  --header-bg: linear-gradient(135deg, #15803D 0%, #166534 100%);
   --header-text: #FFFFFF;
-  --header-subtext: rgba(255,255,255,0.85);
+  --header-subtext: rgba(255,255,255,0.88);
 }
 
 /* ============================================================
-   DARK MODE — Deep Forest, Moonlit Fields
+   DARK MODE — Deep Moonlit Emerald & Forest Surfaces
    ============================================================ */
 [data-theme="dark"] {
-  /* Natural Surface System — Dark */
-  --app-bg: #0D1A0B;
-  --surface-0: #0D1A0B;
-  --surface-1: rgba(28, 45, 22, 0.90);
-  --surface-2: rgba(36, 56, 28, 0.96);
-  --surface-glass: rgba(18, 32, 14, 0.80);
-  --surface-input: rgba(30, 48, 24, 0.92);
-  --surface-inset: rgba(15, 30, 10, 0.55);
-  --surface-nav: rgba(18, 32, 14, 0.96);
-  --surface-nav-glass: rgba(16, 28, 12, 0.95);
-  --surface-overlay: rgba(0, 0, 0, 0.65);
+  /* Atmospheric Page Background & Overlay */
+  --app-bg: #0A140B;
+  --surface-0: #0A140B;
+  --app-main-gradient: linear-gradient(rgba(10, 20, 11, 0.70), rgba(10, 20, 11, 0.70));
 
-  /* Text */
-  --text-primary: #E8F0E4;
-  --text-secondary: rgba(232, 240, 228, 0.78);
-  --text-muted: rgba(232, 240, 228, 0.52);
-  --text-disabled: rgba(232, 240, 228, 0.30);
-  --text-inverse: #1A2316;
+  /* Surface Hierarchy System — Dark Mode */
+  --surface-1: #0F2413;
+  --surface-1-border: rgba(34, 197, 94, 0.32);
+  --surface-1-text: #EBF3E8;
+
+  --surface-2: #142E19;
+  --surface-2-border: rgba(100, 160, 80, 0.28);
+  --surface-2-text: #EBF3E8;
+
+  --surface-3: #1A3820;
+  --surface-3-border: rgba(140, 160, 130, 0.32);
+  --surface-3-text: #EBF3E8;
+
+  /* Elevated Surface */
+  --surface-elevated: #18341D;
+
+  /* Utility Surfaces */
+  --surface-glass: rgba(15, 36, 19, 0.90);
+  --surface-input: #122615;
+  --surface-inset: #071309;
+  --surface-nav: #071309;
+  --surface-nav-glass: rgba(5, 14, 7, 0.92);
+  --surface-overlay: rgba(0, 0, 0, 0.85);
+
+  /* Text & Typography Tokens — Dark Mode */
+  --text-primary: #EBF3E8;
+  --text-secondary: rgba(235, 243, 232, 0.78);
+  --text-muted: rgba(235, 243, 232, 0.52);
+  --text-disabled: rgba(235, 243, 232, 0.30);
+  --text-inverse: #0A140B;
   --text-on-lime: #FFFFFF;
-  --dark-text: #1A2316;
+  --dark-text: #0A140B;
 
   /* Card and Button gray */
-  --card-gray: rgba(100, 160, 80, 0.18);
+  --card-gray: rgba(100, 160, 80, 0.22);
 
-  /* Brand colours remain consistent */
-  --signal-lime: #22C55E;                              /* Bright Kelly Green for Dark Mode */
-  --signal-lime-soft: rgba(34, 197, 94, 0.16);
-  --signal-lime-glow: rgba(34, 197, 94, 0.30);
+  /* Brand colors */
+  --signal-lime: #22C55E;
+  --signal-lime-soft: rgba(34, 197, 94, 0.18);
+  --signal-lime-glow: rgba(34, 197, 94, 0.35);
   --emerald-primary: #22C55E;
   --emerald-mid: #16A34A;
   --emerald-dark: #86EFAC;
@@ -136,47 +174,38 @@
   --amber: #FBBF24;
 
   /* Borders */
-  --border-default: rgba(100, 160, 80, 0.22);
-  --border-strong: rgba(100, 160, 80, 0.40);
-  --border-lime: rgba(200, 226, 26, 0.45);
-  --border-subtle: rgba(100, 160, 80, 0.12);
+  --border-default: rgba(100, 160, 80, 0.28);
+  --border-strong: rgba(34, 197, 94, 0.45);
+  --border-lime: rgba(34, 197, 94, 0.60);
+  --border-subtle: rgba(100, 160, 80, 0.18);
 
   /* Semantic */
   --info: #38BDF8;
-  --info-bg: rgba(56, 189, 248, 0.12);
+  --info-bg: rgba(56, 189, 248, 0.14);
   --success: #4ADE80;
-  --success-bg: rgba(74, 222, 128, 0.12);
+  --success-bg: rgba(74, 222, 128, 0.14);
   --warning: #FBBF24;
-  --warning-bg: rgba(251, 191, 36, 0.12);
+  --warning-bg: rgba(251, 191, 36, 0.14);
   --danger: #F87171;
-  --danger-bg: rgba(248, 113, 113, 0.12);
+  --danger-bg: rgba(248, 113, 113, 0.14);
 
   /* Badge */
   --badge-primary-bg: var(--signal-lime);
-  --badge-primary-text: #1A2316;
-  --badge-success-bg: rgba(74, 222, 128, 0.18);
+  --badge-primary-text: #0A140B;
+  --badge-success-bg: rgba(74, 222, 128, 0.20);
   --badge-success-text: #4ADE80;
-  --badge-warning-bg: rgba(251, 191, 36, 0.18);
+  --badge-warning-bg: rgba(251, 191, 36, 0.20);
   --badge-warning-text: #FBBF24;
-  --badge-secondary-bg: rgba(100, 160, 80, 0.18);
+  --badge-secondary-bg: rgba(100, 160, 80, 0.22);
   --badge-secondary-text: var(--text-secondary);
 
-  /* Shadows — darker, more diffuse */
-  --shadow-sm: 0 1px 4px rgba(0, 0, 0, 0.25), 0 1px 2px rgba(0, 0, 0, 0.18);
-  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.32), 0 2px 6px rgba(0, 0, 0, 0.20);
-  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.38), 0 4px 12px rgba(0, 0, 0, 0.24);
-  --shadow-3d: 0 8px 24px rgba(0, 0, 0, 0.40),
-               0 0 0 1px rgba(100, 160, 80, 0.20) inset,
-               0 -2px 4px rgba(0, 0, 0, 0.20) inset;
-  --shadow-card-hover: 0 16px 40px rgba(0, 0, 0, 0.50),
-                       0 0 0 1.5px var(--border-lime);
-  --shadow-nav: 0 -2px 16px rgba(0, 0, 0, 0.35);
-
   /* Page header bar */
-  --header-bg: linear-gradient(135deg, rgba(8, 30, 15, 0.98) 0%, rgba(14, 50, 26, 0.96) 100%);
-  --header-text: #E8F0E4;
-  --header-subtext: rgba(232, 240, 228, 0.80);
+  --header-bg: linear-gradient(135deg, #061308 0%, #0D2413 100%);
+  --header-text: #EBF3E8;
+  --header-subtext: rgba(235, 243, 232, 0.80);
 }
+
+
 
 /* ============================================================
    GLOBAL RESET & BASE
@@ -207,23 +236,24 @@ a {
 }
 
 /* ============================================================
-   SURFACE CARD COMPONENTS
+   SURFACE CARD SYSTEM — Earth + Emerald + Sage
    ============================================================ */
 
-/* Default glass card — translucent natural surface */
+/* SURFACE 1: Deep Forest / Emerald Green Card (Hero, Command Center, AI Header) */
+.surface-1,
 .card-glass {
   background: var(--surface-1);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid var(--border-default);
+  border: 1px solid var(--surface-1-border);
   border-radius: var(--radius);
   padding: 1.25rem;
   box-shadow: var(--shadow-md);
   transition: var(--transition);
   position: relative;
   overflow: hidden;
+  color: var(--surface-1-text);
 }
 
+.surface-1::before,
 .card-glass::before {
   content: '';
   position: absolute;
@@ -231,32 +261,32 @@ a {
   left: 0;
   right: 0;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.40), transparent);
+  background: linear-gradient(90deg, transparent, rgba(34, 197, 94, 0.40), transparent);
   pointer-events: none;
 }
 
-[data-theme="dark"] .card-glass::before {
-  background: linear-gradient(90deg, transparent, rgba(100,160,80,0.25), transparent);
-}
-
+.surface-1:hover,
 .card-glass:hover {
   transform: translateY(-2px);
   box-shadow: var(--shadow-card-hover);
-  border-color: var(--border-strong);
+  border-color: var(--border-lime);
 }
 
-/* 3D Elevated Card */
+/* SURFACE 2: Deep Sage / Muted Natural Green Card (Standard cards, metrics, features) */
+.surface-2,
 .card-3d {
   background: var(--surface-2);
   border-radius: var(--radius);
   padding: 1.25rem;
   box-shadow: var(--shadow-3d);
   transition: var(--transition);
-  border: 1px solid var(--border-default);
+  border: 1px solid var(--surface-2-border);
   position: relative;
   overflow: hidden;
+  color: var(--surface-2-text);
 }
 
+.surface-2::before,
 .card-3d::before {
   content: '';
   position: absolute;
@@ -264,21 +294,50 @@ a {
   left: 0;
   right: 0;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.50), transparent);
+  background: linear-gradient(90deg, transparent, rgba(100, 160, 80, 0.30), transparent);
   pointer-events: none;
 }
 
-[data-theme="dark"] .card-3d::before {
-  background: linear-gradient(90deg, transparent, rgba(100,160,80,0.20), transparent);
-}
-
+.surface-2:hover,
 .card-3d:hover {
   transform: translateY(-3px) scale(1.005);
   box-shadow: var(--shadow-card-hover);
+  border-color: var(--border-strong);
 }
 
+/* SURFACE 3: Warm Natural Off-White / Cream Panel (High readability forms, tables, detailed data) */
+.surface-3,
+.card-cream {
+  background: var(--surface-3);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  box-shadow: var(--shadow-md);
+  transition: var(--transition);
+  border: 1px solid var(--surface-3-border);
+  position: relative;
+  overflow: hidden;
+  color: var(--surface-3-text) !important;
+}
+
+.surface-3 h1, .surface-3 h2, .surface-3 h3, .surface-3 h4, .surface-3 h5, .surface-3 h6,
+.card-cream h1, .card-cream h2, .card-cream h3, .card-cream h4, .card-cream h5, .card-cream h6 {
+  color: #112214 !important;
+}
+
+.surface-3 p, .surface-3 label, .surface-3 span,
+.card-cream p, .card-cream label, .card-cream span {
+  color: rgba(17, 34, 20, 0.85);
+}
+
+.surface-3:hover,
+.card-cream:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.20);
+}
+
+
 /* ============================================================
-   AGRICULTURAL IMAGE-BACKED FEATURE CARDS
+   AGRICULTURAL IMAGE-BACKED FEATURE CARDS & OVERLAYS
    ============================================================ */
 .card-feature-backed {
   position: relative;
@@ -292,7 +351,7 @@ a {
   color: #FFFFFF;
   box-shadow: var(--shadow-3d);
   transition: var(--transition);
-  border: 1px solid rgba(255, 255, 255, 0.20);
+  border: 1px solid rgba(255, 255, 255, 0.25);
   text-decoration: none;
   cursor: pointer;
 }
@@ -303,20 +362,20 @@ a {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  filter: brightness(1.08) contrast(1.05);
+  filter: brightness(0.95) contrast(1.05);
   transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), filter 0.3s ease;
   z-index: 0;
 }
 
-/* Subtle gradient overlay — keeps images bright while guaranteeing text readability */
+/* Multi-stage gradient overlay guaranteeing text contrast over any image */
 .card-feature-overlay {
   position: absolute;
   inset: 0;
   background: linear-gradient(
     180deg,
-    rgba(0, 0, 0, 0.15) 0%,
-    rgba(6, 20, 10, 0.45) 50%,
-    rgba(4, 14, 7, 0.82) 100%
+    rgba(6, 20, 10, 0.35) 0%,
+    rgba(6, 20, 10, 0.65) 45%,
+    rgba(4, 14, 7, 0.92) 100%
   );
   z-index: 1;
   transition: background 0.30s ease;
@@ -328,11 +387,12 @@ a {
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.55);
 }
 
 .card-feature-action {
-  width: 30px;
-  height: 30px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   background: var(--signal-lime);
   color: var(--text-on-lime);
@@ -342,7 +402,7 @@ a {
   font-weight: 700;
   font-size: 0.9rem;
   transition: var(--transition);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.35);
   flex-shrink: 0;
 }
 
@@ -363,6 +423,52 @@ a {
 }
 
 /* ============================================================
+   LOCALIZED TEXT READABILITY & EMBOSSED 3D SHADOW UTILITIES
+   ============================================================ */
+.image-section-header {
+  background: var(--surface-2);
+  border: 1px solid var(--surface-2-border);
+  border-radius: 12px;
+  padding: 0.65rem 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: var(--shadow-sm);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.text-embossed {
+  color: #FFFFFF !important;
+  text-shadow: 
+    0 1px 2px rgba(0, 0, 0, 0.85),
+    0 2px 8px rgba(0, 0, 0, 0.60),
+    0 0 1px rgba(0, 0, 0, 0.90);
+  letter-spacing: -0.01em;
+}
+
+.text-image-backdrop {
+  background: rgba(8, 22, 11, 0.65);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  padding: 0.35rem 0.75rem;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.text-image-chip {
+  background: rgba(14, 34, 18, 0.82);
+  color: #EBF3E8;
+  padding: 0.2rem 0.5rem;
+  border-radius: 6px;
+  font-size: 0.76rem;
+  font-weight: 650;
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+
+/* ============================================================
    BADGES
    ============================================================ */
 .badge {
@@ -371,13 +477,15 @@ a {
   padding: 0.28rem 0.72rem;
   border-radius: var(--radius-pill);
   font-size: 0.70rem;
-  font-weight: 700;
+  font-weight: 750;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  border: none;
+  border: 1px solid transparent;
   line-height: 1;
   white-space: nowrap;
 }
+
+
 
 .badge-primary {
   background: var(--badge-primary-bg);
@@ -502,12 +610,24 @@ a {
 .app-main {
   padding: 0.85rem !important;
   padding-bottom: 5.5rem !important;
-  background-image: url('./bg2.jpg');
+  background:
+    var(--app-main-gradient),
+    url('./bg2.jpg');
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
-  transition: background-color 0.35s ease;
+  transition: background 0.35s ease;
 }
+
+[data-theme="dark"] .app-main {
+  background:
+    var(--app-main-gradient),
+    url('./bg2.jpg');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+}
+
 
 @media (min-width: 768px) {
   .app-mobile-top-bar {
@@ -524,6 +644,7 @@ a {
     padding-bottom: 2rem !important;
   }
 }
+
 
 /* ============================================================
    SIDEBAR — DESKTOP
@@ -675,14 +796,27 @@ a {
   align-items: center;
   flex-wrap: wrap;
   gap: 1rem;
-  padding: 1.25rem;
+  padding: 1.25rem 1.5rem;
   background: var(--header-bg);
   border-radius: var(--radius);
   box-shadow: var(--shadow-3d);
-  color: var(--header-text);
+  color: #FFFFFF !important;
   position: relative;
   overflow: hidden;
 }
+
+.page-header-banner h1,
+.page-header-banner h2,
+.page-header-banner h3 {
+  color: #FFFFFF !important;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
+}
+
+.page-header-banner p {
+  color: rgba(255, 255, 255, 0.90) !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+}
+
 
 @media (max-width: 640px) {
   .page-header-banner {

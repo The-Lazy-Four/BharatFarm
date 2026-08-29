@@ -3,7 +3,7 @@ import React from 'react';
 export interface CardProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'title'> {
   title?: React.ReactNode;
   subtitle?: React.ReactNode;
-  variant?: 'glass' | '3d' | 'elevated' | 'outline';
+  variant?: 'surface1' | 'surface2' | 'surface3' | 'cream' | 'glass' | '3d' | 'elevated' | 'outline';
   headerAction?: React.ReactNode;
   action?: React.ReactNode;
   className?: string;
@@ -13,7 +13,7 @@ export interface CardProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 't
 export const Card: React.FC<CardProps> = ({
   title,
   subtitle,
-  variant = 'glass',
+  variant = 'surface2',
   headerAction,
   action,
   className = '',
@@ -25,17 +25,23 @@ export const Card: React.FC<CardProps> = ({
 
   const getCardClass = () => {
     switch (variant) {
-      case '3d':
-        return 'card-3d';
-      case 'elevated':
-        return 'card-glass shadow-lg';
+      case 'surface1':
+        return 'surface-1';
+      case 'surface3':
+      case 'cream':
+        return 'surface-3';
       case 'outline':
-        return 'card-glass border-strong';
+        return 'surface-2 border-strong';
+      case '3d':
+      case 'elevated':
+      case 'surface2':
       case 'glass':
       default:
-        return 'card-glass';
+        return 'surface-2';
     }
   };
+
+
 
   return (
     <div
