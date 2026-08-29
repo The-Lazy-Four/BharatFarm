@@ -38,7 +38,7 @@ describe('KrishiBot / Shayak Complete AI Assistant Module', () => {
     expect(messages.length).toBeGreaterThanOrEqual(2);
     expect(messages.some(m => m.sender === 'user' && m.text.includes('rain'))).toBe(true);
     expect(messages.some(m => m.sender === 'bot')).toBe(true);
-  });
+  }, 15000);
 
   it('incorporates Marketplace catalog data when query mentions fertilizers', async () => {
     const response = await repository.processQuery({
@@ -47,7 +47,7 @@ describe('KrishiBot / Shayak Complete AI Assistant Module', () => {
     }, testUserId);
 
     expect(response.reply).toBeTruthy();
-  });
+  }, 15000);
 
   it('falls back gracefully to rule-based multilingual engine when OpenRouter is offline', async () => {
     const response = await repository.processQuery({

@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { KrishiBotService } from '../services/krishibot.service.js';
+import { KrishiBotService } from '../services/krishiBot.service.js';
 import { ApiResponse } from '../../../utils/apiResponse.js';
 import { logger } from '../../../utils/logger.js';
 import { AuthenticatedRequest } from '../../../middleware/auth.middleware.js';

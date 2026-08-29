@@ -77,7 +77,7 @@ export const KrishiBotPage: React.FC = () => {
                   </div>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <Button variant="ghost" size="sm" onClick={clearConversation} title="Clear Chat History">
+                  <Button variant="outline" size="sm" onClick={clearConversation} title="Clear Chat History">
                     Clear Chat
                   </Button>
                   <span className="badge badge-primary" style={{ fontSize: '0.7rem' }}>Online</span>

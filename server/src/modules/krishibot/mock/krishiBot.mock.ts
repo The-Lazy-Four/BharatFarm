@@ -3,6 +3,7 @@ import { KRISHIBOT_CONSTANTS } from '../constants/krishiBot.constants.js';
 
 export const MOCK_KRISHIBOT_RESPONSES: Record<string, ChatResponse> = {
   default: {
+    sessionId: 'session-mock-1',
     messageId: 'msg-mock-1',
     reply: KRISHIBOT_CONSTANTS.MOCK_FALLBACK_REPLY,
     suggestedActions: KRISHIBOT_CONSTANTS.SUGGESTED_ACTIONS,

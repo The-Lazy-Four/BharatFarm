@@ -288,8 +288,8 @@ export class KrishiBotRepository {
     // Marketplace Products Context
     if (text.includes('buy') || text.includes('price') || text.includes('fertilizer') || text.includes('seed') || text.includes('pesticide') || text.includes('khad') || text.includes('खाद') || text.includes('সার') || text.includes('sasta')) {
       try {
-        const products = await this.marketplaceRepo.findAll({ limit: 5 });
-        const summary = products.map(p => `${p.title} (₹${p.price}/${p.unit})`).join(', ');
+        const products = await this.marketplaceRepo.findAll({});
+        const summary = products.slice(0, 5).map(p => `${p.title} (₹${p.price}/${p.unit})`).join(', ');
         contextParts.push(`Actual Marketplace Catalog: ${summary}`);
       } catch (err) {
         // ignore
@@ -311,7 +311,7 @@ export class KrishiBotRepository {
     if (text.includes('group') || text.includes('pool') || text.includes('bulk') || text.includes('discount')) {
       try {
         const pools = await this.groupBuyingRepo.findAll();
-        const summary = pools.slice(0, 3).map(p => `${p.title} (Discount: ${p.discountPercent}%, Members: ${p.currentMembers}/${p.targetMembers})`).join(', ');
+        const summary = pools.slice(0, 3).map(p => `${p.itemTitle} (Original: ₹${p.originalPricePerUnit}, Discounted: ₹${p.discountedPricePerUnit}, Current Qty: ${p.currentQuantity}/${p.targetQuantity})`).join(', ');
         contextParts.push(`Active Group Buying Pools: ${summary}`);
       } catch (err) {
         // ignore
@@ -323,7 +323,7 @@ export class KrishiBotRepository {
 
   private async queryAiProvider(query: string, language: string, history: ChatMessage[], domainContext: string): Promise<string> {
     // Check AI Response Cache first
-    const cacheKey = AiCache.generateKey('krishibot', { query, language, domainContext });
+    const cacheKey = AiCache.createFingerprint('krishibot', { query, language, domainContext });
     const cached = AiCache.get<string>(cacheKey);
     if (cached) return cached;
 
