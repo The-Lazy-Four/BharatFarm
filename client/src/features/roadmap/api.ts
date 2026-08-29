@@ -1,6 +1,6 @@
 import { ApiClient } from '../../services/apiClient.js';
 import { ApiResponse } from '@bharatfarm/shared';
-import { CropRoadmapRequest, CropRoadmapResponse } from './types.js';
+import { CropRoadmapRequest, CropRoadmapResponse, CropRoadmapItem, RoadmapAdvisoryRequest } from './types.js';
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null;
@@ -22,6 +22,14 @@ const isRoadmapResponse = (value: unknown): value is CropRoadmapResponse => {
 };
 
 export const roadmapApi = {
+  listRoadmaps: async (): Promise<ApiResponse<CropRoadmapItem[]>> => {
+    return await ApiClient.get<CropRoadmapItem[]>('/roadmap');
+  },
+
+  getRoadmapById: async (id: string): Promise<ApiResponse<CropRoadmapItem>> => {
+    return await ApiClient.get<CropRoadmapItem>(`/roadmap/${id}`);
+  },
+
   generateRoadmap: async (data: CropRoadmapRequest): Promise<ApiResponse<CropRoadmapResponse>> => {
     const response = await ApiClient.post<CropRoadmapResponse>('/roadmap/generate', data);
 
@@ -36,5 +44,17 @@ export const roadmapApi = {
     }
 
     return response;
+  },
+
+  updateProgress: async (id: string, completedDays: number[]): Promise<ApiResponse<{ id: string; completedDays: number[] }>> => {
+    return await ApiClient.patch<{ id: string; completedDays: number[] }>(`/roadmap/${id}/progress`, { completedDays });
+  },
+
+  deleteRoadmap: async (id: string): Promise<ApiResponse<{ id: string }>> => {
+    return await ApiClient.delete<{ id: string }>(`/roadmap/${id}`);
+  },
+
+  getStageAdvisory: async (data: RoadmapAdvisoryRequest): Promise<ApiResponse<{ advisory: string; weatherWarning?: string }>> => {
+    return await ApiClient.post<{ advisory: string; weatherWarning?: string }>('/roadmap/advisory', data);
   }
 };

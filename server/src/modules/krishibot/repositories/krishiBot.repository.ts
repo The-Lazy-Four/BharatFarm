@@ -318,6 +318,23 @@ export class KrishiBotRepository {
       }
     }
 
+    // Crop Roadmap Context
+    if (text.includes('roadmap') || text.includes('schedule') || text.includes('stage') || text.includes('task') || text.includes('next') || text.includes('sowing') || text.includes('harvest') || text.includes('plan')) {
+      try {
+        const { getSupabaseAdminClient } = await import('../../../config/supabase.js');
+        const supabase = getSupabaseAdminClient();
+        if (supabase) {
+          const { data: roadmaps } = await supabase.from('roadmaps').select('*').limit(2);
+          if (roadmaps && roadmaps.length > 0) {
+            const r = roadmaps[0];
+            contextParts.push(`Farmer Active Crop Roadmap: ${r.crop} in ${r.district}, ${r.state}. Start Date: ${r.start_date}, Activities count: ${Array.isArray(r.activities) ? r.activities.length : 0}`);
+          }
+        }
+      } catch (err) {
+        // ignore
+      }
+    }
+
     return contextParts.join('\n');
   }
 
