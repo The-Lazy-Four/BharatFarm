@@ -161,14 +161,15 @@ export class MarketplaceRepository {
       throw new Error('Supabase client unavailable for listing creation.');
     }
 
-    const insertPayload = {
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(sellerId);
+
+    const insertPayload: Record<string, any> = {
       title: dto.title,
       category: dto.category,
       price: dto.price,
       unit: dto.unit,
       quantity_available: dto.quantityAvailable,
       location: dto.location,
-      seller_id: sellerId,
       seller_name: sellerName,
       seller_rating: 4.8,
       seller_phone: rawPhone || null,
@@ -176,6 +177,10 @@ export class MarketplaceRepository {
       verified: true,
       image_url: dto.imageUrl || null
     };
+
+    if (isUuid) {
+      insertPayload.seller_id = sellerId;
+    }
 
     const { data, error } = await dbClient
       .from('marketplace_products')
