@@ -1,36 +1,67 @@
 import React from 'react';
 
-export interface CardProps {
-  title?: string;
-  subtitle?: string;
+export interface CardProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'title'> {
+  title?: React.ReactNode;
+  subtitle?: React.ReactNode;
+  variant?: 'glass' | '3d' | 'elevated' | 'outline';
+  headerAction?: React.ReactNode;
   action?: React.ReactNode;
-  children: React.ReactNode;
   className?: string;
-  style?: React.CSSProperties;
-  variant?: 'glass' | '3d';
+  children?: React.ReactNode;
 }
 
 export const Card: React.FC<CardProps> = ({
   title,
   subtitle,
+  variant = 'glass',
+  headerAction,
   action,
-  children,
   className = '',
-  style = {},
-  variant = 'glass'
+  style,
+  children,
+  ...props
 }) => {
-  const cardClass = variant === '3d' ? 'card-3d' : 'card-glass';
+  const activeAction = headerAction || action;
+
+  const getCardClass = () => {
+    switch (variant) {
+      case '3d':
+        return 'card-3d';
+      case 'elevated':
+        return 'card-glass shadow-lg';
+      case 'outline':
+        return 'card-glass border-strong';
+      case 'glass':
+      default:
+        return 'card-glass';
+    }
+  };
 
   return (
-    <div className={`${cardClass} ${className}`} style={style}>
-      {(title || action) && (
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: subtitle ? '0.25rem' : '1rem' }}>
-          {title && <h3 style={{ fontSize: '1.15rem', fontWeight: 700, color: 'var(--text-primary)' }}>{title}</h3>}
-          {action && <div>{action}</div>}
+    <div
+      className={`${getCardClass()} ${className}`}
+      style={style}
+      {...props}
+    >
+      {(title || subtitle || activeAction) && (
+        <div style={{ marginBottom: '0.85rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.5rem' }}>
+          <div>
+            {title && (
+              <h3 style={{ fontSize: '1.15rem', fontWeight: 750, color: 'var(--text-primary)', margin: 0, letterSpacing: '-0.01em', lineHeight: 1.25 }}>
+                {title}
+              </h3>
+            )}
+            {subtitle && (
+              <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', marginTop: '0.2rem', margin: 0, lineHeight: 1.35 }}>
+                {subtitle}
+              </p>
+            )}
+          </div>
+          {activeAction && <div style={{ flexShrink: 0 }}>{activeAction}</div>}
         </div>
       )}
-      {subtitle && <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '1rem' }}>{subtitle}</p>}
       {children}
     </div>
   );
 };
+
