@@ -15,5 +15,6 @@ export const MOCK_SCAN_RESULT: ScanResult = {
     'Rotate crops with legumes next season.',
     'Plant resistant hybrid seeds.'
   ],
+  disclaimer: 'AI leaf scan provides preliminary diagnostic guidance. Always consult a certified local Krishi Vigyan Kendra (KVK) officer before applying chemical control measures.',
   scannedAt: new Date().toLocaleDateString()
 };

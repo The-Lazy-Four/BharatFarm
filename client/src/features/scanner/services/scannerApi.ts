@@ -1,13 +1,26 @@
 import { ApiClient } from '../../../services/apiClient.js';
-import { ScanResult, ScannerService } from '../types/scanner.types.js';
+import { ScanResult, ScanRequestParams, ScannerService } from '../types/scanner.types.js';
 
 export class HttpScannerService implements ScannerService {
-  async analyzeImage(imageBase64: string): Promise<ScanResult> {
-    const res = await ApiClient.post<ScanResult>('/scanner/analyze', { imageBase64 });
+  async analyzeImage(params: ScanRequestParams): Promise<ScanResult> {
+    const res = await ApiClient.post<ScanResult>('/scanner/analyze', params);
     if (res.success && res.data) {
       return res.data;
     }
     throw new Error(res.error?.message || 'Failed to analyze crop image');
+  }
+
+  async getHistory(): Promise<ScanResult[]> {
+    const res = await ApiClient.get<ScanResult[]>('/scanner/history');
+    if (res.success && res.data) {
+      return res.data;
+    }
+    return [];
+  }
+
+  async deleteScan(id: string): Promise<boolean> {
+    const res = await ApiClient.delete<{ success: boolean }>(`/scanner/${id}`);
+    return !!res.success;
   }
 }
 
