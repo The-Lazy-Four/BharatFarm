@@ -165,6 +165,11 @@ export class KrishiBotRepository {
       }
     }
 
+    const memSession = memorySessions.get(sessionId);
+    if (memSession && memSession.userId !== userId) {
+      throw new Error('UNAUTHORIZED_SESSION_ACCESS');
+    }
+
     memorySessions.delete(sessionId);
     memoryMessages.delete(sessionId);
     return true;
@@ -187,7 +192,7 @@ export class KrishiBotRepository {
     const userMsgId = await this.saveMessage(session.id, 'user', request.message);
 
     // 3. Gather real domain context based on keywords in user message
-    const domainContext = await this.buildDomainContext(request.message, request.farmerContext);
+    const { contextText: domainContext, actions: contextualActions } = await this.buildDomainContext(request.message, userId, request.farmerContext);
 
     // 4. Generate AI reply via OpenRouter or Fallback
     let replyText = '';
@@ -209,14 +214,16 @@ export class KrishiBotRepository {
       replyText = this.getRuleBasedReply(request.message, language as any);
     }
 
+    const actionLabels = contextualActions ? contextualActions.map(a => a.label) : KRISHIBOT_CONSTANTS.SUGGESTED_ACTIONS;
+
     // 5. Persist bot response
-    const botMsgId = await this.saveMessage(session.id, 'bot', replyText, KRISHIBOT_CONSTANTS.SUGGESTED_ACTIONS);
+    const botMsgId = await this.saveMessage(session.id, 'bot', replyText, actionLabels);
 
     return {
       sessionId: session.id,
       messageId: botMsgId,
       reply: replyText,
-      suggestedActions: KRISHIBOT_CONSTANTS.SUGGESTED_ACTIONS,
+      suggestedActions: actionLabels,
       confidence: isAiGenerated ? 0.95 : 0.7
     };
   }
@@ -261,9 +268,10 @@ export class KrishiBotRepository {
     return msgId;
   }
 
-  private async buildDomainContext(query: string, farmerContext?: any): Promise<string> {
+  private async buildDomainContext(query: string, userId: string, farmerContext?: any): Promise<{ contextText: string; actions?: { label: string; action: string; target: string }[] }> {
     const text = query.toLowerCase();
     const contextParts: string[] = [];
+    const actions: { label: string; action: string; target: string }[] = [];
 
     if (farmerContext?.location || farmerContext?.state) {
       contextParts.push(`Farmer Location: ${farmerContext.location || farmerContext.state}`);
@@ -275,67 +283,110 @@ export class KrishiBotRepository {
       contextParts.push(`Land Size: ${farmerContext.landSize} Acres`);
     }
 
-    // Weather Context
-    if (text.includes('rain') || text.includes('weather') || text.includes('baarish') || text.includes('मौसम') || text.includes('আবহাওয়া') || text.includes('water') || text.includes('spray')) {
+    // 1. Weather Intent & Telemetry
+    if (text.includes('rain') || text.includes('weather') || text.includes('baarish') || text.includes('मौसम') || text.includes('আবহাওয়া') || text.includes('water') || text.includes('spray') || text.includes('irrigate')) {
       try {
-        const weather = await this.weatherRepo.getWeather(farmerContext?.location || 'Punjab');
-        contextParts.push(`Live Weather Telemetry: ${weather.temperatureCelsius}°C, ${weather.condition}, Humidity: ${weather.humidityPercent}%, Rain Chance: ${weather.rainfallProbability}%, Wind: ${weather.windSpeedKmh} km/h.`);
-      } catch (err) {
-        // ignore
+        const weather = await this.weatherRepo.getWeather(farmerContext?.location || farmerContext?.state || 'Punjab');
+        contextParts.push(`Live Weather Telemetry: Location: ${weather.location}, Temp: ${weather.temperatureCelsius}°C, Condition: ${weather.condition}, Humidity: ${weather.humidityPercent}%, Rain Chance: ${weather.rainfallProbability}%, Wind: ${weather.windSpeedKmh} km/h.`);
+        actions.push({ label: '🌦️ View Weather Telemetry', action: 'navigate', target: '/weather' });
+      } catch (err: any) {
+        logger.warn(`[KrishiBot] Weather context error: ${err.message}`);
+        contextParts.push('Live Weather Telemetry: Currently unavailable via Open-Meteo API.');
       }
     }
 
-    // Marketplace Products Context
-    if (text.includes('buy') || text.includes('price') || text.includes('fertilizer') || text.includes('seed') || text.includes('pesticide') || text.includes('khad') || text.includes('खाद') || text.includes('সার') || text.includes('sasta')) {
+    // 2. Leaf Scanner & Pathogen Intent
+    if (text.includes('scan') || text.includes('disease') || text.includes('leaf') || text.includes('pathogen') || text.includes('spot') || text.includes('yellow') || text.includes('blight') || text.includes('fungus')) {
       try {
-        const products = await this.marketplaceRepo.findAll({});
-        const summary = products.slice(0, 5).map(p => `${p.title} (₹${p.price}/${p.unit})`).join(', ');
-        contextParts.push(`Actual Marketplace Catalog: ${summary}`);
-      } catch (err) {
-        // ignore
-      }
-    }
-
-    // Government Schemes Context
-    if (text.includes('scheme') || text.includes('subsidy') || text.includes('yojana') || text.includes('pm-kisan') || text.includes('योजना') || text.includes('স্কিম')) {
-      try {
-        const schemes = await this.schemesRepo.findAll();
-        const summary = schemes.slice(0, 4).map(s => `${s.title} (${s.category})`).join(', ');
-        contextParts.push(`Official Government Schemes: ${summary}`);
-      } catch (err) {
-        // ignore
-      }
-    }
-
-    // Group Buying Pools Context
-    if (text.includes('group') || text.includes('pool') || text.includes('bulk') || text.includes('discount')) {
-      try {
-        const pools = await this.groupBuyingRepo.findAll();
-        const summary = pools.slice(0, 3).map(p => `${p.itemTitle} (Original: ₹${p.originalPricePerUnit}, Discounted: ₹${p.discountedPricePerUnit}, Current Qty: ${p.currentQuantity}/${p.targetQuantity})`).join(', ');
-        contextParts.push(`Active Group Buying Pools: ${summary}`);
-      } catch (err) {
-        // ignore
-      }
-    }
-
-    // Crop Roadmap Context
-    if (text.includes('roadmap') || text.includes('schedule') || text.includes('stage') || text.includes('task') || text.includes('next') || text.includes('sowing') || text.includes('harvest') || text.includes('plan')) {
-      try {
-        const { getSupabaseAdminClient } = await import('../../../config/supabase.js');
         const supabase = getSupabaseAdminClient();
         if (supabase) {
-          const { data: roadmaps } = await supabase.from('roadmaps').select('*').limit(2);
-          if (roadmaps && roadmaps.length > 0) {
-            const r = roadmaps[0];
-            contextParts.push(`Farmer Active Crop Roadmap: ${r.crop} in ${r.district}, ${r.state}. Start Date: ${r.start_date}, Activities count: ${Array.isArray(r.activities) ? r.activities.length : 0}`);
+          const { data: scans } = await supabase
+            .from('scan_results')
+            .select('*')
+            .eq('user_id', userId)
+            .order('scanned_at', { ascending: false })
+            .limit(1);
+
+          if (scans && scans.length > 0) {
+            const s = scans[0];
+            contextParts.push(`Recent Leaf Diagnostic Scan: Crop: ${s.crop_name}, Disease Detected: ${s.disease}, Confidence: ${Math.round((s.confidence || 0.85) * 100)}%, Severity: ${s.severity}. Primary Recommendation: ${Array.isArray(s.recommendations) ? s.recommendations[0] : 'Consult local agronomist'}`);
+            actions.push({ label: '🔬 View Scan Report', action: 'navigate', target: '/scanner' });
+          } else {
+            contextParts.push('Leaf Diagnostic Scan: No previous leaf scans recorded for this user.');
           }
         }
-      } catch (err) {
-        // ignore
+      } catch (err: any) {
+        logger.warn(`[KrishiBot] Scanner context error: ${err.message}`);
       }
     }
 
-    return contextParts.join('\n');
+    // 3. Crop Roadmap & Stage Guidance Intent
+    if (text.includes('roadmap') || text.includes('schedule') || text.includes('stage') || text.includes('task') || text.includes('next') || text.includes('sowing') || text.includes('harvest') || text.includes('plan') || text.includes('today')) {
+      try {
+        const supabase = getSupabaseAdminClient();
+        if (supabase) {
+          const { data: roadmaps } = await supabase
+            .from('roadmaps')
+            .select('*')
+            .eq('user_id', userId)
+            .order('updated_at', { ascending: false })
+            .limit(1);
+
+          if (roadmaps && roadmaps.length > 0) {
+            const r = roadmaps[0];
+            const activities = Array.isArray(r.activities) ? r.activities : [];
+            const completedCount = Array.isArray(r.completed_activities) ? r.completed_activities.length : 0;
+            const currentStage = activities[completedCount] || activities[0];
+
+            contextParts.push(`Active Crop Roadmap: Crop: ${r.crop}, Region: ${r.district || 'Ludhiana'}, ${r.state || 'Punjab'}. Completed Activities: ${completedCount}/${activities.length}. Current Active Stage: ${currentStage ? `${currentStage.stage} (Day ${currentStage.dayOffset || 1}): ${currentStage.title}` : 'Harvest Phase'}`);
+            actions.push({ label: '📅 View Crop Roadmap', action: 'navigate', target: '/roadmap' });
+          }
+        }
+      } catch (err: any) {
+        logger.warn(`[KrishiBot] Roadmap context error: ${err.message}`);
+      }
+    }
+
+    // 4. Government Schemes & Subsidies Intent
+    if (text.includes('scheme') || text.includes('subsidy') || text.includes('yojana') || text.includes('pm-kisan') || text.includes('loan') || text.includes('योजना') || text.includes('স্কিম')) {
+      try {
+        const schemes = await this.schemesRepo.findAll();
+        const summary = schemes.slice(0, 3).map(s => `${s.title} (${s.category}, Target: ${s.state || 'Pan-India'})`).join('; ');
+        contextParts.push(`Official Government Schemes: ${summary}`);
+        actions.push({ label: '📜 Check Scheme Eligibility', action: 'navigate', target: '/schemes' });
+      } catch (err: any) {
+        logger.warn(`[KrishiBot] Schemes context error: ${err.message}`);
+      }
+    }
+
+    // 5. Marketplace Products & Fertilizer Intent
+    if (text.includes('buy') || text.includes('price') || text.includes('fertilizer') || text.includes('seed') || text.includes('pesticide') || text.includes('khad') || text.includes('खाद') || text.includes('সার') || text.includes('cost')) {
+      try {
+        const products = await this.marketplaceRepo.findAll({});
+        const summary = products.slice(0, 4).map(p => `${p.title} (₹${p.price}/${p.unit})`).join(', ');
+        contextParts.push(`Actual Marketplace Catalog Listings: ${summary}`);
+        actions.push({ label: '🛒 Browse Marketplace Catalog', action: 'navigate', target: '/marketplace' });
+      } catch (err: any) {
+        logger.warn(`[KrishiBot] Marketplace context error: ${err.message}`);
+      }
+    }
+
+    // 6. Group Buying Pools Intent
+    if (text.includes('group') || text.includes('pool') || text.includes('bulk') || text.includes('discount') || text.includes('sasta')) {
+      try {
+        const pools = await this.groupBuyingRepo.findAll();
+        const summary = pools.slice(0, 3).map(p => `${p.itemTitle} (Original: ₹${p.originalPricePerUnit}, Discounted: ₹${p.discountedPricePerUnit}, Joined: ${p.currentQuantity}/${p.targetQuantity})`).join('; ');
+        contextParts.push(`Active Group Buying Discount Pools: ${summary}`);
+        actions.push({ label: '🤝 View Group Buying Pools', action: 'navigate', target: '/group-buying' });
+      } catch (err: any) {
+        logger.warn(`[KrishiBot] Group buying context error: ${err.message}`);
+      }
+    }
+
+    return {
+      contextText: contextParts.join('\n'),
+      actions: actions.length > 0 ? actions : undefined
+    };
   }
 
   private async queryAiProvider(query: string, language: string, history: ChatMessage[], domainContext: string): Promise<string> {
