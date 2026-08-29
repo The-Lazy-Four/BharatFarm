@@ -55,7 +55,9 @@ export class SchemesRepository {
 
     try {
       const client = getSupabaseClient();
+      if (!client) throw new Error('Supabase client is not available');
       let query = client.from('schemes').select('*').eq('active', true);
+
 
       if (filters?.category && filters.category !== 'all') {
         query = query.eq('category', filters.category);
@@ -97,7 +99,9 @@ export class SchemesRepository {
 
     try {
       const client = getSupabaseClient();
+      if (!client) throw new Error('Supabase client is not available');
       const { data, error } = await client.from('schemes').select('*').eq('id', id).single();
+
       if (error) {
         if (error.code === 'PGRST116') return null; // Not found
         logger.error(`[Schemes Repository] Error fetching scheme by id ${id}:`, error);

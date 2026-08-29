@@ -23,9 +23,10 @@ export class SchemesController {
     const { id } = req.params;
     const scheme = await this.service.getSchemeById(id);
     if (!scheme) {
-      ApiResponse.error(res, 'Government scheme not found', 404);
+      ApiResponse.error(res, 'Government scheme not found', 'NOT_FOUND', 404);
       return;
     }
+
     ApiResponse.success(res, scheme, 'Government scheme details retrieved successfully');
   };
 
