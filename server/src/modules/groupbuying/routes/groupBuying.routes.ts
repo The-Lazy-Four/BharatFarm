@@ -9,6 +9,7 @@ const router = Router();
 const controller = new GroupBuyingController();
 
 router.get('/', asyncHandler(controller.getPools));
+router.get('/my-purchases', authenticateToken, asyncHandler(controller.getMyJoinedPools));
 router.post('/seed', asyncHandler(controller.seedPools));
 router.get('/:id', asyncHandler(controller.getPoolById));
 router.get('/:id/members', asyncHandler(controller.getPoolMembers));

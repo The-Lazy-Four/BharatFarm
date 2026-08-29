@@ -32,6 +32,10 @@ export class GroupBuyingService {
     return await this.repository.getPoolMembers(poolId);
   }
 
+  async getMyJoinedPools(userId: string): Promise<{ pool: GroupBuyPool; myQuantity: number; joinedAt: string }[]> {
+    return await this.repository.getMyJoinedPools(userId);
+  }
+
   async seedDemoPools(): Promise<{ seededCount: number; message: string }> {
     return await this.repository.seedDemoPools();
   }

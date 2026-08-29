@@ -40,4 +40,9 @@ export class GroupBuyingApi {
     const res = await ApiClient.get<GroupBuyMember[]>(`/groupbuying/${id}/members`);
     return res.data || [];
   }
+
+  static async getMyJoinedPools(): Promise<{ pool: GroupBuyPool; myQuantity: number; joinedAt: string }[]> {
+    const res = await ApiClient.get<{ pool: GroupBuyPool; myQuantity: number; joinedAt: string }[]>('/groupbuying/my-purchases');
+    return res.data || [];
+  }
 }

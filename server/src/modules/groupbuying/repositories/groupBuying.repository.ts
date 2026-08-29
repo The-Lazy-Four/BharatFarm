@@ -272,6 +272,47 @@ export class GroupBuyingRepository {
     return (data || []).map(row => this.mapMemberRowToDomain(row));
   }
 
+  async getMyJoinedPools(userId: string): Promise<{ pool: GroupBuyPool; myQuantity: number; joinedAt: string }[]> {
+    if (config.useMockData) {
+      const userMemberships = this.mockMembers.filter(m => m.userId === userId);
+      return userMemberships
+        .map(m => {
+          const pool = this.mockPools.find(p => p.id === m.poolId);
+          if (!pool) return null;
+          return {
+            pool: this.withRefreshedStatus(pool),
+            myQuantity: m.quantity,
+            joinedAt: m.joinedAt
+          };
+        })
+        .filter((item): item is { pool: GroupBuyPool; myQuantity: number; joinedAt: string } => item !== null);
+    }
+
+    const supabase = getSupabaseClient();
+    if (!supabase) {
+      return [];
+    }
+
+    const { data, error } = await supabase
+      .from('group_buying_members')
+      .select('quantity, joined_at, group_buying_pools(*)')
+      .eq('user_id', userId)
+      .order('joined_at', { ascending: false });
+
+    if (error) {
+      logger.error(`[GroupBuyingRepository] getMyJoinedPools error: ${error.message}`);
+      throw new Error(`Database error fetching joined pools: ${error.message}`);
+    }
+
+    return (data || [])
+      .filter((row: any) => row.group_buying_pools)
+      .map((row: any) => ({
+        pool: this.mapPoolRowToDomain(row.group_buying_pools),
+        myQuantity: Number(row.quantity),
+        joinedAt: row.joined_at
+      }));
+  }
+
   async seedDemoPools(): Promise<{ seededCount: number; message: string }> {
     const demoPools = MOCK_GROUP_BUYS;
 

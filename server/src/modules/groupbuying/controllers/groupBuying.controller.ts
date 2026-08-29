@@ -62,6 +62,17 @@ export class GroupBuyingController {
     ApiResponse.success(res, members, 'Pool members fetched');
   };
 
+  getMyJoinedPools = async (req: Request, res: Response): Promise<void> => {
+    const userId = (req as any).user?.id;
+    if (!userId) {
+      ApiResponse.error(res, 'Authentication required', 'UNAUTHORIZED', 401);
+      return;
+    }
+
+    const myPools = await this.service.getMyJoinedPools(userId);
+    ApiResponse.success(res, myPools, 'Joined pools fetched');
+  };
+
   seedPools = async (req: Request, res: Response): Promise<void> => {
     const result = await this.service.seedDemoPools();
     ApiResponse.success(res, result, result.message);
