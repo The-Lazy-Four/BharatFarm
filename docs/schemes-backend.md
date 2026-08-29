@@ -1,41 +1,34 @@
-# BharatFarm — Government Schemes Module Architecture & Documentation
+# Government Schemes Production Backend & AI Assistance Architecture
 
-## Overview
-The Government Schemes module in BharatFarm connects Indian farmers directly with central and state agricultural welfare programs, subsidies, crop insurance schemes, equipment grants, and credit assessments.
-
----
-
-## Key Features
-
-1. **Deterministic Idempotent Seeding (`schemes.seed.ts`)**:
-   - Populates `public.schemes` with 27 real-world Indian agricultural schemes (PM-KISAN, PMFBY, KCC, Soil Health Card, PM-KUSUM, State-specific schemes for West Bengal, Telangana, Andhra Pradesh, Odisha, Maharashtra, Gujarat, Haryana, Punjab, UP, Bihar, Chhattisgarh).
-   - Prevents duplicate insertion on repeated application restarts via unique primary keys and conditional row count checks.
-
-2. **Dual Mode Architecture (Supabase DB + Offline Mock Fallback)**:
-   - Queries `public.schemes` directly when Supabase connection is active.
-   - Falls back gracefully to `MOCK_SCHEMES` when `useMockData` is enabled or when Supabase connection is offline.
-
-3. **Intelligent Eligibility Matching**:
-   - Dynamic OpenRouter AI matching using Gemini model.
-   - Rule-based fallback matching by state, landholding area (acres), and crop category.
-   - Special direct allocation rules for landless agricultural laborers and sharecroppers (e.g. West Bengal *Bhumihin Krishak Bandhu*).
-
-4. **Agri Credit Readiness Assessment**:
-   - Calculates institutional loan eligibility score and max credit estimate based on farm land acreage and reported annual income.
+## 1. Overview
+The Government Schemes module provides verified Indian central and state support program discovery for farmers. It combines high-speed deterministic database filtering with optional AI eligibility explanations via BharatFarm's central AI Gateway.
 
 ---
 
-## API Endpoints Summary
-
-| Method | Endpoint | Description |
-|---|---|---|
-| `GET` | `/api/schemes` | Fetch schemes list (supports optional `category`, `state`, `search` filters) |
-| `GET` | `/api/schemes/:id` | Fetch specific scheme details by ID |
-| `POST` | `/api/schemes/check-eligibility` | Run dynamic AI or rule-based eligibility check based on farmer input |
-| `POST` | `/api/schemes/loan-assessment` | Generate institutional credit readiness score & loan estimate |
+## 2. Filtering & Search Architecture
+Deterministic queries execute with **ZERO AI calls** to optimize data saver bandwidth, latency, and database workload:
+- `GET /api/schemes?state=Punjab&category=subsidy&search=kisan`
+- Filters schemes by state (matching target state or `Central`), category, and natural language keyword matching in title, department, or description.
 
 ---
 
-## Supabase Security & RLS Policy
-- `public.schemes` has RLS enabled with full public `SELECT` access for active schemes (`active = true`).
-- Insert/Update access restricted to system service role.
+## 3. Eligibility Verification & Loan Assessment
+1. **Deterministic Eligibility Evaluation**: Checks user landholding size against scheme `minLandSize` / `maxLandSize` bounds and target crop categories.
+2. **Loan Credit Assessment (`POST /api/schemes/loan-assessment`)**: Evaluates credit readiness scores (650–850 range) based on registered acreage and reported annual income, returning max estimated loan eligibility along with mandatory financial disclaimers.
+3. **AI Eligibility Reasoning**: When requested explicitly through Shayak or the eligibility wizard, structured explanations highlight why a scheme matches, missing prerequisites, required documents, and next steps without guaranteeing official bank/governmental approval.
+
+---
+
+## 4. Cross-Module Connections
+- **KrishiBot (Shayak)**: Querying Shayak about schemes retrieves the relevant scheme record for context-aware guidance.
+- **Crop Roadmap**: Roadmap crop and district context automatically refine scheme search priorities.
+
+---
+
+## 5. Verification & Testing
+The test suite `server/tests/schemes.test.ts` validates:
+1. Full scheme listing & seed idempotency.
+2. Category, state, and natural search filters.
+3. Individual scheme detail retrieval.
+4. Deterministic eligibility matching.
+5. Credit readiness assessment & loan limit calculation.

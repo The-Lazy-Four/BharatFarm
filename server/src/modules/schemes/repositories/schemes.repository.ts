@@ -118,42 +118,47 @@ export class SchemesRepository {
   }
 
   async checkEligibility(request: EligibilityCheckRequest): Promise<Scheme[]> {
-    // Hardcoded landless/sharecropper override for West Bengal
-    if (request.state === 'West Bengal' && Number(request.landSizeAcres) === 0) {
-      const all = await this.findAll();
-      return all.filter(s => s.id === 'bhumihin-krishak-bandhu' || s.id === 'krishak-bandhu');
-    }
+    // 1. Always start with deterministic filtering over seeded/stored schemes first
+    const allSchemes = await this.findAll();
+    const matches = this.filterStaticSchemes(allSchemes, request);
 
-    if (!AiClient.isConfigured()) {
-      if (!config.useMockData) {
-        logger.error('[Schemes] OPENROUTER_API_KEY missing while Mock Mode is false.');
-        throw new Error('OPENROUTER_API_KEY is not configured on server');
-      }
-      return this.filterStaticSchemes(await this.findAll(), request);
+    // If deterministic matching yields results or OpenRouter is unconfigured, return deterministic matches
+    if (matches.length > 0 || !AiClient.isConfigured()) {
+      return matches;
     }
 
     try {
       return await this.matchWithAi(request);
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Unknown error';
-      logger.error('[Schemes] AI matching failed', { error: message });
-      if (!config.useMockData) {
-        throw new Error(`Government Schemes AI error: ${message}`);
-      }
-      return this.filterStaticSchemes(await this.findAll(), request);
+      logger.error('[Schemes] AI matching failed, returning static matches', { error: message });
+      return matches;
     }
   }
 
   private filterStaticSchemes(schemesList: Scheme[], request: EligibilityCheckRequest): Scheme[] {
     const crop = (request.cropCategory || '').trim().toLowerCase();
+    const targetState = (request.state || '').trim().toLowerCase();
 
     return schemesList.filter(scheme => {
+      // State matching (Central or matched state)
+      if (targetState && targetState !== 'all') {
+        const sState = (scheme.state || '').toLowerCase();
+        if (sState !== 'central' && sState !== 'all' && sState !== targetState) {
+          return false;
+        }
+      }
+
       if (!scheme.eligibility) return true;
+
+      // Land size bounds
       const landMatch = request.landSizeAcres >= scheme.eligibility.minLandSize && request.landSizeAcres <= scheme.eligibility.maxLandSize;
-      const stateMatch = scheme.eligibility.states.includes('All') || scheme.eligibility.states.includes(request.state);
+
+      // Crop matching
       const cropMatch =
-        !crop || scheme.eligibility.crops.includes('All') || scheme.eligibility.crops.some(c => c.toLowerCase() === crop);
-      return landMatch && stateMatch && cropMatch;
+        !crop || scheme.eligibility.crops.includes('All') || scheme.eligibility.crops.some(c => c.toLowerCase().includes(crop) || crop.includes(c.toLowerCase()));
+
+      return landMatch && cropMatch;
     });
   }
 
