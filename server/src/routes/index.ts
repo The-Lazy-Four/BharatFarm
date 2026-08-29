@@ -8,6 +8,7 @@ import weatherRoutes from '../modules/weather/routes/weather.routes.js';
 import groupBuyingRoutes from '../modules/groupbuying/routes/groupBuying.routes.js';
 import schemesRoutes from '../modules/schemes/routes/schemes.routes.js';
 import roadmapRoutes from '../modules/roadmap/routes/roadmap.routes.js';
+import aiRoutes from './ai.routes.js';
 
 const aggregateRouter = Router();
 
@@ -20,5 +21,7 @@ aggregateRouter.use('/weather', weatherRoutes);
 aggregateRouter.use('/groupbuying', groupBuyingRoutes);
 aggregateRouter.use('/schemes', schemesRoutes);
 aggregateRouter.use('/roadmap', roadmapRoutes);
+aggregateRouter.use('/ai', aiRoutes);
 
 export default aggregateRouter;
+

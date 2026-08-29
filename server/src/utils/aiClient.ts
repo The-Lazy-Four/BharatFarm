@@ -2,19 +2,23 @@ import { config } from '../config/env.js';
 import { logger } from './logger.js';
 
 /**
- * Thin wrapper around OpenRouter AI provider (Gemini-2.0-flash-lite endpoint).
- * Centralized here so all modules (scanner, krishibot, weather advisory, schemes, etc.)
- * reuse the exact same request/response handling.
+ * Reusable Central AI Gateway for BharatFarm.
+ * Wraps OpenRouter / Gemini API requests with:
+ * - Robust error handling & logging (secret keys hidden)
+ * - Response validation & JSON parsing with fence cleanup
+ * - Timeout handling
+ * - Feature-agnostic structure
+ * - Graceful fallback support for downstream modules
  */
 
 const AI_PROVIDER_URL = 'https://openrouter.ai/api/v1/chat/completions';
-const REQUEST_TIMEOUT_MS = 45000;
+const DEFAULT_TIMEOUT_MS = 45000;
 
 export interface AiChatOptions {
   model?: string;
   maxTokens?: number;
   timeoutMs?: number;
-  /** Ask OpenRouter for a JSON object when the caller needs structured output. */
+  /** Ask OpenRouter for a JSON object when structured output is required. */
   responseFormat?: 'json_object';
 }
 
@@ -30,124 +34,158 @@ export interface AiMessage {
 }
 
 export class AiClient {
-  /** True when the app is configured with an OpenRouter / AI API key. */
+  private static inFlightRequests = new Map<string, Promise<string>>();
+
+  /** Check if server has an OpenRouter API key configured. */
   static isConfigured(): boolean {
-    return !!config.openRouterApiKey;
+    return !!config.openRouterApiKey && config.openRouterApiKey.trim().length > 0;
   }
 
+  /**
+   * Main completion method for OpenRouter API requests.
+   */
   static async chat(messages: AiMessage[], options?: AiChatOptions | string): Promise<string> {
     const apiKey = config.openRouterApiKey;
     if (!apiKey) {
-      logger.error('[AiClient] OPENROUTER_API_KEY is not configured in server environment (.env)');
+      logger.error('[AiClient] OPENROUTER_API_KEY is not configured in server environment');
       throw new Error('OPENROUTER_API_KEY is not configured on server');
     }
 
-    // Keep support for the previous `chat(messages, model)` signature so other
-    // AI-backed features retain their existing behaviour.
     const normalizedOptions: AiChatOptions = typeof options === 'string'
       ? { model: options }
       : options || {};
+
     const model = normalizedOptions.model || config.geminiModel;
-    const maxTokens = normalizedOptions.maxTokens || 1000;
-    const timeoutMs = normalizedOptions.timeoutMs || REQUEST_TIMEOUT_MS;
+    const maxTokens = Math.min(normalizedOptions.maxTokens || 800, 1500); // Enforce concise response limits for mobile bandwidth
+    const timeoutMs = normalizedOptions.timeoutMs || DEFAULT_TIMEOUT_MS;
 
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), timeoutMs);
+    const reqKey = JSON.stringify({ model, messages, maxTokens, responseFormat: normalizedOptions.responseFormat });
+    if (this.inFlightRequests.has(reqKey)) {
+      logger.info(`[AiGateway] Request deduplication - reusing in-flight request for model ${model}`);
+      return this.inFlightRequests.get(reqKey)!;
+    }
 
+    const requestPromise = (async () => {
+      let attempts = 0;
+      const maxRetries = 2; // Up to 2 retries only for transient network errors
+
+      while (attempts <= maxRetries) {
+        attempts++;
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), timeoutMs);
+        const startTime = Date.now();
+
+        try {
+          logger.info(`[AiGateway] Dispatching AI completion request (Model: ${model}, Messages: ${messages.length}, Attempt: ${attempts})`);
+          const requestBody: Record<string, unknown> = {
+            model,
+            messages,
+            max_tokens: maxTokens
+          };
+
+          if (normalizedOptions.responseFormat === 'json_object') {
+            requestBody.response_format = { type: 'json_object' };
+          }
+
+          const response = await fetch(AI_PROVIDER_URL, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${apiKey}`,
+              'HTTP-Referer': 'https://bharatfarm.app',
+              'X-Title': 'BharatFarm Agriculture System'
+            },
+            body: JSON.stringify(requestBody),
+            signal: controller.signal
+          });
+
+          const latencyMs = Date.now() - startTime;
+          const raw = await response.text();
+          const contentType = response.headers.get('content-type') || '';
+
+          if (!response.ok) {
+            // Do NOT retry HTTP 400, 401, 403, 429
+            const isTransient = response.status >= 500 && response.status < 600;
+            logger.error(`[AiGateway] OpenRouter HTTP ${response.status} Error`, {
+              status: response.status,
+              statusText: response.statusText,
+              model,
+              latencyMs,
+              bodySnippet: raw.slice(0, 300)
+            });
+            
+            if (isTransient && attempts <= maxRetries) {
+              await new Promise(r => setTimeout(r, attempts * 1000));
+              continue;
+            }
+            throw new Error(`OpenRouter API error (Status ${response.status})`);
+          }
+
+          if (!raw.trim()) {
+            logger.error('[AiGateway] OpenRouter returned empty response', { model, latencyMs });
+            throw new Error('AI provider returned an empty response');
+          }
+
+          if (!contentType.toLowerCase().includes('application/json')) {
+            logger.error('[AiGateway] OpenRouter returned non-JSON response content-type', { model, contentType });
+            throw new Error('AI provider returned an invalid response format');
+          }
+
+          let data: any;
+          try {
+            data = JSON.parse(raw);
+          } catch {
+            logger.error('[AiGateway] OpenRouter returned malformed response JSON', { model });
+            throw new Error('AI provider returned malformed JSON');
+          }
+
+          const choice = data?.choices?.[0];
+          if (!choice) {
+            logger.error('[AiGateway] OpenRouter response has no choice array item', { model });
+            throw new Error('AI provider returned an incomplete response');
+          }
+
+          if (choice.finish_reason === 'length') {
+            logger.warn('[AiGateway] OpenRouter completion was truncated by token limit', { model, maxTokens });
+          }
+
+          const content = choice.message?.content;
+          if (typeof content !== 'string' || !content.trim()) {
+            logger.warn('[AiGateway] OpenRouter message content empty', { model });
+            throw new Error('AI provider returned an empty completion');
+          }
+
+          logger.info(`[AiGateway] Completion succeeded in ${latencyMs}ms (Length: ${content.length} chars)`);
+          return content;
+        } catch (err: any) {
+          const latencyMs = Date.now() - startTime;
+          if (err.name === 'AbortError') {
+            logger.error(`[AiGateway] Request timed out after ${timeoutMs}ms`);
+            throw new Error(`AI request timed out after ${timeoutMs / 1000}s`);
+          }
+          if (attempts <= maxRetries && err.message?.includes('fetch failed')) {
+            await new Promise(r => setTimeout(r, attempts * 1000));
+            continue;
+          }
+          logger.error('[AiGateway] AI Gateway Exception:', { message: err.message, latencyMs });
+          throw err;
+        } finally {
+          clearTimeout(timeout);
+        }
+      }
+      throw new Error('AI request failed after retries');
+    })();
+
+    this.inFlightRequests.set(reqKey, requestPromise);
     try {
-      logger.info(`[AiClient] Sending request to OpenRouter (Model: ${model})`);
-      const requestBody: Record<string, unknown> = {
-        model,
-        messages,
-        max_tokens: maxTokens
-      };
-
-      if (normalizedOptions.responseFormat === 'json_object') {
-        requestBody.response_format = { type: 'json_object' };
-      }
-
-      const response = await fetch(AI_PROVIDER_URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${apiKey}`,
-          'HTTP-Referer': 'https://bharatfarm.app',
-          'X-Title': 'BharatFarm'
-        },
-        body: JSON.stringify(requestBody),
-        signal: controller.signal
-      });
-
-      const raw = await response.text();
-      const contentType = response.headers.get('content-type') || '';
-
-      if (!response.ok) {
-        logger.error(`[AiClient] OpenRouter API Error - HTTP Status ${response.status}`, {
-          status: response.status,
-          statusText: response.statusText,
-          model,
-          responseBodyLength: raw.length
-        });
-        throw new Error(`OpenRouter API error (Status ${response.status})`);
-      }
-
-      if (!raw.trim()) {
-        logger.error('[AiClient] OpenRouter returned an empty success response', { model });
-        throw new Error('AI provider returned an empty response');
-      }
-
-      if (!contentType.toLowerCase().includes('application/json')) {
-        logger.error('[AiClient] OpenRouter returned a non-JSON success response', {
-          model,
-          contentType,
-          responseBodyLength: raw.length
-        });
-        throw new Error('AI provider returned an invalid response format');
-      }
-
-      let data: any;
-      try {
-        data = JSON.parse(raw);
-      } catch {
-        logger.error('[AiClient] OpenRouter returned malformed JSON', {
-          model,
-          responseBodyLength: raw.length
-        });
-        throw new Error('AI provider returned malformed JSON');
-      }
-
-      const choice = data?.choices?.[0];
-      if (!choice) {
-        logger.error('[AiClient] OpenRouter response does not contain a completion choice', { model });
-        throw new Error('AI provider returned an incomplete response');
-      }
-
-      if (choice.finish_reason === 'length') {
-        logger.warn('[AiClient] OpenRouter completion was truncated by its token limit', { model, maxTokens });
-        throw new Error('AI provider response was truncated before completion');
-      }
-
-      const content = choice.message?.content;
-      if (typeof content !== 'string' || !content.trim()) {
-        logger.warn('[AiClient] OpenRouter returned an empty completion message', { model });
-        throw new Error('AI provider returned an empty completion');
-      }
-      return content;
-    } catch (err: any) {
-      if (err.name === 'AbortError') {
-        logger.error(`[AiClient] OpenRouter request timed out after ${timeoutMs}ms`);
-        throw new Error(`AI request timed out after ${timeoutMs / 1000}s`);
-      }
-      logger.error('[AiClient] AI request exception:', { message: err.message });
-      throw err;
+      return await requestPromise;
     } finally {
-      clearTimeout(timeout);
+      this.inFlightRequests.delete(reqKey);
     }
   }
 
   /**
-   * Parses the first complete JSON value from a model response. The model may
-   * still include a Markdown fence or a short explanation despite the prompt.
+   * Helper to parse JSON from AI model response (handles Markdown code fences).
    */
   static parseJsonResponse<T>(raw: string): T {
     const candidate = raw.replace(/^\uFEFF/, '').trim();
@@ -156,7 +194,6 @@ export class AiClient {
     }
 
     try {
-      // Prefer the content in a fenced JSON block, if one was supplied.
       const fenced = candidate.match(/```(?:json)?\s*([\s\S]*?)\s*```/i);
       const source = fenced?.[1]?.trim() || candidate;
 
@@ -170,7 +207,7 @@ export class AiClient {
         return JSON.parse(extracted) as T;
       }
     } catch {
-      logger.error('[AiClient] Failed to parse JSON response', { rawSubstring: candidate.slice(0, 160) });
+      logger.error('[AiGateway] Failed to parse JSON response', { snippet: candidate.slice(0, 160) });
       throw new Error('Failed to parse AI response as JSON');
     }
   }

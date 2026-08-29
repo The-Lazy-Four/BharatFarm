@@ -17,7 +17,7 @@ const LANGUAGE_OPTIONS = [
 
 export const KrishiBotPage: React.FC = () => {
   const { language, setLanguage } = useLanguage();
-  const { messages, sendMessage, isLoading, error } = useKrishiBot(language);
+  const { messages, sendMessage, clearConversation, isLoading, error } = useKrishiBot(language);
   const [inputText, setInputText] = useState('');
 
   const handleSend = () => {
@@ -76,7 +76,12 @@ export const KrishiBotPage: React.FC = () => {
                     <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Multilingual Natural Language Assistant</p>
                   </div>
                 </div>
-                <span className="badge badge-primary" style={{ fontSize: '0.7rem' }}>Online</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <Button variant="ghost" size="sm" onClick={clearConversation} title="Clear Chat History">
+                    Clear Chat
+                  </Button>
+                  <span className="badge badge-primary" style={{ fontSize: '0.7rem' }}>Online</span>
+                </div>
               </div>
 
               <ChatWindow messages={messages} language={language} />

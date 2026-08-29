@@ -1,13 +1,55 @@
-import React from 'react';
+// Injected component import & state hook for Central AI Advisory
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Card } from '../../components/ui/Card.js';
 import { Button } from '../../components/ui/Button.js';
 import { useAuth } from '../../context/AuthContext.js';
 import { useWeatherContext } from '../../context/WeatherContext.js';
+import { useDataSaver } from '../../context/DataSaverContext.js';
 import { FEATURE_IMAGES } from '../../constants/featureImages.js';
+import { CentralAiApi } from '../../services/centralAiApi.js';
 
 export const MasterDashboardPage: React.FC = () => {
   const { user } = useAuth();
+  const { dataSaverMode } = useDataSaver();
+  const [aiAdvice, setAiAdvice] = useState<string>('Analyzing local field telemetry and weather conditions...');
+  const [isAiGenerated, setIsAiGenerated] = useState<boolean>(false);
+  const [isAdviceLoading, setIsAdviceLoading] = useState<boolean>(true);
+  const [hasRequestedAdvice, setHasRequestedAdvice] = useState<boolean>(false);
+
+  const loadAdvice = () => {
+    setIsAdviceLoading(true);
+    CentralAiApi.getFarmAdvice({
+      crop: 'Wheat',
+      state: user?.state || 'Punjab',
+      location: 'Ludhiana, Punjab',
+      landSize: 5
+    }).then(res => {
+      setAiAdvice(res.advice);
+      setIsAiGenerated(res.isAiGenerated);
+      setIsAdviceLoading(false);
+      setHasRequestedAdvice(true);
+    }).catch(() => {
+      setAiAdvice('Weather conditions are stable. Continue scheduled field irrigation and crop canopy inspections.');
+      setIsAiGenerated(false);
+      setIsAdviceLoading(false);
+      setHasRequestedAdvice(true);
+    });
+  };
+
+  useEffect(() => {
+    // If Data Saver is ON, do NOT auto-trigger AI request on render!
+    if (dataSaverMode) {
+      setAiAdvice('Data Saver active. Tap "Generate AI Advisory" to request contextual daily crop guidance.');
+      setIsAiGenerated(false);
+      setIsAdviceLoading(false);
+      return;
+    }
+
+    loadAdvice();
+  }, [user, dataSaverMode]);
+
+
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', maxWidth: '1280px', margin: '0 auto' }}>
@@ -281,15 +323,23 @@ export const MasterDashboardPage: React.FC = () => {
 
         {/* Right Column (Span 4): Weather Advisory Panel */}
         <div className="col-span-4">
-          <DashboardWeatherPanel />
+          <DashboardWeatherPanel aiAdvice={aiAdvice} isAiGenerated={isAiGenerated} isAdviceLoading={isAdviceLoading} onRequestAdvice={loadAdvice} />
         </div>
       </div>
     </div>
   );
 };
 
-const DashboardWeatherPanel: React.FC = () => {
+interface DashboardWeatherPanelProps {
+  aiAdvice: string;
+  isAiGenerated: boolean;
+  isAdviceLoading: boolean;
+  onRequestAdvice: () => void;
+}
+
+const DashboardWeatherPanel: React.FC<DashboardWeatherPanelProps> = ({ aiAdvice, isAiGenerated, isAdviceLoading, onRequestAdvice }) => {
   const { weather, visual, advisoryText, isLoading } = useWeatherContext();
+  const { dataSaverMode } = useDataSaver();
 
   if (isLoading) {
     return (
@@ -326,13 +376,37 @@ const DashboardWeatherPanel: React.FC = () => {
       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
         {/* Agronomist Dynamic Advisory Alert */}
         <div className="alert-warning" style={{ padding: '0.65rem 0.75rem', borderRadius: '8px', borderLeft: '3px solid var(--emerald-primary)' }}>
-          <p style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '0.3rem', textTransform: 'uppercase' }}>
-            <span className="material-symbols-outlined" style={{ fontSize: '15px' }}>psychology</span> Field Advisory
+          <p style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', textTransform: 'uppercase' }}>
+            <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+              <span className="material-symbols-outlined" style={{ fontSize: '15px' }}>psychology</span> Central AI Advisory
+            </span>
+            {isAiGenerated && (
+              <span className="badge badge-primary" style={{ fontSize: '0.6rem', padding: '0.1rem 0.35rem' }}>OpenRouter AI</span>
+            )}
           </p>
           <p style={{ fontSize: '0.76rem', marginTop: '0.2rem', lineHeight: 1.35, color: 'var(--text-primary)' }}>
-            {advisoryText}
+            {isAdviceLoading ? 'Fetching agronomist advisory...' : aiAdvice}
           </p>
+          {dataSaverMode && !isAiGenerated && (
+            <button
+              onClick={onRequestAdvice}
+              style={{
+                marginTop: '0.5rem',
+                padding: '0.25rem 0.5rem',
+                fontSize: '0.7rem',
+                fontWeight: 700,
+                background: 'var(--emerald-primary)',
+                color: '#fff',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer'
+              }}
+            >
+              ⚡ Generate AI Advisory (1 Call)
+            </button>
+          )}
         </div>
+
 
         {/* Real-time Telemetry Inset Stats */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem', fontSize: '0.8rem' }}>

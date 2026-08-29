@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../../context/ThemeContext.js';
 import { useAuth } from '../../context/AuthContext.js';
+import { useDataSaver } from '../../context/DataSaverContext.js';
 
 interface NotificationItem {
   id: string;
@@ -42,6 +43,7 @@ const INITIAL_NOTIFICATIONS: NotificationItem[] = [
 export const Header: React.FC = () => {
   const { theme, toggleTheme } = useTheme();
   const { profileImage, getUserInitials } = useAuth();
+  const { dataSaverMode, toggleDataSaverMode } = useDataSaver();
   const navigate = useNavigate();
 
   const [isNotifOpen, setIsNotifOpen] = useState(false);
@@ -98,8 +100,33 @@ export const Header: React.FC = () => {
           </div>
         </div>
 
-        {/* Right Controls: Theme Toggle, Notifications, Profile */}
+        {/* Right Controls: Data Saver Toggle, Theme Toggle, Notifications, Profile */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          {/* Data Saver Mode Toggle */}
+          <button
+            onClick={toggleDataSaverMode}
+            title={dataSaverMode ? 'Data Saver Enabled (Click to disable)' : 'Enable Mobile Data Saver Mode'}
+            style={{
+              background: dataSaverMode ? 'var(--signal-lime)' : 'var(--surface-1)',
+              color: dataSaverMode ? 'var(--text-on-lime)' : 'var(--text-secondary)',
+              border: `1px solid ${dataSaverMode ? 'var(--signal-lime)' : 'var(--border-default)'}`,
+              borderRadius: '20px',
+              padding: '0.25rem 0.6rem',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.25rem',
+              fontSize: '0.725rem',
+              fontWeight: 700,
+              cursor: 'pointer',
+              transition: 'var(--transition)'
+            }}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: '15px' }}>
+              {dataSaverMode ? 'data_saver_on' : 'data_saver_off'}
+            </span>
+            <span className="header-datasaver-text">{dataSaverMode ? 'Data Saver' : 'Saver Off'}</span>
+          </button>
+
           {/* Theme Toggle Button */}
           <button
             onClick={toggleTheme}
