@@ -10,9 +10,25 @@ export class SchemesController {
   }
 
   getSchemes = async (req: Request, res: Response): Promise<void> => {
-    const schemes = await this.service.getSchemes();
+    const { category, state, search } = req.query;
+    const schemes = await this.service.getSchemes({
+      category: category ? String(category) : undefined,
+      state: state ? String(state) : undefined,
+      search: search ? String(search) : undefined
+    });
     ApiResponse.success(res, schemes, 'Government schemes retrieved successfully');
   };
+
+  getSchemeById = async (req: Request, res: Response): Promise<void> => {
+    const { id } = req.params;
+    const scheme = await this.service.getSchemeById(id);
+    if (!scheme) {
+      ApiResponse.error(res, 'Government scheme not found', 404);
+      return;
+    }
+    ApiResponse.success(res, scheme, 'Government scheme details retrieved successfully');
+  };
+
 
   checkEligibility = async (req: Request, res: Response): Promise<void> => {
     const { state, landSizeAcres, cropCategory, annualIncome } = req.body;

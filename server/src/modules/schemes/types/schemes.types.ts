@@ -27,7 +27,14 @@ export interface EligibilityCheckRequest {
   annualIncome?: number;
 }
 
+export interface SchemeFilterParams {
+  category?: string;
+  state?: string;
+  search?: string;
+}
+
 export interface CreditAssessmentResult {
+
   assessmentScore: number; // e.g. 750
   eligibilityTier: 'High' | 'Moderate' | 'Low';
   maxEstimatedLoanAmount: number;

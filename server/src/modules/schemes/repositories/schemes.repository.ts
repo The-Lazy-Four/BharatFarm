@@ -1,29 +1,123 @@
-import { Scheme, EligibilityCheckRequest, CreditAssessmentResult } from '../types/schemes.types.js';
+import { Scheme, EligibilityCheckRequest, CreditAssessmentResult, SchemeFilterParams } from '../types/schemes.types.js';
 import { MOCK_SCHEMES } from '../mock/schemes.mock.js';
 import { SCHEMES_CONSTANTS } from '../constants/schemes.constants.js';
 import { AiClient } from '../../../utils/aiClient.js';
 import { logger } from '../../../utils/logger.js';
 import { config } from '../../../config/env.js';
+import { getSupabaseClient } from '../../../config/supabase.js';
 
-/**
- * Adapted from the OLD project's `POST /api/schemes` route (server.js),
- * which asked an AI model for real-time, state-specific eligible schemes,
- * with a local-JSON `filterLocalSchemes()` fallback (js/schemes.js) when
- * the AI call failed. Both layers are ported here.
- */
 export class SchemesRepository {
-  private schemes: Scheme[] = [...MOCK_SCHEMES];
+  private mockSchemes: Scheme[] = [...MOCK_SCHEMES];
 
-  async findAll(): Promise<Scheme[]> {
-    return this.schemes;
+  /** Helper to map Supabase public.schemes row to domain Scheme model */
+  private mapRowToDomain(row: any): Scheme {
+    return {
+      id: row.id,
+      title: row.title,
+      department: row.department,
+      category: row.category,
+      state: row.state,
+      description: row.description,
+      eligibilityCriteria: row.eligibility_criteria ?? row.eligibilityCriteria ?? [],
+      requiredDocuments: row.required_documents ?? row.requiredDocuments ?? [],
+      officialUrl: row.official_url ?? row.officialUrl ?? undefined,
+      eligibility: {
+        minLandSize: Number(row.eligibility_min_land ?? row.eligibility?.minLandSize ?? 0),
+        maxLandSize: Number(row.eligibility_max_land ?? row.eligibility?.maxLandSize ?? 9999),
+        states: row.eligibility_states ?? row.eligibility?.states ?? ['All'],
+        crops: row.eligibility_crops ?? row.eligibility?.crops ?? ['All']
+      },
+      applySteps: row.apply_steps ?? row.applySteps ?? []
+    };
+  }
+
+  async findAll(filters?: SchemeFilterParams): Promise<Scheme[]> {
+    if (config.useMockData) {
+      let result = [...this.mockSchemes];
+      if (filters?.category && filters.category !== 'all') {
+        result = result.filter(s => s.category.toLowerCase() === filters.category!.toLowerCase());
+      }
+      if (filters?.state && filters.state !== 'all') {
+        const stateLower = filters.state.toLowerCase();
+        result = result.filter(s => s.state.toLowerCase() === stateLower || s.state.toLowerCase() === 'central');
+      }
+      if (filters?.search) {
+        const q = filters.search.toLowerCase();
+        result = result.filter(s =>
+          s.title.toLowerCase().includes(q) ||
+          s.department.toLowerCase().includes(q) ||
+          s.description.toLowerCase().includes(q) ||
+          s.category.toLowerCase().includes(q)
+        );
+      }
+      return result;
+    }
+
+    try {
+      const client = getSupabaseClient();
+      let query = client.from('schemes').select('*').eq('active', true);
+
+      if (filters?.category && filters.category !== 'all') {
+        query = query.eq('category', filters.category);
+      }
+
+      if (filters?.state && filters.state !== 'all') {
+        query = query.or(`state.eq.${filters.state},state.eq.Central`);
+      }
+
+      if (filters?.search) {
+        const term = `%${filters.search.trim()}%`;
+        query = query.or(`title.ilike.${term},department.ilike.${term},description.ilike.${term}`);
+      }
+
+      const { data, error } = await query;
+      if (error) {
+        logger.error('[Schemes Repository] Supabase query failed:', error);
+        throw error;
+      }
+
+      if (!data || data.length === 0) {
+        return [];
+      }
+
+      return data.map(row => this.mapRowToDomain(row));
+    } catch (err) {
+      logger.error('[Schemes Repository] Supabase fetch failed. Falling back to mock data if permitted:', err);
+      if (!config.useMockData) {
+        throw new Error('Failed to fetch government schemes from database');
+      }
+      return this.mockSchemes;
+    }
+  }
+
+  async findById(id: string): Promise<Scheme | null> {
+    if (config.useMockData) {
+      return this.mockSchemes.find(s => s.id === id) || null;
+    }
+
+    try {
+      const client = getSupabaseClient();
+      const { data, error } = await client.from('schemes').select('*').eq('id', id).single();
+      if (error) {
+        if (error.code === 'PGRST116') return null; // Not found
+        logger.error(`[Schemes Repository] Error fetching scheme by id ${id}:`, error);
+        throw error;
+      }
+      return data ? this.mapRowToDomain(data) : null;
+    } catch (err) {
+      logger.error(`[Schemes Repository] Supabase findById failed for ${id}:`, err);
+      if (!config.useMockData) {
+        throw new Error(`Failed to fetch government scheme details for ${id}`);
+      }
+      return this.mockSchemes.find(s => s.id === id) || null;
+    }
   }
 
   async checkEligibility(request: EligibilityCheckRequest): Promise<Scheme[]> {
-    // Ported 1:1 from the OLD app's hardcoded West Bengal landless-farmer
-    // override: a landless/sharecropper profile gets ONLY these two
-    // schemes, regardless of what an AI call might otherwise suggest.
+    // Hardcoded landless/sharecropper override for West Bengal
     if (request.state === 'West Bengal' && Number(request.landSizeAcres) === 0) {
-      return this.schemes.filter(s => s.id === 'bhumihin-krishak-bandhu' || s.id === 'krishak-bandhu');
+      const all = await this.findAll();
+      return all.filter(s => s.id === 'bhumihin-krishak-bandhu' || s.id === 'krishak-bandhu');
     }
 
     if (!AiClient.isConfigured()) {
@@ -31,7 +125,7 @@ export class SchemesRepository {
         logger.error('[Schemes] OPENROUTER_API_KEY missing while Mock Mode is false.');
         throw new Error('OPENROUTER_API_KEY is not configured on server');
       }
-      return this.filterStaticSchemes(request);
+      return this.filterStaticSchemes(await this.findAll(), request);
     }
 
     try {
@@ -42,14 +136,14 @@ export class SchemesRepository {
       if (!config.useMockData) {
         throw new Error(`Government Schemes AI error: ${message}`);
       }
-      return this.filterStaticSchemes(request);
+      return this.filterStaticSchemes(await this.findAll(), request);
     }
   }
 
-  private filterStaticSchemes(request: EligibilityCheckRequest): Scheme[] {
+  private filterStaticSchemes(schemesList: Scheme[], request: EligibilityCheckRequest): Scheme[] {
     const crop = (request.cropCategory || '').trim().toLowerCase();
 
-    return this.schemes.filter(scheme => {
+    return schemesList.filter(scheme => {
       if (!scheme.eligibility) return true;
       const landMatch = request.landSizeAcres >= scheme.eligibility.minLandSize && request.landSizeAcres <= scheme.eligibility.maxLandSize;
       const stateMatch = scheme.eligibility.states.includes('All') || scheme.eligibility.states.includes(request.state);
