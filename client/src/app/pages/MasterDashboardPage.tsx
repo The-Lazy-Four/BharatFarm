@@ -367,7 +367,11 @@ const DashboardWeatherPanel: React.FC<DashboardWeatherPanelProps> = ({ aiAdvice,
               📍 {weather.location} • {weather.condition}
             </p>
           </div>
-          <span className={`badge ${weather.source === 'LIVE' ? 'badge-success' : 'badge-warning'}`} style={{ fontSize: '0.65rem' }}>
+          <span className={`badge ${
+            weather.source === 'LIVE' ? 'badge-success' :
+            weather.source === 'CACHED' ? 'badge-primary' :
+            weather.source === 'OFFLINE' ? 'badge-warning' : 'badge-secondary'
+          }`} style={{ fontSize: '0.65rem' }}>
             {weather.source}
           </span>
         </div>

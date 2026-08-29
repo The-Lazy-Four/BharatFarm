@@ -47,7 +47,20 @@ function describeWeatherCode(code: number): { label: string; icon: string } {
   return WEATHER_CODE_MAP[code] ?? { label: 'Unknown', icon: '🌡️' };
 }
 
+interface WeatherCacheEntry {
+  data: WeatherForecast;
+  expiresAt: number;
+}
+
 export class WeatherRepository {
+  private static cache = new Map<string, WeatherCacheEntry>();
+  private static inFlightRequests = new Map<string, Promise<WeatherForecast>>();
+
+  static clearCache(): void {
+    this.cache.clear();
+    this.inFlightRequests.clear();
+  }
+
   async getWeather(params: { location?: string; lat?: number; lon?: number }): Promise<WeatherForecast> {
     if (params.lat !== undefined && (isNaN(params.lat) || params.lat < -90 || params.lat > 90)) {
       throw new Error('Invalid latitude provided. Must be between -90 and 90.');
@@ -56,54 +69,100 @@ export class WeatherRepository {
       throw new Error('Invalid longitude provided. Must be between -180 and 180.');
     }
 
-    try {
-      let lat = params.lat;
-      let lon = params.lon;
-      let resolvedLocation = params.location;
-
-      if (lat === undefined || lon === undefined) {
-        if (params.location) {
-          const geo = await this.geocode(params.location);
-          const best = geo[0];
-          if (!best) throw new Error(`No location found for "${params.location}"`);
-          lat = best.latitude;
-          lon = best.longitude;
-          resolvedLocation = [best.name, best.admin1].filter(Boolean).join(', ');
-        } else {
-          lat = WEATHER_CONSTANTS.DEFAULT_LAT;
-          lon = WEATHER_CONSTANTS.DEFAULT_LON;
-          resolvedLocation = WEATHER_CONSTANTS.DEFAULT_LOCATION;
-        }
-      } else if (!resolvedLocation) {
-        resolvedLocation = await this.reverseGeocode(lat, lon);
-      }
-
-      logger.info(`[Weather Production] Requesting live Open-Meteo forecast for ${resolvedLocation} (${lat}, ${lon})`);
-      const forecast = await this.fetchForecast(lat, lon, resolvedLocation);
-      return forecast;
-    } catch (err: any) {
-      const message = err instanceof Error ? err.message : String(err);
-      const stack = err instanceof Error ? err.stack : undefined;
-      logger.error('[Weather Production CRITICAL ERROR] Live fetch failed in WeatherRepository', {
-        error: message,
-        stack,
-        params,
-        time: new Date().toISOString()
-      });
-      
-      // If server is configured with USE_MOCK_DATA=true, serve mock fallback
-      if (config.useMockData) {
-        return {
-          ...MOCK_WEATHER_DATA,
-          location: params.location || MOCK_WEATHER_DATA.location,
-          source: 'OFFLINE',
-          updatedAt: new Date().toISOString()
-        };
-      }
-
-      // Re-throw raw production error so it surfaces in Render API response & logs
-      throw new Error(`Open-Meteo Weather Fetch Failed: ${message}`);
+    // Explicit Mock Data Mode check
+    if (config.useMockData) {
+      return {
+        ...MOCK_WEATHER_DATA,
+        location: params.location || MOCK_WEATHER_DATA.location,
+        source: 'MOCK',
+        updatedAt: new Date().toISOString()
+      };
     }
+
+    // Build deterministic cache key (rounded lat/lon to ~1km or normalized location)
+    let cacheKey = '';
+    if (params.lat !== undefined && params.lon !== undefined) {
+      cacheKey = `coords:${params.lat.toFixed(2)},${params.lon.toFixed(2)}`;
+    } else if (params.location && params.location.trim()) {
+      cacheKey = `loc:${params.location.trim().toLowerCase()}`;
+    } else {
+      cacheKey = `default:${WEATHER_CONSTANTS.DEFAULT_LAT},${WEATHER_CONSTANTS.DEFAULT_LON}`;
+    }
+
+    // 1. Check server-side Cache Hit (TTL: 15 minutes = 900,000 ms)
+    const cached = WeatherRepository.cache.get(cacheKey);
+    if (cached && Date.now() < cached.expiresAt) {
+      logger.info(`[Weather Cache] HIT for key: ${cacheKey}`);
+      return {
+        ...cached.data,
+        source: 'CACHED'
+      };
+    }
+
+    // 2. Client Request Deduplication (In-flight promise re-use)
+    if (WeatherRepository.inFlightRequests.has(cacheKey)) {
+      logger.info(`[Weather Deduplication] Reusing in-flight request for key: ${cacheKey}`);
+      const result = await WeatherRepository.inFlightRequests.get(cacheKey)!;
+      return {
+        ...result,
+        source: 'CACHED'
+      };
+    }
+
+    // Execute network request wrapped with in-flight tracking
+    const requestPromise = (async (): Promise<WeatherForecast> => {
+      try {
+        let lat = params.lat;
+        let lon = params.lon;
+        let resolvedLocation = params.location;
+
+        if (lat === undefined || lon === undefined) {
+          if (params.location) {
+            const geo = await this.geocode(params.location);
+            const best = geo[0];
+            if (!best) throw new Error(`No location found for "${params.location}"`);
+            lat = best.latitude;
+            lon = best.longitude;
+            resolvedLocation = [best.name, best.admin1].filter(Boolean).join(', ');
+          } else {
+            lat = WEATHER_CONSTANTS.DEFAULT_LAT;
+            lon = WEATHER_CONSTANTS.DEFAULT_LON;
+            resolvedLocation = WEATHER_CONSTANTS.DEFAULT_LOCATION;
+          }
+        } else if (!resolvedLocation) {
+          resolvedLocation = await this.reverseGeocode(lat, lon);
+        }
+
+        logger.info(`[Weather Production] Requesting live Open-Meteo forecast for ${resolvedLocation} (${lat}, ${lon})`);
+        const forecast = await this.fetchForecast(lat, lon, resolvedLocation);
+        
+        // Cache success result for 15 minutes
+        const ttlMs = 15 * 60 * 1000;
+        WeatherRepository.cache.set(cacheKey, {
+          data: forecast,
+          expiresAt: Date.now() + ttlMs
+        });
+
+        return forecast;
+      } catch (err: any) {
+        const message = err instanceof Error ? err.message : String(err);
+        const stack = err instanceof Error ? err.stack : undefined;
+        logger.error('[Weather Production CRITICAL ERROR] Live fetch failed in WeatherRepository', {
+          error: message,
+          stack,
+          params,
+          time: new Date().toISOString()
+        });
+        
+        // Re-throw structured error in production (do NOT silently fake weather if USE_MOCK_DATA=false)
+        throw new Error(`Open-Meteo Weather Fetch Failed: ${message}`);
+      } finally {
+        WeatherRepository.inFlightRequests.delete(cacheKey);
+      }
+    })();
+
+    WeatherRepository.inFlightRequests.set(cacheKey, requestPromise);
+    return await requestPromise;
   }
 
   private async reverseGeocode(lat: number, lon: number): Promise<string> {

@@ -37,8 +37,15 @@ export const WeatherPage: React.FC = () => {
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.35rem', flexWrap: 'wrap' }}>
             <span className="badge badge-primary">Live Microclimate Telemetry</span>
-            <span className={`badge ${weather.source === 'LIVE' ? 'badge-success' : 'badge-warning'}`}>
-              {weather.source === 'LIVE' ? '🟢 LIVE OPEN-METEO' : '🟡 OFFLINE FALLBACK'}
+            <span className={`badge ${
+              weather.source === 'LIVE' ? 'badge-success' :
+              weather.source === 'CACHED' ? 'badge-primary' :
+              weather.source === 'OFFLINE' ? 'badge-warning' : 'badge-secondary'
+            }`}>
+              {weather.source === 'LIVE' && '🟢 LIVE OPEN-METEO'}
+              {weather.source === 'CACHED' && '⚡ CACHED TELEMETRY'}
+              {weather.source === 'OFFLINE' && '📡 OFFLINE TELEMETRY'}
+              {weather.source === 'MOCK' && '🧪 DEMO MOCK TELEMETRY'}
             </span>
           </div>
           <h1 style={{ fontSize: '1.75rem', fontWeight: 700, color: '#FFFFFF' }}>

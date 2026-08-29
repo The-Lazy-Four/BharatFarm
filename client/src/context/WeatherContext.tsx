@@ -37,16 +37,50 @@ export const WeatherProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const fetchWeather = useCallback(async (params: { location?: string; lat?: number; lon?: number } = {}) => {
     setIsLoading(true);
     setLastParams(params);
+
+    const cacheKey = params.lat !== undefined && params.lon !== undefined
+      ? `bf_weather_${params.lat.toFixed(2)}_${params.lon.toFixed(2)}`
+      : `bf_weather_${(params.location || 'default').toLowerCase()}`;
+
+    // Check if offline
+    if (typeof navigator !== 'undefined' && !navigator.onLine) {
+      const stored = localStorage.getItem(cacheKey) || localStorage.getItem('bf_weather_last');
+      if (stored) {
+        try {
+          const parsed = JSON.parse(stored) as WeatherForecast;
+          setWeather({ ...parsed, source: 'OFFLINE' });
+          setError('Offline — showing last available weather');
+          setIsLoading(false);
+          return;
+        } catch {
+          // Ignore json parse error
+        }
+      }
+    }
+
     try {
       const data = await WeatherApi.getWeather(params);
       if (data) {
         setWeather(data);
         setError(null);
+        localStorage.setItem(cacheKey, JSON.stringify(data));
+        localStorage.setItem('bf_weather_last', JSON.stringify(data));
       } else {
-        setError('Weather API returned null/empty response from server.');
+        setError('Weather API returned null response from server.');
       }
     } catch (err: any) {
       const msg = err?.message || String(err);
+      // Attempt cached fallback when network/server fetch fails
+      const stored = localStorage.getItem(cacheKey) || localStorage.getItem('bf_weather_last');
+      if (stored) {
+        try {
+          const parsed = JSON.parse(stored) as WeatherForecast;
+          setWeather({ ...parsed, source: 'OFFLINE' });
+          setError(`Offline/Network Error (${msg}) — showing last cached weather`);
+          setIsLoading(false);
+          return;
+        } catch {}
+      }
       setError(`Production Weather Error: ${msg}`);
     } finally {
       setIsLoading(false);
