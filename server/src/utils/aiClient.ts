@@ -56,7 +56,7 @@ export class AiClient {
       : options || {};
 
     const model = normalizedOptions.model || config.geminiModel;
-    const maxTokens = Math.min(normalizedOptions.maxTokens || 800, 1500); // Enforce concise response limits for mobile bandwidth
+    const maxTokens = Math.min(normalizedOptions.maxTokens || 250, 300); // Enforce concise responses & fit OpenRouter credit limits
     const timeoutMs = normalizedOptions.timeoutMs || DEFAULT_TIMEOUT_MS;
 
     const reqKey = JSON.stringify({ model, messages, maxTokens, responseFormat: normalizedOptions.responseFormat });
@@ -104,7 +104,32 @@ export class AiClient {
           const contentType = response.headers.get('content-type') || '';
 
           if (!response.ok) {
-            // Do NOT retry HTTP 400, 401, 403, 429
+            // If 402 due to max_tokens exceeding credit budget, retry with smaller max_tokens
+            if (response.status === 402 && raw.includes('max_tokens') && requestBody.max_tokens !== 150) {
+              logger.warn(`[AiGateway] HTTP 402 credit limit hit for max_tokens ${requestBody.max_tokens}. Retrying with reduced max_tokens 150...`);
+              requestBody.max_tokens = 150;
+              attempts++;
+              const fallbackRes = await fetch(AI_PROVIDER_URL, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  Authorization: `Bearer ${apiKey}`,
+                  'HTTP-Referer': 'https://bharatfarm.app',
+                  'X-Title': 'BharatFarm Agriculture System'
+                },
+                body: JSON.stringify(requestBody),
+                signal: controller.signal
+              });
+              if (fallbackRes.ok) {
+                const fallbackRaw = await fallbackRes.text();
+                const data = JSON.parse(fallbackRaw);
+                const choice = data?.choices?.[0];
+                if (choice?.message?.content) {
+                  return choice.message.content;
+                }
+              }
+            }
+
             const isTransient = response.status >= 500 && response.status < 600;
             logger.error(`[AiGateway] OpenRouter HTTP ${response.status} Error`, {
               status: response.status,

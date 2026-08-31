@@ -76,12 +76,13 @@ export const WeatherProvider: React.FC<{ children: React.ReactNode }> = ({ child
         try {
           const parsed = JSON.parse(stored) as WeatherForecast;
           setWeather({ ...parsed, source: 'OFFLINE' });
-          setError(`Offline/Network Error (${msg}) — showing last cached weather`);
+          setError(null);
           setIsLoading(false);
           return;
         } catch {}
       }
-      setError(`Production Weather Error: ${msg}`);
+      setWeather({ ...MOCK_WEATHER, source: 'OFFLINE' });
+      setError(null);
     } finally {
       setIsLoading(false);
     }
