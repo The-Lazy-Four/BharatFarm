@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { SihLayout } from '../../shared/SihLayout';
-import { useAuth } from '@core/context/AuthContext';
+import { useAuth } from '../../../../context/AuthContext';
 import { SmartMandiService, MandiRoute } from '../smartMandi.service';
 
 export const SmartMandiPage: React.FC = () => {

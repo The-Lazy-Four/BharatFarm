@@ -1,84 +1,74 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext.js';
-import { useTheme } from '../../context/ThemeContext.js';
+import { useAuth } from '../../../context/AuthContext.js';
+import { useTheme } from '../../../context/ThemeContext.js';
 
-interface ModuleCard {
+interface SihInnovationCard {
   id: string;
   title: string;
   subtitle: string;
   icon: string;
   imageUrl: string;
   path: string;
-  badge?: string;
+  badge: string;
   actionText: string;
 }
 
-export const ModuleHomePage: React.FC = () => {
+export const SihDashboardPage: React.FC = () => {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
 
-  const modules: ModuleCard[] = [
-    {
-      id: 'sih-platform',
-      title: 'SIH Innovation Platform',
-      subtitle: '5 advanced agricultural innovations launcher dashboard',
-      icon: '🚀',
-      imageUrl: 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1000&q=85',
-      path: '/sih',
-      badge: 'Innovation Hub',
-      actionText: 'Open SIH Dashboard'
-    },
+  const sihInnovations: SihInnovationCard[] = [
     {
       id: 'climate-risk',
-      title: '🌦️ Climate-Risk Procurement',
+      title: 'Climate-Risk-Aware Procurement',
       subtitle: 'Weather radar, spray advisories & harvest window planning',
       icon: '🌦️',
       imageUrl: 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1000&q=85',
       path: '/sih/climate-risk',
-      badge: 'SIH Module',
+      badge: 'Climate & Risk',
       actionText: 'Open Workspace'
     },
     {
-      id: 'aggregation-optimizer',
-      title: '🤝 Small-Farm Aggregation',
+      id: 'aggregation',
+      title: 'Small-Farm Aggregation',
       subtitle: 'Group buying for inputs & collective produce selling pool',
       icon: '🤝',
       imageUrl: 'https://images.unsplash.com/photo-1586771107445-d3ca888129ff?auto=format&fit=crop&w=1000&q=85',
       path: '/sih/aggregation',
-      badge: 'SIH Module',
+      badge: 'Group Power',
       actionText: 'Open Workspace'
     },
     {
-      id: 'satellite-insurance',
-      title: '🛰️ Crop Risk & Insurance',
+      id: 'crop-risk-insurance',
+      title: 'Crop Risk & Insurance',
       subtitle: 'Satellite damage audit & AI leaf scanner diagnostic',
       icon: '🛰️',
       imageUrl: 'https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?auto=format&fit=crop&w=1000&q=85',
       path: '/sih/crop-insurance',
-      badge: 'SIH Module',
+      badge: 'Satellite Audit',
       actionText: 'Open Workspace'
     },
     {
       id: 'smart-mandi',
-      title: '📍 Smart Mandi Intelligence',
+      title: 'Smart Mandi Intelligence',
       subtitle: 'Live APMC mandi rates & shortest distance profit router',
       icon: '📍',
       imageUrl: 'https://images.unsplash.com/photo-1610348725531-843dff563e2c?auto=format&fit=crop&w=1000&q=85',
       path: '/sih/smart-mandi',
-      badge: 'SIH Module',
+      badge: 'Mandi Freight',
       actionText: 'Open Workspace'
     },
     {
-      id: 'basic-farmer-needs',
-      title: '👨‍🌾 Basic Farmer Needs',
-      subtitle: 'Complete everyday platform dashboard & farm utilities',
-      icon: '👨‍🌾',
-      imageUrl: 'https://images.unsplash.com/photo-1500937386664-56d1dfef3854?auto=format&fit=crop&w=1000&q=85',
-      path: '/dashboard',
-      badge: 'Everyday Platform',
-      actionText: 'Open Dashboard'
+      id: 'sahayak',
+      title: 'Sahayak & WhatsApp',
+      subtitle: '24/7 WhatsApp AI companion & local human Sahayak access',
+      icon: '💬',
+      imageUrl: 'https://images.unsplash.com/photo-1595974482597-4b8da8879bc5?auto=format&fit=crop&w=1000&q=85',
+      path: '/sih/sahayak',
+      badge: 'Voice & WA',
+      actionText: 'Open Workspace'
     }
   ];
 
@@ -92,9 +82,9 @@ export const ModuleHomePage: React.FC = () => {
       fontFamily: 'var(--font-family, sans-serif)'
     }}>
       
-      {/* Standalone Clean App Header */}
+      {/* SIH Dashboard Header */}
       <header style={{
-        padding: '1.25rem 2rem',
+        padding: '1rem 1.5rem',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
@@ -105,32 +95,80 @@ export const ModuleHomePage: React.FC = () => {
         top: 0,
         zIndex: 50
       }}>
-        {/* Brand Logo */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <div style={{
-            width: '42px',
-            height: '42px',
-            borderRadius: '12px',
-            background: 'linear-gradient(135deg, #16A34A 0%, #15803D 100%)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            boxShadow: '0 4px 14px rgba(22, 163, 74, 0.4)'
-          }}>
-            <span className="material-symbols-outlined" style={{ fontSize: '24px', color: '#FFFFFF' }}>agriculture</span>
-          </div>
-          <div>
-            <h1 style={{ fontSize: '1.3rem', fontWeight: 900, color: 'var(--text-primary)', margin: 0, letterSpacing: '-0.02em', lineHeight: 1 }}>BharatFarm</h1>
-            <span style={{ fontSize: '0.68rem', color: 'var(--signal-lime, #16a34a)', fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase' }}>MODULAR AGRI PLATFORM</span>
+        {/* Back to Module Home & Brand */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <button
+            onClick={() => navigate('/module-home')}
+            style={{
+              background: 'var(--surface-1, rgba(255,255,255,0.08))',
+              border: '1px solid var(--border-default, rgba(255,255,255,0.15))',
+              color: 'var(--text-primary)',
+              borderRadius: '10px',
+              padding: '0.45rem 0.85rem',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.4rem',
+              fontSize: '0.82rem',
+              fontWeight: 700,
+              cursor: 'pointer'
+            }}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>arrow_back</span>
+            <span>Module Home</span>
+          </button>
+
+          <div style={{ width: '1px', height: '24px', background: 'var(--border-subtle, rgba(255,255,255,0.15))' }} />
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+            <div style={{
+              width: '38px',
+              height: '38px',
+              borderRadius: '10px',
+              background: 'linear-gradient(135deg, #16A34A 0%, #15803D 100%)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              boxShadow: '0 4px 12px rgba(22, 163, 74, 0.35)'
+            }}>
+              <span className="material-symbols-outlined" style={{ fontSize: '22px', color: '#FFFFFF' }}>rocket_launch</span>
+            </div>
+            <div>
+              <h1 style={{ fontSize: '1.15rem', fontWeight: 900, color: 'var(--text-primary)', margin: 0, lineHeight: 1 }}>
+                SIH Innovation Platform
+              </h1>
+              <span style={{ fontSize: '0.68rem', color: 'var(--signal-lime, #16a34a)', fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase' }}>
+                Module Launcher Dashboard
+              </span>
+            </div>
           </div>
         </div>
 
         {/* User Controls */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <button
+            onClick={() => navigate('/dashboard')}
+            style={{
+              background: 'rgba(255, 255, 255, 0.08)',
+              border: '1px solid rgba(255, 255, 255, 0.15)',
+              color: 'var(--text-primary)',
+              borderRadius: '10px',
+              padding: '0.45rem 0.85rem',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.4rem',
+              fontSize: '0.82rem',
+              fontWeight: 700,
+              cursor: 'pointer'
+            }}
+          >
+            <span>👨‍🌾</span>
+            <span>Basic Needs</span>
+          </button>
+
           <button
             onClick={toggleTheme}
             style={{
-              background: 'var(--surface-1, rgba(255,255,255,0.1))',
+              background: 'var(--surface-1, rgba(255,255,255,0.08))',
               border: '1px solid var(--border-default, rgba(255,255,255,0.15))',
               color: 'var(--text-primary)',
               borderRadius: '10px',
@@ -148,34 +186,14 @@ export const ModuleHomePage: React.FC = () => {
             </span>
             <span>{theme === 'light' ? 'Light' : 'Dark'}</span>
           </button>
-
-          <button
-            onClick={logout}
-            style={{
-              background: 'rgba(220, 38, 38, 0.12)',
-              border: '1px solid rgba(220, 38, 38, 0.3)',
-              color: '#dc2626',
-              borderRadius: '10px',
-              padding: '0.45rem 0.85rem',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.4rem',
-              fontSize: '0.82rem',
-              fontWeight: 700,
-              cursor: 'pointer'
-            }}
-          >
-            <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>logout</span>
-            <span>Logout</span>
-          </button>
         </div>
       </header>
 
       {/* Main Body */}
-      <main style={{ flex: 1, padding: '2.5rem 2rem', maxWidth: '1320px', width: '100%', margin: '0 auto', boxSizing: 'border-box' }}>
+      <main style={{ flex: 1, padding: '2rem 1.5rem', maxWidth: '1280px', width: '100%', margin: '0 auto', boxSizing: 'border-box' }}>
         
         {/* Title Heading */}
-        <div style={{ marginBottom: '2.25rem', textAlign: 'left' }}>
+        <div style={{ marginBottom: '2rem' }}>
           <span style={{
             background: 'var(--signal-lime-soft, rgba(22, 163, 74, 0.15))',
             color: 'var(--signal-lime, #16a34a)',
@@ -186,66 +204,64 @@ export const ModuleHomePage: React.FC = () => {
             letterSpacing: '0.04em',
             textTransform: 'uppercase',
             display: 'inline-block',
-            marginBottom: '0.6rem'
+            marginBottom: '0.5rem'
           }}>
-            Welcome, {user?.fullName || 'Farmer'} 👋
+            Select SIH Innovation Workspace
           </span>
 
           <h2 style={{
-            fontSize: '2.4rem',
+            fontSize: '2.2rem',
             fontWeight: 900,
             color: 'var(--text-primary)',
             letterSpacing: '-0.025em',
             margin: 0,
             lineHeight: 1.15
           }}>
-            Choose what you need today
+            Innovation Launcher
           </h2>
 
           <p style={{
-            fontSize: '1rem',
+            fontSize: '0.95rem',
             color: 'var(--text-secondary)',
-            marginTop: '0.4rem',
+            marginTop: '0.35rem',
             marginBottom: 0,
             fontWeight: 500
           }}>
-            Tap any module card below to launch its dedicated application workspace.
+            Tap an innovation card below to enter its dedicated feature workspace.
           </p>
         </div>
 
-        {/* 6 Large Image-Based Cards Grid */}
+        {/* 5 Visual Innovation Cards Grid */}
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))',
-          gap: '1.75rem'
+          gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+          gap: '1.5rem'
         }}>
-          {modules.map((module) => (
+          {sihInnovations.map((item) => (
             <div
-              key={module.id}
-              onClick={() => navigate(module.path)}
+              key={item.id}
+              onClick={() => navigate(item.path)}
               style={{
                 position: 'relative',
-                height: '330px',
-                borderRadius: '22px',
+                height: '310px',
+                borderRadius: '20px',
                 overflow: 'hidden',
                 cursor: 'pointer',
-                boxShadow: '0 12px 32px rgba(0,0,0,0.3)',
+                boxShadow: '0 12px 28px rgba(0,0,0,0.3)',
                 transition: 'transform 0.25s ease, box-shadow 0.25s ease',
-                border: module.id === 'basic-farmer-needs'
-                  ? '2px solid var(--signal-lime, #22c55e)'
-                  : '1px solid rgba(255, 255, 255, 0.18)',
+                border: '1px solid rgba(255, 255, 255, 0.18)',
                 display: 'flex',
                 flexDirection: 'column',
                 justifyContent: 'space-between',
-                padding: '1.6rem',
+                padding: '1.5rem',
                 boxSizing: 'border-box'
               }}
               className="module-visual-card"
             >
               {/* Background Image */}
               <img
-                src={module.imageUrl}
-                alt={module.title}
+                src={item.imageUrl}
+                alt={item.title}
                 style={{
                   position: 'absolute',
                   inset: 0,
@@ -253,8 +269,8 @@ export const ModuleHomePage: React.FC = () => {
                   height: '100%',
                   objectFit: 'cover',
                   zIndex: 1,
-                  transition: 'transform 0.4s ease',
-                  filter: 'brightness(0.72)'
+                  filter: 'brightness(0.72)',
+                  transition: 'transform 0.4s ease'
                 }}
                 className="card-bg-img"
               />
@@ -263,82 +279,80 @@ export const ModuleHomePage: React.FC = () => {
               <div style={{
                 position: 'absolute',
                 inset: 0,
-                background: 'linear-gradient(180deg, rgba(0,0,0,0.4) 0%, rgba(4, 18, 9, 0.9) 100%)',
+                background: 'linear-gradient(180deg, rgba(0,0,0,0.35) 0%, rgba(4, 18, 9, 0.9) 100%)',
                 zIndex: 2
               }} />
 
               {/* Card Top */}
               <div style={{ position: 'relative', zIndex: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div style={{
-                  width: '52px',
-                  height: '52px',
-                  borderRadius: '16px',
+                  width: '48px',
+                  height: '48px',
+                  borderRadius: '14px',
                   background: 'rgba(255, 255, 255, 0.22)',
                   backdropFilter: 'blur(10px)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  fontSize: '1.75rem',
+                  fontSize: '1.6rem',
                   boxShadow: '0 4px 14px rgba(0,0,0,0.25)'
                 }}>
-                  {module.icon}
+                  {item.icon}
                 </div>
 
-                {module.badge && (
-                  <span style={{
-                    background: module.id === 'basic-farmer-needs' ? '#22c55e' : 'rgba(255, 255, 255, 0.25)',
-                    color: module.id === 'basic-farmer-needs' ? '#04210e' : '#ffffff',
-                    backdropFilter: 'blur(8px)',
-                    padding: '0.35rem 0.8rem',
-                    borderRadius: '20px',
-                    fontSize: '0.72rem',
-                    fontWeight: 800,
-                    letterSpacing: '0.04em',
-                    textTransform: 'uppercase'
-                  }}>
-                    {module.badge}
-                  </span>
-                )}
+                <span style={{
+                  background: 'rgba(255, 255, 255, 0.25)',
+                  color: '#ffffff',
+                  backdropFilter: 'blur(8px)',
+                  padding: '0.35rem 0.8rem',
+                  borderRadius: '20px',
+                  fontSize: '0.72rem',
+                  fontWeight: 800,
+                  letterSpacing: '0.04em',
+                  textTransform: 'uppercase'
+                }}>
+                  {item.badge}
+                </span>
               </div>
 
               {/* Card Bottom */}
-              <div style={{ position: 'relative', zIndex: 3, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+              <div style={{ position: 'relative', zIndex: 3, display: 'flex', flexDirection: 'column', gap: '0.45rem' }}>
                 <h3 style={{
-                  fontSize: '1.5rem',
+                  fontSize: '1.4rem',
                   fontWeight: 900,
                   color: '#FFFFFF',
                   margin: 0,
                   lineHeight: 1.25,
                   textShadow: '0 2px 4px rgba(0,0,0,0.5)'
                 }}>
-                  {module.title}
+                  {item.title}
                 </h3>
 
                 <p style={{
-                  fontSize: '0.88rem',
+                  fontSize: '0.85rem',
                   color: 'rgba(255, 255, 255, 0.92)',
                   margin: 0,
                   lineHeight: 1.35,
                   fontWeight: 500
                 }}>
-                  {module.subtitle}
+                  {item.subtitle}
                 </p>
 
                 <div style={{
-                  marginTop: '0.7rem',
+                  marginTop: '0.6rem',
                   display: 'inline-flex',
                   alignItems: 'center',
-                  gap: '0.45rem',
-                  background: module.id === 'basic-farmer-needs' ? '#22c55e' : '#ffffff',
-                  color: module.id === 'basic-farmer-needs' ? '#04210e' : '#0d2818',
-                  padding: '0.65rem 1.2rem',
+                  gap: '0.4rem',
+                  background: '#ffffff',
+                  color: '#0d2818',
+                  padding: '0.6rem 1.1rem',
                   borderRadius: '12px',
-                  fontSize: '0.9rem',
+                  fontSize: '0.85rem',
                   fontWeight: 800,
                   alignSelf: 'flex-start',
                   boxShadow: '0 4px 16px rgba(0,0,0,0.35)'
                 }}>
-                  <span>{module.actionText}</span>
+                  <span>{item.actionText}</span>
                   <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>arrow_forward</span>
                 </div>
               </div>

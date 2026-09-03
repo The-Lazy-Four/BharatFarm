@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { SihLayout } from '../../shared/SihLayout';
-import { useWeatherContext } from '@core/context/WeatherContext';
-import { useAuth } from '@core/context/AuthContext';
+import { useWeatherContext } from '../../../../context/WeatherContext';
+import { useAuth } from '../../../../context/AuthContext';
 import { ClimateRiskService, ProcurementAdvice } from '../climateRisk.service';
 
 export const ClimateRiskPage: React.FC = () => {

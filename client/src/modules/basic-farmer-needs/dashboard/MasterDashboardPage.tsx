@@ -1,12 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Card } from '@core/ui/Card';
-import { Button } from '@core/ui/Button';
-import { Badge } from '@core/ui/Badge';
-import { useAuth } from '@core/context/AuthContext';
-import { useWeatherContext } from '@core/context/WeatherContext';
-import { useDataSaver } from '@core/context/DataSaverContext';
-import { CentralAiApi } from '@core/api/centralAiApi';
+import { Card, Button, Badge } from '../../../core/ui';
+import { useAuth } from '../../../context/AuthContext';
+import { useWeatherContext } from '../../../context/WeatherContext';
+import { useDataSaver } from '../../../context/DataSaverContext';
+import { CentralAiApi } from '../../../services/centralAiApi';
 import { roadmapApi } from '../roadmap/api';
 import { CropRoadmapItem } from '../roadmap/types';
 import { scannerApi } from '../scanner/services/scannerApi';
@@ -15,9 +13,9 @@ import { SchemesApi } from '../schemes/services/schemesApi';
 import { Scheme } from '../schemes/types/schemes.types';
 import { MarketplaceApi } from '../marketplace/services/marketplaceApi';
 import { ProductListing } from '../marketplace/types/marketplace.types';
-import { GroupBuyingApi } from '../group-buying/services/groupBuyingApi';
-import { GroupBuyPool } from '../group-buying/types/groupBuying.types';
-import { FEATURE_IMAGES } from '@core/constants/featureImages';
+import { GroupBuyingApi } from '../../../features/groupbuying/services/groupBuyingApi';
+import { GroupBuyPool } from '../../../features/groupbuying/types/groupBuying.types';
+import { FEATURE_IMAGES } from '../../../constants/featureImages';
 
 export const MasterDashboardPage: React.FC = () => {
   const { user } = useAuth();

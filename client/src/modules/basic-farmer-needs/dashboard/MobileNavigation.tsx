@@ -19,14 +19,13 @@ export const MobileNavigation: React.FC = () => {
       }}
     >
       <NavLink
-        to="/"
-        end
+        to="/sih"
         className={({ isActive }) => `mobile-nav-item${isActive ? ' active' : ''}`}
       >
         <span className="material-symbols-outlined" style={{ fontSize: '22px' }}>
           auto_awesome
         </span>
-        <span>Showcase</span>
+        <span>SIH Hub</span>
       </NavLink>
 
       <NavLink
@@ -40,7 +39,7 @@ export const MobileNavigation: React.FC = () => {
       </NavLink>
 
       <NavLink
-        to="/innovations/climate-risk"
+        to="/sih/climate-risk"
         className={({ isActive }) => `mobile-nav-item${isActive ? ' active' : ''}`}
       >
         <span className="material-symbols-outlined" style={{ fontSize: '22px' }}>
@@ -50,7 +49,7 @@ export const MobileNavigation: React.FC = () => {
       </NavLink>
 
       <NavLink
-        to="/innovations/smart-mandi"
+        to="/sih/smart-mandi"
         className={({ isActive }) => `mobile-nav-item${isActive ? ' active' : ''}`}
       >
         <span className="material-symbols-outlined" style={{ fontSize: '22px' }}>
@@ -60,7 +59,7 @@ export const MobileNavigation: React.FC = () => {
       </NavLink>
 
       <NavLink
-        to="/innovations/sahayak"
+        to="/sih/sahayak"
         className={({ isActive }) => `mobile-nav-item${isActive ? ' active' : ''}`}
       >
         <span className="material-symbols-outlined" style={{ fontSize: '22px' }}>

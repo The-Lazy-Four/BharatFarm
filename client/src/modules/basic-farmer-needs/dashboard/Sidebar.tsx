@@ -4,13 +4,8 @@ import { useAuth } from '@core/context/AuthContext';
 import { useTheme } from '@core/context/ThemeContext';
 
 const navItems = [
-  { path: '/', label: 'Innovation Showcase', icon: 'auto_awesome', badge: 'SIH 2026' },
-  { path: '/innovations/climate-risk', label: '1. Climate Risk Planner', icon: 'cyclone' },
-  { path: '/innovations/aggregation-optimizer', label: '2. Small-Farm Aggregator', icon: 'hub' },
-  { path: '/innovations/satellite-insurance', label: '3. Satellite Insurance Verification', icon: 'satellite_alt' },
-  { path: '/innovations/smart-mandi', label: '4. ML Live Mandi Intelligence', icon: 'distance' },
-  { path: '/innovations/sahayak', label: '5. Sahayak Assisted & WhatsApp', icon: 'handshake' },
-  { path: '/dashboard', label: '6. Basic Farmer Needs (Dashboard)', icon: 'dashboard' },
+  { path: '/sih', label: 'SIH Innovation Platform', icon: 'auto_awesome', badge: 'SIH 2026' },
+  { path: '/dashboard', label: 'Basic Farmer Needs Dashboard', icon: 'dashboard' },
   { path: '/scanner', label: 'Leaf Scanner AI', icon: 'biotech' },
   { path: '/weather', label: 'Weather Radar', icon: 'cloud' },
   { path: '/crop-roadmap', label: 'Crop Roadmap', icon: 'route' },
@@ -70,10 +65,10 @@ export const Sidebar: React.FC = () => {
           <React.Fragment key={item.path}>
             {idx === 0 && (
               <div style={{ fontSize: '0.65rem', fontWeight: 800, color: 'var(--signal-lime)', padding: '0.4rem 0.5rem 0.2rem 0.5rem', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
-                🚀 Innovation Modules
+                🚀 Innovation Launcher
               </div>
             )}
-            {idx === 6 && (
+            {idx === 1 && (
               <div style={{ fontSize: '0.65rem', fontWeight: 800, color: 'var(--text-muted)', padding: '0.8rem 0.5rem 0.2rem 0.5rem', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
                 🌾 Platform & Utilities
               </div>

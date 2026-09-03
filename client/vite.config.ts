@@ -13,6 +13,11 @@ export default defineConfig(({ mode }) => {
 
   return {
     plugins: [react()],
+    resolve: {
+      alias: {
+        '@core': path.resolve(__dirname, './src/core')
+      }
+    },
     server: {
       port: 5173,
       proxy: {

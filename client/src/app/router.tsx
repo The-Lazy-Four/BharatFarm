@@ -6,26 +6,29 @@ import { LoginPage } from './pages/LoginPage.js';
 import { RegisterPage } from './pages/RegisterPage.js';
 import { ModuleHomePage } from './pages/ModuleHomePage.js';
 
-// Innovation Module Pages
-import { ClimateRiskPage } from '../features/innovations/ClimateRiskPage.js';
-import { AggregationOptimizerPage } from '../features/innovations/AggregationOptimizerPage.js';
-import { CropInsuranceVerificationPage } from '../features/innovations/CropInsuranceVerificationPage.js';
-import { SmartMandiPage } from '../features/innovations/SmartMandiPage.js';
+// SIH Launcher Dashboard & Feature Workspaces
+import {
+  SihDashboardPage,
+  ClimateRiskPage,
+  AggregationOptimizerPage,
+  CropInsuranceVerificationPage,
+  SmartMandiPage,
+  SahayakPage
+} from '../modules/sih/index.js';
 
-// Existing Platform Pages
-import { MasterDashboardPage } from './pages/MasterDashboardPage.js';
-import { SahayakPage } from './pages/SahayakPage.js';
-import { ScannerPage } from '../features/scanner/index.js';
-import { MarketplacePage, CreateListingPage, ProductPage } from '../features/marketplace/index.js';
-import { WeatherPage } from '../features/weather/index.js';
+// Existing Platform Pages (Basic Farmer Needs)
+import { MasterDashboardPage } from '../modules/basic-farmer-needs/dashboard/MasterDashboardPage.js';
+import { ScannerPage } from '../modules/basic-farmer-needs/scanner/index.js';
+import { MarketplacePage, CreateListingPage, ProductPage } from '../modules/basic-farmer-needs/marketplace/index.js';
+import { WeatherPage } from '../modules/basic-farmer-needs/weather/index.js';
 import { GroupBuyingPage, GroupDetailsPage } from '../features/groupbuying/index.js';
-import { SchemesPage, SchemeDetailsPage } from '../features/schemes/index.js';
+import { SchemesPage, SchemeDetailsPage } from '../modules/basic-farmer-needs/schemes/index.js';
 import { FarmRecordsPage } from './pages/FarmRecordsPage.js';
 import { FarmCalculatorPage } from './pages/FarmCalculatorPage.js';
 import { OrdersDeliveryPage } from './pages/OrdersDeliveryPage.js';
 import { ProfileSettingsPage } from './pages/ProfileSettingsPage.js';
 import { LoanEligibilityPage } from './pages/LoanEligibilityPage.js';
-import { CropRoadmapPage } from './pages/CropRoadmapPage.js';
+import { CropRoadmapPage } from '../modules/basic-farmer-needs/roadmap/CropRoadmapPage.js';
 
 /**
  * ProtectedRoute component — Redirects unauthenticated users to /login
@@ -111,7 +114,7 @@ export const AppRouter: React.FC = () => {
         }
       />
 
-      {/* STANDALONE POST-LOGIN MODULE HOMEPAGE (NO AppLayout, NO Sidebar, NO Dashboard Shell) */}
+      {/* STANDALONE POST-LOGIN LEVEL 1 MODULE HOMEPAGE */}
       <Route
         path="/"
         element={
@@ -130,24 +133,76 @@ export const AppRouter: React.FC = () => {
         }
       />
 
-      {/* Application Modules & Dashboard Wrapped in AppLayout (Sidebar, Navigation, Shell) */}
+      {/* STANDALONE LEVEL 2 SIH INNOVATION LAUNCHER DASHBOARD */}
+      <Route
+        path="/sih"
+        element={
+          <ProtectedRoute>
+            <SihDashboardPage />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* LEVEL 3 INDIVIDUAL SIH FEATURE WORKSPACES */}
+      <Route
+        path="/sih/climate-risk"
+        element={
+          <ProtectedRoute>
+            <ClimateRiskPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/sih/aggregation"
+        element={
+          <ProtectedRoute>
+            <AggregationOptimizerPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/sih/crop-insurance"
+        element={
+          <ProtectedRoute>
+            <CropInsuranceVerificationPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/sih/smart-mandi"
+        element={
+          <ProtectedRoute>
+            <SmartMandiPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/sih/sahayak"
+        element={
+          <ProtectedRoute>
+            <SahayakPage />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Backward Compatibility Aliases for SIH Routes */}
+      <Route path="/innovations/climate-risk" element={<Navigate to="/sih/climate-risk" replace />} />
+      <Route path="/innovations/aggregation-optimizer" element={<Navigate to="/sih/aggregation" replace />} />
+      <Route path="/innovations/satellite-insurance" element={<Navigate to="/sih/crop-insurance" replace />} />
+      <Route path="/innovations/smart-mandi" element={<Navigate to="/sih/smart-mandi" replace />} />
+      <Route path="/innovations/sahayak" element={<Navigate to="/sih/sahayak" replace />} />
+
+      {/* BASIC FARMER NEEDS PLATFORM (Wrapped in original AppLayout) */}
       <Route
         path="/*"
         element={
           <ProtectedRoute>
             <AppLayout>
               <Routes>
-                {/* 5 SIH Innovation Modules */}
-                <Route path="/innovations/climate-risk" element={<ClimateRiskPage />} />
-                <Route path="/innovations/aggregation-optimizer" element={<AggregationOptimizerPage />} />
-                <Route path="/innovations/satellite-insurance" element={<CropInsuranceVerificationPage />} />
-                <Route path="/innovations/smart-mandi" element={<SmartMandiPage />} />
-                <Route path="/innovations/sahayak" element={<SahayakPage />} />
-
                 {/* Complete Original BharatFarm Dashboard (Basic Farmer Needs) */}
                 <Route path="/dashboard" element={<MasterDashboardPage />} />
 
-                {/* Legacy/Direct Platform Feature Routes (Preserved & Integrated) */}
+                {/* Platform Utilities */}
                 <Route path="/sahayak" element={<SahayakPage />} />
                 <Route path="/scanner" element={<ScannerPage />} />
                 <Route path="/marketplace" element={<MarketplacePage />} />

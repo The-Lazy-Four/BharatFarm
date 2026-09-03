@@ -7,5 +7,6 @@ export { CropInsuranceVerificationPage } from './crop-risk-insurance/index';
 export { SmartMandiPage } from './smart-mandi/index';
 export { SahayakPage } from './sahayak/index';
 
-// Shared SIH shell layout
+// Shared SIH shell layout and Launcher Dashboard
 export { SihLayout } from './shared/SihLayout';
+export { SihDashboardPage } from './shared/SihDashboardPage';

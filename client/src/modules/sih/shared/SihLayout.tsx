@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@core/context/AuthContext';
-import { useTheme } from '@core/context/ThemeContext';
+import { useAuth } from '../../../context/AuthContext.js';
+import { useTheme } from '../../../context/ThemeContext.js';
 
 interface SihShellProps {
   children: React.ReactNode;
@@ -24,11 +24,11 @@ export const SihLayout: React.FC<SihShellProps> = ({
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const sihModules = [
-    { id: 'climate-risk', label: 'Climate Risk', icon: '🌦️', path: '/innovations/climate-risk' },
-    { id: 'aggregation', label: 'Aggregation', icon: '🤝', path: '/innovations/aggregation-optimizer' },
-    { id: 'crop-risk-insurance', label: 'Crop Insurance', icon: '🛰️', path: '/innovations/satellite-insurance' },
-    { id: 'smart-mandi', label: 'Smart Mandi', icon: '📍', path: '/innovations/smart-mandi' },
-    { id: 'sahayak', label: 'Sahayak & WA', icon: '💬', path: '/innovations/sahayak' },
+    { id: 'climate-risk', label: 'Climate Risk', icon: '🌦️', path: '/sih/climate-risk' },
+    { id: 'aggregation', label: 'Aggregation', icon: '🤝', path: '/sih/aggregation' },
+    { id: 'crop-risk-insurance', label: 'Crop Insurance', icon: '🛰️', path: '/sih/crop-insurance' },
+    { id: 'smart-mandi', label: 'Smart Mandi', icon: '📍', path: '/sih/smart-mandi' },
+    { id: 'sahayak', label: 'Sahayak & WA', icon: '💬', path: '/sih/sahayak' },
   ];
 
   return (
@@ -57,7 +57,7 @@ export const SihLayout: React.FC<SihShellProps> = ({
         {/* Left Branding & Back Button */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
           <button
-            onClick={() => navigate('/module-home')}
+            onClick={() => navigate('/sih')}
             style={{
               background: 'var(--surface-1, rgba(255,255,255,0.08))',
               border: '1px solid var(--border-default, rgba(255,255,255,0.15))',
@@ -73,7 +73,7 @@ export const SihLayout: React.FC<SihShellProps> = ({
             }}
           >
             <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>arrow_back</span>
-            <span>Module Home</span>
+            <span>SIH Dashboard</span>
           </button>
 
           <div style={{ width: '1px', height: '24px', background: 'var(--border-subtle, rgba(255,255,255,0.15))' }} />
