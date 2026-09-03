@@ -4,7 +4,17 @@ import { useAuth } from '../context/AuthContext.js';
 import { AppLayout } from '../components/layout/AppLayout.js';
 import { LoginPage } from './pages/LoginPage.js';
 import { RegisterPage } from './pages/RegisterPage.js';
+import { ModuleHomePage } from './pages/ModuleHomePage.js';
+
+// Innovation Module Pages
+import { ClimateRiskPage } from '../features/innovations/ClimateRiskPage.js';
+import { AggregationOptimizerPage } from '../features/innovations/AggregationOptimizerPage.js';
+import { CropInsuranceVerificationPage } from '../features/innovations/CropInsuranceVerificationPage.js';
+import { SmartMandiPage } from '../features/innovations/SmartMandiPage.js';
+
+// Existing Platform Pages
 import { MasterDashboardPage } from './pages/MasterDashboardPage.js';
+import { SahayakPage } from './pages/SahayakPage.js';
 import { ScannerPage } from '../features/scanner/index.js';
 import { MarketplacePage, CreateListingPage, ProductPage } from '../features/marketplace/index.js';
 import { WeatherPage } from '../features/weather/index.js';
@@ -15,7 +25,6 @@ import { FarmCalculatorPage } from './pages/FarmCalculatorPage.js';
 import { OrdersDeliveryPage } from './pages/OrdersDeliveryPage.js';
 import { ProfileSettingsPage } from './pages/ProfileSettingsPage.js';
 import { LoanEligibilityPage } from './pages/LoanEligibilityPage.js';
-import { SahayakPage } from './pages/SahayakPage.js';
 import { CropRoadmapPage } from './pages/CropRoadmapPage.js';
 
 /**
@@ -32,8 +41,8 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        background: 'var(--surface-bg)',
-        color: 'var(--text-primary)',
+        background: 'var(--surface-bg, #0b1d12)',
+        color: 'var(--text-primary, #ffffff)',
         flexDirection: 'column',
         gap: '1rem'
       }}>
@@ -41,17 +50,17 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
           width: '48px',
           height: '48px',
           borderRadius: '12px',
-          background: 'var(--signal-lime)',
+          background: 'var(--signal-lime, #16a34a)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center'
         }}>
-          <span className="material-symbols-outlined spin" style={{ fontSize: '28px', color: 'var(--text-on-lime)' }}>
+          <span className="material-symbols-outlined spin" style={{ fontSize: '28px', color: '#ffffff' }}>
             agriculture
           </span>
         </div>
-        <p style={{ fontWeight: 600, fontSize: '0.95rem', color: 'var(--text-muted)' }}>
-          Loading BharatFarm...
+        <p style={{ fontWeight: 600, fontSize: '0.95rem', color: 'rgba(255,255,255,0.7)' }}>
+          Loading BharatFarm Platform...
         </p>
       </div>
     );
@@ -65,7 +74,7 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
 };
 
 /**
- * PublicRoute component — Redirects authenticated users from /login and /register to /
+ * PublicRoute component — Redirects authenticated users from /login and /register to post-login home page /
  */
 const PublicRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isAuthenticated, isLoading } = useAuth();
@@ -102,14 +111,43 @@ export const AppRouter: React.FC = () => {
         }
       />
 
-      {/* Protected Application Routes wrapped in AppLayout */}
+      {/* STANDALONE POST-LOGIN MODULE HOMEPAGE (NO AppLayout, NO Sidebar, NO Dashboard Shell) */}
+      <Route
+        path="/"
+        element={
+          <ProtectedRoute>
+            <ModuleHomePage />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/module-home"
+        element={
+          <ProtectedRoute>
+            <ModuleHomePage />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Application Modules & Dashboard Wrapped in AppLayout (Sidebar, Navigation, Shell) */}
       <Route
         path="/*"
         element={
           <ProtectedRoute>
             <AppLayout>
               <Routes>
-                <Route path="/" element={<MasterDashboardPage />} />
+                {/* 5 SIH Innovation Modules */}
+                <Route path="/innovations/climate-risk" element={<ClimateRiskPage />} />
+                <Route path="/innovations/aggregation-optimizer" element={<AggregationOptimizerPage />} />
+                <Route path="/innovations/satellite-insurance" element={<CropInsuranceVerificationPage />} />
+                <Route path="/innovations/smart-mandi" element={<SmartMandiPage />} />
+                <Route path="/innovations/sahayak" element={<SahayakPage />} />
+
+                {/* Complete Original BharatFarm Dashboard (Basic Farmer Needs) */}
+                <Route path="/dashboard" element={<MasterDashboardPage />} />
+
+                {/* Legacy/Direct Platform Feature Routes (Preserved & Integrated) */}
                 <Route path="/sahayak" element={<SahayakPage />} />
                 <Route path="/scanner" element={<ScannerPage />} />
                 <Route path="/marketplace" element={<MarketplacePage />} />
@@ -126,6 +164,7 @@ export const AppRouter: React.FC = () => {
                 <Route path="/loan-eligibility" element={<LoanEligibilityPage />} />
                 <Route path="/orders" element={<OrdersDeliveryPage />} />
                 <Route path="/profile" element={<ProfileSettingsPage />} />
+                
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>
             </AppLayout>

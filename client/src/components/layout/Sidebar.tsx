@@ -4,14 +4,19 @@ import { useAuth } from '../../context/AuthContext.js';
 import { useTheme } from '../../context/ThemeContext.js';
 
 const navItems = [
-  { path: '/', label: 'Dashboard', icon: 'dashboard' },
-  { path: '/sahayak', label: 'Sahayak Assistance', icon: 'handshake' },
+  { path: '/', label: 'Innovation Showcase', icon: 'auto_awesome', badge: 'SIH 2026' },
+  { path: '/innovations/climate-risk', label: '1. Climate Risk Planner', icon: 'cyclone' },
+  { path: '/innovations/aggregation-optimizer', label: '2. Small-Farm Aggregator', icon: 'hub' },
+  { path: '/innovations/satellite-insurance', label: '3. Satellite Insurance Verification', icon: 'satellite_alt' },
+  { path: '/innovations/smart-mandi', label: '4. ML Live Mandi Intelligence', icon: 'distance' },
+  { path: '/innovations/sahayak', label: '5. Sahayak Assisted & WhatsApp', icon: 'handshake' },
+  { path: '/dashboard', label: '6. Basic Farmer Needs (Dashboard)', icon: 'dashboard' },
   { path: '/scanner', label: 'Leaf Scanner AI', icon: 'biotech' },
-  { path: '/weather', label: 'Weather Intelligence', icon: 'cloud' },
+  { path: '/weather', label: 'Weather Radar', icon: 'cloud' },
   { path: '/crop-roadmap', label: 'Crop Roadmap', icon: 'route' },
   { path: '/marketplace', label: 'Marketplace', icon: 'storefront' },
   { path: '/groupbuying', label: 'Group Buying', icon: 'group' },
-  { path: '/records', label: 'Farm Records', icon: 'description' },
+  { path: '/records', label: 'Farm Log Records', icon: 'description' },
   { path: '/schemes', label: 'Govt Schemes', icon: 'account_balance' },
   { path: '/calculator', label: 'Farm Calculator', icon: 'calculate' },
   { path: '/loan-eligibility', label: 'Loan Eligibility', icon: 'credit_card' },
@@ -27,8 +32,8 @@ export const Sidebar: React.FC = () => {
     <aside
       className="app-sidebar sidebar-surface"
       style={{
-        width: '250px',
-        padding: '1.5rem 0',
+        width: '260px',
+        padding: '1.25rem 0',
         flexDirection: 'column',
         gap: '0.2rem',
         overflowY: 'auto',
@@ -39,44 +44,62 @@ export const Sidebar: React.FC = () => {
       }}
     >
       {/* Logo Section */}
-      <div style={{ padding: '0 1.5rem', marginBottom: '2rem', display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+      <div style={{ padding: '0 1.25rem', marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
         <div style={{
-          width: '36px',
-          height: '36px',
+          width: '38px',
+          height: '38px',
           borderRadius: '10px',
-          background: 'var(--signal-lime)',
+          background: 'linear-gradient(135deg, #16A34A 0%, #15803D 100%)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          flexShrink: 0
+          flexShrink: 0,
+          boxShadow: '0 2px 8px rgba(22, 163, 74, 0.4)'
         }}>
-          <span className="material-symbols-outlined" style={{ fontSize: '22px', color: 'var(--text-on-lime)' }}>agriculture</span>
+          <span className="material-symbols-outlined" style={{ fontSize: '22px', color: '#FFFFFF' }}>agriculture</span>
         </div>
         <div>
           <h1 style={{ fontSize: '1.15rem', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.02em', lineHeight: 1 }}>BharatFarm</h1>
-          <span style={{ fontSize: '0.62rem', color: 'var(--emerald-primary)', fontWeight: 600 }}>Smart Farmer AI</span>
+          <span style={{ fontSize: '0.65rem', color: 'var(--signal-lime)', fontWeight: 700, letterSpacing: '0.04em' }}>SIH MODULAR AGRI-TECH</span>
         </div>
       </div>
 
       {/* Navigation Links */}
-      <nav style={{ flex: 1, padding: '0 0.85rem', display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
-        {navItems.map(item => (
-          <NavLink
-            key={item.path}
-            to={item.path}
-            end={item.path === '/'}
-            className={({ isActive }) => `sidebar-nav-item${isActive ? ' active' : ''}`}
-          >
-            <span className="material-symbols-outlined" style={{ fontSize: '19px', flexShrink: 0 }}>
-              {item.icon}
-            </span>
-            <span style={{ fontSize: '0.85rem' }}>{item.label}</span>
-          </NavLink>
+      <nav style={{ flex: 1, padding: '0 0.75rem', display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
+        {navItems.map((item, idx) => (
+          <React.Fragment key={item.path}>
+            {idx === 0 && (
+              <div style={{ fontSize: '0.65rem', fontWeight: 800, color: 'var(--signal-lime)', padding: '0.4rem 0.5rem 0.2rem 0.5rem', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+                🚀 Innovation Modules
+              </div>
+            )}
+            {idx === 6 && (
+              <div style={{ fontSize: '0.65rem', fontWeight: 800, color: 'var(--text-muted)', padding: '0.8rem 0.5rem 0.2rem 0.5rem', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+                🌾 Platform & Utilities
+              </div>
+            )}
+            <NavLink
+              to={item.path}
+              end={item.path === '/'}
+              className={({ isActive }) => `sidebar-nav-item${isActive ? ' active' : ''}`}
+              style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', overflow: 'hidden' }}>
+                <span className="material-symbols-outlined" style={{ fontSize: '19px', flexShrink: 0 }}>
+                  {item.icon}
+                </span>
+                <span style={{ fontSize: '0.82rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.label}</span>
+              </div>
+              {item.badge && (
+                <span className="badge badge-primary" style={{ fontSize: '0.58rem', padding: '0.1rem 0.35rem' }}>{item.badge}</span>
+              )}
+            </NavLink>
+          </React.Fragment>
         ))}
       </nav>
 
       {/* Bottom: Theme Control & User Profile */}
-      <div style={{ padding: '0 1.5rem', marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: '0.75rem', paddingTop: '1.25rem' }}>
+      <div style={{ padding: '0 1.25rem', marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: '0.75rem', paddingTop: '1rem' }}>
         {/* Desktop Theme Switcher */}
         <button
           onClick={toggleTheme}
