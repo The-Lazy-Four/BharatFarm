@@ -1,6 +1,0 @@
-export const WEATHER_CONSTANTS = {
-  DEFAULT_LOCATION: 'Ludhiana, Punjab',
-  DEFAULT_LAT: 30.901,
-  DEFAULT_LON: 75.8573,
-  CACHE_TTL_MINUTES: 30
-};

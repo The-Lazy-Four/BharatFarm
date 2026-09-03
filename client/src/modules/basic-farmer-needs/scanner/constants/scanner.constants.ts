@@ -1,0 +1,4 @@
+export const SCANNER_CONSTANTS = {
+  MAX_FILE_SIZE: 5 * 1024 * 1024,
+  CAMERA_ASPECT_RATIO: '4/3'
+};

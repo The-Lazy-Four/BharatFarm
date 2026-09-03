@@ -1,0 +1,3 @@
+export const GROUPBUYING_CONSTANTS = {
+  MIN_JOIN_QUANTITY: 1
+};
