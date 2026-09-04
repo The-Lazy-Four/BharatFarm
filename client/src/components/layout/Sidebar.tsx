@@ -3,14 +3,9 @@ import { NavLink } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext.js';
 import { useTheme } from '../../context/ThemeContext.js';
 
-const navItems = [
-  { path: '/', label: 'Innovation Showcase', icon: 'auto_awesome', badge: 'SIH 2026' },
-  { path: '/innovations/climate-risk', label: '1. Climate Risk Planner', icon: 'cyclone' },
-  { path: '/innovations/aggregation-optimizer', label: '2. Small-Farm Aggregator', icon: 'hub' },
-  { path: '/innovations/satellite-insurance', label: '3. Satellite Insurance Verification', icon: 'satellite_alt' },
-  { path: '/innovations/smart-mandi', label: '4. ML Live Mandi Intelligence', icon: 'distance' },
-  { path: '/innovations/sahayak', label: '5. Sahayak Assisted & WhatsApp', icon: 'handshake' },
-  { path: '/dashboard', label: '6. Basic Farmer Needs (Dashboard)', icon: 'dashboard' },
+const basicFarmerNavItems = [
+  { path: '/home', label: 'Feature Selector', icon: 'home' },
+  { path: '/dashboard', label: 'Farmer Dashboard', icon: 'dashboard' },
   { path: '/scanner', label: 'Leaf Scanner AI', icon: 'biotech' },
   { path: '/weather', label: 'Weather Radar', icon: 'cloud' },
   { path: '/crop-roadmap', label: 'Crop Roadmap', icon: 'route' },
@@ -60,41 +55,31 @@ export const Sidebar: React.FC = () => {
         </div>
         <div>
           <h1 style={{ fontSize: '1.15rem', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.02em', lineHeight: 1 }}>BharatFarm</h1>
-          <span style={{ fontSize: '0.65rem', color: 'var(--signal-lime)', fontWeight: 700, letterSpacing: '0.04em' }}>SIH MODULAR AGRI-TECH</span>
+          <span style={{ fontSize: '0.65rem', color: 'var(--signal-lime)', fontWeight: 700, letterSpacing: '0.04em' }}>BASIC FARMER NEEDS</span>
         </div>
       </div>
 
       {/* Navigation Links */}
       <nav style={{ flex: 1, padding: '0 0.75rem', display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
-        {navItems.map((item, idx) => (
-          <React.Fragment key={item.path}>
-            {idx === 0 && (
-              <div style={{ fontSize: '0.65rem', fontWeight: 800, color: 'var(--signal-lime)', padding: '0.4rem 0.5rem 0.2rem 0.5rem', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
-                🚀 Innovation Modules
-              </div>
-            )}
-            {idx === 6 && (
-              <div style={{ fontSize: '0.65rem', fontWeight: 800, color: 'var(--text-muted)', padding: '0.8rem 0.5rem 0.2rem 0.5rem', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
-                🌾 Platform & Utilities
-              </div>
-            )}
-            <NavLink
-              to={item.path}
-              end={item.path === '/'}
-              className={({ isActive }) => `sidebar-nav-item${isActive ? ' active' : ''}`}
-              style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', overflow: 'hidden' }}>
-                <span className="material-symbols-outlined" style={{ fontSize: '19px', flexShrink: 0 }}>
-                  {item.icon}
-                </span>
-                <span style={{ fontSize: '0.82rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.label}</span>
-              </div>
-              {item.badge && (
-                <span className="badge badge-primary" style={{ fontSize: '0.58rem', padding: '0.1rem 0.35rem' }}>{item.badge}</span>
-              )}
-            </NavLink>
-          </React.Fragment>
+        <div style={{ fontSize: '0.65rem', fontWeight: 800, color: 'var(--signal-lime)', padding: '0.4rem 0.5rem 0.2rem 0.5rem', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+          🌾 Everyday Farmer Platform
+        </div>
+
+        {basicFarmerNavItems.map((item) => (
+          <NavLink
+            key={item.path}
+            to={item.path}
+            end={item.path === '/dashboard' || item.path === '/home'}
+            className={({ isActive }) => `sidebar-nav-item${isActive ? ' active' : ''}`}
+            style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', overflow: 'hidden' }}>
+              <span className="material-symbols-outlined" style={{ fontSize: '19px', flexShrink: 0 }}>
+                {item.icon}
+              </span>
+              <span style={{ fontSize: '0.82rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.label}</span>
+            </div>
+          </NavLink>
         ))}
       </nav>
 

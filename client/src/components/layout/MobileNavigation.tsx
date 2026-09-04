@@ -19,14 +19,13 @@ export const MobileNavigation: React.FC = () => {
       }}
     >
       <NavLink
-        to="/"
-        end
+        to="/home"
         className={({ isActive }) => `mobile-nav-item${isActive ? ' active' : ''}`}
       >
         <span className="material-symbols-outlined" style={{ fontSize: '22px' }}>
-          auto_awesome
+          home
         </span>
-        <span>Showcase</span>
+        <span>Home</span>
       </NavLink>
 
       <NavLink
@@ -40,33 +39,33 @@ export const MobileNavigation: React.FC = () => {
       </NavLink>
 
       <NavLink
-        to="/innovations/climate-risk"
+        to="/scanner"
         className={({ isActive }) => `mobile-nav-item${isActive ? ' active' : ''}`}
       >
         <span className="material-symbols-outlined" style={{ fontSize: '22px' }}>
-          cyclone
+          biotech
         </span>
-        <span>Climate</span>
+        <span>Scanner</span>
       </NavLink>
 
       <NavLink
-        to="/innovations/smart-mandi"
+        to="/marketplace"
         className={({ isActive }) => `mobile-nav-item${isActive ? ' active' : ''}`}
       >
         <span className="material-symbols-outlined" style={{ fontSize: '22px' }}>
-          distance
+          storefront
         </span>
-        <span>Mandi ML</span>
+        <span>Mandi</span>
       </NavLink>
 
       <NavLink
-        to="/innovations/sahayak"
+        to="/profile"
         className={({ isActive }) => `mobile-nav-item${isActive ? ' active' : ''}`}
       >
         <span className="material-symbols-outlined" style={{ fontSize: '22px' }}>
-          handshake
+          person
         </span>
-        <span>Sahayak</span>
+        <span>Profile</span>
       </NavLink>
     </nav>
   );
