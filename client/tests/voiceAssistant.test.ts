@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { detectSpokenLanguage, classifyLocalIntent, normalizeText } from '../src/features/krishibot/voiceKnowledge/intentClassifier.js';
-import { SUPPORTED_LANGUAGES } from '../src/features/krishibot/voiceKnowledge/voiceRegistry.js';
+import { detectSpokenLanguage, classifyLocalIntent, normalizeText } from '../src/modules/basic-farmer-needs/krishibot/voiceKnowledge/intentClassifier.js';
+import { SUPPORTED_LANGUAGES } from '../src/modules/basic-farmer-needs/krishibot/voiceKnowledge/voiceRegistry.js';
 
 describe('BharatFarm Multilingual Voice Assistant Test Suite — Expanded Coverage', () => {
   it('correctly detects spoken languages across 11 regional Indian languages and scripts', () => {

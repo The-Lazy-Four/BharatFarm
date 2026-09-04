@@ -1,352 +1,373 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext.js';
-import { useTheme } from '../../context/ThemeContext.js';
 
-interface ModuleCard {
+interface SihCard {
   id: string;
   title: string;
-  subtitle: string;
+  description: string;
   icon: string;
-  imageUrl: string;
   path: string;
-  badge?: string;
-  actionText: string;
 }
 
 export const ModuleHomePage: React.FC = () => {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
-  const { theme, toggleTheme } = useTheme();
+  const [searchQuery, setSearchQuery] = useState('');
 
-  const modules: ModuleCard[] = [
-    {
-      id: 'sih-platform',
-      title: 'SIH Innovation Platform',
-      subtitle: '5 advanced agricultural innovations launcher dashboard',
-      icon: '🚀',
-      imageUrl: 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1000&q=85',
-      path: '/sih',
-      badge: 'Innovation Hub',
-      actionText: 'Open SIH Dashboard'
-    },
+  const sihInnovations: SihCard[] = [
     {
       id: 'climate-risk',
-      title: '🌦️ Climate-Risk Procurement',
-      subtitle: 'Weather radar, spray advisories & harvest window planning',
-      icon: '🌦️',
-      imageUrl: 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1000&q=85',
-      path: '/sih/climate-risk',
-      badge: 'SIH Module',
-      actionText: 'Open Workspace'
+      title: 'Climate Risk',
+      description: 'Weather insights & procurement',
+      icon: 'partly_cloudy_day',
+      path: '/sih/climate-risk'
     },
     {
-      id: 'aggregation-optimizer',
-      title: '🤝 Small-Farm Aggregation',
-      subtitle: 'Group buying for inputs & collective produce selling pool',
-      icon: '🤝',
-      imageUrl: 'https://images.unsplash.com/photo-1586771107445-d3ca888129ff?auto=format&fit=crop&w=1000&q=85',
-      path: '/sih/aggregation',
-      badge: 'SIH Module',
-      actionText: 'Open Workspace'
+      id: 'aggregation',
+      title: 'Aggregation',
+      description: 'Group buying & selling',
+      icon: 'groups',
+      path: '/sih/aggregation'
     },
     {
-      id: 'satellite-insurance',
-      title: '🛰️ Crop Risk & Insurance',
-      subtitle: 'Satellite damage audit & AI leaf scanner diagnostic',
-      icon: '🛰️',
-      imageUrl: 'https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?auto=format&fit=crop&w=1000&q=85',
-      path: '/sih/crop-insurance',
-      badge: 'SIH Module',
-      actionText: 'Open Workspace'
+      id: 'crop-insurance',
+      title: 'Crop Insurance',
+      description: 'Risk analysis & claim support',
+      icon: 'verified_user',
+      path: '/sih/crop-insurance'
     },
     {
       id: 'smart-mandi',
-      title: '📍 Smart Mandi Intelligence',
-      subtitle: 'Live APMC mandi rates & shortest distance profit router',
-      icon: '📍',
-      imageUrl: 'https://images.unsplash.com/photo-1610348725531-843dff563e2c?auto=format&fit=crop&w=1000&q=85',
-      path: '/sih/smart-mandi',
-      badge: 'SIH Module',
-      actionText: 'Open Workspace'
+      title: 'Smart Mandi',
+      description: 'Best prices & nearest markets',
+      icon: 'bar_chart',
+      path: '/sih/smart-mandi'
     },
     {
-      id: 'basic-farmer-needs',
-      title: '👨‍🌾 Basic Farmer Needs',
-      subtitle: 'Complete everyday platform dashboard & farm utilities',
-      icon: '👨‍🌾',
-      imageUrl: 'https://images.unsplash.com/photo-1500937386664-56d1dfef3854?auto=format&fit=crop&w=1000&q=85',
-      path: '/dashboard',
-      badge: 'Everyday Platform',
-      actionText: 'Open Dashboard'
+      id: 'sahayak',
+      title: 'Sahayak',
+      description: 'AI + Human support',
+      icon: 'eco',
+      path: '/sih/sahayak'
     }
   ];
+
+  const filteredInnovations = sihInnovations.filter(item =>
+    item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    item.description.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
     <div style={{
       minHeight: '100vh',
-      background: 'var(--surface-0, #091a10)',
-      color: 'var(--text-primary, #ffffff)',
+      background: '#F8FAFC',
+      color: '#0F172A',
+      fontFamily: 'Inter, system-ui, -apple-system, sans-serif',
       display: 'flex',
-      flexDirection: 'column',
-      fontFamily: 'var(--font-family, sans-serif)'
+      flexDirection: 'column'
     }}>
       
-      {/* Standalone Clean App Header */}
+      {/* Top Main Navigation Header */}
       <header style={{
-        padding: '1.25rem 2rem',
+        background: '#FFFFFF',
+        borderBottom: '1px solid #E2E8F0',
+        padding: '0.85rem 2rem',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        borderBottom: '1px solid var(--border-subtle, rgba(255,255,255,0.1))',
-        background: 'var(--surface-nav-glass, rgba(9, 26, 16, 0.95))',
-        backdropFilter: 'blur(12px)',
         position: 'sticky',
         top: 0,
-        zIndex: 50
+        zIndex: 50,
+        boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
       }}>
-        {/* Brand Logo */}
+        {/* Brand */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
           <div style={{
-            width: '42px',
-            height: '42px',
-            borderRadius: '12px',
+            width: '38px',
+            height: '38px',
+            borderRadius: '10px',
             background: 'linear-gradient(135deg, #16A34A 0%, #15803D 100%)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            boxShadow: '0 4px 14px rgba(22, 163, 74, 0.4)'
+            boxShadow: '0 4px 10px rgba(22, 163, 74, 0.25)'
           }}>
             <span className="material-symbols-outlined" style={{ fontSize: '24px', color: '#FFFFFF' }}>agriculture</span>
           </div>
-          <div>
-            <h1 style={{ fontSize: '1.3rem', fontWeight: 900, color: 'var(--text-primary)', margin: 0, letterSpacing: '-0.02em', lineHeight: 1 }}>BharatFarm</h1>
-            <span style={{ fontSize: '0.68rem', color: 'var(--signal-lime, #16a34a)', fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase' }}>MODULAR AGRI PLATFORM</span>
-          </div>
+          <span style={{ fontSize: '1.3rem', fontWeight: 900, color: '#1E293B', letterSpacing: '-0.02em' }}>BharatFarm</span>
         </div>
 
-        {/* User Controls */}
+        {/* Global Search Bar */}
+        <div style={{
+          position: 'relative',
+          width: '100%',
+          maxWidth: '420px',
+          margin: '0 1rem'
+        }} className="header-search-bar">
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search anything..."
+            style={{
+              width: '100%',
+              padding: '0.55rem 1rem 0.55rem 2.5rem',
+              borderRadius: '20px',
+              border: '1px solid #CBD5E1',
+              background: '#F1F5F9',
+              fontSize: '0.88rem',
+              outline: 'none',
+              boxSizing: 'border-box'
+            }}
+          />
+          <span className="material-symbols-outlined" style={{
+            position: 'absolute',
+            left: '0.8rem',
+            top: '50%',
+            transform: 'translateY(-50%)',
+            fontSize: '18px',
+            color: '#64748B'
+          }}>search</span>
+        </div>
+
+        {/* Header Right Controls */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
           <button
-            onClick={toggleTheme}
+            title="Notifications"
             style={{
-              background: 'var(--surface-1, rgba(255,255,255,0.1))',
-              border: '1px solid var(--border-default, rgba(255,255,255,0.15))',
-              color: 'var(--text-primary)',
-              borderRadius: '10px',
-              padding: '0.45rem 0.85rem',
+              background: '#F1F5F9',
+              border: 'none',
+              borderRadius: '50%',
+              width: '38px',
+              height: '38px',
               display: 'flex',
               alignItems: 'center',
-              gap: '0.4rem',
-              fontSize: '0.82rem',
-              fontWeight: 600,
+              justifyContent: 'center',
+              color: '#475569',
               cursor: 'pointer'
             }}
           >
-            <span className="material-symbols-outlined" style={{ fontSize: '18px', color: 'var(--signal-lime)' }}>
-              {theme === 'light' ? 'light_mode' : 'dark_mode'}
-            </span>
-            <span>{theme === 'light' ? 'Light' : 'Dark'}</span>
+            <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>notifications</span>
           </button>
 
-          <button
+          {/* User Avatar Circle */}
+          <div
             onClick={logout}
+            title={`Logged in as ${user?.fullName || 'Farmer'} (Click to Logout)`}
             style={{
-              background: 'rgba(220, 38, 38, 0.12)',
-              border: '1px solid rgba(220, 38, 38, 0.3)',
-              color: '#dc2626',
-              borderRadius: '10px',
-              padding: '0.45rem 0.85rem',
+              width: '38px',
+              height: '38px',
+              borderRadius: '50%',
+              background: '#16A34A',
+              color: '#FFFFFF',
               display: 'flex',
               alignItems: 'center',
-              gap: '0.4rem',
-              fontSize: '0.82rem',
-              fontWeight: 700,
-              cursor: 'pointer'
+              justifyContent: 'center',
+              fontWeight: 800,
+              fontSize: '0.9rem',
+              cursor: 'pointer',
+              boxShadow: '0 2px 8px rgba(22, 163, 74, 0.3)'
             }}
           >
-            <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>logout</span>
-            <span>Logout</span>
-          </button>
+            {user?.fullName ? user.fullName[0].toUpperCase() : 'S'}
+          </div>
         </div>
       </header>
 
       {/* Main Body */}
-      <main style={{ flex: 1, padding: '2.5rem 2rem', maxWidth: '1320px', width: '100%', margin: '0 auto', boxSizing: 'border-box' }}>
+      <main style={{
+        flex: 1,
+        padding: '2.5rem 2rem',
+        maxWidth: '1280px',
+        width: '100%',
+        margin: '0 auto',
+        boxSizing: 'border-box',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '2.5rem'
+      }}>
         
-        {/* Title Heading */}
-        <div style={{ marginBottom: '2.25rem', textAlign: 'left' }}>
-          <span style={{
-            background: 'var(--signal-lime-soft, rgba(22, 163, 74, 0.15))',
-            color: 'var(--signal-lime, #16a34a)',
-            fontWeight: 800,
-            fontSize: '0.78rem',
-            padding: '0.3rem 0.75rem',
-            borderRadius: '8px',
-            letterSpacing: '0.04em',
-            textTransform: 'uppercase',
-            display: 'inline-block',
-            marginBottom: '0.6rem'
-          }}>
-            Welcome, {user?.fullName || 'Farmer'} 👋
-          </span>
-
-          <h2 style={{
-            fontSize: '2.4rem',
+        {/* Welcome Banner */}
+        <div>
+          <h1 style={{
+            fontSize: '2rem',
             fontWeight: 900,
-            color: 'var(--text-primary)',
-            letterSpacing: '-0.025em',
+            color: '#0F172A',
             margin: 0,
-            lineHeight: 1.15
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem'
           }}>
-            Choose what you need today
-          </h2>
-
+            Hello, Farmer! 👋
+          </h1>
           <p style={{
             fontSize: '1rem',
-            color: 'var(--text-secondary)',
-            marginTop: '0.4rem',
+            color: '#64748B',
+            marginTop: '0.35rem',
             marginBottom: 0,
             fontWeight: 500
           }}>
-            Tap any module card below to launch its dedicated application workspace.
+            Choose a feature to continue
           </p>
         </div>
 
-        {/* 6 Large Image-Based Cards Grid */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))',
-          gap: '1.75rem'
-        }}>
-          {modules.map((module) => (
-            <div
-              key={module.id}
-              onClick={() => navigate(module.path)}
-              style={{
-                position: 'relative',
-                height: '330px',
-                borderRadius: '22px',
-                overflow: 'hidden',
-                cursor: 'pointer',
-                boxShadow: '0 12px 32px rgba(0,0,0,0.3)',
-                transition: 'transform 0.25s ease, box-shadow 0.25s ease',
-                border: module.id === 'basic-farmer-needs'
-                  ? '2px solid var(--signal-lime, #22c55e)'
-                  : '1px solid rgba(255, 255, 255, 0.18)',
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'space-between',
-                padding: '1.6rem',
-                boxSizing: 'border-box'
-              }}
-              className="module-visual-card"
-            >
-              {/* Background Image */}
-              <img
-                src={module.imageUrl}
-                alt={module.title}
+        {/* Section A: SIH Innovations */}
+        <section>
+          <div style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            marginBottom: '1.25rem'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <span className="material-symbols-outlined" style={{ fontSize: '24px', color: '#16A34A' }}>eco</span>
+              <h2 style={{ fontSize: '1.35rem', fontWeight: 900, color: '#0F172A', margin: 0 }}>
+                SIH Innovations
+              </h2>
+            </div>
+            <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#64748B' }}>
+              5 Advanced Solutions
+            </span>
+          </div>
+
+          {/* 5 Compact Cards Grid */}
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))',
+            gap: '1.25rem'
+          }}>
+            {filteredInnovations.map((card) => (
+              <div
+                key={card.id}
+                onClick={() => navigate(card.path)}
                 style={{
-                  position: 'absolute',
-                  inset: 0,
-                  width: '100%',
-                  height: '100%',
-                  objectFit: 'cover',
-                  zIndex: 1,
-                  transition: 'transform 0.4s ease',
-                  filter: 'brightness(0.72)'
-                }}
-                className="card-bg-img"
-              />
-
-              {/* Readability Gradient */}
-              <div style={{
-                position: 'absolute',
-                inset: 0,
-                background: 'linear-gradient(180deg, rgba(0,0,0,0.4) 0%, rgba(4, 18, 9, 0.9) 100%)',
-                zIndex: 2
-              }} />
-
-              {/* Card Top */}
-              <div style={{ position: 'relative', zIndex: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div style={{
-                  width: '52px',
-                  height: '52px',
+                  background: '#FFFFFF',
                   borderRadius: '16px',
-                  background: 'rgba(255, 255, 255, 0.22)',
-                  backdropFilter: 'blur(10px)',
+                  padding: '1.5rem 1.25rem',
+                  border: '1px solid #E2E8F0',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.03)',
+                  cursor: 'pointer',
                   display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: '1.75rem',
-                  boxShadow: '0 4px 14px rgba(0,0,0,0.25)'
-                }}>
-                  {module.icon}
+                  flexDirection: 'column',
+                  justifyContent: 'space-between',
+                  minHeight: '190px',
+                  transition: 'transform 0.2s ease, box-shadow 0.2s ease'
+                }}
+                className="sih-feature-card"
+              >
+                <div>
+                  <div style={{
+                    width: '44px',
+                    height: '44px',
+                    borderRadius: '12px',
+                    background: '#DCFCE7',
+                    color: '#15803D',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    marginBottom: '1rem'
+                  }}>
+                    <span className="material-symbols-outlined" style={{ fontSize: '24px' }}>{card.icon}</span>
+                  </div>
+
+                  <h3 style={{
+                    fontSize: '1.1rem',
+                    fontWeight: 800,
+                    color: '#0F172A',
+                    margin: '0 0 0.35rem 0',
+                    lineHeight: 1.2
+                  }}>
+                    {card.title}
+                  </h3>
+
+                  <p style={{
+                    fontSize: '0.82rem',
+                    color: '#64748B',
+                    margin: 0,
+                    lineHeight: 1.4,
+                    fontWeight: 500
+                  }}>
+                    {card.description}
+                  </p>
                 </div>
 
-                {module.badge && (
-                  <span style={{
-                    background: module.id === 'basic-farmer-needs' ? '#22c55e' : 'rgba(255, 255, 255, 0.25)',
-                    color: module.id === 'basic-farmer-needs' ? '#04210e' : '#ffffff',
-                    backdropFilter: 'blur(8px)',
-                    padding: '0.35rem 0.8rem',
-                    borderRadius: '20px',
-                    fontSize: '0.72rem',
-                    fontWeight: 800,
-                    letterSpacing: '0.04em',
-                    textTransform: 'uppercase'
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'flex-end',
+                  marginTop: '1rem'
+                }}>
+                  <div style={{
+                    width: '32px',
+                    height: '32px',
+                    borderRadius: '50%',
+                    background: '#16A34A',
+                    color: '#FFFFFF',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
                   }}>
-                    {module.badge}
-                  </span>
-                )}
+                    <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>arrow_forward</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Section B: Basic Farmer Needs (Horizontal Banner Card) */}
+        <section>
+          <div
+            onClick={() => navigate('/dashboard')}
+            style={{
+              background: 'linear-gradient(135deg, #FEF9C3 0%, #FEF08A 100%)',
+              borderRadius: '20px',
+              padding: '2rem',
+              border: '1.5px solid #FDE047',
+              boxShadow: '0 8px 20px rgba(234, 179, 8, 0.15)',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              flexWrap: 'wrap',
+              gap: '1.5rem',
+              position: 'relative',
+              overflow: 'hidden'
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', zIndex: 2 }}>
+              <div style={{
+                width: '60px',
+                height: '60px',
+                borderRadius: '16px',
+                background: '#16A34A',
+                color: '#FFFFFF',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                boxShadow: '0 6px 16px rgba(22, 163, 74, 0.3)'
+              }}>
+                <span className="material-symbols-outlined" style={{ fontSize: '36px' }}>agriculture</span>
               </div>
 
-              {/* Card Bottom */}
-              <div style={{ position: 'relative', zIndex: 3, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                <h3 style={{
-                  fontSize: '1.5rem',
-                  fontWeight: 900,
-                  color: '#FFFFFF',
-                  margin: 0,
-                  lineHeight: 1.25,
-                  textShadow: '0 2px 4px rgba(0,0,0,0.5)'
-                }}>
-                  {module.title}
-                </h3>
-
-                <p style={{
-                  fontSize: '0.88rem',
-                  color: 'rgba(255, 255, 255, 0.92)',
-                  margin: 0,
-                  lineHeight: 1.35,
-                  fontWeight: 500
-                }}>
-                  {module.subtitle}
+              <div>
+                <h2 style={{ fontSize: '1.6rem', fontWeight: 900, color: '#713F12', margin: '0 0 0.35rem 0' }}>
+                  Basic Farmer Needs
+                </h2>
+                <p style={{ fontSize: '1rem', color: '#854D0E', margin: 0, fontWeight: 700 }}>
+                  Your everyday farming companion
                 </p>
-
-                <div style={{
-                  marginTop: '0.7rem',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '0.45rem',
-                  background: module.id === 'basic-farmer-needs' ? '#22c55e' : '#ffffff',
-                  color: module.id === 'basic-farmer-needs' ? '#04210e' : '#0d2818',
-                  padding: '0.65rem 1.2rem',
-                  borderRadius: '12px',
-                  fontSize: '0.9rem',
-                  fontWeight: 800,
-                  alignSelf: 'flex-start',
-                  boxShadow: '0 4px 16px rgba(0,0,0,0.35)'
-                }}>
-                  <span>{module.actionText}</span>
-                  <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>arrow_forward</span>
-                </div>
               </div>
             </div>
-          ))}
-        </div>
-      </main>
 
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#713F12', fontWeight: 800, fontSize: '1.1rem', zIndex: 2 }}>
+              <span>Open Dashboard</span>
+              <span className="material-symbols-outlined" style={{ fontSize: '24px' }}>arrow_forward</span>
+            </div>
+          </div>
+        </section>
+
+      </main>
     </div>
   );
 };

@@ -1,32 +1,25 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext.js';
-import { useTheme } from '../../context/ThemeContext.js';
 
 export const LoginPage: React.FC = () => {
   const { login } = useAuth();
-  const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
 
-  const [email, setEmail] = useState('');
+  const [emailOrPhone, setEmailOrPhone] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  const [imgFailed, setImgFailed] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg(null);
 
-    const trimmedEmail = email.trim();
-    if (!trimmedEmail) {
-      setErrorMsg('Please enter your email address.');
-      return;
-    }
-
-    if (!trimmedEmail.includes('@') || !trimmedEmail.includes('.')) {
-      setErrorMsg('Enter a valid email address.');
+    const input = emailOrPhone.trim();
+    if (!input) {
+      setErrorMsg('Please enter your email or phone number.');
       return;
     }
 
@@ -37,360 +30,287 @@ export const LoginPage: React.FC = () => {
 
     setIsLoading(true);
     try {
-      const res = await login(trimmedEmail, password);
+      // If phone input, append mock domain if not email format for login API compatibility
+      const loginEmail = input.includes('@') ? input : `${input.replace(/\D/g, '')}@bharatfarm.org`;
+      const res = await login(loginEmail, password);
       if (res.success) {
-        navigate('/', { replace: true });
+        navigate('/home', { replace: true });
       } else {
         const code = res.error?.code;
         if (code === 'INVALID_CREDENTIALS') {
-          setErrorMsg('Email or password is incorrect. Please check and try again.');
+          setErrorMsg('Email/phone or password is incorrect. Please check and try again.');
         } else if (code === 'VALIDATION_ERROR') {
-          setErrorMsg(res.error?.message || 'Please provide a valid email and password.');
+          setErrorMsg(res.error?.message || 'Please provide valid login credentials.');
         } else {
-          setErrorMsg(res.error?.message || 'Unable to connect right now. Check your internet connection and try again.');
+          setErrorMsg(res.error?.message || 'Unable to connect right now. Check your internet connection.');
         }
       }
     } catch {
-      setErrorMsg('Unable to connect right now. Check your internet connection and try again.');
+      setErrorMsg('Unable to connect right now. Check your internet connection.');
     } finally {
       setIsLoading(false);
     }
   };
 
-  // High quality Unsplash agricultural photo with fallback
-  const heroImageUrl = imgFailed
-    ? '/assets/bg2-1FrgOhjU.jpg'
-    : 'https://images.unsplash.com/photo-1500937386664-56d1dfef3854?auto=format&fit=crop&w=1200&q=80';
-
   return (
     <div style={{
       minHeight: '100vh',
+      background: '#F8FAFC',
+      color: '#0F172A',
+      fontFamily: 'Inter, system-ui, -apple-system, sans-serif',
       display: 'flex',
-      background: 'var(--surface-bg)',
-      color: 'var(--text-primary)',
-      position: 'relative',
-      overflow: 'hidden'
+      flexDirection: 'column',
+      justifyContent: 'space-between',
+      position: 'relative'
     }}>
-      {/* Theme Toggle Top Bar */}
-      <div style={{ position: 'absolute', top: '1.25rem', right: '1.25rem', zIndex: 30 }}>
-        <button
-          onClick={toggleTheme}
-          title={`Switch to ${theme === 'light' ? 'Dark' : 'Light'} Mode`}
-          style={{
-            background: 'var(--surface-1)',
-            border: '1px solid var(--border-default)',
-            borderRadius: '50%',
+      
+      {/* Top Header Logo */}
+      <header style={{ padding: '1.5rem 2rem', display: 'flex', justifyContent: 'center' }}>
+        <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', textDecoration: 'none' }}>
+          <div style={{
             width: '42px',
             height: '42px',
+            borderRadius: '12px',
+            background: 'linear-gradient(135deg, #16A34A 0%, #15803D 100%)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            cursor: 'pointer',
-            color: 'var(--text-primary)',
-            boxShadow: 'var(--shadow-sm)',
-            transition: 'var(--transition)'
-          }}
-        >
-          <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>
-            {theme === 'light' ? 'dark_mode' : 'light_mode'}
-          </span>
-        </button>
-      </div>
+            boxShadow: '0 4px 10px rgba(22, 163, 74, 0.25)'
+          }}>
+            <span className="material-symbols-outlined" style={{ fontSize: '26px', color: '#FFFFFF' }}>agriculture</span>
+          </div>
+          <span style={{ fontSize: '1.5rem', fontWeight: 900, color: '#1E293B', letterSpacing: '-0.02em' }}>BharatFarm</span>
+        </Link>
+      </header>
 
-      {/* Main Container Layout */}
-      <div style={{
-        display: 'flex',
-        flexDirection: 'row',
+      {/* Main Centered Login Box */}
+      <main style={{
         width: '100%',
-        minHeight: '100vh'
+        maxWidth: '420px',
+        margin: '0 auto',
+        padding: '0 1.5rem',
+        boxSizing: 'border-box'
       }}>
-        {/* Left Visual Branding Hero Panel (Desktop & Tablet) */}
         <div style={{
-          flex: '1 1 50%',
-          background: `linear-gradient(135deg, rgba(15, 35, 18, 0.90) 0%, rgba(24, 55, 28, 0.85) 100%), url("${heroImageUrl}") center/cover no-repeat`,
-          flexDirection: 'column',
-          justifyContent: 'space-between',
-          padding: '3rem',
-          position: 'relative',
-          color: '#FFFFFF'
-        }} className="auth-hero-panel">
-          {/* Fallback image handler */}
-          <img
-            src={heroImageUrl}
-            alt="BharatFarm Agricultural Landscape"
-            onError={() => setImgFailed(true)}
-            style={{ display: 'none' }}
-          />
+          background: '#FFFFFF',
+          borderRadius: '24px',
+          padding: '2.25rem 2rem',
+          boxShadow: '0 10px 30px rgba(0,0,0,0.06)',
+          border: '1px solid #E2E8F0'
+        }}>
+          
+          <div style={{ textAlign: 'center', marginBottom: '1.75rem' }}>
+            <h1 style={{ fontSize: '1.75rem', fontWeight: 900, color: '#0F172A', margin: 0 }}>
+              Welcome Back!
+            </h1>
+            <p style={{ fontSize: '0.9rem', color: '#64748B', marginTop: '0.35rem', marginBottom: 0 }}>
+              Login to continue your journey
+            </p>
+          </div>
 
-          {/* Top Brand Header */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', zIndex: 2 }}>
+          {/* Error Banner */}
+          {errorMsg && (
             <div style={{
-              width: '48px',
-              height: '48px',
-              borderRadius: '14px',
-              background: 'var(--signal-lime)',
+              background: '#FEF2F2',
+              border: '1px solid #FCA5A5',
+              color: '#991B1B',
+              padding: '0.75rem 1rem',
+              borderRadius: '12px',
+              fontSize: '0.85rem',
+              fontWeight: 600,
+              marginBottom: '1.25rem',
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'center',
-              boxShadow: '0 4px 14px rgba(163, 230, 53, 0.4)'
+              gap: '0.5rem'
             }}>
-              <span className="material-symbols-outlined" style={{ fontSize: '30px', color: 'var(--text-on-lime)' }}>
-                agriculture
-              </span>
+              <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>error</span>
+              <span>{errorMsg}</span>
             </div>
-            <div>
-              <h2 style={{ fontSize: '1.6rem', fontWeight: 800, letterSpacing: '-0.02em', lineHeight: 1, color: '#FFFFFF' }}>BharatFarm</h2>
-              <span style={{ fontSize: '0.78rem', color: '#A3E635', fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase' }}>Smart Farmer AI</span>
+          )}
+
+          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.1rem' }}>
+            
+            {/* Email or Phone Input */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+              <label style={{ fontSize: '0.85rem', fontWeight: 700, color: '#334155' }}>
+                Email or Phone
+              </label>
+              <div style={{ position: 'relative' }}>
+                <input
+                  type="text"
+                  value={emailOrPhone}
+                  onChange={(e) => setEmailOrPhone(e.target.value)}
+                  placeholder="Enter email or phone number"
+                  disabled={isLoading}
+                  required
+                  style={{
+                    width: '100%',
+                    padding: '0.75rem 1rem 0.75rem 2.6rem',
+                    borderRadius: '12px',
+                    border: '1px solid #CBD5E1',
+                    background: '#F8FAFC',
+                    fontSize: '0.95rem',
+                    color: '#0F172A',
+                    boxSizing: 'border-box',
+                    outline: 'none'
+                  }}
+                />
+                <span className="material-symbols-outlined" style={{
+                  position: 'absolute',
+                  left: '0.8rem',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  fontSize: '20px',
+                  color: '#94A3B8'
+                }}>person</span>
+              </div>
             </div>
-          </div>
 
-          {/* Center Farmer Value Proposition */}
-          <div style={{ marginTop: 'auto', marginBottom: 'auto', maxWidth: '520px', zIndex: 2, padding: '2rem 0' }}>
-            <span className="badge" style={{
-              background: 'rgba(163, 230, 53, 0.25)',
-              color: '#A3E635',
-              border: '1px solid rgba(163, 230, 53, 0.45)',
-              padding: '0.4rem 0.85rem',
-              fontSize: '0.8rem',
-              fontWeight: 700,
-              marginBottom: '1.25rem',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '0.4rem',
-              borderRadius: '20px'
-            }}>
-              <span>🌾 Built for Indian Farmers</span>
-            </span>
-            <h1 style={{ fontSize: '2.6rem', fontWeight: 800, lineHeight: 1.2, color: '#FFFFFF', marginBottom: '1.25rem', letterSpacing: '-0.02em' }}>
-              Empowering Every Field With Intelligence
-            </h1>
-            <p style={{ fontSize: '1.05rem', opacity: 0.95, lineHeight: 1.65, color: '#E2E8F0', fontWeight: 400 }}>
-              Connect with instant AI crop disease diagnostics, hyper-local weather advisory, direct government scheme applications, and community group buying power.
-            </p>
+            {/* Password Input */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+              <label style={{ fontSize: '0.85rem', fontWeight: 700, color: '#334155' }}>
+                Password
+              </label>
+              <div style={{ position: 'relative' }}>
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Enter password"
+                  disabled={isLoading}
+                  required
+                  style={{
+                    width: '100%',
+                    padding: '0.75rem 2.6rem 0.75rem 2.6rem',
+                    borderRadius: '12px',
+                    border: '1px solid #CBD5E1',
+                    background: '#F8FAFC',
+                    fontSize: '0.95rem',
+                    color: '#0F172A',
+                    boxSizing: 'border-box',
+                    outline: 'none'
+                  }}
+                />
+                <span className="material-symbols-outlined" style={{
+                  position: 'absolute',
+                  left: '0.8rem',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  fontSize: '20px',
+                  color: '#94A3B8'
+                }}>lock</span>
 
-            {/* Feature highlights bullets */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.85rem', marginTop: '2rem' }}>
-              {[
-                { icon: 'energy_savings_leaf', text: 'AI Crop Diagnostic' },
-                { icon: 'partly_cloudy_day', text: 'Live Weather Advisory' },
-                { icon: 'groups', text: 'Group Buying Savings' },
-                { icon: 'account_balance', text: 'PM-KISAN & Schemes' }
-              ].map((item, idx) => (
-                <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'rgba(255, 255, 255, 0.08)', padding: '0.5rem 0.75rem', borderRadius: '8px', backdropFilter: 'blur(8px)' }}>
-                  <span className="material-symbols-outlined" style={{ fontSize: '18px', color: '#A3E635' }}>{item.icon}</span>
-                  <span style={{ fontSize: '0.82rem', fontWeight: 600, color: '#FFFFFF' }}>{item.text}</span>
-                </div>
-              ))}
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  tabIndex={-1}
+                  style={{
+                    position: 'absolute',
+                    right: '0.8rem',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    background: 'none',
+                    border: 'none',
+                    color: '#94A3B8',
+                    cursor: 'pointer'
+                  }}
+                >
+                  <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>
+                    {showPassword ? 'visibility_off' : 'visibility'}
+                  </span>
+                </button>
+              </div>
             </div>
-          </div>
 
-          {/* Bottom Footer Attribution */}
-          <div style={{ fontSize: '0.82rem', opacity: 0.8, borderTop: '1px solid rgba(255, 255, 255, 0.15)', paddingTop: '1.25rem', zIndex: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span>© {new Date().getFullYear()} BharatFarm</span>
-            <span>Smart India Hackathon Innovation</span>
-          </div>
-        </div>
+            {/* Remember Me & Forgot Password */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.85rem' }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', cursor: 'pointer', color: '#475569', fontWeight: 600 }}>
+                <input
+                  type="checkbox"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                  style={{ borderRadius: '4px', accentColor: '#16A34A' }}
+                />
+                <span>Remember me</span>
+              </label>
 
-        {/* Right Authentication Form Container */}
-        <div style={{
-          flex: '1 1 50%',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: '2.5rem 1.5rem',
-          minHeight: '100vh',
-          width: '100%'
-        }}>
-          <div style={{
-            width: '100%',
-            maxWidth: '420px',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '1.5rem'
-          }}>
-            {/* Mobile-Only Header Brand Banner */}
-            <div className="auth-mobile-header" style={{ alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
-              <div style={{
-                width: '40px',
-                height: '40px',
+              <a href="#forgot" onClick={(e) => { e.preventDefault(); alert('Password reset link sent to your registered email/phone.'); }} style={{ color: '#16A34A', fontWeight: 700, textDecoration: 'none' }}>
+                Forgot Password?
+              </a>
+            </div>
+
+            {/* Submit Button */}
+            <button
+              type="submit"
+              disabled={isLoading}
+              style={{
+                width: '100%',
+                padding: '0.85rem',
                 borderRadius: '12px',
-                background: 'var(--signal-lime)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-              }}>
-                <span className="material-symbols-outlined" style={{ fontSize: '24px', color: 'var(--text-on-lime)' }}>
-                  agriculture
-                </span>
-              </div>
-              <div>
-                <h2 style={{ fontSize: '1.35rem', fontWeight: 800, color: 'var(--text-primary)', lineHeight: 1 }}>BharatFarm</h2>
-                <span style={{ fontSize: '0.72rem', color: 'var(--emerald-primary)', fontWeight: 700 }}>Smart Farmer AI</span>
-              </div>
-            </div>
+                background: '#16A34A',
+                color: '#FFFFFF',
+                border: 'none',
+                fontWeight: 800,
+                fontSize: '1rem',
+                cursor: isLoading ? 'not-allowed' : 'pointer',
+                boxShadow: '0 4px 14px rgba(22, 163, 74, 0.3)',
+                marginTop: '0.5rem'
+              }}
+            >
+              {isLoading ? 'Logging in...' : 'Login'}
+            </button>
+          </form>
 
-            {/* Title Block */}
-            <div>
-              <h2 style={{ fontSize: '1.75rem', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>
-                Farmer Sign In
-              </h2>
-              <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginTop: '0.35rem', lineHeight: 1.4 }}>
-                Enter your credentials to access crop diagnostics, weather alerts, and group buying discounts.
-              </p>
-            </div>
-
-            {/* Error Banner */}
-            {errorMsg && (
-              <div className="alert-danger" style={{
-                padding: '0.85rem 1rem',
-                borderRadius: 'var(--radius-sm)',
-                display: 'flex',
-                alignItems: 'flex-start',
-                gap: '0.6rem',
-                fontSize: '0.85rem'
-              }}>
-                <span className="material-symbols-outlined" style={{ fontSize: '18px', flexShrink: 0, marginTop: '2px' }}>error</span>
-                <span>{errorMsg}</span>
-              </div>
-            )}
-
-            {/* Login Form */}
-            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.15rem' }}>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-                <label style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)' }}>
-                  Email Address
-                </label>
-                <div style={{ position: 'relative' }}>
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="farmer@bharatfarm.org"
-                    className="input-field"
-                    disabled={isLoading}
-                    required
-                    style={{
-                      width: '100%',
-                      padding: '0.75rem 1rem 0.75rem 2.5rem',
-                      fontSize: '0.95rem',
-                      borderRadius: 'var(--radius-sm)'
-                    }}
-                  />
-                  <span className="material-symbols-outlined" style={{
-                    position: 'absolute',
-                    left: '0.75rem',
-                    top: '50%',
-                    transform: 'translateY(-50%)',
-                    fontSize: '18px',
-                    color: 'var(--text-muted)'
-                  }}>mail</span>
-                </div>
-              </div>
-
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-                <label style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)' }}>
-                  Password
-                </label>
-                <div style={{ position: 'relative' }}>
-                  <input
-                    type={showPassword ? 'text' : 'password'}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="••••••••"
-                    className="input-field"
-                    disabled={isLoading}
-                    required
-                    style={{
-                      width: '100%',
-                      padding: '0.75rem 2.5rem 0.75rem 2.5rem',
-                      fontSize: '0.95rem',
-                      borderRadius: 'var(--radius-sm)'
-                    }}
-                  />
-                  <span className="material-symbols-outlined" style={{
-                    position: 'absolute',
-                    left: '0.75rem',
-                    top: '50%',
-                    transform: 'translateY(-50%)',
-                    fontSize: '18px',
-                    color: 'var(--text-muted)'
-                  }}>lock</span>
-
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    tabIndex={-1}
-                    style={{
-                      position: 'absolute',
-                      right: '0.75rem',
-                      top: '50%',
-                      transform: 'translateY(-50%)',
-                      background: 'none',
-                      border: 'none',
-                      color: 'var(--text-muted)',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center'
-                    }}
-                  >
-                    <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
-                      {showPassword ? 'visibility_off' : 'visibility'}
-                    </span>
-                  </button>
-                </div>
-              </div>
-
-              {/* Submit Button */}
-              <button
-                type="submit"
-                className="btn-primary"
-                disabled={isLoading}
-                style={{
-                  width: '100%',
-                  padding: '0.85rem',
-                  fontSize: '0.95rem',
-                  fontWeight: 700,
-                  marginTop: '0.5rem',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '0.5rem',
-                  borderRadius: 'var(--radius-sm)',
-                  cursor: isLoading ? 'not-allowed' : 'pointer',
-                  opacity: isLoading ? 0.7 : 1
-                }}
-              >
-                {isLoading ? (
-                  <>
-                    <span className="material-symbols-outlined spin" style={{ fontSize: '20px' }}>sync</span>
-                    <span>Signing in...</span>
-                  </>
-                ) : (
-                  <>
-                    <span>Sign In to BharatFarm</span>
-                    <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>arrow_forward</span>
-                  </>
-                )}
-              </button>
-            </form>
-
-            {/* Footer Registration Redirect */}
-            <div style={{
-              textAlign: 'center',
-              paddingTop: '1.25rem',
-              borderTop: '1px solid var(--border-default)',
-              fontSize: '0.9rem',
-              color: 'var(--text-muted)'
-            }}>
-              New to BharatFarm?{' '}
-              <Link to="/register" style={{ color: 'var(--emerald-primary)', fontWeight: 700, textDecoration: 'none' }}>
-                Register your farm here
-              </Link>
-            </div>
+          {/* Divider */}
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '1rem',
+            margin: '1.5rem 0',
+            color: '#94A3B8',
+            fontSize: '0.8rem',
+            fontWeight: 700
+          }}>
+            <div style={{ flex: 1, height: '1px', background: '#E2E8F0' }} />
+            <span>OR</span>
+            <div style={{ flex: 1, height: '1px', background: '#E2E8F0' }} />
           </div>
+
+          {/* Create New Account Button */}
+          <Link
+            to="/register"
+            style={{
+              display: 'block',
+              width: '100%',
+              padding: '0.8rem',
+              borderRadius: '12px',
+              background: '#FFFFFF',
+              color: '#15803D',
+              border: '1.5px solid #16A34A',
+              fontWeight: 800,
+              fontSize: '0.95rem',
+              textAlign: 'center',
+              textDecoration: 'none',
+              boxSizing: 'border-box'
+            }}
+          >
+            Create New Account
+          </Link>
         </div>
-      </div>
+      </main>
+
+      {/* Soft Agriculture Field Illustration Footer */}
+      <footer style={{
+        marginTop: '3rem',
+        padding: '2rem 1rem 1rem',
+        background: 'linear-gradient(180deg, rgba(248,250,252,0) 0%, #DCFCE7 100%)',
+        textAlign: 'center',
+        borderTop: '1px solid #E2E8F0'
+      }}>
+        <div style={{ fontSize: '0.85rem', color: '#16A34A', fontWeight: 800, letterSpacing: '0.05em' }}>
+          Grow • Learn • Prosper
+        </div>
+      </footer>
     </div>
   );
 };

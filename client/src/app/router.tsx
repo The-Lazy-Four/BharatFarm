@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext.js';
 import { AppLayout } from '../components/layout/AppLayout.js';
 import { LoginPage } from './pages/LoginPage.js';
 import { RegisterPage } from './pages/RegisterPage.js';
+import { LandingPage } from './pages/LandingPage.js';
 import { ModuleHomePage } from './pages/ModuleHomePage.js';
 
 // SIH Launcher Dashboard & Feature Workspaces
@@ -89,7 +90,7 @@ const PublicRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   }
 
   if (isAuthenticated) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/home" replace />;
   }
 
   return <>{children}</>;
@@ -98,7 +99,13 @@ const PublicRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 export const AppRouter: React.FC = () => {
   return (
     <Routes>
-      {/* Public Auth Routes */}
+      {/* 1. Public Landing Page */}
+      <Route
+        path="/"
+        element={<LandingPage />}
+      />
+
+      {/* 2. Public Auth Routes */}
       <Route
         path="/login"
         element={
@@ -116,9 +123,9 @@ export const AppRouter: React.FC = () => {
         }
       />
 
-      {/* STANDALONE POST-LOGIN LEVEL 1 MODULE HOMEPAGE */}
+      {/* 3. Main Dashboard After Login */}
       <Route
-        path="/"
+        path="/home"
         element={
           <ProtectedRoute>
             <ModuleHomePage />
@@ -126,26 +133,11 @@ export const AppRouter: React.FC = () => {
         }
       />
 
-      <Route
-        path="/module-home"
-        element={
-          <ProtectedRoute>
-            <ModuleHomePage />
-          </ProtectedRoute>
-        }
-      />
+      {/* Alias /sih to /home */}
+      <Route path="/sih" element={<Navigate to="/home" replace />} />
+      <Route path="/module-home" element={<Navigate to="/home" replace />} />
 
-      {/* STANDALONE LEVEL 2 SIH INNOVATION LAUNCHER DASHBOARD */}
-      <Route
-        path="/sih"
-        element={
-          <ProtectedRoute>
-            <SihDashboardPage />
-          </ProtectedRoute>
-        }
-      />
-
-      {/* LEVEL 3 INDIVIDUAL SIH FEATURE WORKSPACES */}
+      {/* 4. SIH Innovation Pages (5 Separate Pages) */}
       <Route
         path="/sih/climate-risk"
         element={
@@ -194,14 +186,14 @@ export const AppRouter: React.FC = () => {
       <Route path="/innovations/smart-mandi" element={<Navigate to="/sih/smart-mandi" replace />} />
       <Route path="/innovations/sahayak" element={<Navigate to="/sih/sahayak" replace />} />
 
-      {/* BASIC FARMER NEEDS PLATFORM (Wrapped in original AppLayout) */}
+      {/* 5. Basic Farmer Needs Section (Detached Platform wrapped in AppLayout) */}
       <Route
         path="/*"
         element={
           <ProtectedRoute>
             <AppLayout>
               <Routes>
-                {/* Complete Original BharatFarm Dashboard (Basic Farmer Needs) */}
+                {/* Master Dashboard */}
                 <Route path="/dashboard" element={<MasterDashboardPage />} />
 
                 {/* Platform Utilities */}
@@ -218,11 +210,12 @@ export const AppRouter: React.FC = () => {
                 <Route path="/records" element={<FarmRecordsPage />} />
                 <Route path="/calculator" element={<FarmCalculatorPage />} />
                 <Route path="/crop-roadmap" element={<CropRoadmapPage />} />
+                <Route path="/roadmap" element={<CropRoadmapPage />} />
                 <Route path="/loan-eligibility" element={<LoanEligibilityPage />} />
                 <Route path="/orders" element={<OrdersDeliveryPage />} />
                 <Route path="/profile" element={<ProfileSettingsPage />} />
                 
-                <Route path="*" element={<Navigate to="/" replace />} />
+                <Route path="*" element={<Navigate to="/home" replace />} />
               </Routes>
             </AppLayout>
           </ProtectedRoute>
