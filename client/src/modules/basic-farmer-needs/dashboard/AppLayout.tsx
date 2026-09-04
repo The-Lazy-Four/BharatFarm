@@ -1,7 +1,7 @@
 import React from 'react';
 import { Sidebar } from './Sidebar';
 import { Header } from './Header';
-import { MobileNavigation } from './MobileNavigation';
+
 import { FloatingKrishiBot, SpeakToAiControl } from '../krishibot/index';
 
 /**
@@ -23,7 +23,7 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children })
           {children}
         </main>
       </div>
-      <MobileNavigation />
+
       <SpeakToAiControl />
       <FloatingKrishiBot />
     </div>

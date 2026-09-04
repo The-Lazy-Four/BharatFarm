@@ -1,7 +1,7 @@
 import React from 'react';
 import { Sidebar } from './Sidebar.js';
 import { Header } from './Header.js';
-import { MobileNavigation } from './MobileNavigation.js';
+
 import { FloatingKrishiBot, SpeakToAiControl } from '../../modules/basic-farmer-needs/krishibot/index.js';
 
 /**
@@ -23,7 +23,7 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children })
           {children}
         </main>
       </div>
-      <MobileNavigation />
+
       <SpeakToAiControl />
       <FloatingKrishiBot />
     </div>
