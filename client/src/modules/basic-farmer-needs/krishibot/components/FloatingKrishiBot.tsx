@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useAuth } from '@core/context/AuthContext';
-import { useLanguage } from '@core/context/LanguageContext';
+import { useAuth } from '../../../../context/AuthContext.js';
+import { useLanguage } from '../../../../context/LanguageContext.js';
 import { useKrishiBot } from '../hooks/useKrishiBot';
 import { ChatWindow } from './ChatWindow';
 import { SuggestedActions } from './SuggestedActions';

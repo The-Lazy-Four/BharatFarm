@@ -3,7 +3,7 @@ import { ChatMessage } from '../types/krishiBot.types';
 import { INITIAL_MOCK_MESSAGES } from '../mock/krishiBot.mock';
 import { KrishiBotApi } from '../services/krishiBotApi';
 import { speakText } from '../utils/krishiBot.utils';
-import { useAuth } from '@core/context/AuthContext';
+import { useAuth } from '../../../../context/AuthContext.js';
 
 const IS_DEVELOPMENT = typeof window !== 'undefined' && ['localhost', '127.0.0.1'].includes(window.location.hostname);
 
