@@ -14,8 +14,6 @@ export { ProfileSettingsPage } from './profile/ProfileSettingsPage';
 export { CropRoadmapPage } from './roadmap/CropRoadmapPage';
 
 // Feature sub-module public APIs (re-exported for router convenience)
-export { WeatherPage } from './weather/index';
 export { ScannerPage } from './scanner/index';
 export { MarketplacePage, CreateListingPage, ProductPage } from './marketplace/index';
-export { GroupBuyingPage, GroupDetailsPage } from './group-buying/index';
 export { SchemesPage, SchemeDetailsPage } from './schemes/index';

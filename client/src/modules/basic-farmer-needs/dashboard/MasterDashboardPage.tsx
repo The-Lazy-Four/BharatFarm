@@ -13,8 +13,7 @@ import { SchemesApi } from '../schemes/services/schemesApi';
 import { Scheme } from '../schemes/types/schemes.types';
 import { MarketplaceApi } from '../marketplace/services/marketplaceApi';
 import { ProductListing } from '../marketplace/types/marketplace.types';
-import { GroupBuyingApi } from '../group-buying/services/groupBuyingApi';
-import { GroupBuyPool } from '../group-buying/types/groupBuying.types';
+
 import { FEATURE_IMAGES } from '../../../constants/featureImages';
 
 export const MasterDashboardPage: React.FC = () => {
@@ -39,8 +38,7 @@ export const MasterDashboardPage: React.FC = () => {
   const [products, setProducts] = useState<ProductListing[]>([]);
   const [isProductsLoading, setIsProductsLoading] = useState<boolean>(true);
 
-  const [pools, setPools] = useState<GroupBuyPool[]>([]);
-  const [isPoolsLoading, setIsPoolsLoading] = useState<boolean>(true);
+
 
   const [aiAdvice, setAiAdvice] = useState<string>('Analyzing local field telemetry and weather conditions...');
   const [isAiGenerated, setIsAiGenerated] = useState<boolean>(false);
@@ -98,17 +96,6 @@ export const MasterDashboardPage: React.FC = () => {
       badge: 'Direct Prices'
     },
     {
-      id: 'weather',
-      title: 'Weather Radar',
-      category: 'LIVE TELEMETRY',
-      description: 'Precipitation & wind forecast',
-      image: FEATURE_IMAGES.weather.url,
-      fallbackImage: FEATURE_IMAGES.weather.fallbackUrl,
-      alt: FEATURE_IMAGES.weather.alt,
-      path: '/weather',
-      badge: `${weather.temperatureCelsius}°C ${weather.condition}`
-    },
-    {
       id: 'roadmap',
       title: 'Crop Roadmap',
       category: 'FIELD TRACKER',
@@ -118,17 +105,6 @@ export const MasterDashboardPage: React.FC = () => {
       alt: FEATURE_IMAGES.roadmap.alt,
       path: '/roadmap',
       badge: roadmap ? `${roadmap.crop} Stage` : 'Yield Plan'
-    },
-    {
-      id: 'groupbuying',
-      title: 'Group Buying',
-      category: 'COMMUNITY POOLS',
-      description: 'Save up to 30% on bulk inputs',
-      image: FEATURE_IMAGES.groupbuying.url,
-      fallbackImage: FEATURE_IMAGES.groupbuying.fallbackUrl,
-      alt: FEATURE_IMAGES.groupbuying.alt,
-      path: '/groupbuying',
-      badge: pools.length > 0 ? `${pools.length} Pools` : 'Save Money'
     }
   ];
 
@@ -166,11 +142,7 @@ export const MasterDashboardPage: React.FC = () => {
       .catch(() => setProducts([]))
       .finally(() => setIsProductsLoading(false));
 
-    // Fetch Group Buying Pools (deterministic)
-    GroupBuyingApi.getPools({ status: 'ACTIVE' })
-      .then((res: any) => setPools(res.slice(0, 2)))
-      .catch(() => setPools([]))
-      .finally(() => setIsPoolsLoading(false));
+
   }, [farmerState]);
 
   // 2. Fetch AI Advisory (controlled, non-blocking)
@@ -209,7 +181,7 @@ export const MasterDashboardPage: React.FC = () => {
   };
 
   // Determine Daily Action Priorities (Deterministic based on real data)
-  const priorities: { id: string; icon: string; text: string; actionText: string; actionUrl: string; tag: 'weather' | 'roadmap' | 'group' | 'scheme' | 'scan' }[] = [];
+  const priorities: { id: string; icon: string; text: string; actionText: string; actionUrl: string; tag: 'weather' | 'roadmap' | 'scheme' | 'scan' }[] = [];
 
   if (weather.rainfallProbability > 40 || (weather.daily?.[0]?.precipitationSum && weather.daily[0].precipitationSum > 2)) {
     priorities.push({
@@ -239,17 +211,7 @@ export const MasterDashboardPage: React.FC = () => {
     }
   }
 
-  if (pools.length > 0) {
-    const pool = pools[0];
-    priorities.push({
-      id: 'p-group',
-      icon: 'groups',
-      text: `Group Buy Active: ${pool.itemTitle} (${Math.round((pool.currentQuantity / pool.targetQuantity) * 100)}% filled).`,
-      actionText: 'Join Pool',
-      actionUrl: '/groupbuying',
-      tag: 'group'
-    });
-  }
+
 
   if (schemes.length > 0) {
     priorities.push({
@@ -736,40 +698,8 @@ export const MasterDashboardPage: React.FC = () => {
         </Card>
       </div>
 
-      {/* 6. GROUP BUYING & SHAYAK QUICK ASSISTANT */}
+      {/* 6. SHAYAK QUICK ASSISTANT */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1rem' }}>
-        
-        {/* GROUP BUYING POOLS */}
-        <Card
-          title="🤝 Community Group Buying Deals"
-          subtitle="Save up to 30% by pooling orders with neighboring farmers"
-          action={
-            <Link to="/groupbuying" style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--primary)' }}>
-              Explore Group Deals →
-            </Link>
-          }
-        >
-          {isPoolsLoading ? (
-            <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>Loading active group pools...</p>
-          ) : pools.length > 0 ? (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem', marginTop: '0.25rem' }}>
-              {pools.map(pool => (
-                <div key={pool.id} style={{ background: 'var(--bg-card-hover)', padding: '0.6rem', borderRadius: '6px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <h4 style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-main)', margin: 0 }}>{pool.itemTitle}</h4>
-                    <Badge variant="primary">{Math.round((pool.currentQuantity / pool.targetQuantity) * 100)}% Filled</Badge>
-                  </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.3rem' }}>
-                    <span>Target: {pool.targetQuantity} units</span>
-                    <span style={{ color: 'var(--primary)', fontWeight: 700 }}>Group Price: ₹{pool.discountedPricePerUnit}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>No active group buy pools in your area.</p>
-          )}
-        </Card>
 
         {/* SHAYAK QUICK ASSISTANT PROMPTS */}
         <Card

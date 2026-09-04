@@ -17,13 +17,10 @@ import {
   SahayakPage
 } from '../modules/sih/index.js';
 
-// Existing Platform Pages (Basic Farmer Needs)
 import {
   MasterDashboardPage,
   ScannerPage,
   MarketplacePage, CreateListingPage, ProductPage,
-  WeatherPage,
-  GroupBuyingPage, GroupDetailsPage,
   SchemesPage, SchemeDetailsPage,
   FarmRecordsPage,
   FarmCalculatorPage,
@@ -221,29 +218,10 @@ export const AppRouter: React.FC = () => {
           </ProtectedRoute>
         }
       />
-      <Route
-        path="/weather"
-        element={
-          <ProtectedRoute>
-            <AppLayout>
-              <WeatherPage />
-            </AppLayout>
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/groupbuying/*"
-        element={
-          <ProtectedRoute>
-            <AppLayout>
-              <Routes>
-                <Route path="" element={<GroupBuyingPage />} />
-                <Route path=":id" element={<GroupDetailsPage />} />
-              </Routes>
-            </AppLayout>
-          </ProtectedRoute>
-        }
-      />
+      {/* Redirect old /weather and /groupbuying to SIH modules */}
+      <Route path="/weather" element={<Navigate to="/sih/climate-risk" replace />} />
+      <Route path="/groupbuying" element={<Navigate to="/sih/aggregation" replace />} />
+      <Route path="/groupbuying/:id" element={<Navigate to="/sih/aggregation" replace />} />
       <Route
         path="/schemes/*"
         element={

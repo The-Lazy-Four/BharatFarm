@@ -6,6 +6,8 @@ import { Button } from '@core/ui/Button';
 import { useAuth } from '@core/context/AuthContext';
 import { useLanguage } from '@core/context/LanguageContext';
 
+import { ProfileService } from '../../../services/profile.service';
+
 export const ProfileSettingsPage: React.FC = () => {
   const { user, updateProfile: updateAuthUser, profileImage, setProfileImage, getUserInitials, logout } = useAuth();
   const { language, setLanguage } = useLanguage();
@@ -27,31 +29,29 @@ export const ProfileSettingsPage: React.FC = () => {
   // Load server-persisted profile on mount
   React.useEffect(() => {
     let isMounted = true;
-    import('../../../core/api/profile.service.js').then(({ ProfileService }) => {
-      ProfileService.getProfile().then(res => {
-        if (isMounted && res.success && res.data) {
-          const p = res.data;
-          setName(p.fullName);
-          if (p.phoneNumber) setPhone(p.phoneNumber);
-          if (p.state) setState(p.state);
-          if (p.district) setDistrict(p.district);
-          if (p.landSizeAcres != null) setLandAcres(String(p.landSizeAcres));
-          if (p.primaryCrops) setPrimaryCropsStr(p.primaryCrops.join(', '));
-          if (p.avatarUrl) setProfileImage(p.avatarUrl);
-          
-          updateAuthUser({
-            fullName: p.fullName,
-            phone: p.phoneNumber,
-            state: p.state,
-            district: p.district,
-            landSizeAcres: p.landSizeAcres,
-            primaryCrops: p.primaryCrops,
-            preferredLanguage: p.preferredLanguage,
-            avatarUrl: p.avatarUrl
-          });
-        }
-      }).catch(() => {});
-    });
+    ProfileService.getProfile().then(res => {
+      if (isMounted && res.success && res.data) {
+        const p = res.data;
+        setName(p.fullName);
+        if (p.phoneNumber) setPhone(p.phoneNumber);
+        if (p.state) setState(p.state);
+        if (p.district) setDistrict(p.district);
+        if (p.landSizeAcres != null) setLandAcres(String(p.landSizeAcres));
+        if (p.primaryCrops) setPrimaryCropsStr(p.primaryCrops.join(', '));
+        if (p.avatarUrl) setProfileImage(p.avatarUrl);
+        
+        updateAuthUser({
+          fullName: p.fullName,
+          phone: p.phoneNumber,
+          state: p.state,
+          district: p.district,
+          landSizeAcres: p.landSizeAcres,
+          primaryCrops: p.primaryCrops,
+          preferredLanguage: p.preferredLanguage,
+          avatarUrl: p.avatarUrl
+        });
+      }
+    }).catch(() => {});
     return () => { isMounted = false; };
   }, []);
 
@@ -75,9 +75,7 @@ export const ProfileSettingsPage: React.FC = () => {
       if (typeof reader.result === 'string') {
         const dataUrl = reader.result;
         setProfileImage(dataUrl);
-        import('../../../core/api/profile.service.js').then(({ ProfileService }) => {
-          ProfileService.updateProfile({ avatarUrl: dataUrl }).catch(() => {});
-        });
+        ProfileService.updateProfile({ avatarUrl: dataUrl }).catch(() => {});
       }
     };
     reader.readAsDataURL(file);
@@ -86,9 +84,7 @@ export const ProfileSettingsPage: React.FC = () => {
   const handleRemoveImage = () => {
     setProfileImage(null);
     if (fileInputRef.current) fileInputRef.current.value = '';
-    import('../../../core/api/profile.service.js').then(({ ProfileService }) => {
-      ProfileService.updateProfile({ avatarUrl: '' }).catch(() => {});
-    });
+    ProfileService.updateProfile({ avatarUrl: '' }).catch(() => {});
   };
 
   const handleSave = async (e: React.FormEvent) => {
@@ -110,7 +106,6 @@ export const ProfileSettingsPage: React.FC = () => {
         .map(c => c.trim())
         .filter(Boolean);
 
-      const { ProfileService } = await import('../../../core/api/profile.service.js');
       const res = await ProfileService.updateProfile({
         fullName: name,
         phone,
