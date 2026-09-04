@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext.js';
+import { useIsMobile } from '../../hooks/useIsMobile';
+import { MobileAuthPage } from '../../components/mobile/MobileAuthPage';
 
 const INDIAN_STATES = [
   'Punjab', 'Haryana', 'Uttar Pradesh', 'Bihar', 'West Bengal',
@@ -9,8 +11,14 @@ const INDIAN_STATES = [
 ];
 
 export const RegisterPage: React.FC = () => {
+  const isMobile = useIsMobile();
   const { register } = useAuth();
   const navigate = useNavigate();
+
+  if (isMobile) {
+    return <MobileAuthPage mode="register" />;
+  }
+
 
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');

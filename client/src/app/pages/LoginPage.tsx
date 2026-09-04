@@ -1,10 +1,18 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext.js';
+import { useIsMobile } from '../../hooks/useIsMobile';
+import { MobileAuthPage } from '../../components/mobile/MobileAuthPage';
 
 export const LoginPage: React.FC = () => {
+  const isMobile = useIsMobile();
   const { login } = useAuth();
   const navigate = useNavigate();
+
+  if (isMobile) {
+    return <MobileAuthPage mode="login" />;
+  }
+
 
   const [emailOrPhone, setEmailOrPhone] = useState('');
   const [password, setPassword] = useState('');

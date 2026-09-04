@@ -1,8 +1,16 @@
 import React from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { useIsMobile } from '../../hooks/useIsMobile';
+import { MobileLandingPage } from '../../components/mobile/MobileLandingPage';
 
 export const LandingPage: React.FC = () => {
+  const isMobile = useIsMobile();
   const navigate = useNavigate();
+
+  if (isMobile) {
+    return <MobileLandingPage />;
+  }
+
 
   return (
     <div style={{

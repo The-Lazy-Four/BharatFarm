@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext.js';
+import { useIsMobile } from '../../hooks/useIsMobile';
+import { MobileModuleHomePage } from '../../components/mobile/MobileModuleHomePage';
 
 interface SihCard {
   id: string;
@@ -11,9 +13,15 @@ interface SihCard {
 }
 
 export const ModuleHomePage: React.FC = () => {
+  const isMobile = useIsMobile();
   const navigate = useNavigate();
   const { user, logout } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
+
+  if (isMobile) {
+    return <MobileModuleHomePage />;
+  }
+
 
   const sihInnovations: SihCard[] = [
     {

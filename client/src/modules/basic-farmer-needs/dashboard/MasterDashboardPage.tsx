@@ -15,12 +15,19 @@ import { MarketplaceApi } from '../marketplace/services/marketplaceApi';
 import { ProductListing } from '../marketplace/types/marketplace.types';
 
 import { FEATURE_IMAGES } from '../../../constants/featureImages';
+import { useIsMobile } from '../../../hooks/useIsMobile';
+import { MobileBasicFarmerHome } from '../../../components/mobile/MobileBasicFarmerHome';
 
 export const MasterDashboardPage: React.FC = () => {
+  const isMobile = useIsMobile();
   const { user } = useAuth();
   const { weather, visual, isLoading: isWeatherLoading } = useWeatherContext();
   const { dataSaverMode } = useDataSaver();
   const navigate = useNavigate();
+
+  if (isMobile) {
+    return <MobileBasicFarmerHome />;
+  }
 
   const isOffline = weather.source === 'OFFLINE' || Boolean(typeof navigator !== 'undefined' && !navigator.onLine);
   const isCached = weather.source === 'CACHED' || weather.source === 'OFFLINE';

@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../context/AuthContext.js';
+import { useIsMobile } from '../../../hooks/useIsMobile';
+import { MobileSihLayout } from '../../../components/mobile/MobileSihLayout';
 
 interface SihShellProps {
   children: React.ReactNode;
@@ -12,11 +14,18 @@ interface SihShellProps {
 
 export const SihLayout: React.FC<SihShellProps> = ({
   children,
-  activeModuleId
+  activeModuleId,
+  moduleTitle
 }) => {
+  const isMobile = useIsMobile();
   const navigate = useNavigate();
   const { user, logout } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  if (isMobile) {
+    return <MobileSihLayout title={moduleTitle}>{children}</MobileSihLayout>;
+  }
+
 
   const sihNavItems = [
     { id: 'climate-risk', label: 'Climate Risk', icon: 'partly_cloudy_day', path: '/sih/climate-risk' },
