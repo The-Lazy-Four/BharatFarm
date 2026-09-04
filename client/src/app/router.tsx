@@ -188,39 +188,147 @@ export const AppRouter: React.FC = () => {
 
       {/* 5. Basic Farmer Needs Section (Detached Platform wrapped in AppLayout) */}
       <Route
-        path="/*"
+        path="/dashboard"
+        element={
+          <ProtectedRoute>
+            <AppLayout>
+              <MasterDashboardPage />
+            </AppLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/scanner"
+        element={
+          <ProtectedRoute>
+            <AppLayout>
+              <ScannerPage />
+            </AppLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/marketplace/*"
         element={
           <ProtectedRoute>
             <AppLayout>
               <Routes>
-                {/* Master Dashboard */}
-                <Route path="/dashboard" element={<MasterDashboardPage />} />
-
-                {/* Platform Utilities */}
-                <Route path="/sahayak" element={<SahayakPage />} />
-                <Route path="/scanner" element={<ScannerPage />} />
-                <Route path="/marketplace" element={<MarketplacePage />} />
-                <Route path="/marketplace/new" element={<CreateListingPage />} />
-                <Route path="/marketplace/:id" element={<ProductPage />} />
-                <Route path="/weather" element={<WeatherPage />} />
-                <Route path="/groupbuying" element={<GroupBuyingPage />} />
-                <Route path="/groupbuying/:id" element={<GroupDetailsPage />} />
-                <Route path="/schemes" element={<SchemesPage />} />
-                <Route path="/schemes/:id" element={<SchemeDetailsPage />} />
-                <Route path="/records" element={<FarmRecordsPage />} />
-                <Route path="/calculator" element={<FarmCalculatorPage />} />
-                <Route path="/crop-roadmap" element={<CropRoadmapPage />} />
-                <Route path="/roadmap" element={<CropRoadmapPage />} />
-                <Route path="/loan-eligibility" element={<LoanEligibilityPage />} />
-                <Route path="/orders" element={<OrdersDeliveryPage />} />
-                <Route path="/profile" element={<ProfileSettingsPage />} />
-                
-                <Route path="*" element={<Navigate to="/home" replace />} />
+                <Route path="" element={<MarketplacePage />} />
+                <Route path="new" element={<CreateListingPage />} />
+                <Route path=":id" element={<ProductPage />} />
               </Routes>
             </AppLayout>
           </ProtectedRoute>
         }
       />
+      <Route
+        path="/weather"
+        element={
+          <ProtectedRoute>
+            <AppLayout>
+              <WeatherPage />
+            </AppLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/groupbuying/*"
+        element={
+          <ProtectedRoute>
+            <AppLayout>
+              <Routes>
+                <Route path="" element={<GroupBuyingPage />} />
+                <Route path=":id" element={<GroupDetailsPage />} />
+              </Routes>
+            </AppLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/schemes/*"
+        element={
+          <ProtectedRoute>
+            <AppLayout>
+              <Routes>
+                <Route path="" element={<SchemesPage />} />
+                <Route path=":id" element={<SchemeDetailsPage />} />
+              </Routes>
+            </AppLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/records"
+        element={
+          <ProtectedRoute>
+            <AppLayout>
+              <FarmRecordsPage />
+            </AppLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/calculator"
+        element={
+          <ProtectedRoute>
+            <AppLayout>
+              <FarmCalculatorPage />
+            </AppLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/crop-roadmap"
+        element={
+          <ProtectedRoute>
+            <AppLayout>
+              <CropRoadmapPage />
+            </AppLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/roadmap"
+        element={
+          <ProtectedRoute>
+            <AppLayout>
+              <CropRoadmapPage />
+            </AppLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/loan-eligibility"
+        element={
+          <ProtectedRoute>
+            <AppLayout>
+              <LoanEligibilityPage />
+            </AppLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/orders"
+        element={
+          <ProtectedRoute>
+            <AppLayout>
+              <OrdersDeliveryPage />
+            </AppLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/profile"
+        element={
+          <ProtectedRoute>
+            <AppLayout>
+              <ProfileSettingsPage />
+            </AppLayout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route path="*" element={<Navigate to="/home" replace />} />
     </Routes>
   );
 };
