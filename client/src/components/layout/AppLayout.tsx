@@ -2,7 +2,7 @@ import React from 'react';
 import { Sidebar } from './Sidebar.js';
 import { Header } from './Header.js';
 import { MobileNavigation } from './MobileNavigation.js';
-import { FloatingKrishiBot, SpeakToAiControl } from '../../features/krishibot/index.js';
+import { FloatingKrishiBot, SpeakToAiControl } from '../../modules/basic-farmer-needs/krishibot/index.js';
 
 /**
  * AppLayout — Unified BharatFarm Layout.

@@ -1,9 +1,9 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { WeatherForecast } from '../features/weather/types/weather.types.js';
-import { WeatherApi } from '../features/weather/services/weatherApi.js';
-import { MOCK_WEATHER } from '../features/weather/mock/weather.mock.js';
-import { getWeatherVisual, WeatherVisualConfig } from '../features/weather/utils/weatherVisuals.js';
-import { calculateFarmRecommendations, generateAgriAdvisoryText, FarmActivityStatus } from '../features/weather/utils/weatherRules.js';
+import { WeatherForecast } from '../modules/basic-farmer-needs/weather/types/weather.types.js';
+import { WeatherApi } from '../modules/basic-farmer-needs/weather/services/weatherApi.js';
+import { MOCK_WEATHER } from '../modules/basic-farmer-needs/weather/mock/weather.mock.js';
+import { getWeatherVisual, WeatherVisualConfig } from '../modules/basic-farmer-needs/weather/utils/weatherVisuals.js';
+import { calculateFarmRecommendations, generateAgriAdvisoryText, FarmActivityStatus } from '../modules/basic-farmer-needs/weather/utils/weatherRules.js';
 
 export interface WeatherContextType {
   weather: WeatherForecast;

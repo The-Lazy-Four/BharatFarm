@@ -17,18 +17,20 @@ import {
 } from '../modules/sih/index.js';
 
 // Existing Platform Pages (Basic Farmer Needs)
-import { MasterDashboardPage } from '../modules/basic-farmer-needs/dashboard/MasterDashboardPage.js';
-import { ScannerPage } from '../modules/basic-farmer-needs/scanner/index.js';
-import { MarketplacePage, CreateListingPage, ProductPage } from '../modules/basic-farmer-needs/marketplace/index.js';
-import { WeatherPage } from '../modules/basic-farmer-needs/weather/index.js';
-import { GroupBuyingPage, GroupDetailsPage } from '../features/groupbuying/index.js';
-import { SchemesPage, SchemeDetailsPage } from '../modules/basic-farmer-needs/schemes/index.js';
-import { FarmRecordsPage } from './pages/FarmRecordsPage.js';
-import { FarmCalculatorPage } from './pages/FarmCalculatorPage.js';
-import { OrdersDeliveryPage } from './pages/OrdersDeliveryPage.js';
-import { ProfileSettingsPage } from './pages/ProfileSettingsPage.js';
-import { LoanEligibilityPage } from './pages/LoanEligibilityPage.js';
-import { CropRoadmapPage } from '../modules/basic-farmer-needs/roadmap/CropRoadmapPage.js';
+import {
+  MasterDashboardPage,
+  ScannerPage,
+  MarketplacePage, CreateListingPage, ProductPage,
+  WeatherPage,
+  GroupBuyingPage, GroupDetailsPage,
+  SchemesPage, SchemeDetailsPage,
+  FarmRecordsPage,
+  FarmCalculatorPage,
+  OrdersDeliveryPage,
+  ProfileSettingsPage,
+  LoanEligibilityPage,
+  CropRoadmapPage
+} from '../modules/basic-farmer-needs/index.js';
 
 /**
  * ProtectedRoute component — Redirects unauthenticated users to /login

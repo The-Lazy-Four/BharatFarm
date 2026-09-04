@@ -13,8 +13,8 @@ import { SchemesApi } from '../schemes/services/schemesApi';
 import { Scheme } from '../schemes/types/schemes.types';
 import { MarketplaceApi } from '../marketplace/services/marketplaceApi';
 import { ProductListing } from '../marketplace/types/marketplace.types';
-import { GroupBuyingApi } from '../../../features/groupbuying/services/groupBuyingApi';
-import { GroupBuyPool } from '../../../features/groupbuying/types/groupBuying.types';
+import { GroupBuyingApi } from '../group-buying/services/groupBuyingApi';
+import { GroupBuyPool } from '../group-buying/types/groupBuying.types';
 import { FEATURE_IMAGES } from '../../../constants/featureImages';
 
 export const MasterDashboardPage: React.FC = () => {
