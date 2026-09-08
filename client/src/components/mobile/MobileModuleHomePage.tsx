@@ -9,6 +9,17 @@ export const MobileModuleHomePage: React.FC = () => {
 
   const cards = [
     {
+      id: 'price-risk',
+      title: 'Before You Sow',
+      subtitle: 'Price-Decrement Risk',
+      description: 'Market risk & price predictions',
+      icon: 'psychology',
+      path: '/sih/price-risk',
+      bg: '#ECFDF5',
+      color: '#059669',
+      image: 'https://images.unsplash.com/photo-1586771107445-d3ca888129ff?auto=format&fit=crop&w=600&q=80'
+    },
+    {
       id: 'climate-risk',
       title: 'Climate Risk',
       subtitle: 'Aware Procurement',
@@ -16,7 +27,8 @@ export const MobileModuleHomePage: React.FC = () => {
       icon: 'partly_cloudy_day',
       path: '/sih/climate-risk',
       bg: '#EFF6FF',
-      color: '#1D4ED8'
+      color: '#1D4ED8',
+      image: 'https://images.unsplash.com/photo-1534274988757-a28bf1a57c17?auto=format&fit=crop&w=600&q=80'
     },
     {
       id: 'aggregation',
@@ -26,7 +38,8 @@ export const MobileModuleHomePage: React.FC = () => {
       icon: 'groups',
       path: '/sih/aggregation',
       bg: '#F0FDF4',
-      color: '#15803D'
+      color: '#15803D',
+      image: 'https://images.unsplash.com/photo-1595974482597-4b8da8879bc5?auto=format&fit=crop&w=600&q=80'
     },
     {
       id: 'crop-insurance',
@@ -36,7 +49,8 @@ export const MobileModuleHomePage: React.FC = () => {
       icon: 'verified_user',
       path: '/sih/crop-insurance',
       bg: '#FEFCE8',
-      color: '#A16207'
+      color: '#A16207',
+      image: 'https://images.unsplash.com/photo-1625246333195-78d9c38ad449?auto=format&fit=crop&w=600&q=80'
     },
     {
       id: 'smart-mandi',
@@ -46,7 +60,8 @@ export const MobileModuleHomePage: React.FC = () => {
       icon: 'bar_chart',
       path: '/sih/smart-mandi',
       bg: '#FFF7ED',
-      color: '#C2410C'
+      color: '#C2410C',
+      image: 'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=600&q=80'
     },
     {
       id: 'sahayak',
@@ -56,7 +71,8 @@ export const MobileModuleHomePage: React.FC = () => {
       icon: 'chat',
       path: '/sih/sahayak',
       bg: '#F5F3FF',
-      color: '#6D28D9'
+      color: '#6D28D9',
+      image: 'https://images.unsplash.com/photo-1592982537447-7440770cbfc9?auto=format&fit=crop&w=600&q=80'
     },
     {
       id: 'field-mapping',
@@ -66,7 +82,8 @@ export const MobileModuleHomePage: React.FC = () => {
       icon: 'map',
       path: '/sih/field-mapping',
       bg: '#E0F2FE',
-      color: '#0369A1'
+      color: '#0369A1',
+      image: 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=600&q=80'
     },
     {
       id: 'basic-needs',
@@ -77,7 +94,8 @@ export const MobileModuleHomePage: React.FC = () => {
       path: '/dashboard',
       bg: '#FEF9C3',
       color: '#854D0E',
-      isBasic: true
+      isBasic: true,
+      image: 'https://images.unsplash.com/photo-1560493676-04071c5f467b?auto=format&fit=crop&w=600&q=80'
     }
   ];
 
@@ -150,48 +168,63 @@ export const MobileModuleHomePage: React.FC = () => {
               style={{
                 background: '#FFFFFF',
                 borderRadius: '16px',
-                padding: '1rem 0.85rem',
                 border: card.isBasic ? '1.5px solid #FDE047' : '1px solid #E2E8F0',
                 boxShadow: card.isBasic ? '0 4px 12px rgba(234, 179, 8, 0.15)' : '0 2px 8px rgba(0,0,0,0.04)',
                 cursor: 'pointer',
                 display: 'flex',
                 flexDirection: 'column',
                 justifyContent: 'space-between',
-                minHeight: '145px',
+                overflow: 'hidden',
                 gridColumn: card.isBasic ? 'span 2' : 'span 1'
               }}
             >
-              <div>
+              <div style={{ position: 'relative', height: card.isBasic ? '110px' : '90px', width: '100%', overflow: 'hidden' }}>
+                <img
+                  src={card.image}
+                  alt={card.title}
+                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                />
                 <div style={{
-                  width: '38px',
-                  height: '38px',
-                  borderRadius: '10px',
-                  background: card.bg,
+                  position: 'absolute',
+                  inset: 0,
+                  background: 'linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(15,23,42,0.6) 100%)'
+                }} />
+                <div style={{
+                  position: 'absolute',
+                  top: '8px',
+                  left: '8px',
+                  width: '32px',
+                  height: '32px',
+                  borderRadius: '8px',
+                  background: 'rgba(255, 255, 255, 0.95)',
                   color: card.color,
                   display: 'flex',
                   alignItems: 'center',
-                  justifyContent: 'center',
-                  marginBottom: '0.65rem'
+                  justifyContent: 'center'
                 }}>
-                  <span className="material-symbols-outlined" style={{ fontSize: '22px' }}>{card.icon}</span>
+                  <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>{card.icon}</span>
                 </div>
-
-                <h2 style={{ fontSize: '0.95rem', fontWeight: 800, color: '#0F172A', margin: '0 0 0.15rem 0', lineHeight: 1.2 }}>
-                  {card.title}
-                </h2>
-                <div style={{ fontSize: '0.72rem', fontWeight: 800, color: card.color, marginBottom: '0.25rem' }}>
-                  {card.subtitle}
-                </div>
-
-                <p style={{ fontSize: '0.72rem', color: '#64748B', margin: 0, lineHeight: 1.3, fontWeight: 500 }}>
-                  {card.description}
-                </p>
               </div>
 
-              <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '0.5rem' }}>
-                <span className="material-symbols-outlined" style={{ fontSize: '18px', color: card.color }}>
-                  arrow_forward
-                </span>
+              <div style={{ padding: '0.75rem 0.85rem', display: 'flex', flexDirection: 'column', flex: 1, justifyContent: 'space-between' }}>
+                <div>
+                  <h2 style={{ fontSize: '0.92rem', fontWeight: 800, color: '#0F172A', margin: '0 0 0.15rem 0', lineHeight: 1.2 }}>
+                    {card.title}
+                  </h2>
+                  <div style={{ fontSize: '0.7rem', fontWeight: 800, color: card.color, marginBottom: '0.25rem' }}>
+                    {card.subtitle}
+                  </div>
+
+                  <p style={{ fontSize: '0.7rem', color: '#64748B', margin: 0, lineHeight: 1.3, fontWeight: 500 }}>
+                    {card.description}
+                  </p>
+                </div>
+
+                <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '0.5rem' }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: '18px', color: card.color }}>
+                    arrow_forward
+                  </span>
+                </div>
               </div>
             </div>
           ))}
