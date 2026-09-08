@@ -2,10 +2,19 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { MobileBottomNav } from './MobileBottomNav';
+import { PriceRiskService } from '../../modules/sih/price-risk/priceRisk.service';
 
 export const MobileModuleHomePage: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+
+  const reg = PriceRiskService.getFieldRegistration(user?.id || 'demo_farmer') || {
+    fieldName: 'North Paddy Field',
+    crop: 'Paddy',
+    landSizeAcres: 0.4,
+    district: 'Haldia',
+    state: 'West Bengal'
+  };
 
   const cards = [
     {
@@ -73,17 +82,6 @@ export const MobileModuleHomePage: React.FC = () => {
       bg: '#F5F3FF',
       color: '#6D28D9',
       image: 'https://images.unsplash.com/photo-1592982537447-7440770cbfc9?auto=format&fit=crop&w=600&q=80'
-    },
-    {
-      id: 'field-mapping',
-      title: 'Field Mapping',
-      subtitle: 'Walk the Farm',
-      description: 'Map field boundary & crop location',
-      icon: 'map',
-      path: '/sih/field-mapping',
-      bg: '#E0F2FE',
-      color: '#0369A1',
-      image: 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=600&q=80'
     },
     {
       id: 'basic-needs',
@@ -155,7 +153,59 @@ export const MobileModuleHomePage: React.FC = () => {
       </header>
 
       {/* Main 2-Column Grid for Module Cards */}
-      <main style={{ padding: '1.25rem 1rem' }}>
+      <main style={{ padding: '1rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+
+        {/* Top Section: Field Mapping Registered Farm Banner */}
+        <div
+          onClick={() => navigate('/sih/field-mapping')}
+          style={{
+            background: '#F0FDF4',
+            border: '1.5px solid #BBF7D0',
+            borderRadius: '16px',
+            padding: '0.85rem 1rem',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: '0.75rem',
+            boxShadow: '0 2px 8px rgba(22, 163, 74, 0.08)',
+            cursor: 'pointer'
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+            <span className="material-symbols-outlined" style={{ fontSize: '20px', color: '#16A34A', flexShrink: 0 }}>
+              check_circle
+            </span>
+            <div>
+              <div style={{ color: '#166534', fontSize: '0.82rem', fontWeight: 800, lineHeight: 1.2 }}>
+                Registered Farm: {reg.fieldName} ({reg.crop}, {reg.landSizeAcres} Acres) in {reg.district}, {reg.state}
+              </div>
+              <div style={{ fontSize: '0.72rem', color: '#15803D', fontWeight: 600, marginTop: '0.15rem' }}>
+                Field Mapping — Walk the Farm
+              </div>
+            </div>
+          </div>
+
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              navigate('/sih/field-mapping');
+            }}
+            style={{
+              background: 'transparent',
+              border: 'none',
+              color: '#15803D',
+              fontSize: '0.78rem',
+              fontWeight: 800,
+              textDecoration: 'underline',
+              cursor: 'pointer',
+              whiteSpace: 'nowrap',
+              flexShrink: 0
+            }}
+          >
+            Update Registration
+          </button>
+        </div>
+
         <div style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(2, 1fr)',

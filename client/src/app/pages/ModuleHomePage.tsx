@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext.js';
 import { useIsMobile } from '../../hooks/useIsMobile';
 import { MobileModuleHomePage } from '../../components/mobile/MobileModuleHomePage';
+import { PriceRiskService } from '../../modules/sih/price-risk/priceRisk.service.js';
 
 interface SihCard {
   id: string;
@@ -23,6 +24,14 @@ export const ModuleHomePage: React.FC = () => {
   if (isMobile) {
     return <MobileModuleHomePage />;
   }
+
+  const reg = PriceRiskService.getFieldRegistration(user?.id || 'demo_farmer') || {
+    fieldName: 'North Paddy Field',
+    crop: 'Paddy',
+    landSizeAcres: 0.4,
+    district: 'Haldia',
+    state: 'West Bengal'
+  };
 
   const sihInnovations: SihCard[] = [
     {
@@ -78,15 +87,6 @@ export const ModuleHomePage: React.FC = () => {
       icon: 'chat',
       path: '/sih/sahayak',
       image: 'https://images.unsplash.com/photo-1592982537447-7440770cbfc9?auto=format&fit=crop&w=600&q=80'
-    },
-    {
-      id: 'field-mapping',
-      title: 'Field Mapping',
-      subtitle: 'Walk the Farm',
-      description: 'Map field boundaries & register crop location',
-      icon: 'map',
-      path: '/sih/field-mapping',
-      image: 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=600&q=80'
     }
   ];
 
@@ -241,6 +241,66 @@ export const ModuleHomePage: React.FC = () => {
           }}>
             Choose an SIH innovation feature or open your everyday farming dashboard below.
           </p>
+        </div>
+
+        {/* Top Section: Field Mapping Registered Farm Status Card */}
+        <div style={{
+          background: '#F0FDF4',
+          border: '1.5px solid #BBF7D0',
+          borderRadius: '16px',
+          padding: '1rem 1.35rem',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: '1rem',
+          flexWrap: 'wrap',
+          boxShadow: '0 4px 12px rgba(22, 163, 74, 0.08)'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
+            <div style={{
+              width: '44px',
+              height: '44px',
+              borderRadius: '12px',
+              background: '#DCFCE7',
+              color: '#15803D',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexShrink: 0
+            }}>
+              <span className="material-symbols-outlined" style={{ fontSize: '24px' }}>map</span>
+            </div>
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: '#166534', fontSize: '0.95rem', fontWeight: 800 }}>
+                <span className="material-symbols-outlined" style={{ fontSize: '18px', color: '#16A34A' }}>check_circle</span>
+                <span>Registered Farm: {reg.fieldName} ({reg.crop}, {reg.landSizeAcres} Acres) in {reg.district}, {reg.state}</span>
+              </div>
+              <div style={{ fontSize: '0.82rem', color: '#15803D', marginTop: '0.2rem', fontWeight: 500 }}>
+                Field Mapping — Walk the Farm (SIH Innovation #6)
+              </div>
+            </div>
+          </div>
+
+          <button
+            onClick={() => navigate('/sih/field-mapping')}
+            style={{
+              background: '#16A34A',
+              color: '#FFFFFF',
+              border: 'none',
+              borderRadius: '10px',
+              padding: '0.65rem 1.25rem',
+              fontSize: '0.86rem',
+              fontWeight: 800,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.4rem',
+              boxShadow: '0 2px 8px rgba(22, 163, 74, 0.25)'
+            }}
+          >
+            <span>Update Registration</span>
+            <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>arrow_forward</span>
+          </button>
         </div>
 
         {/* Section A: SIH Innovations (6 Cards) */}
