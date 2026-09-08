@@ -15,57 +15,90 @@ export const MobileNavigation: React.FC = () => {
         alignItems: 'center',
         justifyContent: 'space-around',
         padding: '0 0.5rem',
-        zIndex: 50
+        zIndex: 50,
+        backgroundColor: '#FFFFFF',
+        borderTop: '1px solid #E2E8F0',
+        paddingBottom: 'env(safe-area-inset-bottom, 0px)'
       }}
     >
       <NavLink
-        to="/sih"
+        to="/home"
         className={({ isActive }) => `mobile-nav-item${isActive ? ' active' : ''}`}
+        style={({ isActive }) => ({
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: '2px',
+          textDecoration: 'none',
+          color: isActive ? '#16A34A' : '#64748B',
+          fontWeight: isActive ? 700 : 500,
+          fontSize: '0.72rem'
+        })}
       >
         <span className="material-symbols-outlined" style={{ fontSize: '22px' }}>
-          auto_awesome
+          home
         </span>
-        <span>SIH Hub</span>
+        <span>Home</span>
       </NavLink>
 
       <NavLink
-        to="/dashboard"
+        to="/demo"
         className={({ isActive }) => `mobile-nav-item${isActive ? ' active' : ''}`}
+        style={({ isActive }) => ({
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: '2px',
+          textDecoration: 'none',
+          color: isActive ? '#16A34A' : '#64748B',
+          fontWeight: isActive ? 700 : 500,
+          fontSize: '0.72rem'
+        })}
       >
         <span className="material-symbols-outlined" style={{ fontSize: '22px' }}>
-          dashboard
+          play_circle
         </span>
-        <span>Dashboard</span>
-      </NavLink>
-
-      <NavLink
-        to="/sih/climate-risk"
-        className={({ isActive }) => `mobile-nav-item${isActive ? ' active' : ''}`}
-      >
-        <span className="material-symbols-outlined" style={{ fontSize: '22px' }}>
-          cyclone
-        </span>
-        <span>Climate</span>
-      </NavLink>
-
-      <NavLink
-        to="/sih/smart-mandi"
-        className={({ isActive }) => `mobile-nav-item${isActive ? ' active' : ''}`}
-      >
-        <span className="material-symbols-outlined" style={{ fontSize: '22px' }}>
-          distance
-        </span>
-        <span>Mandi ML</span>
+        <span>Demo</span>
       </NavLink>
 
       <NavLink
         to="/sih/sahayak"
         className={({ isActive }) => `mobile-nav-item${isActive ? ' active' : ''}`}
+        style={({ isActive }) => ({
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: '2px',
+          textDecoration: 'none',
+          color: isActive ? '#16A34A' : '#64748B',
+          fontWeight: isActive ? 700 : 500,
+          fontSize: '0.72rem'
+        })}
       >
         <span className="material-symbols-outlined" style={{ fontSize: '22px' }}>
-          handshake
+          chat
         </span>
-        <span>Sahayak</span>
+        <span>Sahaya</span>
+      </NavLink>
+
+      <NavLink
+        to="/profile"
+        className={({ isActive }) => `mobile-nav-item${isActive ? ' active' : ''}`}
+        style={({ isActive }) => ({
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: '2px',
+          textDecoration: 'none',
+          color: isActive ? '#16A34A' : '#64748B',
+          fontWeight: isActive ? 700 : 500,
+          fontSize: '0.72rem'
+        })}
+      >
+        <span className="material-symbols-outlined" style={{ fontSize: '22px' }}>
+          person
+        </span>
+        <span>Profile</span>
       </NavLink>
     </nav>
   );

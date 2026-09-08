@@ -1,46 +1,50 @@
-#!/usr/bin/env python3
-"""
-Generate BharatFarm PWA icons from the source icon image.
-"""
-
-from PIL import Image
 import os
+from PIL import Image, ImageOps
 
-SOURCE_ICON = r"C:\Users\SOUVIK\.gemini\antigravity\brain\c11eaaba-ae6a-4cbf-934f-5cb147e6e787\media__1788860176221.jpg"
-OUTPUT_DIR = r"d:\Development\Projects\TEAM PROJECTS\BF\BharatFarm-main_MIGRATED_FINAL\BharatFarm-main\client\public\icons"
-
-os.makedirs(OUTPUT_DIR, exist_ok=True)
-
-src = Image.open(SOURCE_ICON).convert("RGBA")
-print(f"Source image size: {src.size}, mode: {src.mode}")
-
-def make_icon(img, size, output_path):
-    resized = img.resize((size, size), Image.LANCZOS)
-    resized.save(output_path, format="PNG", optimize=True)
-    print(f"Saved: {output_path} ({size}x{size})")
-
-def make_maskable_icon(img, size, output_path, padding_fraction=0.15):
-    bg_color = (13, 77, 26, 255)
-    canvas = Image.new("RGBA", (size, size), bg_color)
-    icon_size = int(size * (1 - 2 * padding_fraction))
-    resized = img.resize((icon_size, icon_size), Image.LANCZOS)
-    pad = (size - icon_size) // 2
-    canvas.paste(resized, (pad, pad), resized)
-    canvas.save(output_path, format="PNG", optimize=True)
-    print(f"Saved maskable: {output_path} ({size}x{size}, icon={icon_size}x{icon_size})")
-
-make_icon(src, 32, os.path.join(OUTPUT_DIR, "icon-32.png"))
-make_icon(src, 96, os.path.join(OUTPUT_DIR, "icon-96.png"))
-make_icon(src, 144, os.path.join(OUTPUT_DIR, "icon-144.png"))
-make_icon(src, 192, os.path.join(OUTPUT_DIR, "icon-192.png"))
-make_icon(src, 384, os.path.join(OUTPUT_DIR, "icon-384.png"))
-make_icon(src, 512, os.path.join(OUTPUT_DIR, "icon-512.png"))
-make_icon(src, 180, os.path.join(OUTPUT_DIR, "apple-touch-icon.png"))
-make_maskable_icon(src, 192, os.path.join(OUTPUT_DIR, "icon-192-maskable.png"), 0.15)
-make_maskable_icon(src, 512, os.path.join(OUTPUT_DIR, "icon-512-maskable.png"), 0.15)
-
+source_path = r"C:\Users\SOUVIK\.gemini\antigravity\brain\e2af0ea6-c0b1-4f06-b730-191c82ac1715\media__1788882138272.png"
 public_dir = r"d:\Development\Projects\TEAM PROJECTS\BF\BharatFarm-main_MIGRATED_FINAL\BharatFarm-main\client\public"
-make_icon(src, 32, os.path.join(public_dir, "favicon.png"))
-make_icon(src, 16, os.path.join(public_dir, "favicon-16.png"))
+icons_dir = os.path.join(public_dir, "icons")
 
-print("\nAll PWA icons generated successfully!")
+os.makedirs(icons_dir, exist_ok=True)
+
+img = Image.open(source_path).convert("RGBA")
+
+# Standard sizes
+sizes = {
+    "icon-32.png": 32,
+    "icon-96.png": 96,
+    "icon-144.png": 144,
+    "icon-192.png": 192,
+    "icon-384.png": 384,
+    "icon-512.png": 512,
+    "apple-touch-icon.png": 180,
+}
+
+for name, size in sizes.items():
+    resized = img.resize((size, size), Image.Resampling.LANCZOS)
+    out_path = os.path.join(icons_dir, name)
+    resized.save(out_path, "PNG")
+    print(f"Generated {out_path} ({size}x{size})")
+
+# Maskable icons (10% padding around original logo on white background for Android adaptive icon format)
+def make_maskable(source_img, target_size):
+    # Standard maskable safe zone is inner 80% (10% padding on each side)
+    canvas = Image.new("RGBA", (target_size, target_size), (255, 255, 255, 255))
+    inner_size = int(target_size * 0.85)
+    inner_img = source_img.resize((inner_size, inner_size), Image.Resampling.LANCZOS)
+    offset = (target_size - inner_size) // 2
+    canvas.paste(inner_img, (offset, offset), inner_img)
+    return canvas
+
+maskable_192 = make_maskable(img, 192)
+maskable_192.save(os.path.join(icons_dir, "icon-192-maskable.png"), "PNG")
+
+maskable_512 = make_maskable(img, 512)
+maskable_512.save(os.path.join(icons_dir, "icon-512-maskable.png"), "PNG")
+
+# Root public icons
+img.resize((32, 32), Image.Resampling.LANCZOS).save(os.path.join(public_dir, "favicon.png"), "PNG")
+img.resize((16, 16), Image.Resampling.LANCZOS).save(os.path.join(public_dir, "favicon-16.png"), "PNG")
+img.resize((512, 512), Image.Resampling.LANCZOS).save(os.path.join(public_dir, "logo.png"), "PNG")
+
+print("All icons successfully generated!")

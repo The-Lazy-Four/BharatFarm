@@ -1,12 +1,11 @@
 import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Card } from '@core/ui/Card';
-import { Input } from '@core/ui/Input';
-import { Button } from '@core/ui/Button';
-import { useAuth } from '@core/context/AuthContext';
-import { useLanguage } from '@core/context/LanguageContext';
-
-import { ProfileService } from '../../../services/profile.service';
+import { Card } from '../../../components/ui/Card.js';
+import { Input } from '../../../components/ui/Input.js';
+import { Button } from '../../../components/ui/Button.js';
+import { useAuth } from '../../../context/AuthContext.js';
+import { useLanguage } from '../../../context/LanguageContext.js';
+import { ProfileService } from '../../../services/profile.service.js';
 
 export const ProfileSettingsPage: React.FC = () => {
   const { user, updateProfile: updateAuthUser, profileImage, setProfileImage, getUserInitials, logout } = useAuth();
@@ -39,7 +38,7 @@ export const ProfileSettingsPage: React.FC = () => {
         if (p.landSizeAcres != null) setLandAcres(String(p.landSizeAcres));
         if (p.primaryCrops) setPrimaryCropsStr(p.primaryCrops.join(', '));
         if (p.avatarUrl) setProfileImage(p.avatarUrl);
-        
+
         updateAuthUser({
           fullName: p.fullName,
           phone: p.phoneNumber,
@@ -51,7 +50,7 @@ export const ProfileSettingsPage: React.FC = () => {
           avatarUrl: p.avatarUrl
         });
       }
-    }).catch(() => {});
+    }).catch(() => { });
     return () => { isMounted = false; };
   }, []);
 
@@ -75,7 +74,7 @@ export const ProfileSettingsPage: React.FC = () => {
       if (typeof reader.result === 'string') {
         const dataUrl = reader.result;
         setProfileImage(dataUrl);
-        ProfileService.updateProfile({ avatarUrl: dataUrl }).catch(() => {});
+        ProfileService.updateProfile({ avatarUrl: dataUrl }).catch(() => { });
       }
     };
     reader.readAsDataURL(file);
@@ -84,7 +83,7 @@ export const ProfileSettingsPage: React.FC = () => {
   const handleRemoveImage = () => {
     setProfileImage(null);
     if (fileInputRef.current) fileInputRef.current.value = '';
-    ProfileService.updateProfile({ avatarUrl: '' }).catch(() => {});
+    ProfileService.updateProfile({ avatarUrl: '' }).catch(() => { });
   };
 
   const handleSave = async (e: React.FormEvent) => {

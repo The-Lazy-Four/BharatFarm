@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext.js';
 import { useIsMobile } from '../../hooks/useIsMobile';
 import { MobileModuleHomePage } from '../../components/mobile/MobileModuleHomePage';
+import { PriceRiskService } from '../../modules/sih/price-risk/priceRisk.service.js';
+import { NotificationDrawer } from '../../components/notifications/NotificationDrawer';
 
 interface SihCard {
   id: string;
@@ -11,26 +13,45 @@ interface SihCard {
   description: string;
   icon: string;
   path: string;
+  image: string;
 }
 
 export const ModuleHomePage: React.FC = () => {
   const isMobile = useIsMobile();
   const navigate = useNavigate();
-  const { user, logout } = useAuth();
-  const [searchQuery, setSearchQuery] = useState('');
+  const { user } = useAuth();
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
 
   if (isMobile) {
     return <MobileModuleHomePage />;
   }
 
+  const reg = PriceRiskService.getFieldRegistration(user?.id || 'demo_farmer') || {
+    fieldName: 'North Paddy Field',
+    crop: 'Paddy',
+    landSizeAcres: 0.4,
+    district: 'Haldia',
+    state: 'West Bengal'
+  };
+
   const sihInnovations: SihCard[] = [
+    {
+      id: 'price-risk',
+      title: 'Before You Sow',
+      subtitle: 'Price-Decrement Risk',
+      description: 'Pre-sowing market risk & price predictions',
+      icon: 'psychology',
+      path: '/sih/price-risk',
+      image: 'https://images.unsplash.com/photo-1586771107445-d3ca888129ff?auto=format&fit=crop&w=600&q=80'
+    },
     {
       id: 'climate-risk',
       title: 'Climate Risk',
       subtitle: 'Aware Procurement',
       description: 'Weather insights & procurement planner',
       icon: 'partly_cloudy_day',
-      path: '/sih/climate-risk'
+      path: '/sih/climate-risk',
+      image: 'https://images.unsplash.com/photo-1534274988757-a28bf1a57c17?auto=format&fit=crop&w=600&q=80'
     },
     {
       id: 'aggregation',
@@ -38,7 +59,8 @@ export const ModuleHomePage: React.FC = () => {
       subtitle: 'Optimizer',
       description: 'Group buying & collective selling',
       icon: 'groups',
-      path: '/sih/aggregation'
+      path: '/sih/aggregation',
+      image: 'https://images.unsplash.com/photo-1595974482597-4b8da8879bc5?auto=format&fit=crop&w=600&q=80'
     },
     {
       id: 'crop-insurance',
@@ -46,7 +68,8 @@ export const ModuleHomePage: React.FC = () => {
       subtitle: 'Verification',
       description: 'Satellite NDVI claim verification',
       icon: 'verified_user',
-      path: '/sih/crop-insurance'
+      path: '/sih/crop-insurance',
+      image: 'https://images.unsplash.com/photo-1625246333195-78d9c38ad449?auto=format&fit=crop&w=600&q=80'
     },
     {
       id: 'smart-mandi',
@@ -54,7 +77,8 @@ export const ModuleHomePage: React.FC = () => {
       subtitle: 'Intelligence',
       description: 'Best mandi prices & market router',
       icon: 'bar_chart',
-      path: '/sih/smart-mandi'
+      path: '/sih/smart-mandi',
+      image: 'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=600&q=80'
     },
     {
       id: 'sahayak',
@@ -62,23 +86,12 @@ export const ModuleHomePage: React.FC = () => {
       subtitle: 'Assisted Access',
       description: 'AI & human support in your language',
       icon: 'chat',
-      path: '/sih/sahayak'
-    },
-    {
-      id: 'field-mapping',
-      title: 'Field Mapping',
-      subtitle: 'Walk the Farm',
-      description: 'Map field boundaries & register crop location',
-      icon: 'map',
-      path: '/sih/field-mapping'
+      path: '/sih/sahayak',
+      image: 'https://images.unsplash.com/photo-1592982537447-7440770cbfc9?auto=format&fit=crop&w=600&q=80'
     }
   ];
 
-  const filteredInnovations = sihInnovations.filter(item =>
-    item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    (item.subtitle && item.subtitle.toLowerCase().includes(searchQuery.toLowerCase())) ||
-    item.description.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredInnovations = sihInnovations;
 
   return (
     <div style={{
@@ -113,42 +126,10 @@ export const ModuleHomePage: React.FC = () => {
           <span style={{ fontSize: '1.3rem', fontWeight: 900, color: '#1E293B', letterSpacing: '-0.02em' }}>BharatFarm</span>
         </div>
 
-        {/* Global Search Bar */}
-        <div style={{
-          position: 'relative',
-          width: '100%',
-          maxWidth: '420px',
-          margin: '0 1rem'
-        }} className="header-search-bar">
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search SIH modules..."
-            style={{
-              width: '100%',
-              padding: '0.55rem 1rem 0.55rem 2.5rem',
-              borderRadius: '20px',
-              border: '1px solid #CBD5E1',
-              background: '#F1F5F9',
-              fontSize: '0.88rem',
-              outline: 'none',
-              boxSizing: 'border-box'
-            }}
-          />
-          <span className="material-symbols-outlined" style={{
-            position: 'absolute',
-            left: '0.8rem',
-            top: '50%',
-            transform: 'translateY(-50%)',
-            fontSize: '18px',
-            color: '#64748B'
-          }}>search</span>
-        </div>
-
         {/* Header Right Controls */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
           <button
+            onClick={() => setIsNotificationsOpen(true)}
             title="Notifications"
             style={{
               background: '#F1F5F9',
@@ -160,16 +141,27 @@ export const ModuleHomePage: React.FC = () => {
               alignItems: 'center',
               justifyContent: 'center',
               color: '#475569',
-              cursor: 'pointer'
+              cursor: 'pointer',
+              position: 'relative'
             }}
           >
             <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>notifications</span>
+            <span style={{
+              position: 'absolute',
+              top: '4px',
+              right: '4px',
+              width: '9px',
+              height: '9px',
+              borderRadius: '50%',
+              background: '#EF4444',
+              border: '2px solid #FFFFFF'
+            }} />
           </button>
 
           {/* User Avatar Circle */}
           <div
-            onClick={logout}
-            title={`Logged in as ${user?.fullName || 'Farmer'} (Click to Logout)`}
+            onClick={() => navigate('/profile')}
+            title={`View Profile & Settings (${user?.fullName || 'Farmer'})`}
             style={{
               width: '38px',
               height: '38px',
@@ -189,6 +181,12 @@ export const ModuleHomePage: React.FC = () => {
           </div>
         </div>
       </header>
+
+      {/* Interactive Notifications Drawer */}
+      <NotificationDrawer
+        isOpen={isNotificationsOpen}
+        onClose={() => setIsNotificationsOpen(false)}
+      />
 
       {/* Main Body */}
       <main style={{
@@ -227,6 +225,66 @@ export const ModuleHomePage: React.FC = () => {
           </p>
         </div>
 
+        {/* Top Section: Field Mapping Registered Farm Status Card */}
+        <div style={{
+          background: '#F0FDF4',
+          border: '1.5px solid #BBF7D0',
+          borderRadius: '16px',
+          padding: '1rem 1.35rem',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: '1rem',
+          flexWrap: 'wrap',
+          boxShadow: '0 4px 12px rgba(22, 163, 74, 0.08)'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
+            <div style={{
+              width: '44px',
+              height: '44px',
+              borderRadius: '12px',
+              background: '#DCFCE7',
+              color: '#15803D',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexShrink: 0
+            }}>
+              <span className="material-symbols-outlined" style={{ fontSize: '24px' }}>map</span>
+            </div>
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: '#166534', fontSize: '0.95rem', fontWeight: 800 }}>
+                <span className="material-symbols-outlined" style={{ fontSize: '18px', color: '#16A34A' }}>check_circle</span>
+                <span>Registered Farm: {reg.fieldName} ({reg.crop}, {reg.landSizeAcres} Acres) in {reg.district}, {reg.state}</span>
+              </div>
+              <div style={{ fontSize: '0.82rem', color: '#15803D', marginTop: '0.2rem', fontWeight: 500 }}>
+                Field Mapping — Walk the Farm (SIH Innovation #6)
+              </div>
+            </div>
+          </div>
+
+          <button
+            onClick={() => navigate('/sih/field-mapping')}
+            style={{
+              background: '#16A34A',
+              color: '#FFFFFF',
+              border: 'none',
+              borderRadius: '10px',
+              padding: '0.65rem 1.25rem',
+              fontSize: '0.86rem',
+              fontWeight: 800,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.4rem',
+              boxShadow: '0 2px 8px rgba(22, 163, 74, 0.25)'
+            }}
+          >
+            <span>Update Registration</span>
+            <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>arrow_forward</span>
+          </button>
+        </div>
+
         {/* Section A: SIH Innovations (6 Cards) */}
         <section>
           <div style={{
@@ -246,10 +304,10 @@ export const ModuleHomePage: React.FC = () => {
             </span>
           </div>
 
-          {/* 6 Cards Grid (Responsive 3x2 on desktop, 2x3 on tablet) */}
+          {/* Cards Grid */}
           <div style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
             gap: '1.25rem'
           }}>
             {filteredInnovations.map((card) => (
@@ -259,76 +317,99 @@ export const ModuleHomePage: React.FC = () => {
                 style={{
                   background: '#FFFFFF',
                   borderRadius: '16px',
-                  padding: '1.5rem 1.25rem',
                   border: '1px solid #E2E8F0',
-                  boxShadow: '0 4px 12px rgba(0,0,0,0.03)',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.04)',
                   cursor: 'pointer',
                   display: 'flex',
                   flexDirection: 'column',
                   justifyContent: 'space-between',
-                  minHeight: '190px',
+                  overflow: 'hidden',
                   transition: 'transform 0.2s ease, box-shadow 0.2s ease'
                 }}
                 className="sih-feature-card"
               >
-                <div>
+                {/* Unsplash Image Header with Overlay */}
+                <div style={{ position: 'relative', height: '140px', width: '100%', overflow: 'hidden' }}>
+                  <img
+                    src={card.image}
+                    alt={card.title}
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'cover',
+                      transition: 'transform 0.3s ease'
+                    }}
+                  />
                   <div style={{
-                    width: '44px',
-                    height: '44px',
-                    borderRadius: '12px',
-                    background: card.id === 'field-mapping' ? '#E0F2FE' : '#DCFCE7',
+                    position: 'absolute',
+                    inset: 0,
+                    background: 'linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(15,23,42,0.6) 100%)'
+                  }} />
+                  <div style={{
+                    position: 'absolute',
+                    top: '12px',
+                    left: '12px',
+                    width: '38px',
+                    height: '38px',
+                    borderRadius: '10px',
+                    background: 'rgba(255, 255, 255, 0.9)',
+                    backdropFilter: 'blur(4px)',
                     color: card.id === 'field-mapping' ? '#0369A1' : '#15803D',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    marginBottom: '1rem'
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.15)'
                   }}>
-                    <span className="material-symbols-outlined" style={{ fontSize: '24px' }}>{card.icon}</span>
+                    <span className="material-symbols-outlined" style={{ fontSize: '22px' }}>{card.icon}</span>
                   </div>
-
-                  <h3 style={{
-                    fontSize: '1.15rem',
-                    fontWeight: 800,
-                    color: '#0F172A',
-                    margin: '0 0 0.2rem 0',
-                    lineHeight: 1.2
-                  }}>
-                    {card.title}
-                  </h3>
-
-                  {card.subtitle && (
-                    <div style={{ fontSize: '0.82rem', fontWeight: 800, color: card.id === 'field-mapping' ? '#0284C7' : '#16A34A', marginBottom: '0.4rem' }}>
-                      {card.subtitle}
-                    </div>
-                  )}
-
-                  <p style={{
-                    fontSize: '0.85rem',
-                    color: '#64748B',
-                    margin: 0,
-                    lineHeight: 1.4,
-                    fontWeight: 500
-                  }}>
-                    {card.description}
-                  </p>
                 </div>
 
-                <div style={{
-                  display: 'flex',
-                  justifyContent: 'flex-end',
-                  marginTop: '1rem'
-                }}>
+                <div style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', flex: 1, justifyContent: 'space-between' }}>
+                  <div>
+                    <h3 style={{
+                      fontSize: '1.15rem',
+                      fontWeight: 800,
+                      color: '#0F172A',
+                      margin: '0 0 0.2rem 0',
+                      lineHeight: 1.2
+                    }}>
+                      {card.title}
+                    </h3>
+
+                    {card.subtitle && (
+                      <div style={{ fontSize: '0.82rem', fontWeight: 800, color: card.id === 'field-mapping' ? '#0284C7' : '#16A34A', marginBottom: '0.4rem' }}>
+                        {card.subtitle}
+                      </div>
+                    )}
+
+                    <p style={{
+                      fontSize: '0.85rem',
+                      color: '#64748B',
+                      margin: 0,
+                      lineHeight: 1.4,
+                      fontWeight: 500
+                    }}>
+                      {card.description}
+                    </p>
+                  </div>
+
                   <div style={{
-                    width: '32px',
-                    height: '32px',
-                    borderRadius: '50%',
-                    background: card.id === 'field-mapping' ? '#0284C7' : '#16A34A',
-                    color: '#FFFFFF',
                     display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center'
+                    justifyContent: 'flex-end',
+                    marginTop: '1rem'
                   }}>
-                    <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>arrow_forward</span>
+                    <div style={{
+                      width: '32px',
+                      height: '32px',
+                      borderRadius: '50%',
+                      background: card.id === 'field-mapping' ? '#0284C7' : '#16A34A',
+                      color: '#FFFFFF',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}>
+                      <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>arrow_forward</span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -341,9 +422,7 @@ export const ModuleHomePage: React.FC = () => {
           <div
             onClick={() => navigate('/dashboard')}
             style={{
-              background: 'linear-gradient(135deg, #FEF9C3 0%, #FEF08A 100%)',
               borderRadius: '20px',
-              padding: '2rem',
               border: '1.5px solid #FDE047',
               boxShadow: '0 8px 20px rgba(234, 179, 8, 0.15)',
               cursor: 'pointer',
@@ -353,10 +432,29 @@ export const ModuleHomePage: React.FC = () => {
               flexWrap: 'wrap',
               gap: '1.5rem',
               position: 'relative',
-              overflow: 'hidden'
+              overflow: 'hidden',
+              minHeight: '140px'
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', zIndex: 2 }}>
+            {/* Unsplash Background Banner */}
+            <img
+              src="https://images.unsplash.com/photo-1560493676-04071c5f467b?auto=format&fit=crop&w=1200&q=80"
+              alt="Basic Farmer Needs"
+              style={{
+                position: 'absolute',
+                inset: 0,
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover'
+              }}
+            />
+            <div style={{
+              position: 'absolute',
+              inset: 0,
+              background: 'linear-gradient(90deg, rgba(15,23,42,0.85) 0%, rgba(15,23,42,0.65) 100%)'
+            }} />
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', zIndex: 2, padding: '2rem' }}>
               <div style={{
                 width: '60px',
                 height: '60px',
@@ -372,16 +470,16 @@ export const ModuleHomePage: React.FC = () => {
               </div>
 
               <div>
-                <h2 style={{ fontSize: '1.6rem', fontWeight: 900, color: '#713F12', margin: '0 0 0.35rem 0' }}>
+                <h2 style={{ fontSize: '1.6rem', fontWeight: 900, color: '#FFFFFF', margin: '0 0 0.35rem 0' }}>
                   Basic Farmer Needs
                 </h2>
-                <p style={{ fontSize: '1rem', color: '#854D0E', margin: 0, fontWeight: 700 }}>
+                <p style={{ fontSize: '1rem', color: '#FCD34D', margin: 0, fontWeight: 700 }}>
                   Everyday farming companion (Weather, Schemes, Scanner, Marketplace)
                 </p>
               </div>
             </div>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#713F12', fontWeight: 800, fontSize: '1.1rem', zIndex: 2 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#FFFFFF', fontWeight: 800, fontSize: '1.1rem', zIndex: 2, paddingRight: '2rem' }}>
               <span>Open Dashboard</span>
               <span className="material-symbols-outlined" style={{ fontSize: '24px' }}>arrow_forward</span>
             </div>

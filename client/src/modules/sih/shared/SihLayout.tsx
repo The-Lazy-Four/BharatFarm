@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../context/AuthContext.js';
 import { useIsMobile } from '../../../hooks/useIsMobile';
 import { MobileSihLayout } from '../../../components/mobile/MobileSihLayout';
+import { NotificationDrawer } from '../../../components/notifications/NotificationDrawer';
 
 interface SihShellProps {
   children: React.ReactNode;
@@ -19,8 +20,9 @@ export const SihLayout: React.FC<SihShellProps> = ({
 }) => {
   const isMobile = useIsMobile();
   const navigate = useNavigate();
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
 
   if (isMobile) {
     return <MobileSihLayout title={moduleTitle}>{children}</MobileSihLayout>;
@@ -72,35 +74,10 @@ export const SihLayout: React.FC<SihShellProps> = ({
           <span style={{ fontSize: '1.25rem', fontWeight: 900, color: '#1E293B', letterSpacing: '-0.02em' }}>BharatFarm</span>
         </div>
 
-        {/* Global Search Bar */}
-        <div style={{ position: 'relative', width: '100%', maxWidth: '380px', margin: '0 1rem' }} className="header-search-bar">
-          <input
-            type="text"
-            placeholder="Search..."
-            style={{
-              width: '100%',
-              padding: '0.5rem 1rem 0.5rem 2.4rem',
-              borderRadius: '20px',
-              border: '1px solid #CBD5E1',
-              background: '#F1F5F9',
-              fontSize: '0.85rem',
-              outline: 'none',
-              boxSizing: 'border-box'
-            }}
-          />
-          <span className="material-symbols-outlined" style={{
-            position: 'absolute',
-            left: '0.75rem',
-            top: '50%',
-            transform: 'translateY(-50%)',
-            fontSize: '18px',
-            color: '#64748B'
-          }}>search</span>
-        </div>
-
         {/* User Controls */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
           <button
+            onClick={() => setIsNotificationsOpen(true)}
             title="Notifications"
             style={{
               background: '#F1F5F9',
@@ -112,15 +89,26 @@ export const SihLayout: React.FC<SihShellProps> = ({
               alignItems: 'center',
               justifyContent: 'center',
               color: '#475569',
-              cursor: 'pointer'
+              cursor: 'pointer',
+              position: 'relative'
             }}
           >
             <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>notifications</span>
+            <span style={{
+              position: 'absolute',
+              top: '4px',
+              right: '4px',
+              width: '8px',
+              height: '8px',
+              borderRadius: '50%',
+              background: '#EF4444',
+              border: '2px solid #FFFFFF'
+            }} />
           </button>
 
           <div
-            onClick={logout}
-            title={`Logged in as ${user?.fullName || 'Farmer'} (Click to Logout)`}
+            onClick={() => navigate('/profile')}
+            title={`View Profile & Settings (${user?.fullName || 'Farmer'})`}
             style={{
               width: '36px',
               height: '36px',
@@ -288,6 +276,12 @@ export const SihLayout: React.FC<SihShellProps> = ({
           {children}
         </main>
       </div>
+
+      {/* Interactive Notification Drawer */}
+      <NotificationDrawer
+        isOpen={isNotificationsOpen}
+        onClose={() => setIsNotificationsOpen(false)}
+      />
 
     </div>
   );

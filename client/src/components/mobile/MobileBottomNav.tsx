@@ -8,15 +8,15 @@ interface MobileBottomNavProps {
 export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({ type = 'main' }) => {
   const mainItems = [
     { to: '/home', label: 'Home', icon: 'home' },
-    { to: '/schemes', label: 'Learn', icon: 'menu_book' },
-    { to: '/sih/climate-risk', label: 'Alerts', icon: 'notifications' },
+    { to: '/demo', label: 'Demo', icon: 'play_circle' },
+    { to: '/sih/sahayak', label: 'Sahayak', icon: 'chat' },
     { to: '/profile', label: 'Profile', icon: 'person' },
   ];
 
   const basicItems = [
     { to: '/dashboard', label: 'Home', icon: 'home' },
-    { to: '/calculator', label: 'Tools', icon: 'build' },
-    { to: '/marketplace', label: 'Community', icon: 'groups' },
+    { to: '/demo', label: 'Demo', icon: 'play_circle' },
+    { to: '/sih/sahayak', label: 'Sahayak', icon: 'chat' },
     { to: '/profile', label: 'Profile', icon: 'person' },
   ];
 
