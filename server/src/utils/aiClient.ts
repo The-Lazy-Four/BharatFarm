@@ -56,7 +56,7 @@ export class AiClient {
       : options || {};
 
     const model = normalizedOptions.model || config.geminiModel;
-    const maxTokens = Math.min(normalizedOptions.maxTokens || 250, 300); // Enforce concise responses & fit OpenRouter credit limits
+    const maxTokens = Math.min(normalizedOptions.maxTokens || 250, 1200); // Allow higher maxTokens for structured JSON when requested
     const timeoutMs = normalizedOptions.timeoutMs || DEFAULT_TIMEOUT_MS;
 
     const reqKey = JSON.stringify({ model, messages, maxTokens, responseFormat: normalizedOptions.responseFormat });

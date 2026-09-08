@@ -7,6 +7,7 @@ export { CropInsuranceVerificationPage } from './crop-risk-insurance/index.js';
 export { SmartMandiPage } from './smart-mandi/index.js';
 export { SahayakPage } from './sahayak/index.js';
 export { FieldMappingPage } from './field-mapping/index.js';
+export { BeforeYouSowPage, FarmerRegistrationPage } from './price-risk/index.js';
 
 // Shared SIH shell layout and Launcher Dashboard
 export { SihLayout } from './shared/SihLayout.js';

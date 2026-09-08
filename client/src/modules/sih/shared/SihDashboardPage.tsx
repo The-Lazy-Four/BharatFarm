@@ -69,6 +69,16 @@ export const SihDashboardPage: React.FC = () => {
       path: '/sih/sahayak',
       badge: 'Voice & WA',
       actionText: 'Open Workspace'
+    },
+    {
+      id: 'price-risk',
+      title: 'Before You Sow — Price Risk Advisor',
+      subtitle: 'AI supply-pressure early warning & local crop decision advisor',
+      icon: '🌾',
+      imageUrl: 'https://images.unsplash.com/photo-1592982537447-7440770cbfc9?auto=format&fit=crop&w=1000&q=85',
+      path: '/sih/price-risk',
+      badge: 'Price Risk AI',
+      actionText: 'Open Advisor'
     }
   ];
 

@@ -6,7 +6,7 @@ import { MobileSihLayout } from '../../../components/mobile/MobileSihLayout';
 
 interface SihShellProps {
   children: React.ReactNode;
-  activeModuleId: 'climate-risk' | 'aggregation' | 'crop-insurance' | 'smart-mandi' | 'sahayak';
+  activeModuleId: 'climate-risk' | 'aggregation' | 'crop-insurance' | 'smart-mandi' | 'sahayak' | 'price-risk' | 'field-mapping';
   moduleTitle: string;
   moduleIcon?: string;
   moduleBadge?: string;
@@ -33,6 +33,7 @@ export const SihLayout: React.FC<SihShellProps> = ({
     { id: 'crop-insurance', label: 'Crop Insurance', icon: 'verified_user', path: '/sih/crop-insurance' },
     { id: 'smart-mandi', label: 'Smart Mandi', icon: 'bar_chart', path: '/sih/smart-mandi' },
     { id: 'sahayak', label: 'Sahayak', icon: 'eco', path: '/sih/sahayak' },
+    { id: 'price-risk', label: 'Before You Sow', icon: 'psychology', path: '/sih/price-risk' },
   ];
 
   return (

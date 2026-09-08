@@ -819,6 +819,18 @@ export const FieldMappingPage: React.FC = () => {
                                     <span>🛡 Verify Satellite NDVI Crop Insurance</span>
                                     <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>arrow_forward</span>
                                 </button>
+
+                                <button
+                                    onClick={() => navigate('/sih/price-risk')}
+                                    style={{
+                                        background: '#F0FDF4', color: '#166534', border: '1px solid #BBF7D0',
+                                        borderRadius: '12px', padding: '0.75rem 1rem', fontSize: '0.85rem',
+                                        fontWeight: 700, cursor: 'pointer', textAlign: 'left', display: 'flex', justifyContent: 'space-between', alignItems: 'center'
+                                    }}
+                                >
+                                    <span>🌾 Check Price-Decrement Risk (Before You Sow)</span>
+                                    <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>arrow_forward</span>
+                                </button>
                             </div>
                         </div>
 
