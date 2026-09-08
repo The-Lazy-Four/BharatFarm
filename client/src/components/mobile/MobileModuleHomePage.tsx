@@ -1,12 +1,55 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
-import { MobileBottomNav } from './MobileBottomNav';
-import { PriceRiskService } from '../../modules/sih/price-risk/priceRisk.service';
+import { useAuth } from '../../context/AuthContext.js';
+import { usePWA } from '../../context/PWAContext.js';
+import { MobileBottomNav } from './MobileBottomNav.js';
+import { PriceRiskService } from '../../modules/sih/price-risk/priceRisk.service.js';
+
+interface NotificationItem {
+  id: string;
+  title: string;
+  message: string;
+  time: string;
+  type: 'climate' | 'mandi' | 'aggregation' | 'system';
+  route: string;
+}
+
+const INITIAL_NOTIFS: NotificationItem[] = [
+  {
+    id: 'n1',
+    title: 'BharatFarm Climate Alert 🌧️',
+    message: 'Heavy rainfall is expected in Haldia tomorrow. Review harvest plan.',
+    time: '10m ago',
+    type: 'climate',
+    route: '/sih/climate-risk'
+  },
+  {
+    id: 'n2',
+    title: 'BharatFarm Mandi Alert 📊',
+    message: 'Kolkata mandi currently offers a higher estimated net return for Paddy (+₹140/quintal).',
+    time: '1h ago',
+    type: 'mandi',
+    route: '/sih/smart-mandi'
+  },
+  {
+    id: 'n3',
+    title: 'BharatFarm Aggregation Update 🤝',
+    message: 'Your Haldia group-selling pool has reached 80% of its target quota.',
+    time: '3h ago',
+    type: 'aggregation',
+    route: '/sih/aggregation'
+  }
+];
 
 export const MobileModuleHomePage: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { subscribeToNotifications, pushSubscription } = usePWA();
+
+  const [showNotifDrawer, setShowNotifDrawer] = useState(false);
+  const [notifications, setNotifications] = useState<NotificationItem[]>(INITIAL_NOTIFS);
+  const [sendingTest, setSendingTest] = useState(false);
+  const [testSuccess, setTestSuccess] = useState('');
 
   const reg = PriceRiskService.getFieldRegistration(user?.id || 'demo_farmer') || {
     fieldName: 'North Paddy Field',
@@ -14,6 +57,47 @@ export const MobileModuleHomePage: React.FC = () => {
     landSizeAcres: 0.4,
     district: 'Haldia',
     state: 'West Bengal'
+  };
+
+  const farmerName = user?.fullName || 'Farmer';
+
+  const sendTestAlert = async (category: 'climate' | 'mandi' | 'aggregation') => {
+    setSendingTest(true);
+    setTestSuccess('');
+    try {
+      const res = await fetch('/api/push/send-test', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          category,
+          title: category === 'climate' ? 'BharatFarm Climate Alert 🌧️' : category === 'mandi' ? 'BharatFarm Mandi Alert 📍' : 'BharatFarm Aggregation Update 🤝',
+          body: category === 'climate' ? 'Heavy rainfall warning in your region. Protect your harvested paddy.' : category === 'mandi' ? 'Ludhiana mandi prices spiked by 8%! Sell now.' : 'Group buying fertilizer order confirmed.',
+          url: category === 'climate' ? '/sih/climate-risk' : category === 'mandi' ? '/sih/smart-mandi' : '/sih/aggregation'
+        })
+      });
+
+      if (res.ok) {
+        setTestSuccess(`Live PWA Push Alert sent to Android Tray!`);
+      } else {
+        setTestSuccess(`In-app notification created!`);
+      }
+
+      // Add to local list
+      const newNotif: NotificationItem = {
+        id: 'n_' + Date.now(),
+        title: category === 'climate' ? 'BharatFarm Climate Alert 🌧️' : category === 'mandi' ? 'BharatFarm Mandi Alert 📍' : 'BharatFarm Aggregation Update 🤝',
+        message: category === 'climate' ? 'Heavy rainfall expected tomorrow. Protect your crops.' : category === 'mandi' ? 'Mandi price update for Paddy.' : 'Group selling pool updated.',
+        time: 'Just now',
+        type: category,
+        route: category === 'climate' ? '/sih/climate-risk' : category === 'mandi' ? '/sih/smart-mandi' : '/sih/aggregation'
+      };
+
+      setNotifications(prev => [newNotif, ...prev]);
+    } catch {
+      setTestSuccess('Notification added locally.');
+    } finally {
+      setSendingTest(false);
+    }
   };
 
   const cards = [
@@ -121,36 +205,212 @@ export const MobileModuleHomePage: React.FC = () => {
       }}>
         <div>
           <h1 style={{ fontSize: '1.4rem', fontWeight: 900, color: '#0F172A', margin: 0 }}>
-            Hello, Farmer! 👋
+            Hello, {farmerName}! 👋
           </h1>
           <p style={{ fontSize: '0.85rem', color: '#64748B', margin: '0.15rem 0 0 0', fontWeight: 500 }}>
             SIH Innovations & Farming Tools
           </p>
         </div>
 
-        {/* User Profile Avatar */}
-        <button
-          onClick={() => navigate('/profile')}
-          title="Profile & Settings"
-          style={{
-            width: '42px',
-            height: '42px',
-            borderRadius: '50%',
-            background: 'linear-gradient(135deg, #16A34A 0%, #15803D 100%)',
-            color: '#FFFFFF',
-            border: 'none',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontWeight: 800,
-            fontSize: '1rem',
-            boxShadow: '0 4px 10px rgba(22, 163, 74, 0.25)',
-            cursor: 'pointer'
-          }}
-        >
-          {user?.fullName ? user.fullName[0].toUpperCase() : '👨‍🌾'}
-        </button>
+        {/* Action Controls: Notification Bell Tab (Left of Profile) + Profile Avatar */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+          {/* Notification Tab Button (Left of Profile) */}
+          <button
+            onClick={() => setShowNotifDrawer(true)}
+            title="Notifications & Alerts"
+            style={{
+              width: '42px',
+              height: '42px',
+              borderRadius: '50%',
+              background: '#F1F5F9',
+              border: '1px solid #E2E8F0',
+              color: '#0F172A',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              position: 'relative',
+              transition: 'all 0.2s ease'
+            }}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: '22px', color: '#1E293B' }}>
+              notifications
+            </span>
+            {notifications.length > 0 && (
+              <span style={{
+                position: 'absolute',
+                top: '4px',
+                right: '4px',
+                width: '10px',
+                height: '10px',
+                borderRadius: '50%',
+                background: '#EF4444',
+                border: '2px solid #FFFFFF'
+              }} />
+            )}
+          </button>
+
+          {/* User Profile Avatar */}
+          <button
+            onClick={() => navigate('/profile')}
+            title="Profile & Settings"
+            style={{
+              width: '42px',
+              height: '42px',
+              borderRadius: '50%',
+              background: 'linear-gradient(135deg, #16A34A 0%, #15803D 100%)',
+              color: '#FFFFFF',
+              border: 'none',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontWeight: 800,
+              fontSize: '1rem',
+              boxShadow: '0 4px 10px rgba(22, 163, 74, 0.25)',
+              cursor: 'pointer'
+            }}
+          >
+            {user?.fullName ? user.fullName[0].toUpperCase() : '👨‍🌾'}
+          </button>
+        </div>
       </header>
+
+      {/* Interactive Notification Drawer Modal */}
+      {showNotifDrawer && (
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          background: 'rgba(15, 23, 42, 0.6)',
+          backdropFilter: 'blur(4px)',
+          zIndex: 999,
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'flex-start',
+          padding: '1rem'
+        }} onClick={() => setShowNotifDrawer(false)}>
+          <div style={{
+            width: '100%',
+            maxWidth: '440px',
+            background: '#FFFFFF',
+            borderRadius: '20px',
+            boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)',
+            padding: '1.25rem',
+            maxHeight: '85vh',
+            overflowY: 'auto',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '1rem',
+            marginTop: '2rem'
+          }} onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #E2E8F0', paddingBottom: '0.75rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <span className="material-symbols-outlined" style={{ color: '#16A34A', fontSize: '24px' }}>notifications</span>
+                <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#0F172A', margin: 0 }}>
+                  Agriculture Notifications
+                </h3>
+              </div>
+              <button
+                onClick={() => setShowNotifDrawer(false)}
+                style={{ background: 'none', border: 'none', fontSize: '1.4rem', color: '#64748B', cursor: 'pointer' }}
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* SIH Judge Demo Test Notification Trigger */}
+            <div style={{
+              background: '#F0FDF4',
+              border: '1px solid #BBF7D0',
+              borderRadius: '14px',
+              padding: '0.85rem'
+            }}>
+              <div style={{ fontSize: '0.8rem', fontWeight: 800, color: '#166534', marginBottom: '0.4rem', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                <span className="material-symbols-outlined" style={{ fontSize: '18px', color: '#16A34A' }}>send</span>
+                <span>Send Test Push Notification (SIH Demo):</span>
+              </div>
+
+              {!pushSubscription && (
+                <button
+                  onClick={subscribeToNotifications}
+                  style={{
+                    width: '100%',
+                    background: '#16A34A',
+                    color: '#FFFFFF',
+                    border: 'none',
+                    borderRadius: '8px',
+                    padding: '0.45rem',
+                    fontSize: '0.78rem',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    marginBottom: '0.5rem'
+                  }}
+                >
+                  Enable PWA Android Push Notifications
+                </button>
+              )}
+
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.4rem' }}>
+                <button
+                  onClick={() => sendTestAlert('climate')}
+                  disabled={sendingTest}
+                  style={{ background: '#DBEAFE', color: '#1D4ED8', border: 'none', borderRadius: '8px', padding: '0.4rem 0.2rem', fontSize: '0.72rem', fontWeight: 800, cursor: 'pointer' }}
+                >
+                  🌧️ Climate
+                </button>
+                <button
+                  onClick={() => sendTestAlert('mandi')}
+                  disabled={sendingTest}
+                  style={{ background: '#FFEDD5', color: '#C2410C', border: 'none', borderRadius: '8px', padding: '0.4rem 0.2rem', fontSize: '0.72rem', fontWeight: 800, cursor: 'pointer' }}
+                >
+                  📍 Mandi
+                </button>
+                <button
+                  onClick={() => sendTestAlert('aggregation')}
+                  disabled={sendingTest}
+                  style={{ background: '#DCFCE7', color: '#15803D', border: 'none', borderRadius: '8px', padding: '0.4rem 0.2rem', fontSize: '0.72rem', fontWeight: 800, cursor: 'pointer' }}
+                >
+                  🤝 Pool
+                </button>
+              </div>
+
+              {testSuccess && (
+                <div style={{ fontSize: '0.75rem', color: '#16A34A', fontWeight: 700, marginTop: '0.4rem' }}>
+                  ✓ {testSuccess}
+                </div>
+              )}
+            </div>
+
+            {/* Notification Items List */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
+              {notifications.map(n => (
+                <div
+                  key={n.id}
+                  onClick={() => {
+                    setShowNotifDrawer(false);
+                    navigate(n.route);
+                  }}
+                  style={{
+                    background: '#F8FAFC',
+                    border: '1px solid #E2E8F0',
+                    borderRadius: '12px',
+                    padding: '0.75rem 0.85rem',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '0.2rem'
+                  }}
+                >
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#0F172A' }}>{n.title}</span>
+                    <span style={{ fontSize: '0.68rem', color: '#64748B', fontWeight: 600 }}>{n.time}</span>
+                  </div>
+                  <p style={{ fontSize: '0.78rem', color: '#475569', margin: 0, lineHeight: 1.3 }}>{n.message}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Main 2-Column Grid for Module Cards */}
       <main style={{ padding: '1rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>

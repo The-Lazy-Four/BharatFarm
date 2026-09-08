@@ -4,4 +4,5 @@ export * from './LanguageContext.js';
 export * from './ThemeContext.js';
 export * from './WeatherContext.js';
 export * from './DataSaverContext.js';
+export * from './PWAContext.js';
 

@@ -5,6 +5,7 @@ import { useTheme } from '../../context/ThemeContext.js';
 
 const basicFarmerNavItems = [
   { path: '/home', label: 'Feature Selector', icon: 'home' },
+  { path: '/demo', label: 'App Demo Videos', icon: 'play_circle' },
   { path: '/dashboard', label: 'Farmer Dashboard', icon: 'dashboard' },
   { path: '/scanner', label: 'Leaf Scanner AI', icon: 'biotech' },
   { path: '/crop-roadmap', label: 'Crop Roadmap', icon: 'route' },
