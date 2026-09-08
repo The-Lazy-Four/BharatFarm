@@ -1,206 +1,306 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { SihLayout } from '../../shared/SihLayout';
+import { ClimateRiskService } from '../climateRisk.service';
+import {
+  WeatherData,
+  FloodRiskAssessment,
+  ClimateAssessmentResult,
+  AssessmentHistoryItem,
+  FoodSecuritySnapshot,
+  DistrictRiskItem,
+  ScenarioSimulationResult,
+  AiInsightResult
+} from '../types';
+
+// Subcomponents
+import { TopSelectorHeader } from '../components/TopSelectorHeader';
+import { RiskSummaryCards } from '../components/RiskSummaryCards';
+import { WhatToDoNowHero } from '../components/WhatToDoNowHero';
+import { BestWorkWindowSection } from '../components/BestWorkWindowSection';
+import { CurrentWeatherSection } from '../components/CurrentWeatherSection';
+import { SevenDayForecastSection } from '../components/SevenDayForecastSection';
+import { RainfallAnalysisSection } from '../components/RainfallAnalysisSection';
+import { FloodRiskSection } from '../components/FloodRiskSection';
+import { CropRiskSection } from '../components/CropRiskSection';
+import { HarvestDecisionSection } from '../components/HarvestDecisionSection';
+import { FieldOperationsTable } from '../components/FieldOperationsTable';
+import { PostHarvestSection } from '../components/PostHarvestSection';
+import { ClimateAlertsSection } from '../components/ClimateAlertsSection';
+import { LocationRiskViewSection } from '../components/LocationRiskViewSection';
+import { FarmerActionTimelineSection } from '../components/FarmerActionTimelineSection';
+import { HistoricalRiskSection } from '../components/HistoricalRiskSection';
+import { FoodSecurityDashboard } from '../components/FoodSecurityDashboard';
 
 export const ClimateRiskPage: React.FC = () => {
-  const [selectedCrop, setSelectedCrop] = useState('Wheat');
+  // Navigation tab state
+  const [activeTab, setActiveTab] = useState<'farmer' | 'government'>('farmer');
 
-  const forecast = [
-    { day: 'Mon', temp: '28°C', condition: 'Sunny', rain: '10%' },
-    { day: 'Tue', temp: '29°C', condition: 'Partly Cloudy', rain: '20%' },
-    { day: 'Wed', temp: '26°C', condition: 'Light Rain', rain: '65%' },
-    { day: 'Thu', temp: '27°C', condition: 'Sunny', rain: '15%' },
-    { day: 'Fri', temp: '30°C', condition: 'Clear', rain: '5%' },
-    { day: 'Sat', temp: '31°C', condition: 'Sunny', rain: '0%' },
-    { day: 'Sun', temp: '29°C', condition: 'Partly Cloudy', rain: '25%' }
-  ];
+  // Location and coordinate state (default: Haldia, West Bengal)
+  const [location, setLocation] = useState<string>('Haldia, West Bengal');
+  const [latitude, setLatitude] = useState<number>(22.0667);
+  const [longitude, setLongitude] = useState<number>(88.0667);
+
+  // Crop & Stage state
+  const [crop, setCrop] = useState<string>('Paddy');
+  const [cropStage, setCropStage] = useState<string>('Flowering');
+
+  // Loading & data state
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [weatherData, setWeatherData] = useState<WeatherData | null>(null);
+  const [floodData, setFloodData] = useState<FloodRiskAssessment | null>(null);
+  const [assessmentData, setAssessmentData] = useState<ClimateAssessmentResult | null>(null);
+  const [aiInsight, setAiInsight] = useState<AiInsightResult | null>(null);
+
+  // Government data state
+  const [foodSnapshot, setFoodSnapshot] = useState<FoodSecuritySnapshot | null>(null);
+  const [districtRisks, setDistrictRisks] = useState<DistrictRiskItem[]>([]);
+  const [historyLogs, setHistoryLogs] = useState<AssessmentHistoryItem[]>([]);
+
+  // Main loader: resolves coordinates and fetches all dependent data
+  const loadAllData = async (loc: string, c: string, st: string, lat?: number, lon?: number) => {
+    setIsLoading(true);
+    try {
+      const { weather, flood, assessment } = await ClimateRiskService.fetchFullAssessment(loc, c, st, lat, lon);
+      setWeatherData(weather);
+      setFloodData(flood);
+      setAssessmentData(assessment);
+
+      // Fetch AI insight using real data
+      const insight = await ClimateRiskService.fetchAiInsight({
+        location: loc,
+        crop: c,
+        cropStage: st,
+        overallRiskScore: assessment.overallRiskScore,
+        floodScore: flood.floodScore,
+        cropRiskScore: assessment.cropRisk.cropRiskScore,
+        harvestCode: assessment.harvestAdvisory.actionCode,
+        rainfallMm: assessment.rainfallAnalysis.total7DayMm,
+        mainThreat: flood.reasons[0] || 'Rainfall'
+      });
+      setAiInsight(insight);
+
+      // Food security and history data
+      const foodSnap = await ClimateRiskService.fetchFoodSecurityOverview('West Bengal', c);
+      setFoodSnapshot(foodSnap);
+
+      const districts = await ClimateRiskService.fetchDistrictRisks('West Bengal');
+      setDistrictRisks(districts);
+
+      const history = await ClimateRiskService.fetchHistory();
+      setHistoryLogs(history);
+    } catch (err) {
+      console.error('Failed to load climate telemetry:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // 1. Auto-select and fetch Haldia on first load
+  useEffect(() => {
+    loadAllData(location, crop, cropStage, latitude, longitude);
+  }, []);
+
+  // Handle location selection from geocoding autocomplete
+  const handleLocationSelect = (locObj: { displayName: string; lat: number; lon: number }) => {
+    setLocation(locObj.displayName);
+    setLatitude(locObj.lat);
+    setLongitude(locObj.lon);
+    loadAllData(locObj.displayName, crop, cropStage, locObj.lat, locObj.lon);
+  };
+
+  // Handle crop change
+  const handleCropChange = (newCrop: string) => {
+    setCrop(newCrop);
+    loadAllData(location, newCrop, cropStage, latitude, longitude);
+  };
+
+  // Handle crop stage change
+  const handleStageChange = (newStage: string) => {
+    setCropStage(newStage);
+    loadAllData(location, crop, newStage, latitude, longitude);
+  };
+
+  // Manual refresh button
+  const handleRefresh = () => {
+    loadAllData(location, crop, cropStage, latitude, longitude);
+  };
+
+  const handleSimulateScenario = async (lossPct: number): Promise<ScenarioSimulationResult> => {
+    return await ClimateRiskService.runScenarioSimulation(lossPct, 'West Bengal', crop);
+  };
 
   return (
-    <SihLayout activeModuleId="climate-risk" moduleTitle="Climate Risk" moduleIcon="partly_cloudy_day">
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '1.75rem' }}>
-        
-        {/* Title */}
-        <div>
-          <h1 style={{ fontSize: '1.75rem', fontWeight: 900, color: '#0F172A', margin: 0 }}>
-            Climate Risk Advisor
-          </h1>
-          <p style={{ fontSize: '0.95rem', color: '#64748B', marginTop: '0.35rem', margin: 0 }}>
-            Plan smarter. Procure better.
-          </p>
-        </div>
+    <SihLayout activeModuleId="climate-risk" moduleTitle="Climate Risk Planner" moduleIcon="partly_cloudy_day">
+      <div style={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '0.85rem',
+        maxWidth: '1200px',
+        margin: '0 auto',
+        paddingBottom: '2.5rem'
+      }}>
 
-        {/* Weather Summary Card & Risk Level Badge */}
+        {/* 1. COMPACT TOP SELECTOR & HEADER */}
+        <TopSelectorHeader
+          selectedLocation={location}
+          selectedCrop={crop}
+          selectedStage={cropStage}
+          onLocationSelect={handleLocationSelect}
+          onCropChange={handleCropChange}
+          onStageChange={handleStageChange}
+          onRefresh={handleRefresh}
+          isAnalyzing={isLoading}
+          dataSource={weatherData?.source || 'LIVE_OPEN_METEO'}
+        />
+
+        {/* 2. COMPACT TAB SWITCHER */}
         <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-          gap: '1.5rem'
+          display: 'flex',
+          gap: '0.35rem',
+          background: '#e2e8f0',
+          padding: '0.25rem',
+          borderRadius: '8px',
+          width: 'fit-content'
         }}>
-          {/* Main Weather Card */}
-          <div style={{
-            background: '#FFFFFF',
-            borderRadius: '20px',
-            padding: '1.75rem',
-            border: '1px solid #E2E8F0',
-            boxShadow: '0 4px 12px rgba(0,0,0,0.03)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between'
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
-              <div style={{
-                width: '64px',
-                height: '64px',
-                borderRadius: '16px',
-                background: '#FEF3C7',
-                color: '#D97706',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-              }}>
-                <span className="material-symbols-outlined" style={{ fontSize: '38px' }}>partly_cloudy_day</span>
-              </div>
-
-              <div>
-                <div style={{ fontSize: '2.25rem', fontWeight: 900, color: '#0F172A', lineHeight: 1 }}>
-                  24°C
-                </div>
-                <div style={{ fontSize: '0.95rem', color: '#64748B', fontWeight: 600, marginTop: '0.2rem' }}>
-                  Partly Cloudy
-                </div>
-              </div>
-            </div>
-
-            {/* Risk Level Badge */}
-            <div style={{
-              background: '#DCFCE7',
-              color: '#15803D',
-              padding: '0.5rem 1rem',
-              borderRadius: '20px',
+          <button
+            onClick={() => setActiveTab('farmer')}
+            style={{
+              padding: '0.35rem 0.85rem',
+              borderRadius: '6px',
+              border: 'none',
+              background: activeTab === 'farmer' ? '#ffffff' : 'transparent',
+              color: activeTab === 'farmer' ? '#0f172a' : '#64748b',
               fontWeight: 800,
-              fontSize: '0.85rem',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '0.35rem'
-            }}>
-              <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>check_circle</span>
-              <span>Low Risk</span>
-            </div>
-          </div>
+              fontSize: '0.78rem',
+              cursor: 'pointer',
+              boxShadow: activeTab === 'farmer' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none'
+            }}
+          >
+            👨‍🌾 Farmer Decision Hub
+          </button>
 
-          {/* Target Crop Selector */}
-          <div style={{
-            background: '#FFFFFF',
-            borderRadius: '20px',
-            padding: '1.75rem',
-            border: '1px solid #E2E8F0',
-            boxShadow: '0 4px 12px rgba(0,0,0,0.03)',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'center',
-            gap: '0.5rem'
-          }}>
-            <label style={{ fontSize: '0.85rem', fontWeight: 700, color: '#475569' }}>
-              Select Target Crop:
-            </label>
-            <select
-              value={selectedCrop}
-              onChange={(e) => setSelectedCrop(e.target.value)}
-              style={{
-                padding: '0.75rem 1rem',
-                borderRadius: '12px',
-                border: '1px solid #CBD5E1',
-                background: '#F8FAFC',
-                fontSize: '0.95rem',
-                fontWeight: 700,
-                color: '#0F172A',
-                outline: 'none'
-              }}
-            >
-              <option value="Wheat">Wheat (Rabi Season)</option>
-              <option value="Paddy">Paddy / Rice (Kharif)</option>
-              <option value="Mustard">Mustard (Oilseed)</option>
-              <option value="Cotton">Cotton</option>
-            </select>
-          </div>
+          <button
+            onClick={() => setActiveTab('government')}
+            style={{
+              padding: '0.35rem 0.85rem',
+              borderRadius: '6px',
+              border: 'none',
+              background: activeTab === 'government' ? '#0f172a' : 'transparent',
+              color: activeTab === 'government' ? '#ffffff' : '#64748b',
+              fontWeight: 800,
+              fontSize: '0.78rem',
+              cursor: 'pointer',
+              boxShadow: activeTab === 'government' ? '0 1px 3px rgba(0,0,0,0.15)' : 'none'
+            }}
+          >
+            🏛️ Govt Food Security Tab
+          </button>
         </div>
 
-        {/* 7-Day Forecast & Recommendations Grid */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-          gap: '1.5rem'
-        }}>
-          
-          {/* 7-Day Forecast */}
+        {/* LOADING INDICATOR */}
+        {isLoading && !assessmentData ? (
           <div style={{
-            background: '#FFFFFF',
-            borderRadius: '20px',
-            padding: '1.75rem',
-            border: '1px solid #E2E8F0',
-            boxShadow: '0 4px 12px rgba(0,0,0,0.03)'
+            padding: '3rem 2rem',
+            textAlign: 'center',
+            background: '#ffffff',
+            borderRadius: '10px',
+            border: '1px solid #e2e8f0'
           }}>
-            <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#0F172A', margin: '0 0 1.25rem 0' }}>
-              7-Day Forecast
-            </h3>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-              {forecast.map((f, idx) => (
-                <div key={idx} style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  padding: '0.6rem 0.85rem',
-                  borderRadius: '12px',
-                  background: idx === 0 ? '#F1F5F9' : 'transparent'
-                }}>
-                  <span style={{ width: '50px', fontWeight: 700, fontSize: '0.9rem', color: '#334155' }}>{f.day}</span>
-                  <span style={{ fontSize: '0.85rem', color: '#64748B', flex: 1 }}>{f.condition}</span>
-                  <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#0F172A', width: '60px', textAlign: 'right' }}>{f.temp}</span>
-                  <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#0284C7', width: '50px', textAlign: 'right' }}>☔ {f.rain}</span>
-                </div>
-              ))}
+            <div style={{ fontSize: '1rem', fontWeight: 800, color: '#0f172a' }}>
+              Fetching real-time weather & calculating agricultural risk...
+            </div>
+            <div style={{ fontSize: '0.78rem', color: '#64748b', marginTop: '0.3rem' }}>
+              Resolving coordinates for {location} • Querying Open-Meteo
             </div>
           </div>
+        ) : activeTab === 'farmer' ? (
+          /* ============================================================ */
+          /* FARMER DECISION DASHBOARD (STRICT DECISION-FIRST ORDER)       */
+          /* ============================================================ */
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
 
-          {/* Recommendations */}
-          <div style={{
-            background: '#FFFFFF',
-            borderRadius: '20px',
-            padding: '1.75rem',
-            border: '1px solid #E2E8F0',
-            boxShadow: '0 4px 12px rgba(0,0,0,0.03)'
-          }}>
-            <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#0F172A', margin: '0 0 1.25rem 0' }}>
-              Recommendations
-            </h3>
+            {/* 1. RISK SUMMARY (4-CARD COMPACT STRIP) */}
+            {assessmentData && <RiskSummaryCards assessment={assessmentData} />}
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              <div style={{ display: 'flex', gap: '0.85rem', alignItems: 'flex-start' }}>
-                <span className="material-symbols-outlined" style={{ color: '#16A34A', fontSize: '22px' }}>check_circle</span>
-                <div>
-                  <h4 style={{ fontSize: '0.95rem', fontWeight: 800, color: '#0F172A', margin: 0 }}>Best time to procure</h4>
-                  <p style={{ fontSize: '0.85rem', color: '#64748B', margin: '0.2rem 0 0 0' }}>Procure fertilizers before Wednesday rain forecast.</p>
-                </div>
+            {/* 2. WHAT TO DO NOW (HERO ACTION PANEL) */}
+            <WhatToDoNowHero
+              insight={aiInsight}
+              dominantThreat={floodData?.reasons[0] || 'Heavy rainfall'}
+            />
+
+            {/* 3. BEST WORK WINDOW */}
+            {weatherData && <BestWorkWindowSection hourly={weatherData.hourly} />}
+
+            {/* 4. CURRENT WEATHER + 7-DAY FORECAST (2-COLUMN GRID) */}
+            {weatherData && (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '0.75rem' }}>
+                <CurrentWeatherSection weather={weatherData} />
+                <SevenDayForecastSection daily={weatherData.daily} />
               </div>
+            )}
 
-              <div style={{ display: 'flex', gap: '0.85rem', alignItems: 'flex-start' }}>
-                <span className="material-symbols-outlined" style={{ color: '#16A34A', fontSize: '22px' }}>trending_up</span>
-                <div>
-                  <h4 style={{ fontSize: '0.95rem', fontWeight: 800, color: '#0F172A', margin: 0 }}>Expected yield impact</h4>
-                  <p style={{ fontSize: '0.85rem', color: '#64748B', margin: '0.2rem 0 0 0' }}>+8% favorable moisture conditions for {selectedCrop}.</p>
-                </div>
-              </div>
-
-              <div style={{ display: 'flex', gap: '0.85rem', alignItems: 'flex-start' }}>
-                <span className="material-symbols-outlined" style={{ color: '#D97706', fontSize: '22px' }}>warning</span>
-                <div>
-                  <h4 style={{ fontSize: '0.95rem', fontWeight: 800, color: '#0F172A', margin: 0 }}>Risk alerts</h4>
-                  <p style={{ fontSize: '0.85rem', color: '#64748B', margin: '0.2rem 0 0 0' }}>Avoid pesticide spraying on Wednesday due to predicted precipitation.</p>
-                </div>
-              </div>
+            {/* 5. RAINFALL + FLOOD RISK (2-COLUMN GRID) */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '0.75rem' }}>
+              {assessmentData && <RainfallAnalysisSection rainfall={assessmentData.rainfallAnalysis} />}
+              {floodData && <FloodRiskSection flood={floodData} />}
             </div>
-          </div>
 
-        </div>
+            {/* 6. HARVEST DECISION + FIELD OPERATIONS (2-COLUMN GRID) */}
+            {assessmentData && (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '0.75rem' }}>
+                <HarvestDecisionSection
+                  harvestAdvisory={assessmentData.harvestAdvisory}
+                  cropRisk={assessmentData.cropRisk}
+                />
+                <FieldOperationsTable advisories={assessmentData.operationalAdvisories} />
+              </div>
+            )}
+
+            {/* 7. CROP RISK + POST-HARVEST (2-COLUMN GRID) */}
+            {assessmentData && (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '0.75rem' }}>
+                <CropRiskSection cropRisk={assessmentData.cropRisk} />
+                <PostHarvestSection
+                  procurement={assessmentData.procurementAdvisory}
+                  storage={assessmentData.storageAdvisory}
+                />
+              </div>
+            )}
+
+            {/* 8. ALERTS + FIELD LOCATION (2-COLUMN GRID) */}
+            {assessmentData && (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '0.75rem' }}>
+                <ClimateAlertsSection alerts={assessmentData.alerts} />
+                <LocationRiskViewSection
+                  location={location}
+                  latitude={latitude}
+                  longitude={longitude}
+                  assessment={assessmentData}
+                />
+              </div>
+            )}
+
+            {/* 9. FARMER ACTION TIMELINE */}
+            {assessmentData && (
+              <FarmerActionTimelineSection plan={assessmentData.farmerActionPlan} />
+            )}
+
+            {/* 10. HISTORICAL LOG (COMPACT COLLAPSIBLE) */}
+            <HistoricalRiskSection history={historyLogs} />
+
+          </div>
+        ) : (
+          /* ============================================================ */
+          /* GOVERNMENT FOOD SECURITY & TRADE ADVISORY                   */
+          /* ============================================================ */
+          foodSnapshot && (
+            <FoodSecurityDashboard
+              snapshot={foodSnapshot}
+              districts={districtRisks}
+              onSimulateScenario={handleSimulateScenario}
+            />
+          )
+        )}
 
       </div>
     </SihLayout>

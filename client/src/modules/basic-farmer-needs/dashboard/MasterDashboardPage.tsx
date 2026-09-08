@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Card, Button, Badge } from '../../../core/ui';
 import { useAuth } from '../../../context/AuthContext';
-import { useWeatherContext } from '../../../context/WeatherContext';
 import { useDataSaver } from '../../../context/DataSaverContext';
 import { CentralAiApi } from '../../../services/centralAiApi';
 import { roadmapApi } from '../roadmap/api';
@@ -21,16 +20,12 @@ import { MobileBasicFarmerHome } from '../../../components/mobile/MobileBasicFar
 export const MasterDashboardPage: React.FC = () => {
   const isMobile = useIsMobile();
   const { user } = useAuth();
-  const { weather, visual, isLoading: isWeatherLoading } = useWeatherContext();
   const { dataSaverMode } = useDataSaver();
   const navigate = useNavigate();
 
   if (isMobile) {
     return <MobileBasicFarmerHome />;
   }
-
-  const isOffline = weather.source === 'OFFLINE' || Boolean(typeof navigator !== 'undefined' && !navigator.onLine);
-  const isCached = weather.source === 'CACHED' || weather.source === 'OFFLINE';
 
   // Dashboard module states
   const [roadmap, setRoadmap] = useState<CropRoadmapItem | null>(null);
@@ -190,16 +185,14 @@ export const MasterDashboardPage: React.FC = () => {
   // Determine Daily Action Priorities (Deterministic based on real data)
   const priorities: { id: string; icon: string; text: string; actionText: string; actionUrl: string; tag: 'weather' | 'roadmap' | 'scheme' | 'scan' }[] = [];
 
-  if (weather.rainfallProbability > 40 || (weather.daily?.[0]?.precipitationSum && weather.daily[0].precipitationSum > 2)) {
-    priorities.push({
-      id: 'p-rain',
-      icon: 'cloud_sync',
-      text: `Rain probability is ${weather.rainfallProbability}% today — postpone pesticide spraying & heavy irrigation.`,
-      actionText: 'Check Radar',
-      actionUrl: '/weather',
-      tag: 'weather'
-    });
-  }
+  priorities.push({
+    id: 'p-climate',
+    icon: 'partly_cloudy_day',
+    text: `Climate Risk Advisory: Check 7-day weather forecast & harvest advisory for ${farmerDistrict}.`,
+    actionText: 'Climate Planner',
+    actionUrl: '/sih/climate-risk',
+    tag: 'weather'
+  });
 
   if (roadmap) {
     const totalActivities = roadmap.activities?.length || 1;
@@ -446,81 +439,51 @@ export const MasterDashboardPage: React.FC = () => {
         </Card>
       </div>
 
-      {/* 3. WEATHER TELEMETRY CARD */}
-      <Card
-        title="🌦️ Local Weather Telemetry"
-        subtitle={`Live observation for ${weather.location || farmerDistrict}`}
-        action={
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <Badge variant={isOffline ? 'warning' : isCached ? 'secondary' : 'primary'}>
-              {isOffline ? 'OFFLINE' : isCached ? 'CACHED' : 'LIVE'}
-            </Badge>
-            <Link to="/weather" style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--primary)' }}>
-              Full Radar →
-            </Link>
+      {/* 3. CLIMATE RISK PLANNER SHORTCUT BANNER */}
+      <div style={{
+        background: 'linear-gradient(135deg, rgba(2, 132, 199, 0.12) 0%, rgba(14, 165, 233, 0.05) 100%)',
+        border: '1px solid rgba(2, 132, 199, 0.3)',
+        borderRadius: '12px',
+        padding: '1.25rem',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        flexWrap: 'wrap',
+        gap: '1rem'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <div style={{
+            width: '48px',
+            height: '48px',
+            borderRadius: '12px',
+            background: '#E0F2FE',
+            color: '#0284C7',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            flexShrink: 0
+          }}>
+            <span className="material-symbols-outlined" style={{ fontSize: '28px' }}>partly_cloudy_day</span>
           </div>
-        }
-      >
-        {isWeatherLoading ? (
-          <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>Loading live weather telemetry...</p>
-        ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginTop: '0.25rem' }}>
-            {/* Visual Weather Header */}
-            <div
-              className="card-feature-backed"
-              style={{
-                minHeight: '100px',
-                borderRadius: '8px',
-                overflow: 'hidden',
-                display: 'flex',
-                alignItems: 'center',
-                padding: '1rem',
-                position: 'relative'
-              }}
-            >
-              <img src={visual.url} alt={visual.label} className="card-feature-bg" style={{ filter: 'brightness(0.95)' }} />
-              <div className="card-feature-overlay" style={{ background: visual.overlayGradient }} />
-              <div className="card-feature-content" style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
-                <div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <span style={{ fontSize: '2.2rem', lineHeight: 1 }}>{visual.icon}</span>
-                    <h2 style={{ fontSize: '2rem', fontWeight: 900, color: '#FFFFFF', margin: 0 }}>
-                      {weather.temperatureCelsius}°C
-                    </h2>
-                  </div>
-                  <p style={{ fontSize: '0.82rem', color: 'rgba(255,255,255,0.95)', marginTop: '0.2rem', fontWeight: 600 }}>
-                    {weather.condition} • Humidity: {weather.humidityPercent}%
-                  </p>
-                </div>
-                <div style={{ textAlign: 'right', color: '#FFFFFF' }}>
-                  <span style={{ fontSize: '0.78rem', opacity: 0.9, display: 'block' }}>Rain Chance</span>
-                  <strong style={{ fontSize: '1.2rem', color: '#38bdf8' }}>☔ {weather.rainfallProbability}%</strong>
-                </div>
-              </div>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <h3 style={{ fontSize: '1.05rem', fontWeight: 800, color: 'var(--text-main)', margin: 0 }}>
+                Climate Risk Planner & Weather Intelligence Hub
+              </h3>
+              <Badge variant="primary">Authoritative Hub</Badge>
             </div>
+            <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', margin: '0.2rem 0 0 0' }}>
+              Access 7-day forecast, hourly wind/rain trends, flood risk engine, crop exposure analysis & harvest advisors.
+            </p>
+          </div>
+        </div>
 
-            {/* Weather Metrics Grid */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '0.5rem' }}>
-              <div style={{ background: 'var(--bg-card-hover)', padding: '0.6rem', borderRadius: '6px', textAlign: 'center' }}>
-                <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', display: 'block' }}>WIND SPEED</span>
-                <strong style={{ fontSize: '0.9rem', color: 'var(--text-main)' }}>💨 {weather.windSpeedKmh} km/h</strong>
-              </div>
-              <div style={{ background: 'var(--bg-card-hover)', padding: '0.6rem', borderRadius: '6px', textAlign: 'center' }}>
-                <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', display: 'block' }}>HUMIDITY</span>
-                <strong style={{ fontSize: '0.9rem', color: 'var(--text-main)' }}>💧 {weather.humidityPercent}%</strong>
-              </div>
-              <div style={{ background: 'var(--bg-card-hover)', padding: '0.6rem', borderRadius: '6px', textAlign: 'center' }}>
-                <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', display: 'block' }}>EXPECTED RAIN</span>
-                <strong style={{ fontSize: '0.9rem', color: 'var(--text-main)' }}>🌧️ {weather.daily?.[0]?.precipitationSum || 0} mm</strong>
-              </div>
-              <div style={{ background: 'var(--bg-card-hover)', padding: '0.6rem', borderRadius: '6px', textAlign: 'center' }}>
-                <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', display: 'block' }}>LAST UPDATED</span>
-                <strong style={{ fontSize: '0.78rem', color: 'var(--text-main)' }}>🕒 {new Date(weather.updatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</strong>
-              </div>
-            </div>
-          </div>
-        )}
-      </Card>
+        <Link to="/sih/climate-risk" style={{ textDecoration: 'none' }}>
+          <Button variant="primary" size="sm" style={{ background: '#0284C7', borderColor: '#0284C7' }}>
+            Open Climate Planner →
+          </Button>
+        </Link>
+      </div>
 
       {/* 4. TWO-COLUMN CORE MODULES (ROADMAP & SCANNER) */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1rem' }}>
