@@ -5,12 +5,13 @@ import { MobileBottomNav } from './MobileBottomNav';
 
 export const MobileModuleHomePage: React.FC = () => {
   const navigate = useNavigate();
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
 
   const cards = [
     {
       id: 'climate-risk',
       title: 'Climate Risk',
+      subtitle: 'Aware Procurement',
       description: 'Weather insights & procurement',
       icon: 'partly_cloudy_day',
       path: '/sih/climate-risk',
@@ -20,6 +21,7 @@ export const MobileModuleHomePage: React.FC = () => {
     {
       id: 'aggregation',
       title: 'Small-Farm Aggregation',
+      subtitle: 'Optimizer',
       description: 'Group buying & selling together',
       icon: 'groups',
       path: '/sih/aggregation',
@@ -29,6 +31,7 @@ export const MobileModuleHomePage: React.FC = () => {
     {
       id: 'crop-insurance',
       title: 'Crop Risk & Insurance',
+      subtitle: 'Verification',
       description: 'Crop health & claim support',
       icon: 'verified_user',
       path: '/sih/crop-insurance',
@@ -38,7 +41,8 @@ export const MobileModuleHomePage: React.FC = () => {
     {
       id: 'smart-mandi',
       title: 'Smart Mandi',
-      description: 'Best mandi prices & nearest markets',
+      subtitle: 'Intelligence',
+      description: 'Best mandi prices & markets',
       icon: 'bar_chart',
       path: '/sih/smart-mandi',
       bg: '#FFF7ED',
@@ -47,6 +51,7 @@ export const MobileModuleHomePage: React.FC = () => {
     {
       id: 'sahayak',
       title: 'Sahayak + WhatsApp',
+      subtitle: 'Assisted Access',
       description: 'AI & human support in your language',
       icon: 'chat',
       path: '/sih/sahayak',
@@ -54,8 +59,19 @@ export const MobileModuleHomePage: React.FC = () => {
       color: '#6D28D9'
     },
     {
+      id: 'field-mapping',
+      title: 'Field Mapping',
+      subtitle: 'Walk the Farm',
+      description: 'Map field boundary & crop location',
+      icon: 'map',
+      path: '/sih/field-mapping',
+      bg: '#E0F2FE',
+      color: '#0369A1'
+    },
+    {
       id: 'basic-needs',
       title: 'Basic Farmer Needs',
+      subtitle: 'Everyday Tools',
       description: 'Everyday farming tools & utilities',
       icon: 'agriculture',
       path: '/dashboard',
@@ -92,7 +108,7 @@ export const MobileModuleHomePage: React.FC = () => {
             Hello, Farmer! 👋
           </h1>
           <p style={{ fontSize: '0.85rem', color: '#64748B', margin: '0.15rem 0 0 0', fontWeight: 500 }}>
-            Choose what you need today
+            SIH Innovations & Farming Tools
           </p>
         </div>
 
@@ -120,7 +136,7 @@ export const MobileModuleHomePage: React.FC = () => {
         </button>
       </header>
 
-      {/* Main 2-Column Grid for 6 Module Cards */}
+      {/* Main 2-Column Grid for Module Cards */}
       <main style={{ padding: '1.25rem 1rem' }}>
         <div style={{
           display: 'grid',
@@ -141,7 +157,8 @@ export const MobileModuleHomePage: React.FC = () => {
                 display: 'flex',
                 flexDirection: 'column',
                 justifyContent: 'space-between',
-                minHeight: '140px'
+                minHeight: '145px',
+                gridColumn: card.isBasic ? 'span 2' : 'span 1'
               }}
             >
               <div>
@@ -159,9 +176,12 @@ export const MobileModuleHomePage: React.FC = () => {
                   <span className="material-symbols-outlined" style={{ fontSize: '22px' }}>{card.icon}</span>
                 </div>
 
-                <h2 style={{ fontSize: '0.95rem', fontWeight: 800, color: '#0F172A', margin: '0 0 0.25rem 0', lineHeight: 1.2 }}>
+                <h2 style={{ fontSize: '0.95rem', fontWeight: 800, color: '#0F172A', margin: '0 0 0.15rem 0', lineHeight: 1.2 }}>
                   {card.title}
                 </h2>
+                <div style={{ fontSize: '0.72rem', fontWeight: 800, color: card.color, marginBottom: '0.25rem' }}>
+                  {card.subtitle}
+                </div>
 
                 <p style={{ fontSize: '0.72rem', color: '#64748B', margin: 0, lineHeight: 1.3, fontWeight: 500 }}>
                   {card.description}

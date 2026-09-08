@@ -7,6 +7,7 @@ import { MobileModuleHomePage } from '../../components/mobile/MobileModuleHomePa
 interface SihCard {
   id: string;
   title: string;
+  subtitle?: string;
   description: string;
   icon: string;
   path: string;
@@ -22,47 +23,60 @@ export const ModuleHomePage: React.FC = () => {
     return <MobileModuleHomePage />;
   }
 
-
   const sihInnovations: SihCard[] = [
     {
       id: 'climate-risk',
       title: 'Climate Risk',
-      description: 'Weather insights & procurement',
+      subtitle: 'Aware Procurement',
+      description: 'Weather insights & procurement planner',
       icon: 'partly_cloudy_day',
       path: '/sih/climate-risk'
     },
     {
       id: 'aggregation',
-      title: 'Aggregation',
-      description: 'Group buying & selling',
+      title: 'Small-Farm Aggregation',
+      subtitle: 'Optimizer',
+      description: 'Group buying & collective selling',
       icon: 'groups',
       path: '/sih/aggregation'
     },
     {
       id: 'crop-insurance',
-      title: 'Crop Insurance',
-      description: 'Risk analysis & claim support',
+      title: 'Crop Risk & Insurance',
+      subtitle: 'Verification',
+      description: 'Satellite NDVI claim verification',
       icon: 'verified_user',
       path: '/sih/crop-insurance'
     },
     {
       id: 'smart-mandi',
       title: 'Smart Mandi',
-      description: 'Best prices & nearest markets',
+      subtitle: 'Intelligence',
+      description: 'Best mandi prices & market router',
       icon: 'bar_chart',
       path: '/sih/smart-mandi'
     },
     {
       id: 'sahayak',
-      title: 'Sahayak',
-      description: 'AI + Human support',
-      icon: 'eco',
+      title: 'Sahayak + WhatsApp',
+      subtitle: 'Assisted Access',
+      description: 'AI & human support in your language',
+      icon: 'chat',
       path: '/sih/sahayak'
+    },
+    {
+      id: 'field-mapping',
+      title: 'Field Mapping',
+      subtitle: 'Walk the Farm',
+      description: 'Map field boundaries & register crop location',
+      icon: 'map',
+      path: '/sih/field-mapping'
     }
   ];
 
   const filteredInnovations = sihInnovations.filter(item =>
     item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (item.subtitle && item.subtitle.toLowerCase().includes(searchQuery.toLowerCase())) ||
     item.description.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
@@ -75,7 +89,7 @@ export const ModuleHomePage: React.FC = () => {
       display: 'flex',
       flexDirection: 'column'
     }}>
-      
+
       {/* Top Main Navigation Header */}
       <header style={{
         background: '#FFFFFF',
@@ -117,7 +131,7 @@ export const ModuleHomePage: React.FC = () => {
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search anything..."
+            placeholder="Search SIH modules..."
             style={{
               width: '100%',
               padding: '0.55rem 1rem 0.55rem 2.5rem',
@@ -195,7 +209,7 @@ export const ModuleHomePage: React.FC = () => {
         flexDirection: 'column',
         gap: '2.5rem'
       }}>
-        
+
         {/* Welcome Banner */}
         <div>
           <h1 style={{
@@ -216,11 +230,11 @@ export const ModuleHomePage: React.FC = () => {
             marginBottom: 0,
             fontWeight: 500
           }}>
-            Choose a feature to continue
+            Choose an SIH innovation feature or open your everyday farming dashboard below.
           </p>
         </div>
 
-        {/* Section A: SIH Innovations */}
+        {/* Section A: SIH Innovations (6 Cards) */}
         <section>
           <div style={{
             display: 'flex',
@@ -231,18 +245,18 @@ export const ModuleHomePage: React.FC = () => {
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <span className="material-symbols-outlined" style={{ fontSize: '24px', color: '#16A34A' }}>eco</span>
               <h2 style={{ fontSize: '1.35rem', fontWeight: 900, color: '#0F172A', margin: 0 }}>
-                SIH Innovations
+                SIH Innovation Modules
               </h2>
             </div>
-            <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#64748B' }}>
-              5 Advanced Solutions
+            <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#15803D', background: '#DCFCE7', padding: '0.3rem 0.75rem', borderRadius: '14px' }}>
+              6 Core Modules
             </span>
           </div>
 
-          {/* 5 Compact Cards Grid */}
+          {/* 6 Cards Grid (Responsive 3x2 on desktop, 2x3 on tablet) */}
           <div style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
             gap: '1.25rem'
           }}>
             {filteredInnovations.map((card) => (
@@ -269,8 +283,8 @@ export const ModuleHomePage: React.FC = () => {
                     width: '44px',
                     height: '44px',
                     borderRadius: '12px',
-                    background: '#DCFCE7',
-                    color: '#15803D',
+                    background: card.id === 'field-mapping' ? '#E0F2FE' : '#DCFCE7',
+                    color: card.id === 'field-mapping' ? '#0369A1' : '#15803D',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -280,17 +294,23 @@ export const ModuleHomePage: React.FC = () => {
                   </div>
 
                   <h3 style={{
-                    fontSize: '1.1rem',
+                    fontSize: '1.15rem',
                     fontWeight: 800,
                     color: '#0F172A',
-                    margin: '0 0 0.35rem 0',
+                    margin: '0 0 0.2rem 0',
                     lineHeight: 1.2
                   }}>
                     {card.title}
                   </h3>
 
+                  {card.subtitle && (
+                    <div style={{ fontSize: '0.82rem', fontWeight: 800, color: card.id === 'field-mapping' ? '#0284C7' : '#16A34A', marginBottom: '0.4rem' }}>
+                      {card.subtitle}
+                    </div>
+                  )}
+
                   <p style={{
-                    fontSize: '0.82rem',
+                    fontSize: '0.85rem',
                     color: '#64748B',
                     margin: 0,
                     lineHeight: 1.4,
@@ -309,7 +329,7 @@ export const ModuleHomePage: React.FC = () => {
                     width: '32px',
                     height: '32px',
                     borderRadius: '50%',
-                    background: '#16A34A',
+                    background: card.id === 'field-mapping' ? '#0284C7' : '#16A34A',
                     color: '#FFFFFF',
                     display: 'flex',
                     alignItems: 'center',
@@ -323,7 +343,7 @@ export const ModuleHomePage: React.FC = () => {
           </div>
         </section>
 
-        {/* Section B: Basic Farmer Needs (Horizontal Banner Card) */}
+        {/* Section B: Basic Farmer Needs (Separate Product/Module) */}
         <section>
           <div
             onClick={() => navigate('/dashboard')}
@@ -363,7 +383,7 @@ export const ModuleHomePage: React.FC = () => {
                   Basic Farmer Needs
                 </h2>
                 <p style={{ fontSize: '1rem', color: '#854D0E', margin: 0, fontWeight: 700 }}>
-                  Your everyday farming companion
+                  Everyday farming companion (Weather, Schemes, Scanner, Marketplace)
                 </p>
               </div>
             </div>

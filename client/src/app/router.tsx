@@ -14,7 +14,8 @@ import {
   AggregationOptimizerPage,
   CropInsuranceVerificationPage,
   SmartMandiPage,
-  SahayakPage
+  SahayakPage,
+  FieldMappingPage
 } from '../modules/sih/index.js';
 
 import {
@@ -134,7 +135,7 @@ export const AppRouter: React.FC = () => {
       <Route path="/sih" element={<Navigate to="/home" replace />} />
       <Route path="/module-home" element={<Navigate to="/home" replace />} />
 
-      {/* 4. SIH Innovation Pages (5 Separate Pages) */}
+      {/* 4. SIH Innovation Pages (6 Innovation Pages) */}
       <Route
         path="/sih/climate-risk"
         element={
@@ -175,6 +176,14 @@ export const AppRouter: React.FC = () => {
           </ProtectedRoute>
         }
       />
+      <Route
+        path="/sih/field-mapping"
+        element={
+          <ProtectedRoute>
+            <FieldMappingPage />
+          </ProtectedRoute>
+        }
+      />
 
       {/* Backward Compatibility Aliases for SIH Routes */}
       <Route path="/innovations/climate-risk" element={<Navigate to="/sih/climate-risk" replace />} />
@@ -182,6 +191,7 @@ export const AppRouter: React.FC = () => {
       <Route path="/innovations/satellite-insurance" element={<Navigate to="/sih/crop-insurance" replace />} />
       <Route path="/innovations/smart-mandi" element={<Navigate to="/sih/smart-mandi" replace />} />
       <Route path="/innovations/sahayak" element={<Navigate to="/sih/sahayak" replace />} />
+      <Route path="/innovations/field-mapping" element={<Navigate to="/sih/field-mapping" replace />} />
 
       {/* 5. Basic Farmer Needs Section (Detached Platform wrapped in AppLayout) */}
       <Route
