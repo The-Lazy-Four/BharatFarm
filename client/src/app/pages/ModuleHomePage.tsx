@@ -4,6 +4,7 @@ import { useAuth } from '../../context/AuthContext.js';
 import { useIsMobile } from '../../hooks/useIsMobile';
 import { MobileModuleHomePage } from '../../components/mobile/MobileModuleHomePage';
 import { PriceRiskService } from '../../modules/sih/price-risk/priceRisk.service.js';
+import { NotificationDrawer } from '../../components/notifications/NotificationDrawer';
 
 interface SihCard {
   id: string;
@@ -18,8 +19,8 @@ interface SihCard {
 export const ModuleHomePage: React.FC = () => {
   const isMobile = useIsMobile();
   const navigate = useNavigate();
-  const { user, logout } = useAuth();
-  const [searchQuery, setSearchQuery] = useState('');
+  const { user } = useAuth();
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
 
   if (isMobile) {
     return <MobileModuleHomePage />;
@@ -90,11 +91,7 @@ export const ModuleHomePage: React.FC = () => {
     }
   ];
 
-  const filteredInnovations = sihInnovations.filter(item =>
-    item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    (item.subtitle && item.subtitle.toLowerCase().includes(searchQuery.toLowerCase())) ||
-    item.description.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredInnovations = sihInnovations;
 
   return (
     <div style={{
@@ -129,42 +126,10 @@ export const ModuleHomePage: React.FC = () => {
           <span style={{ fontSize: '1.3rem', fontWeight: 900, color: '#1E293B', letterSpacing: '-0.02em' }}>BharatFarm</span>
         </div>
 
-        {/* Global Search Bar */}
-        <div style={{
-          position: 'relative',
-          width: '100%',
-          maxWidth: '420px',
-          margin: '0 1rem'
-        }} className="header-search-bar">
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search SIH modules..."
-            style={{
-              width: '100%',
-              padding: '0.55rem 1rem 0.55rem 2.5rem',
-              borderRadius: '20px',
-              border: '1px solid #CBD5E1',
-              background: '#F1F5F9',
-              fontSize: '0.88rem',
-              outline: 'none',
-              boxSizing: 'border-box'
-            }}
-          />
-          <span className="material-symbols-outlined" style={{
-            position: 'absolute',
-            left: '0.8rem',
-            top: '50%',
-            transform: 'translateY(-50%)',
-            fontSize: '18px',
-            color: '#64748B'
-          }}>search</span>
-        </div>
-
         {/* Header Right Controls */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
           <button
+            onClick={() => setIsNotificationsOpen(true)}
             title="Notifications"
             style={{
               background: '#F1F5F9',
@@ -176,16 +141,27 @@ export const ModuleHomePage: React.FC = () => {
               alignItems: 'center',
               justifyContent: 'center',
               color: '#475569',
-              cursor: 'pointer'
+              cursor: 'pointer',
+              position: 'relative'
             }}
           >
             <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>notifications</span>
+            <span style={{
+              position: 'absolute',
+              top: '4px',
+              right: '4px',
+              width: '9px',
+              height: '9px',
+              borderRadius: '50%',
+              background: '#EF4444',
+              border: '2px solid #FFFFFF'
+            }} />
           </button>
 
           {/* User Avatar Circle */}
           <div
-            onClick={logout}
-            title={`Logged in as ${user?.fullName || 'Farmer'} (Click to Logout)`}
+            onClick={() => navigate('/profile')}
+            title={`View Profile & Settings (${user?.fullName || 'Farmer'})`}
             style={{
               width: '38px',
               height: '38px',
@@ -205,6 +181,12 @@ export const ModuleHomePage: React.FC = () => {
           </div>
         </div>
       </header>
+
+      {/* Interactive Notifications Drawer */}
+      <NotificationDrawer
+        isOpen={isNotificationsOpen}
+        onClose={() => setIsNotificationsOpen(false)}
+      />
 
       {/* Main Body */}
       <main style={{

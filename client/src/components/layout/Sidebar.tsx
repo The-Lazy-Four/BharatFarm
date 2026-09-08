@@ -13,8 +13,7 @@ const basicFarmerNavItems = [
   { path: '/schemes', label: 'Govt Schemes', icon: 'account_balance' },
   { path: '/calculator', label: 'Farm Calculator', icon: 'calculate' },
   { path: '/loan-eligibility', label: 'Loan Eligibility', icon: 'credit_card' },
-  { path: '/orders', label: 'Orders & Delivery', icon: 'local_shipping' },
-  { path: '/profile', label: 'Profile & Settings', icon: 'settings' }
+  { path: '/orders', label: 'Orders & Delivery', icon: 'local_shipping' }
 ];
 
 export const Sidebar: React.FC = () => {

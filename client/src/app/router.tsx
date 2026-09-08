@@ -33,6 +33,8 @@ import {
   CropRoadmapPage
 } from '../modules/basic-farmer-needs/index.js';
 
+import { FarmerProfilePage } from './pages/FarmerProfilePage';
+
 /**
  * ProtectedRoute component — Redirects unauthenticated users to /login
  */
@@ -321,9 +323,7 @@ export const AppRouter: React.FC = () => {
         path="/profile"
         element={
           <ProtectedRoute>
-            <AppLayout>
-              <ProfileSettingsPage />
-            </AppLayout>
+            <FarmerProfilePage />
           </ProtectedRoute>
         }
       />
