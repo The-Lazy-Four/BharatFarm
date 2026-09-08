@@ -60,19 +60,11 @@ export const MobileAuthPage: React.FC<MobileAuthPageProps> = ({ mode }) => {
     }}>
       {/* Top Header Logo */}
       <div style={{ padding: '2rem 1.5rem 0', textAlign: 'center' }}>
-        <div style={{
-          width: '48px',
-          height: '48px',
-          borderRadius: '14px',
-          background: 'linear-gradient(135deg, #16A34A 0%, #15803D 100%)',
-          display: 'inline-flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          boxShadow: '0 6px 16px rgba(22, 163, 74, 0.25)',
-          marginBottom: '0.5rem'
-        }}>
-          <span className="material-symbols-outlined" style={{ fontSize: '28px', color: '#FFFFFF' }}>agriculture</span>
-        </div>
+        <img
+          src="/icons/icon-96.png"
+          alt="BharatFarm"
+          style={{ width: '48px', height: '48px', borderRadius: '12px', objectFit: 'contain', marginBottom: '0.35rem' }}
+        />
         <h1 style={{ fontSize: '1.6rem', fontWeight: 900, color: '#0F172A', margin: 0 }}>
           BharatFarm
         </h1>

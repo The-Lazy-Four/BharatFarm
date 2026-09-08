@@ -38,19 +38,11 @@ export const Sidebar: React.FC = () => {
     >
       {/* Logo Section */}
       <div style={{ padding: '0 1.25rem', marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
-        <div style={{
-          width: '38px',
-          height: '38px',
-          borderRadius: '10px',
-          background: 'linear-gradient(135deg, #16A34A 0%, #15803D 100%)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          flexShrink: 0,
-          boxShadow: '0 2px 8px rgba(22, 163, 74, 0.4)'
-        }}>
-          <span className="material-symbols-outlined" style={{ fontSize: '22px', color: '#FFFFFF' }}>agriculture</span>
-        </div>
+        <img
+          src="/icons/icon-96.png"
+          alt="BharatFarm"
+          style={{ width: '38px', height: '38px', borderRadius: '10px', objectFit: 'contain', flexShrink: 0 }}
+        />
         <div>
           <h1 style={{ fontSize: '1.15rem', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.02em', lineHeight: 1 }}>BharatFarm</h1>
           <span style={{ fontSize: '0.65rem', color: 'var(--signal-lime)', fontWeight: 700, letterSpacing: '0.04em' }}>BASIC FARMER NEEDS</span>

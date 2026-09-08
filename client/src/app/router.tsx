@@ -50,19 +50,12 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
         flexDirection: 'column',
         gap: '1rem'
       }}>
-        <div style={{
-          width: '48px',
-          height: '48px',
-          borderRadius: '12px',
-          background: 'var(--signal-lime, #16a34a)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center'
-        }}>
-          <span className="material-symbols-outlined spin" style={{ fontSize: '28px', color: '#ffffff' }}>
-            agriculture
-          </span>
-        </div>
+        <img
+          src="/icons/icon-96.png"
+          alt="BharatFarm"
+          className="spin"
+          style={{ width: '48px', height: '48px', borderRadius: '12px', objectFit: 'contain' }}
+        />
         <p style={{ fontWeight: 600, fontSize: '0.95rem', color: 'rgba(255,255,255,0.7)' }}>
           Loading BharatFarm Platform...
         </p>

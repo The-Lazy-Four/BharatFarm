@@ -71,22 +71,15 @@ export const LoginPage: React.FC = () => {
       justifyContent: 'space-between',
       position: 'relative'
     }}>
-      
+
       {/* Top Header Logo */}
       <header style={{ padding: '1.5rem 2rem', display: 'flex', justifyContent: 'center' }}>
         <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', textDecoration: 'none' }}>
-          <div style={{
-            width: '42px',
-            height: '42px',
-            borderRadius: '12px',
-            background: 'linear-gradient(135deg, #16A34A 0%, #15803D 100%)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            boxShadow: '0 4px 10px rgba(22, 163, 74, 0.25)'
-          }}>
-            <span className="material-symbols-outlined" style={{ fontSize: '26px', color: '#FFFFFF' }}>agriculture</span>
-          </div>
+          <img
+            src="/icons/icon-96.png"
+            alt="BharatFarm"
+            style={{ width: '42px', height: '42px', borderRadius: '10px', objectFit: 'contain' }}
+          />
           <span style={{ fontSize: '1.5rem', fontWeight: 900, color: '#1E293B', letterSpacing: '-0.02em' }}>BharatFarm</span>
         </Link>
       </header>
@@ -106,7 +99,7 @@ export const LoginPage: React.FC = () => {
           boxShadow: '0 10px 30px rgba(0,0,0,0.06)',
           border: '1px solid #E2E8F0'
         }}>
-          
+
           <div style={{ textAlign: 'center', marginBottom: '1.75rem' }}>
             <h1 style={{ fontSize: '1.75rem', fontWeight: 900, color: '#0F172A', margin: 0 }}>
               Welcome Back!
@@ -137,7 +130,7 @@ export const LoginPage: React.FC = () => {
           )}
 
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.1rem' }}>
-            
+
             {/* Email or Phone Input */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
               <label style={{ fontSize: '0.85rem', fontWeight: 700, color: '#334155' }}>

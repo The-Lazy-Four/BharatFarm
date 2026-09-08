@@ -76,20 +76,11 @@ export const Header: React.FC = () => {
       >
         {/* Brand / Logo */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <div style={{
-            width: '32px',
-            height: '32px',
-            borderRadius: '8px',
-            background: 'var(--signal-lime)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            flexShrink: 0
-          }}>
-            <span className="material-symbols-outlined" style={{ fontSize: '20px', color: 'var(--text-on-lime)' }}>
-              agriculture
-            </span>
-          </div>
+          <img
+            src="/icons/icon-96.png"
+            alt="BharatFarm"
+            style={{ width: '32px', height: '32px', borderRadius: '8px', objectFit: 'contain', flexShrink: 0 }}
+          />
           <div>
             <h1 style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--text-primary)', lineHeight: 1 }}>
               BharatFarm

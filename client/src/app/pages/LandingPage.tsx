@@ -38,18 +38,11 @@ export const LandingPage: React.FC = () => {
       }}>
         {/* Brand Logo */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <div style={{
-            width: '40px',
-            height: '40px',
-            borderRadius: '12px',
-            background: 'linear-gradient(135deg, #16A34A 0%, #15803D 100%)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            boxShadow: '0 4px 10px rgba(22, 163, 74, 0.25)'
-          }}>
-            <span className="material-symbols-outlined" style={{ fontSize: '24px', color: '#FFFFFF' }}>agriculture</span>
-          </div>
+          <img
+            src="/icons/icon-96.png"
+            alt="BharatFarm"
+            style={{ width: '40px', height: '40px', borderRadius: '10px', objectFit: 'contain' }}
+          />
           <span style={{ fontSize: '1.4rem', fontWeight: 900, color: '#1E293B', letterSpacing: '-0.02em' }}>BharatFarm</span>
         </div>
 
@@ -350,17 +343,11 @@ export const LandingPage: React.FC = () => {
           paddingBottom: '2rem'
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-            <div style={{
-              width: '36px',
-              height: '36px',
-              borderRadius: '10px',
-              background: '#16A34A',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center'
-            }}>
-              <span className="material-symbols-outlined" style={{ fontSize: '20px', color: '#FFFFFF' }}>agriculture</span>
-            </div>
+            <img
+              src="/icons/icon-96.png"
+              alt="BharatFarm"
+              style={{ width: '36px', height: '36px', borderRadius: '8px', objectFit: 'contain' }}
+            />
             <span style={{ fontSize: '1.25rem', fontWeight: 800, color: '#FFFFFF' }}>BharatFarm</span>
           </div>
 
