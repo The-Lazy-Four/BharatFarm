@@ -2,6 +2,8 @@ import React from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useIsMobile } from '../../hooks/useIsMobile';
 import { MobileLandingPage } from '../../components/mobile/MobileLandingPage';
+import { InstallCTA } from '../../components/pwa/InstallCTA.js';
+
 
 export const LandingPage: React.FC = () => {
   const isMobile = useIsMobile();
@@ -184,7 +186,11 @@ export const LandingPage: React.FC = () => {
             >
               Learn More
             </a>
+
+            {/* PWA Install CTA — only shows when installation is available */}
+            <InstallCTA variant="button" />
           </div>
+
         </div>
 
         {/* Hero Right Visual Illustration / Image */}

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { InstallCTA } from '../pwa/InstallCTA.js';
 
 export const MobileLandingPage: React.FC = () => {
   const navigate = useNavigate();
@@ -33,22 +34,18 @@ export const MobileLandingPage: React.FC = () => {
         gap: '0.5rem',
         zIndex: 2
       }}>
-        <div style={{
-          width: '56px',
-          height: '56px',
-          borderRadius: '16px',
-          background: 'linear-gradient(135deg, #16A34A 0%, #15803D 100%)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          boxShadow: '0 8px 20px rgba(22, 163, 74, 0.3)'
-        }}>
-          <span className="material-symbols-outlined" style={{ fontSize: '32px', color: '#FFFFFF' }}>agriculture</span>
-        </div>
+        <img
+          src="/icons/icon-96.png"
+          alt="BharatFarm"
+          style={{ width: '64px', height: '64px', borderRadius: '16px' }}
+        />
         <h1 style={{ fontSize: '1.8rem', fontWeight: 900, color: '#0F172A', letterSpacing: '-0.02em', margin: 0 }}>
           BharatFarm
         </h1>
-        <p style={{ fontSize: '1.05rem', fontWeight: 700, color: '#15803D', margin: 0 }}>
+        <p style={{ fontSize: '0.85rem', fontWeight: 700, color: '#15803D', margin: 0, letterSpacing: '0.05em', textTransform: 'uppercase' }}>
+          Smart Agri · Brighter India
+        </p>
+        <p style={{ fontSize: '1.05rem', fontWeight: 700, color: '#15803D', margin: '0.25rem 0 0 0' }}>
           {slides[activeSlide].title}
         </p>
       </div>
@@ -147,6 +144,18 @@ export const MobileLandingPage: React.FC = () => {
           <span>Get Started</span>
           <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>arrow_forward</span>
         </button>
+
+        {/* PWA Install CTA — prominent on mobile, only shows when installable */}
+        <InstallCTA
+          variant="button"
+          style={{
+            width: '100%',
+            padding: '0.9rem 1rem',
+            borderRadius: '14px',
+            justifyContent: 'center',
+            fontSize: '1rem'
+          }}
+        />
 
         <button
           onClick={() => navigate('/login')}
