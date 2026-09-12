@@ -125,12 +125,12 @@ export const InstallCTA: React.FC<InstallCTAProps> = ({ variant = 'button', styl
                     ) : (
                         <ol style={{ margin: 0, paddingLeft: '1.2rem', fontSize: '0.9rem', lineHeight: 1.6, color: '#e2e8f0' }}>
                             <li style={{ marginBottom: '0.5rem' }}>
-                                Open browser menu <strong>(⋮ or ⊕)</strong> in your browser address bar.
+                                Open browser menu <strong>(⋮)</strong> in top right corner.
                             </li>
                             <li style={{ marginBottom: '0.5rem' }}>
-                                Tap <strong>"Install app"</strong> or <strong>"Add to Home Screen"</strong>.
+                                Tap <strong>"Install and create shortcut"</strong> or <strong>"Add to Home Screen"</strong> <em>(do not tap the ⬇ download arrow icon at top)</em>.
                             </li>
-                            <li>BharatFarm will install to your device launcher for instant offline access.</li>
+                            <li>BharatFarm will install as a native app on your home screen.</li>
                         </ol>
                     )}
                 </div>

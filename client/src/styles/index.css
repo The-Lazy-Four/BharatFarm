@@ -349,7 +349,7 @@ a {
   justify-content: flex-end;
   padding: 1.25rem;
   color: #FFFFFF;
-  box-shadow: var(--shadow-3d);
+  box-shadow: var(--shadow-sm);
   transition: var(--transition);
   border: 1px solid rgba(255, 255, 255, 0.25);
   text-decoration: none;
@@ -363,7 +363,6 @@ a {
   height: 100%;
   object-fit: cover;
   filter: brightness(0.95) contrast(1.05);
-  transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), filter 0.3s ease;
   z-index: 0;
 }
 
@@ -378,7 +377,6 @@ a {
     rgba(4, 14, 7, 0.92) 100%
   );
   z-index: 1;
-  transition: background 0.30s ease;
 }
 
 .card-feature-content {
@@ -387,7 +385,6 @@ a {
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.55);
 }
 
 .card-feature-action {
@@ -401,25 +398,12 @@ a {
   justify-content: center;
   font-weight: 700;
   font-size: 0.9rem;
-  transition: var(--transition);
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.35);
   flex-shrink: 0;
 }
 
 .card-feature-backed:hover {
-  transform: translateY(-4px) scale(1.01);
-  box-shadow: var(--shadow-card-hover);
   border-color: var(--border-lime);
-}
-
-.card-feature-backed:hover .card-feature-bg {
-  transform: scale(1.08);
-}
-
-.card-feature-backed:hover .card-feature-action {
-  transform: translateX(3px) scale(1.12);
-  background: #FFFFFF;
-  color: var(--emerald-deep);
 }
 
 /* ============================================================
@@ -434,8 +418,6 @@ a {
   justify-content: space-between;
   align-items: center;
   box-shadow: var(--shadow-sm);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
 }
 
 .text-embossed {
@@ -610,22 +592,12 @@ a {
 .app-main {
   padding: 0.85rem !important;
   padding-bottom: 5.5rem !important;
-  background:
-    var(--app-main-gradient),
-    url('./bg2.jpg');
-  background-size: cover;
-  background-position: center;
-  background-attachment: fixed;
+  background: var(--app-bg);
   transition: background 0.35s ease;
 }
 
 [data-theme="dark"] .app-main {
-  background:
-    var(--app-main-gradient),
-    url('./bg2.jpg');
-  background-size: cover;
-  background-position: center;
-  background-attachment: fixed;
+  background: var(--app-bg);
 }
 
 

@@ -22,75 +22,15 @@ export const MobileBasicFarmerHome: React.FC = () => {
   return (
     <div style={{
       minHeight: '100vh',
-      width: '100vw',
+      width: '100%',
       background: '#F8FAFC',
       paddingBottom: '80px',
       fontFamily: 'Inter, system-ui, -apple-system, sans-serif',
       boxSizing: 'border-box',
       overflowX: 'hidden'
     }}>
-      {/* Top Header */}
-      <header style={{
-        padding: '1.25rem 1.25rem 0.85rem',
-        background: '#FFFFFF',
-        borderBottom: '1px solid #E2E8F0',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        position: 'sticky',
-        top: 0,
-        zIndex: 50
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
-          <button
-            onClick={() => navigate('/home')}
-            style={{
-              background: '#F1F5F9',
-              border: 'none',
-              borderRadius: '50%',
-              width: '36px',
-              height: '36px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: '#0F172A',
-              cursor: 'pointer',
-              padding: 0
-            }}
-          >
-            <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>arrow_back</span>
-          </button>
-
-          <div>
-            <h1 style={{ fontSize: '1.2rem', fontWeight: 900, color: '#0F172A', margin: 0 }}>
-              Basic Farmer Needs
-            </h1>
-            <p style={{ fontSize: '0.75rem', color: '#64748B', margin: '0.1rem 0 0 0', fontWeight: 500 }}>
-              Everyday farming utilities
-            </p>
-          </div>
-        </div>
-
-        <button
-          onClick={() => navigate('/profile')}
-          style={{
-            width: '38px',
-            height: '38px',
-            borderRadius: '50%',
-            background: '#16A34A',
-            color: '#FFFFFF',
-            border: 'none',
-            fontWeight: 800,
-            fontSize: '0.9rem',
-            cursor: 'pointer'
-          }}
-        >
-          {user?.fullName ? user.fullName[0].toUpperCase() : '👨‍🌾'}
-        </button>
-      </header>
-
       {/* Main Grid for Tools */}
-      <main style={{ padding: '1.25rem 1rem' }}>
+      <main style={{ padding: '0.85rem 0.75rem' }}>
         <div style={{
           background: 'linear-gradient(135deg, #16A34A 0%, #15803D 100%)',
           borderRadius: '16px',
