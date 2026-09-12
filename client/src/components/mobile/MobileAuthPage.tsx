@@ -61,9 +61,9 @@ export const MobileAuthPage: React.FC<MobileAuthPageProps> = ({ mode }) => {
       {/* Top Header Logo */}
       <div style={{ padding: '2rem 1.5rem 0', textAlign: 'center' }}>
         <img
-          src="/icons/icon-96.png"
+          src="/logo.png"
           alt="BharatFarm"
-          style={{ width: '48px', height: '48px', borderRadius: '12px', objectFit: 'contain', marginBottom: '0.35rem' }}
+          style={{ width: '48px', height: '48px', borderRadius: '14px', objectFit: 'contain', marginBottom: '0.5rem' }}
         />
         <h1 style={{ fontSize: '1.6rem', fontWeight: 900, color: '#0F172A', margin: 0 }}>
           BharatFarm

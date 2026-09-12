@@ -35,11 +35,10 @@ export const MobileLandingPage: React.FC = () => {
         zIndex: 2
       }}>
         <img
-          src="/icons/icon-96.png"
+          src="/logo.png"
           alt="BharatFarm"
-          style={{ width: '64px', height: '64px', borderRadius: '16px' }}
-        />
-        <h1 style={{ fontSize: '1.8rem', fontWeight: 900, color: '#0F172A', letterSpacing: '-0.02em', margin: 0 }}>
+          style={{ width: '56px', height: '56px', borderRadius: '16px', objectFit: 'contain', filter: 'drop-shadow(0 4px 12px rgba(22, 163, 74, 0.3))' }}
+        /><h1 style={{ fontSize: '1.8rem', fontWeight: 900, color: '#0F172A', letterSpacing: '-0.02em', margin: 0 }}>
           BharatFarm
         </h1>
         <p style={{ fontSize: '0.85rem', fontWeight: 700, color: '#15803D', margin: 0, letterSpacing: '0.05em', textTransform: 'uppercase' }}>

@@ -99,7 +99,7 @@ export const RegisterPage: React.FC = () => {
       <header style={{ padding: '1.5rem 2rem', display: 'flex', justifyContent: 'center' }}>
         <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', textDecoration: 'none' }}>
           <img
-            src="/icons/icon-96.png"
+            src="/logo.png"
             alt="BharatFarm"
             style={{ width: '42px', height: '42px', borderRadius: '10px', objectFit: 'contain' }}
           />

@@ -119,7 +119,7 @@ export const ModuleHomePage: React.FC = () => {
         {/* Brand */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
           <img
-            src="/icons/icon-96.png"
+            src="/logo.png"
             alt="BharatFarm"
             style={{ width: '38px', height: '38px', borderRadius: '10px', objectFit: 'contain' }}
           />

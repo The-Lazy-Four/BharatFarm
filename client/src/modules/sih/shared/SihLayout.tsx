@@ -67,7 +67,7 @@ export const SihLayout: React.FC<SihShellProps> = ({
           style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', cursor: 'pointer' }}
         >
           <img
-            src="/icons/icon-96.png"
+            src="/logo.png"
             alt="BharatFarm"
             style={{ width: '36px', height: '36px', borderRadius: '8px', objectFit: 'contain' }}
           />

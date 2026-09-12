@@ -77,7 +77,7 @@ export const Header: React.FC = () => {
         {/* Brand / Logo */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           <img
-            src="/icons/icon-96.png"
+            src="/logo.png"
             alt="BharatFarm"
             style={{ width: '32px', height: '32px', borderRadius: '8px', objectFit: 'contain', flexShrink: 0 }}
           />

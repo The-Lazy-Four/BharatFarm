@@ -39,7 +39,7 @@ export const LandingPage: React.FC = () => {
         {/* Brand Logo */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
           <img
-            src="/icons/icon-96.png"
+            src="/logo.png"
             alt="BharatFarm"
             style={{ width: '40px', height: '40px', borderRadius: '10px', objectFit: 'contain' }}
           />
@@ -344,9 +344,9 @@ export const LandingPage: React.FC = () => {
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
             <img
-              src="/icons/icon-96.png"
+              src="/logo.png"
               alt="BharatFarm"
-              style={{ width: '36px', height: '36px', borderRadius: '8px', objectFit: 'contain' }}
+              style={{ width: '36px', height: '36px', borderRadius: '10px', objectFit: 'contain' }}
             />
             <span style={{ fontSize: '1.25rem', fontWeight: 800, color: '#FFFFFF' }}>BharatFarm</span>
           </div>

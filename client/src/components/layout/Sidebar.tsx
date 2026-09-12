@@ -39,7 +39,7 @@ export const Sidebar: React.FC = () => {
       {/* Logo Section */}
       <div style={{ padding: '0 1.25rem', marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
         <img
-          src="/icons/icon-96.png"
+          src="/logo.png"
           alt="BharatFarm"
           style={{ width: '38px', height: '38px', borderRadius: '10px', objectFit: 'contain', flexShrink: 0 }}
         />
