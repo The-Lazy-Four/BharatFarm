@@ -110,41 +110,43 @@ export const MasterDashboardPage: React.FC = () => {
     }
   ];
 
-  // 1. Fetch module data gracefully on mount
+// Fetch module data gracefully on mount
   useEffect(() => {
+    let isMounted = true;
+
     // Fetch Roadmap
     roadmapApi.listRoadmaps()
       .then((res: any) => {
-        if (res.success && res.data && res.data.length > 0) {
+        if (isMounted && res.success && res.data && res.data.length > 0) {
           setRoadmap(res.data[0]);
         }
       })
-      .catch(() => setRoadmap(null))
-      .finally(() => setIsRoadmapLoading(false));
+      .catch(() => { if (isMounted) setRoadmap(null); })
+      .finally(() => { if (isMounted) setIsRoadmapLoading(false); });
 
     // Fetch Scan History
     scannerApi.getHistory()
       .then((history: any) => {
-        if (history && history.length > 0) {
+        if (isMounted && history && history.length > 0) {
           setLastScan(history[0]);
         }
       })
-      .catch(() => setLastScan(null))
-      .finally(() => setIsScanLoading(false));
+      .catch(() => { if (isMounted) setLastScan(null); })
+      .finally(() => { if (isMounted) setIsScanLoading(false); });
 
     // Fetch Relevant Schemes (deterministic)
     SchemesApi.getSchemes({ state: farmerState })
-      .then((res: any) => setSchemes(res.slice(0, 3)))
-      .catch(() => setSchemes([]))
-      .finally(() => setIsSchemesLoading(false));
+      .then((res: any) => { if (isMounted) setSchemes(res.slice(0, 3)); })
+      .catch(() => { if (isMounted) setSchemes([]); })
+      .finally(() => { if (isMounted) setIsSchemesLoading(false); });
 
     // Fetch Marketplace Products (deterministic)
     MarketplaceApi.getListings()
-      .then((res: any) => setProducts(res.slice(0, 3)))
-      .catch(() => setProducts([]))
-      .finally(() => setIsProductsLoading(false));
+      .then((res: any) => { if (isMounted) setProducts(res.slice(0, 3)); })
+      .catch(() => { if (isMounted) setProducts([]); })
+      .finally(() => { if (isMounted) setIsProductsLoading(false); });
 
-
+    return () => { isMounted = false; };
   }, [farmerState]);
 
   // 2. Fetch AI Advisory (controlled, non-blocking)
