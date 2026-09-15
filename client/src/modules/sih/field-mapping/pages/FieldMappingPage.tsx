@@ -17,28 +17,35 @@ const AVAILABLE_CROPS = [
 export const FieldMappingPage: React.FC = () => {
     const navigate = useNavigate();
 
-    // Workflow State: 'select-crop' | 'walk-farm' | 'registered' | 'my-fields'
-    const [currentStep, setCurrentStep] = useState<'select-crop' | 'walk-farm' | 'registered' | 'my-fields'>('select-crop');
+    // Workflow State: 'select-crop' | 'walk-farm' | 'review' | 'registered' | 'my-fields'
+    const [currentStep, setCurrentStep] = useState<'select-crop' | 'walk-farm' | 'review' | 'registered' | 'my-fields'>('select-crop');
 
     // Form State
     const [selectedCrop, setSelectedCrop] = useState(AVAILABLE_CROPS[0].name);
     const [fieldName, setFieldName] = useState('North Paddy Field');
 
-    // GPS Tracking State
-    const [isTracking, setIsTracking] = useState(false);
+    // GPS Tracking State Machine
+    // 'IDLE' | 'GPS_REQUESTING' | 'GPS_READY' | 'TRACKING' | 'COMPLETING' | 'REGISTERED' | 'GPS_ERROR'
+    const [gpsState, setGpsState] = useState<'IDLE' | 'GPS_REQUESTING' | 'GPS_READY' | 'TRACKING' | 'COMPLETING' | 'REGISTERED' | 'GPS_ERROR'>('IDLE');
     const [isDemoMode, setIsDemoMode] = useState(false);
     const [gpsError, setGpsError] = useState<string | null>(null);
     const [coordinates, setCoordinates] = useState<GpsCoordinate[]>([]);
     const [currentPosition, setCurrentPosition] = useState<GpsCoordinate | null>(null);
 
-    // Calculations
+    // Derived Measurements
+    const [areaSqMeters, setAreaSqMeters] = useState(0);
     const [areaAcres, setAreaAcres] = useState(0);
+    const [areaHectares, setAreaHectares] = useState(0);
     const [perimeterMeters, setPerimeterMeters] = useState(0);
+    const [distanceWalkedMeters, setDistanceWalkedMeters] = useState(0);
 
     // Registered Field Data & History
     const [registeredRecord, setRegisteredRecord] = useState<FieldRecord | null>(null);
     const [savedFields, setSavedFields] = useState<FieldRecord[]>([]);
     const [isSaving, setIsSaving] = useState(false);
+
+    // Bottom Sheet Collapse/Expand State
+    const [isBottomSheetExpanded, setIsBottomSheetExpanded] = useState(false);
 
     // Geo Watcher Ref
     const watchIdRef = useRef<number | null>(null);
@@ -56,13 +63,17 @@ export const FieldMappingPage: React.FC = () => {
         };
     }, []);
 
-    // Recalculate area and perimeter whenever coordinates update
+    // Recalculate area, perimeter, and walking distance whenever coordinates update
     useEffect(() => {
         if (coordinates.length >= 2) {
             setPerimeterMeters(fieldMappingService.calculatePerimeter(coordinates));
+            setDistanceWalkedMeters(fieldMappingService.calculateTotalWalkingDistance(coordinates));
         }
         if (coordinates.length >= 3) {
+            const sqM = fieldMappingService.calculateAreaSqMeters(coordinates);
+            setAreaSqMeters(sqM);
             setAreaAcres(fieldMappingService.calculateAreaAcres(coordinates));
+            setAreaHectares(fieldMappingService.calculateAreaHectares(coordinates));
         }
     }, [coordinates]);
 
@@ -73,10 +84,11 @@ export const FieldMappingPage: React.FC = () => {
 
         if (!navigator.geolocation) {
             setGpsError('Geolocation is not supported by your browser. Switch to Demo Mapping Mode.');
+            setGpsState('GPS_ERROR');
             return;
         }
 
-        setIsTracking(true);
+        setGpsState('GPS_REQUESTING');
         setCoordinates([]);
 
         watchIdRef.current = navigator.geolocation.watchPosition(
@@ -85,16 +97,21 @@ export const FieldMappingPage: React.FC = () => {
                     lat: pos.coords.latitude,
                     lng: pos.coords.longitude,
                     accuracy: pos.coords.accuracy,
-                    timestamp: pos.timestamp
+                    altitude: pos.coords.altitude || undefined,
+                    heading: pos.coords.heading || undefined,
+                    speed: pos.coords.speed || undefined,
+                    timestamp: pos.timestamp,
+                    quality: pos.coords.accuracy <= 10 ? 'GOOD' : pos.coords.accuracy <= 25 ? 'FAIR' : 'POOR'
                 };
 
                 setCurrentPosition(newCoord);
                 setCoordinates((prev) => [...prev, newCoord]);
+                setGpsState('TRACKING');
             },
             (err) => {
                 console.warn('[GPS] Error watching position:', err);
-                setGpsError(`GPS Permission/Signal Error: ${err.message}. You can use Demo Mode below.`);
-                setIsTracking(false);
+                setGpsError(`GPS Signal Error: ${err.message}. You can test using Demo Mode.`);
+                setGpsState('GPS_ERROR');
             },
             {
                 enableHighAccuracy: true,
@@ -107,10 +124,10 @@ export const FieldMappingPage: React.FC = () => {
     const startDemoGpsTracking = () => {
         setGpsError(null);
         setIsDemoMode(true);
-        setIsTracking(true);
+        setGpsState('TRACKING');
         setCoordinates([]);
 
-        // Simulated Haldia, West Bengal farm field polygon path
+        // Simulated Haldia, West Bengal farm field boundary path
         const baseLat = 22.0667;
         const baseLng = 88.0667;
         const pathDelta = [
@@ -134,7 +151,8 @@ export const FieldMappingPage: React.FC = () => {
                 lat: baseLat + pathDelta[step].dLat,
                 lng: baseLng + pathDelta[step].dLng,
                 accuracy: 3,
-                timestamp: Date.now()
+                timestamp: Date.now(),
+                quality: 'GOOD'
             };
             setCurrentPosition(pt);
             setCoordinates((prev) => [...prev, pt]);
@@ -142,7 +160,7 @@ export const FieldMappingPage: React.FC = () => {
         };
 
         startNextPoint();
-        demoIntervalRef.current = setInterval(startNextPoint, 1500);
+        demoIntervalRef.current = setInterval(startNextPoint, 1400);
     };
 
     const stopGpsTracking = () => {
@@ -154,13 +172,17 @@ export const FieldMappingPage: React.FC = () => {
             clearInterval(demoIntervalRef.current);
             demoIntervalRef.current = null;
         }
-        setIsTracking(false);
     };
 
-    // Finish Walk & Save Field
-    const handleFinishWalk = async () => {
+    // Review Field Boundary Before Save
+    const handleFinishWalk = () => {
         stopGpsTracking();
+        setGpsState('COMPLETING');
+        setCurrentStep('review');
+    };
 
+    // Final Field Save & Database Registration
+    const handleSaveAndRegisterField = async () => {
         const finalCoords = coordinates.length > 0 ? coordinates : [
             { lat: 22.0667, lng: 88.0667 },
             { lat: 22.0675, lng: 88.0669 },
@@ -169,29 +191,40 @@ export const FieldMappingPage: React.FC = () => {
             { lat: 22.0667, lng: 88.0667 }
         ];
 
-        const calcArea = areaAcres > 0 ? areaAcres : 1.24;
+        const centroid = fieldMappingService.calculateCentroid(finalCoords);
+        const calcSqM = areaSqMeters > 0 ? areaSqMeters : 5018;
+        const calcAcres = areaAcres > 0 ? areaAcres : 1.24;
+        const calcHectares = areaHectares > 0 ? areaHectares : 0.50;
         const calcPerim = perimeterMeters > 0 ? perimeterMeters : 280;
+        const calcDist = distanceWalkedMeters > 0 ? distanceWalkedMeters : 310;
 
         setIsSaving(true);
         const newRecord = await fieldMappingService.saveField({
             field_name: fieldName || 'My Field',
             crop_name: selectedCrop,
-            area_acres: calcArea,
+            area_sq_meters: calcSqM,
+            area_acres: calcAcres,
+            area_hectares: calcHectares,
             perimeter_meters: calcPerim,
+            total_distance_walked_meters: calcDist,
+            centroid_lat: centroid.lat,
+            centroid_lng: centroid.lng,
             latitude: finalCoords[0].lat,
             longitude: finalCoords[0].lng,
             boundary_coordinates: finalCoords,
             location_address: 'Haldia, West Bengal',
-            is_demo: isDemoMode
+            is_demo: isDemoMode,
+            mapping_mode: isDemoMode ? 'DEMO' : 'REAL_GPS'
         });
         setIsSaving(false);
 
         setRegisteredRecord(newRecord);
         setSavedFields((prev) => [newRecord, ...prev]);
+        setGpsState('REGISTERED');
         setCurrentStep('registered');
     };
 
-    // Map state (Leaflet)
+    // Leaflet Map Refs
     const mapContainerRef = useRef<HTMLDivElement | null>(null);
     const mapInstanceRef = useRef<any>(null);
     const polylineRef = useRef<any>(null);
@@ -200,11 +233,10 @@ export const FieldMappingPage: React.FC = () => {
     const [mapLayer, setMapLayer] = useState<'satellite' | 'street'>('satellite');
     const tileLayerRef = useRef<any>(null);
 
-    // Initialize Leaflet Map when step is 'walk-farm'
+    // Initialize Leaflet Map when step is 'walk-farm' or 'review'
     useEffect(() => {
-        if (currentStep !== 'walk-farm' || !mapContainerRef.current) return;
+        if ((currentStep !== 'walk-farm' && currentStep !== 'review') || !mapContainerRef.current) return;
 
-        // Load Leaflet JS dynamically if not already loaded on window
         const initLeaflet = () => {
             const L = (window as any).L;
             if (!L) return;
@@ -303,8 +335,8 @@ export const FieldMappingPage: React.FC = () => {
                 markerRef.current.setLatLng(lastCoord);
             }
 
-            // Pan map to latest position if tracking
-            if (isTracking) {
+            // Pan map to latest position during active tracking
+            if (gpsState === 'TRACKING') {
                 map.panTo(lastCoord, { animate: true });
             }
 
@@ -329,12 +361,12 @@ export const FieldMappingPage: React.FC = () => {
                         color: '#22c55e',
                         weight: 2,
                         fillColor: '#22c55e',
-                        fillOpacity: 0.3
+                        fillOpacity: 0.35
                     }).addTo(map);
                 }
             }
         }
-    }, [coordinates, isTracking]);
+    }, [coordinates, gpsState]);
 
     // Recenter map button handler
     const handleRecenter = () => {
@@ -342,30 +374,90 @@ export const FieldMappingPage: React.FC = () => {
         mapInstanceRef.current.setView([currentPosition.lat, currentPosition.lng], 18, { animate: true });
     };
 
-    // ── Render Interactive GIS Satellite Map ────────────────────────────────
-    const renderMapCanvas = () => {
+    // ── 1. FULL-SCREEN MOBILE GIS SATELLITE MAP SCREEN ────────────────────────
+    if (currentStep === 'walk-farm' || currentStep === 'review') {
         return (
             <div style={{
-                position: 'relative',
-                height: '280px',
-                width: '100%',
-                borderRadius: '20px',
-                overflow: 'hidden',
-                border: '2px solid rgba(34,197,94,0.4)',
-                boxShadow: '0 8px 24px rgba(0,0,0,0.15)'
+                position: 'fixed',
+                inset: 0,
+                height: '100dvh',
+                width: '100vw',
+                zIndex: 999,
+                background: '#041208',
+                display: 'flex',
+                flexDirection: 'column',
+                fontFamily: 'Inter, system-ui, -apple-system, sans-serif',
+                overflow: 'hidden'
             }}>
-                {/* Leaflet Map Div */}
-                <div ref={mapContainerRef} style={{ width: '100%', height: '100%', background: '#0b2915' }} />
+                {/* Background Fullscreen Leaflet Map */}
+                <div ref={mapContainerRef} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', zIndex: 1 }} />
 
-                {/* Layer Switcher Control (Floating top left) */}
+                {/* Floating Compact Top Header Bar */}
+                <div style={{
+                    position: 'relative',
+                    zIndex: 10,
+                    padding: 'max(0.85rem, env(safe-area-inset-top)) 1rem 0.65rem',
+                    background: 'linear-gradient(180deg, rgba(4,18,8,0.85) 0%, rgba(4,18,8,0) 100%)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    pointerEvents: 'auto'
+                }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+                        <button
+                            onClick={() => {
+                                stopGpsTracking();
+                                setCurrentStep('select-crop');
+                            }}
+                            style={{
+                                background: 'rgba(15,23,42,0.75)',
+                                border: '1px solid rgba(255,255,255,0.2)',
+                                backdropFilter: 'blur(10px)',
+                                color: '#FFFFFF',
+                                borderRadius: '12px',
+                                padding: '0.45rem 0.65rem',
+                                display: 'flex',
+                                alignItems: 'center',
+                                cursor: 'pointer'
+                            }}
+                        >
+                            <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>arrow_back</span>
+                        </button>
+
+                        <div>
+                            <h1 style={{ fontSize: '1.1rem', fontWeight: 900, color: '#FFFFFF', margin: 0, lineHeight: 1.1 }}>
+                                {fieldName}
+                            </h1>
+                            <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#4ADE80' }}>
+                                Crop: {selectedCrop.split(' ')[0]}
+                            </span>
+                        </div>
+                    </div>
+
+                    {/* Compact Mode Pill */}
+                    <div style={{
+                        background: isDemoMode ? 'rgba(234, 179, 8, 0.25)' : 'rgba(34, 197, 94, 0.25)',
+                        border: isDemoMode ? '1px solid #EAB308' : '1px solid #22C55E',
+                        color: isDemoMode ? '#FEF08A' : '#4ADE80',
+                        fontSize: '0.72rem',
+                        fontWeight: 800,
+                        padding: '0.3rem 0.65rem',
+                        borderRadius: '20px',
+                        backdropFilter: 'blur(8px)'
+                    }}>
+                        {isDemoMode ? 'DEMO MODE' : 'REAL GPS'}
+                    </div>
+                </div>
+
+                {/* Floating Map Controls (Top Left Satellite/Street Switcher) */}
                 <div style={{
                     position: 'absolute',
-                    top: '12px',
+                    top: '72px',
                     left: '12px',
-                    zIndex: 400,
+                    zIndex: 10,
                     background: 'rgba(15, 23, 42, 0.85)',
-                    backdropFilter: 'blur(8px)',
-                    padding: '3px',
+                    backdropFilter: 'blur(10px)',
+                    padding: '4px',
                     borderRadius: '12px',
                     display: 'flex',
                     gap: '4px',
@@ -403,64 +495,250 @@ export const FieldMappingPage: React.FC = () => {
                     </button>
                 </div>
 
-                {/* Live GPS / Tracking Status Badge (Floating top right, under zoom) */}
-                <div style={{
-                    position: 'absolute',
-                    bottom: '12px',
-                    left: '12px',
-                    zIndex: 400,
-                    background: 'rgba(15,23,42,0.85)',
-                    backdropFilter: 'blur(8px)',
-                    padding: '0.35rem 0.75rem',
-                    borderRadius: '12px',
-                    color: '#ffffff',
-                    fontSize: '0.78rem',
-                    fontWeight: 700,
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.4rem',
-                    border: '1px solid rgba(255,255,255,0.15)'
-                }}>
-                    <span style={{
-                        width: '8px',
-                        height: '8px',
-                        borderRadius: '50%',
-                        background: isTracking ? '#22c55e' : '#eab308'
-                    }} />
-                    {isDemoMode ? 'Demo Mode Active' : isTracking ? `GPS Active ±${currentPosition?.accuracy ? Math.round(currentPosition.accuracy) : 5}m` : 'Ready'}
-                </div>
-
-                {/* Recenter Button (Floating bottom right) */}
+                {/* Floating Recenter Button (Above Bottom Sheet) */}
                 {currentPosition && (
                     <button
                         onClick={handleRecenter}
                         style={{
                             position: 'absolute',
-                            bottom: '12px',
-                            right: '12px',
-                            zIndex: 400,
+                            bottom: isBottomSheetExpanded ? '310px' : '205px',
+                            right: '16px',
+                            zIndex: 10,
                             background: 'rgba(15,23,42,0.85)',
-                            backdropFilter: 'blur(8px)',
+                            backdropFilter: 'blur(10px)',
                             color: '#FFFFFF',
-                            border: '1px solid rgba(255,255,255,0.15)',
-                            borderRadius: '12px',
-                            padding: '0.4rem 0.65rem',
-                            fontSize: '0.78rem',
-                            fontWeight: 700,
-                            cursor: 'pointer',
+                            border: '1px solid rgba(255,255,255,0.2)',
+                            borderRadius: '50%',
+                            width: '44px',
+                            height: '44px',
                             display: 'flex',
                             alignItems: 'center',
-                            gap: '0.3rem'
+                            justifyContent: 'center',
+                            cursor: 'pointer',
+                            boxShadow: '0 4px 16px rgba(0,0,0,0.3)',
+                            transition: 'bottom 0.3s ease'
                         }}
                     >
-                        <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>my_location</span>
-                        Recenter
+                        <span className="material-symbols-outlined" style={{ fontSize: '22px' }}>my_location</span>
                     </button>
                 )}
+
+                {/* Floating Mobile Bottom Sheet (GIS Field Mapping Controls & Stats) */}
+                <div style={{
+                    position: 'absolute',
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    zIndex: 20,
+                    background: 'rgba(15, 23, 42, 0.95)',
+                    backdropFilter: 'blur(16px)',
+                    borderTopLeftRadius: '24px',
+                    borderTopRightRadius: '24px',
+                    borderTop: '1px solid rgba(255,255,255,0.15)',
+                    padding: '1rem 1.25rem',
+                    paddingBottom: 'max(1.25rem, env(safe-area-inset-bottom))',
+                    color: '#FFFFFF',
+                    boxShadow: '0 -10px 30px rgba(0,0,0,0.5)',
+                    transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)'
+                }}>
+                    {/* Handle Drag Bar */}
+                    <div
+                        onClick={() => setIsBottomSheetExpanded(!isBottomSheetExpanded)}
+                        style={{
+                            width: '38px',
+                            height: '5px',
+                            background: 'rgba(255,255,255,0.25)',
+                            borderRadius: '3px',
+                            margin: '0 auto 0.75rem',
+                            cursor: 'pointer'
+                        }}
+                    />
+
+                    {/* GPS Status Indicator */}
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.85rem' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                            <span style={{
+                                width: '10px',
+                                height: '10px',
+                                borderRadius: '50%',
+                                background: gpsState === 'TRACKING' ? '#22C55E' : gpsState === 'GPS_REQUESTING' ? '#EAB308' : '#94A3B8',
+                                boxShadow: gpsState === 'TRACKING' ? '0 0 10px #22C55E' : 'none'
+                            }} />
+                            <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#E2E8F0' }}>
+                                {gpsState === 'TRACKING' ? (isDemoMode ? 'Simulated GPS Tracking' : '● Live GPS Active') : gpsState === 'GPS_REQUESTING' ? 'Acquiring Satellite GPS…' : 'GPS Idle'}
+                            </span>
+                        </div>
+
+                        <span style={{ fontSize: '0.78rem', fontWeight: 700, color: '#94A3B8' }}>
+                            {currentPosition?.accuracy ? `±${Math.round(currentPosition.accuracy)} m accuracy` : '±5 m accuracy'}
+                        </span>
+                    </div>
+
+                    {/* Field Stats Grid */}
+                    <div style={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(3, 1fr)',
+                        gap: '0.5rem',
+                        background: 'rgba(255,255,255,0.06)',
+                        borderRadius: '16px',
+                        padding: '0.75rem 0.5rem',
+                        textAlign: 'center',
+                        marginBottom: '1rem',
+                        border: '1px solid rgba(255,255,255,0.08)'
+                    }}>
+                        <div>
+                            <div style={{ fontSize: '0.7rem', color: '#94A3B8', fontWeight: 700 }}>GPS Points</div>
+                            <div style={{ fontSize: '1.15rem', fontWeight: 900, color: '#FFFFFF', marginTop: '0.1rem' }}>
+                                {coordinates.length}
+                            </div>
+                        </div>
+
+                        <div>
+                            <div style={{ fontSize: '0.7rem', color: '#94A3B8', fontWeight: 700 }}>Distance</div>
+                            <div style={{ fontSize: '1.15rem', fontWeight: 900, color: '#4ADE80', marginTop: '0.1rem' }}>
+                                {distanceWalkedMeters} m
+                            </div>
+                        </div>
+
+                        <div>
+                            <div style={{ fontSize: '0.7rem', color: '#94A3B8', fontWeight: 700 }}>Area (Acres)</div>
+                            <div style={{ fontSize: '1.15rem', fontWeight: 900, color: '#22C55E', marginTop: '0.1rem' }}>
+                                {areaAcres > 0 ? `${areaAcres}` : '--'}
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Detailed Measurement Row (Shown when Expanded or reviewing) */}
+                    {(isBottomSheetExpanded || currentStep === 'review') && (
+                        <div style={{
+                            display: 'grid',
+                            gridTemplateColumns: '1fr 1fr',
+                            gap: '0.5rem',
+                            marginBottom: '1rem',
+                            background: 'rgba(0,0,0,0.3)',
+                            padding: '0.65rem 0.85rem',
+                            borderRadius: '12px',
+                            fontSize: '0.78rem'
+                        }}>
+                            <div><span style={{ color: '#94A3B8' }}>Area (Sq Meters):</span> <strong style={{ color: '#FFF' }}>{areaSqMeters} m²</strong></div>
+                            <div><span style={{ color: '#94A3B8' }}>Area (Hectares):</span> <strong style={{ color: '#FFF' }}>{areaHectares} ha</strong></div>
+                            <div><span style={{ color: '#94A3B8' }}>Perimeter:</span> <strong style={{ color: '#FFF' }}>{perimeterMeters} m</strong></div>
+                            <div><span style={{ color: '#94A3B8' }}>Mode:</span> <strong style={{ color: '#4ADE80' }}>{isDemoMode ? 'DEMO' : 'REAL_GPS'}</strong></div>
+                        </div>
+                    )}
+
+                    {/* Error Banner */}
+                    {gpsError && (
+                        <div style={{
+                            background: 'rgba(239,68,68,0.2)',
+                            border: '1px solid #EF4444',
+                            borderRadius: '10px',
+                            padding: '0.5rem 0.75rem',
+                            color: '#FCA5A5',
+                            fontSize: '0.78rem',
+                            marginBottom: '0.85rem'
+                        }}>
+                            {gpsError}
+                        </div>
+                    )}
+
+                    {/* Workflow Control Buttons */}
+                    {currentStep === 'review' ? (
+                        <button
+                            onClick={handleSaveAndRegisterField}
+                            disabled={isSaving}
+                            style={{
+                                width: '100%',
+                                padding: '0.95rem',
+                                borderRadius: '14px',
+                                background: '#16A34A',
+                                color: '#FFFFFF',
+                                border: 'none',
+                                fontWeight: 900,
+                                fontSize: '1.05rem',
+                                cursor: 'pointer',
+                                boxShadow: '0 6px 20px rgba(22, 163, 74, 0.4)',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                gap: '0.5rem'
+                            }}
+                        >
+                            <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>check_circle</span>
+                            <span>{isSaving ? 'Registering Field…' : 'Register Field & Save ML Data'}</span>
+                        </button>
+                    ) : gpsState === 'TRACKING' ? (
+                        <button
+                            onClick={handleFinishWalk}
+                            style={{
+                                width: '100%',
+                                padding: '0.95rem',
+                                borderRadius: '14px',
+                                background: '#DC2626',
+                                color: '#FFFFFF',
+                                border: 'none',
+                                fontWeight: 900,
+                                fontSize: '1.05rem',
+                                cursor: 'pointer',
+                                boxShadow: '0 6px 20px rgba(220, 38, 38, 0.4)',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                gap: '0.5rem'
+                            }}
+                        >
+                            <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>stop_circle</span>
+                            <span>Stop & Register Field</span>
+                        </button>
+                    ) : (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
+                            <button
+                                onClick={startRealGpsTracking}
+                                style={{
+                                    width: '100%',
+                                    padding: '0.95rem',
+                                    borderRadius: '14px',
+                                    background: '#16A34A',
+                                    color: '#FFFFFF',
+                                    border: 'none',
+                                    fontWeight: 800,
+                                    fontSize: '1rem',
+                                    cursor: 'pointer',
+                                    boxShadow: '0 6px 20px rgba(22, 163, 74, 0.35)',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    gap: '0.5rem'
+                                }}
+                            >
+                                <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>play_arrow</span>
+                                <span>Start Walking with Real GPS</span>
+                            </button>
+
+                            <button
+                                onClick={startDemoGpsTracking}
+                                style={{
+                                    width: '100%',
+                                    padding: '0.75rem',
+                                    borderRadius: '14px',
+                                    background: 'rgba(255,255,255,0.08)',
+                                    border: '1px solid rgba(255,255,255,0.2)',
+                                    color: '#E2E8F0',
+                                    fontWeight: 700,
+                                    fontSize: '0.88rem',
+                                    cursor: 'pointer'
+                                }}
+                            >
+                                Simulate Walk (Demo Mode)
+                            </button>
+                        </div>
+                    )}
+                </div>
             </div>
         );
-    };
+    }
 
+    // ── 2. STEP 1 & SUCCESS / MY FIELDS PAGES ─────────────────────────────────
     return (
         <div style={{
             minHeight: '100vh',
@@ -530,7 +808,7 @@ export const FieldMappingPage: React.FC = () => {
                 </button>
             </header>
 
-            {/* Main Body Container */}
+            {/* Main Body */}
             <main style={{
                 flex: 1,
                 padding: '1.5rem 1rem 3rem',
@@ -539,35 +817,6 @@ export const FieldMappingPage: React.FC = () => {
                 margin: '0 auto',
                 boxSizing: 'border-box'
             }}>
-
-                {/* Step Indicator Pills */}
-                <div style={{
-                    display: 'flex',
-                    gap: '0.5rem',
-                    marginBottom: '1.5rem',
-                    justifyContent: 'center'
-                }}>
-                    {[
-                        { id: 'select-crop', label: '1. Select Crop' },
-                        { id: 'walk-farm', label: '2. Walk Farm' },
-                        { id: 'registered', label: '3. Registered' }
-                    ].map((s) => (
-                        <div
-                            key={s.id}
-                            style={{
-                                padding: '0.35rem 0.85rem',
-                                borderRadius: '20px',
-                                fontSize: '0.8rem',
-                                fontWeight: 800,
-                                background: currentStep === s.id ? '#16A34A' : '#E2E8F0',
-                                color: currentStep === s.id ? '#FFFFFF' : '#64748B'
-                            }}
-                        >
-                            {s.label}
-                        </div>
-                    ))}
-                </div>
-
                 {/* ── STEP 1: SELECT CROP & FIELD NAME ────────────────────────────── */}
                 {currentStep === 'select-crop' && (
                     <div style={{
@@ -672,406 +921,181 @@ export const FieldMappingPage: React.FC = () => {
                                 gap: '0.5rem'
                             }}
                         >
-                            <span>Continue → Walk the Farm</span>
-                            <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>directions_walk</span>
+                            <span>Open Full-Screen Field Map</span>
+                            <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>map</span>
                         </button>
                     </div>
                 )}
 
-                {/* ── STEP 2: WALK THE FARM (GPS TRACKING) ────────────────────────── */}
-                {currentStep === 'walk-farm' && (
-                    <div style={{
-                        background: '#FFFFFF',
-                        borderRadius: '20px',
-                        padding: '1.5rem',
-                        border: '1px solid #E2E8F0',
-                        boxShadow: '0 4px 16px rgba(0,0,0,0.04)',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        gap: '1.25rem'
-                    }}>
-                        <div>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                <h2 style={{ fontSize: '1.25rem', fontWeight: 900, margin: 0, color: '#0F172A' }}>
-                                    Walk the Farm
-                                </h2>
-                                <span style={{ fontSize: '0.8rem', background: '#DCFCE7', color: '#15803D', padding: '0.2rem 0.65rem', borderRadius: '12px', fontWeight: 700 }}>
-                                    Crop: {selectedCrop.split(' ')[0]}
-                                </span>
-                            </div>
-                            <p style={{ fontSize: '0.85rem', color: '#64748B', margin: '0.25rem 0 0 0' }}>
-                                Walk along the outer boundary of your field while mobile GPS traces your path.
-                            </p>
-                        </div>
-
-                        {/* Map Canvas Visualizer */}
-                        {renderMapCanvas()}
-
-                        {/* Live Stats Bar */}
-                        <div style={{
-                            display: 'grid',
-                            gridTemplateColumns: 'repeat(3, 1fr)',
-                            gap: '0.75rem',
-                            background: '#F8FAFC',
-                            borderRadius: '14px',
-                            padding: '1rem 0.75rem',
-                            textAlign: 'center',
-                            border: '1px solid #E2E8F0'
-                        }}>
-                            <div>
-                                <div style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 700 }}>GPS Points</div>
-                                <div style={{ fontSize: '1.25rem', fontWeight: 900, color: '#0F172A', marginTop: '0.15rem' }}>
-                                    {coordinates.length}
-                                </div>
-                            </div>
-                            <div>
-                                <div style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 700 }}>Perimeter</div>
-                                <div style={{ fontSize: '1.25rem', fontWeight: 900, color: '#16A34A', marginTop: '0.15rem' }}>
-                                    {perimeterMeters} m
-                                </div>
-                            </div>
-                            <div>
-                                <div style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 700 }}>Est. Area</div>
-                                <div style={{ fontSize: '1.25rem', fontWeight: 900, color: '#15803D', marginTop: '0.15rem' }}>
-                                    {areaAcres > 0 ? `${areaAcres} acres` : 'Calculating…'}
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Error Message banner */}
-                        {gpsError && (
-                            <div style={{
-                                background: '#FEF2F2',
-                                border: '1px solid #FCA5A5',
-                                borderRadius: '12px',
-                                padding: '0.75rem',
-                                color: '#991B1B',
-                                fontSize: '0.82rem'
-                            }}>
-                                {gpsError}
-                            </div>
-                        )}
-
-                        {/* Controls */}
-                        {!isTracking ? (
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                                <button
-                                    onClick={startRealGpsTracking}
-                                    style={{
-                                        width: '100%',
-                                        padding: '0.95rem',
-                                        borderRadius: '14px',
-                                        background: '#16A34A',
-                                        color: '#FFFFFF',
-                                        border: 'none',
-                                        fontWeight: 800,
-                                        fontSize: '1rem',
-                                        cursor: 'pointer',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        gap: '0.5rem',
-                                        boxShadow: '0 4px 12px rgba(22, 163, 74, 0.3)'
-                                    }}
-                                >
-                                    <span className="material-symbols-outlined" style={{ fontSize: '22px' }}>my_location</span>
-                                    <span>Start Walking with Real GPS</span>
-                                </button>
-
-                                <button
-                                    onClick={startDemoGpsTracking}
-                                    style={{
-                                        width: '100%',
-                                        padding: '0.85rem',
-                                        borderRadius: '14px',
-                                        background: '#FEF9C3',
-                                        color: '#854D0E',
-                                        border: '1.5px solid #FDE047',
-                                        fontWeight: 800,
-                                        fontSize: '0.9rem',
-                                        cursor: 'pointer',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        gap: '0.4rem'
-                                    }}
-                                >
-                                    <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>play_circle</span>
-                                    <span>Simulate Walk (Demo Mode)</span>
-                                </button>
-                            </div>
-                        ) : (
-                            <div style={{ display: 'flex', gap: '0.75rem' }}>
-                                <button
-                                    onClick={stopGpsTracking}
-                                    style={{
-                                        flex: 1,
-                                        padding: '0.9rem',
-                                        borderRadius: '14px',
-                                        background: '#EF4444',
-                                        color: '#FFFFFF',
-                                        border: 'none',
-                                        fontWeight: 800,
-                                        fontSize: '0.95rem',
-                                        cursor: 'pointer'
-                                    }}
-                                >
-                                    Pause Tracking
-                                </button>
-
-                                <button
-                                    onClick={handleFinishWalk}
-                                    disabled={isSaving}
-                                    style={{
-                                        flex: 1.5,
-                                        padding: '0.9rem',
-                                        borderRadius: '14px',
-                                        background: '#16A34A',
-                                        color: '#FFFFFF',
-                                        border: 'none',
-                                        fontWeight: 800,
-                                        fontSize: '0.95rem',
-                                        cursor: 'pointer',
-                                        boxShadow: '0 4px 14px rgba(22, 163, 74, 0.35)',
-                                        opacity: isSaving ? 0.7 : 1
-                                    }}
-                                >
-                                    {isSaving ? 'Registering…' : 'Stop & Register Field ✓'}
-                                </button>
-                            </div>
-                        )}
-                    </div>
-                )}
-
-                {/* ── STEP 3: FIELD REGISTERED CONFIRMATION ───────────────────────── */}
+                {/* ── STEP 3: REGISTERED SUCCESS SCREEN ───────────────────────────── */}
                 {currentStep === 'registered' && registeredRecord && (
                     <div style={{
                         background: '#FFFFFF',
                         borderRadius: '24px',
                         padding: '2rem 1.5rem',
-                        border: '2px solid #22C55E',
-                        boxShadow: '0 12px 32px rgba(34, 197, 94, 0.15)',
+                        border: '1px solid #E2E8F0',
+                        boxShadow: '0 8px 30px rgba(0,0,0,0.06)',
                         textAlign: 'center'
                     }}>
                         <div style={{
-                            width: '64px', height: '64px', borderRadius: '50%',
-                            background: '#DCFCE7', color: '#16A34A',
-                            display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            margin: '0 auto 1rem'
+                            width: '64px',
+                            height: '64px',
+                            borderRadius: '50%',
+                            background: '#DCFCE7',
+                            color: '#16A34A',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            margin: '0 auto 1.25rem',
+                            boxShadow: '0 6px 20px rgba(34,197,94,0.3)'
                         }}>
                             <span className="material-symbols-outlined" style={{ fontSize: '36px' }}>check_circle</span>
                         </div>
 
-                        <h2 style={{ fontSize: '1.6rem', fontWeight: 900, color: '#0F172A', margin: 0 }}>
-                            Field Registered ✓
+                        <h2 style={{ fontSize: '1.5rem', fontWeight: 900, color: '#0F172A', margin: '0 0 0.25rem 0' }}>
+                            Field Successfully Registered!
                         </h2>
-                        <p style={{ fontSize: '0.9rem', color: '#64748B', margin: '0.35rem 0 1.5rem 0' }}>
-                            Your field boundary is saved and integrated into BharatFarm SIH platform.
+                        <p style={{ fontSize: '0.88rem', color: '#64748B', margin: '0 0 1.5rem 0' }}>
+                            Your GPS boundary trace and ML observation data have been stored.
                         </p>
 
-                        {/* Field Record Summary Grid */}
                         <div style={{
                             background: '#F8FAFC',
                             borderRadius: '16px',
                             padding: '1.25rem',
                             textAlign: 'left',
-                            border: '1px solid #E2E8F0',
                             marginBottom: '1.5rem',
+                            border: '1px solid #E2E8F0',
                             display: 'flex',
                             flexDirection: 'column',
-                            gap: '0.85rem'
+                            gap: '0.65rem',
+                            fontSize: '0.9rem'
                         }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #E2E8F0', paddingBottom: '0.6rem' }}>
-                                <span style={{ color: '#64748B', fontSize: '0.85rem', fontWeight: 600 }}>Field Name:</span>
-                                <span style={{ color: '#0F172A', fontSize: '0.9rem', fontWeight: 800 }}>{registeredRecord.field_name}</span>
-                            </div>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #E2E8F0', paddingBottom: '0.6rem' }}>
-                                <span style={{ color: '#64748B', fontSize: '0.85rem', fontWeight: 600 }}>Crop Type:</span>
-                                <span style={{ color: '#15803D', fontSize: '0.9rem', fontWeight: 800 }}>{registeredRecord.crop_name}</span>
-                            </div>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #E2E8F0', paddingBottom: '0.6rem' }}>
-                                <span style={{ color: '#64748B', fontSize: '0.85rem', fontWeight: 600 }}>Mapped Area:</span>
-                                <span style={{ color: '#16A34A', fontSize: '1.1rem', fontWeight: 900 }}>{registeredRecord.area_acres} acres</span>
-                            </div>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #E2E8F0', paddingBottom: '0.6rem' }}>
-                                <span style={{ color: '#64748B', fontSize: '0.85rem', fontWeight: 600 }}>Perimeter:</span>
-                                <span style={{ color: '#0F172A', fontSize: '0.9rem', fontWeight: 700 }}>{registeredRecord.perimeter_meters} meters</span>
-                            </div>
-                            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                <span style={{ color: '#64748B', fontSize: '0.85rem', fontWeight: 600 }}>Location:</span>
-                                <span style={{ color: '#0F172A', fontSize: '0.85rem', fontWeight: 700 }}>{registeredRecord.location_address}</span>
-                            </div>
+                            <div><span style={{ color: '#64748B' }}>Field Label:</span> <strong style={{ color: '#0F172A' }}>{registeredRecord.field_name}</strong></div>
+                            <div><span style={{ color: '#64748B' }}>Crop Type:</span> <strong style={{ color: '#16A34A' }}>{registeredRecord.crop_name}</strong></div>
+                            <div><span style={{ color: '#64748B' }}>Calculated Area:</span> <strong style={{ color: '#15803D' }}>{registeredRecord.area_acres} acres ({registeredRecord.area_sq_meters} m²)</strong></div>
+                            <div><span style={{ color: '#64748B' }}>Perimeter:</span> <strong style={{ color: '#0F172A' }}>{registeredRecord.perimeter_meters} meters</strong></div>
+                            <div><span style={{ color: '#64748B' }}>GPS Coordinates:</span> <strong style={{ color: '#475569' }}>{registeredRecord.latitude.toFixed(5)}, {registeredRecord.longitude.toFixed(5)}</strong></div>
+                            <div><span style={{ color: '#64748B' }}>Data Pipeline Status:</span> <strong style={{ color: '#16A34A' }}>ML Dataset Ready ✓</strong></div>
                         </div>
 
-                        {/* SIH Module Integration Action Cards */}
-                        <div style={{ marginBottom: '1.5rem', textAlign: 'left' }}>
-                            <div style={{ fontSize: '0.82rem', fontWeight: 800, color: '#15803D', textTransform: 'uppercase', marginBottom: '0.65rem' }}>
-                                🌾 Integrated Platform Actions:
-                            </div>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                                <button
-                                    onClick={() => navigate('/sih/climate-risk')}
-                                    style={{
-                                        background: '#EFF6FF', color: '#1D4ED8', border: '1px solid #BFDBFE',
-                                        borderRadius: '12px', padding: '0.75rem 1rem', fontSize: '0.85rem',
-                                        fontWeight: 700, cursor: 'pointer', textAlign: 'left', display: 'flex', justifyContent: 'space-between', alignItems: 'center'
-                                    }}
-                                >
-                                    <span>⛈ Run Climate Risk Telemetry for this Field</span>
-                                    <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>arrow_forward</span>
-                                </button>
-
-                                <button
-                                    onClick={() => navigate('/sih/crop-insurance')}
-                                    style={{
-                                        background: '#FEFCE8', color: '#A16207', border: '1px solid #FEF08A',
-                                        borderRadius: '12px', padding: '0.75rem 1rem', fontSize: '0.85rem',
-                                        fontWeight: 700, cursor: 'pointer', textAlign: 'left', display: 'flex', justifyContent: 'space-between', alignItems: 'center'
-                                    }}
-                                >
-                                    <span>🛡 Verify Satellite NDVI Crop Insurance</span>
-                                    <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>arrow_forward</span>
-                                </button>
-
-                                <button
-                                    onClick={() => navigate('/sih/price-risk')}
-                                    style={{
-                                        background: '#F0FDF4', color: '#166534', border: '1px solid #BBF7D0',
-                                        borderRadius: '12px', padding: '0.75rem 1rem', fontSize: '0.85rem',
-                                        fontWeight: 700, cursor: 'pointer', textAlign: 'left', display: 'flex', justifyContent: 'space-between', alignItems: 'center'
-                                    }}
-                                >
-                                    <span>🌾 Check Price-Decrement Risk (Before You Sow)</span>
-                                    <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>arrow_forward</span>
-                                </button>
-                            </div>
-                        </div>
-
-                        {/* Navigation Buttons */}
-                        <div style={{ display: 'flex', gap: '0.75rem' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                             <button
                                 onClick={() => setCurrentStep('my-fields')}
                                 style={{
-                                    flex: 1,
-                                    padding: '0.85rem',
-                                    borderRadius: '12px',
-                                    background: '#FFFFFF',
-                                    color: '#15803D',
-                                    border: '1.5px solid #16A34A',
-                                    fontWeight: 800,
-                                    fontSize: '0.9rem',
-                                    cursor: 'pointer'
-                                }}
-                            >
-                                View My Fields
-                            </button>
-
-                            <button
-                                onClick={() => navigate('/home')}
-                                style={{
-                                    flex: 1,
-                                    padding: '0.85rem',
-                                    borderRadius: '12px',
+                                    width: '100%',
+                                    padding: '0.9rem',
+                                    borderRadius: '14px',
                                     background: '#16A34A',
                                     color: '#FFFFFF',
                                     border: 'none',
                                     fontWeight: 800,
+                                    fontSize: '0.95rem',
+                                    cursor: 'pointer'
+                                }}
+                            >
+                                View My Registered Fields ({savedFields.length})
+                            </button>
+
+                            <button
+                                onClick={() => setCurrentStep('select-crop')}
+                                style={{
+                                    width: '100%',
+                                    padding: '0.85rem',
+                                    borderRadius: '14px',
+                                    background: '#F1F5F9',
+                                    color: '#334155',
+                                    border: 'none',
+                                    fontWeight: 700,
                                     fontSize: '0.9rem',
                                     cursor: 'pointer'
                                 }}
                             >
-                                Back to SIH →
+                                + Register Another Field
                             </button>
                         </div>
                     </div>
                 )}
 
-                {/* ── MY SAVED FIELDS LIST VIEW ────────────────────────────────────── */}
+                {/* ── STEP 4: MY FIELDS LIST ───────────────────────────────────────── */}
                 {currentStep === 'my-fields' && (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                             <h2 style={{ fontSize: '1.3rem', fontWeight: 900, color: '#0F172A', margin: 0 }}>
-                                My Registered Fields
+                                Registered Fields ({savedFields.length})
                             </h2>
                             <button
                                 onClick={() => setCurrentStep('select-crop')}
                                 style={{
-                                    background: '#16A34A', color: '#fff', border: 'none',
-                                    borderRadius: '10px', padding: '0.5rem 1rem', fontSize: '0.82rem',
-                                    fontWeight: 800, cursor: 'pointer'
+                                    background: '#16A34A',
+                                    color: '#FFFFFF',
+                                    border: 'none',
+                                    borderRadius: '10px',
+                                    padding: '0.45rem 0.85rem',
+                                    fontWeight: 700,
+                                    fontSize: '0.82rem',
+                                    cursor: 'pointer'
                                 }}
                             >
-                                + Map New Field
+                                + New Field
                             </button>
                         </div>
 
                         {savedFields.length === 0 ? (
                             <div style={{
-                                background: '#FFFFFF', borderRadius: '16px', padding: '3rem 1.5rem',
-                                textAlign: 'center', border: '1px solid #E2E8F0'
+                                background: '#FFFFFF',
+                                padding: '3rem 1.5rem',
+                                borderRadius: '20px',
+                                textAlign: 'center',
+                                color: '#64748B',
+                                border: '1px solid #E2E8F0'
                             }}>
-                                <span className="material-symbols-outlined" style={{ fontSize: '48px', color: '#94A3B8' }}>map</span>
-                                <p style={{ color: '#64748B', margin: '0.5rem 0 1.25rem 0', fontWeight: 600 }}>
-                                    No registered fields found yet.
-                                </p>
-                                <button
-                                    onClick={() => setCurrentStep('select-crop')}
-                                    style={{
-                                        background: '#16A34A', color: '#fff', border: 'none',
-                                        borderRadius: '12px', padding: '0.75rem 1.5rem', fontWeight: 800
-                                    }}
-                                >
-                                    Start Field Mapping
-                                </button>
+                                <span className="material-symbols-outlined" style={{ fontSize: '48px', color: '#CBD5E1', marginBottom: '0.5rem' }}>map</span>
+                                <p style={{ fontWeight: 700, margin: 0 }}>No fields mapped yet.</p>
+                                <p style={{ fontSize: '0.82rem', margin: '0.25rem 0 0 0' }}>Tap "+ New Field" to walk your farm boundary.</p>
                             </div>
                         ) : (
-                            savedFields.map((field, idx) => (
+                            savedFields.map((field) => (
                                 <div
-                                    key={field.id || idx}
+                                    key={field.id}
                                     style={{
                                         background: '#FFFFFF',
                                         borderRadius: '16px',
                                         padding: '1.25rem',
                                         border: '1px solid #E2E8F0',
-                                        boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
+                                        boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
                                         display: 'flex',
-                                        flexDirection: 'column',
-                                        gap: '0.75rem'
+                                        justifyContent: 'space-between',
+                                        alignItems: 'center'
                                     }}
                                 >
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                        <div>
-                                            <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#0F172A', margin: 0 }}>
-                                                {field.field_name}
-                                            </h3>
-                                            <span style={{ fontSize: '0.8rem', color: '#15803D', fontWeight: 700 }}>
-                                                {field.crop_name}
-                                            </span>
+                                    <div>
+                                        <h3 style={{ fontSize: '1.05rem', fontWeight: 800, margin: '0 0 0.2rem 0', color: '#0F172A' }}>
+                                            {field.field_name}
+                                        </h3>
+                                        <div style={{ fontSize: '0.82rem', color: '#16A34A', fontWeight: 700 }}>
+                                            {field.crop_name} · {field.area_acres} acres ({field.area_sq_meters || Math.round(field.area_acres * 4046.86)} m²)
                                         </div>
-                                        <div style={{ textAlign: 'right' }}>
-                                            <div style={{ fontSize: '1.2rem', fontWeight: 900, color: '#16A34A' }}>
-                                                {field.area_acres} acres
-                                            </div>
-                                            <div style={{ fontSize: '0.75rem', color: '#64748B' }}>
-                                                Perimeter: {field.perimeter_meters}m
-                                            </div>
+                                        <div style={{ fontSize: '0.75rem', color: '#94A3B8', marginTop: '0.25rem' }}>
+                                            {field.location_address || 'Haldia, West Bengal'} · {field.mapping_mode || (field.is_demo ? 'DEMO' : 'REAL_GPS')}
                                         </div>
                                     </div>
 
-                                    <div style={{
-                                        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                                        background: '#F8FAFC', padding: '0.5rem 0.75rem', borderRadius: '10px',
-                                        fontSize: '0.78rem', color: '#64748B'
+                                    <span style={{
+                                        fontSize: '0.75rem',
+                                        background: field.mapping_mode === 'DEMO' ? '#FEF08A' : '#DCFCE7',
+                                        color: field.mapping_mode === 'DEMO' ? '#854D0E' : '#15803D',
+                                        padding: '0.25rem 0.65rem',
+                                        borderRadius: '12px',
+                                        fontWeight: 800
                                     }}>
-                                        <span>📍 {field.location_address}</span>
-                                        <span>{new Date(field.created_at || Date.now()).toLocaleDateString()}</span>
-                                    </div>
+                                        {field.mapping_mode === 'DEMO' ? 'DEMO' : 'SYNCED'}
+                                    </span>
                                 </div>
                             ))
                         )}
                     </div>
                 )}
-
             </main>
         </div>
     );
