@@ -191,124 +191,226 @@ export const FieldMappingPage: React.FC = () => {
         setCurrentStep('registered');
     };
 
-    // ── Render Map Visualizer Canvas ──────────────────────────────────────────
-    const renderMapCanvas = () => {
-        if (coordinates.length === 0) {
-            return (
-                <div style={{
-                    height: '240px',
-                    background: '#0d3319',
-                    borderRadius: '16px',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: 'rgba(255,255,255,0.7)',
-                    padding: '1.5rem',
-                    textAlign: 'center',
-                    border: '1px dashed rgba(34,197,94,0.4)'
-                }}>
-                    <span className="material-symbols-outlined" style={{ fontSize: '42px', color: '#4ade80', marginBottom: '0.5rem' }}>
-                        map
-                    </span>
-                    <div style={{ fontWeight: 700, color: '#fff', fontSize: '1rem' }}>Map Ready</div>
-                    <div style={{ fontSize: '0.82rem', marginTop: '0.2rem' }}>
-                        Tap <strong>"Start Walking"</strong> or <strong>"Demo Mode"</strong> to trace field boundaries
-                    </div>
-                </div>
-            );
+    // Map state (Leaflet)
+    const mapContainerRef = useRef<HTMLDivElement | null>(null);
+    const mapInstanceRef = useRef<any>(null);
+    const polylineRef = useRef<any>(null);
+    const polygonRef = useRef<any>(null);
+    const markerRef = useRef<any>(null);
+    const [mapLayer, setMapLayer] = useState<'satellite' | 'street'>('satellite');
+    const tileLayerRef = useRef<any>(null);
+
+    // Initialize Leaflet Map when step is 'walk-farm'
+    useEffect(() => {
+        if (currentStep !== 'walk-farm' || !mapContainerRef.current) return;
+
+        // Load Leaflet JS dynamically if not already loaded on window
+        const initLeaflet = () => {
+            const L = (window as any).L;
+            if (!L) return;
+
+            if (!mapInstanceRef.current) {
+                const initialLat = currentPosition?.lat || 22.0667;
+                const initialLng = currentPosition?.lng || 88.0667;
+
+                const map = L.map(mapContainerRef.current, {
+                    center: [initialLat, initialLng],
+                    zoom: 17,
+                    zoomControl: false
+                });
+
+                // Add zoom control top right
+                L.control.zoom({ position: 'topright' }).addTo(map);
+
+                // Add default Esri Satellite Tile Layer
+                const esriUrl = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
+                const esriAttr = '© Esri, Maxar, Earthstar Geographics, and GIS User Community';
+
+                const layer = L.tileLayer(esriUrl, {
+                    maxZoom: 19,
+                    attribution: esriAttr
+                }).addTo(map);
+
+                tileLayerRef.current = layer;
+                mapInstanceRef.current = map;
+            }
+        };
+
+        if ((window as any).L) {
+            initLeaflet();
+        } else {
+            const script = document.createElement('script');
+            script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+            script.crossOrigin = '';
+            script.onload = initLeaflet;
+            document.body.appendChild(script);
         }
 
-        // Convert coords to relative SVG viewBox coordinates (0-300 x 0-200)
-        const lats = coordinates.map((c) => c.lat);
-        const lngs = coordinates.map((c) => c.lng);
-        const minLat = Math.min(...lats);
-        const maxLat = Math.max(...lats) || minLat + 0.001;
-        const minLng = Math.min(...lngs);
-        const maxLng = Math.max(...lngs) || minLng + 0.001;
+        return () => {
+            if (mapInstanceRef.current) {
+                mapInstanceRef.current.remove();
+                mapInstanceRef.current = null;
+                polylineRef.current = null;
+                polygonRef.current = null;
+                markerRef.current = null;
+            }
+        };
+    }, [currentStep]);
 
-        const mapPoints = coordinates.map((c) => {
-            const x = 30 + ((c.lng - minLng) / (maxLng - minLng || 0.001)) * 240;
-            const y = 170 - ((c.lat - minLat) / (maxLat - minLat || 0.001)) * 140;
-            return `${x},${y}`;
-        });
+    // Handle Layer Switch (Satellite vs Street)
+    const handleSwitchLayer = (type: 'satellite' | 'street') => {
+        setMapLayer(type);
+        const L = (window as any).L;
+        if (!L || !mapInstanceRef.current || !tileLayerRef.current) return;
 
-        const pointsString = mapPoints.join(' ');
-        const lastPt = mapPoints[mapPoints.length - 1].split(',');
+        mapInstanceRef.current.removeLayer(tileLayerRef.current);
 
+        if (type === 'satellite') {
+            const esriUrl = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
+            const esriAttr = '© Esri, Maxar, Earthstar Geographics, and GIS User Community';
+            tileLayerRef.current = L.tileLayer(esriUrl, { maxZoom: 19, attribution: esriAttr }).addTo(mapInstanceRef.current);
+        } else {
+            const osmUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+            const osmAttr = '© OpenStreetMap contributors';
+            tileLayerRef.current = L.tileLayer(osmUrl, { maxZoom: 19, attribution: osmAttr }).addTo(mapInstanceRef.current);
+        }
+    };
+
+    // Update Map Overlays (Polylines, Polygon, Current GPS Marker) whenever coordinates change
+    useEffect(() => {
+        const L = (window as any).L;
+        if (!L || !mapInstanceRef.current) return;
+
+        const map = mapInstanceRef.current;
+        const latLngs = coordinates.map(c => [c.lat, c.lng]);
+
+        if (latLngs.length > 0) {
+            const lastCoord = latLngs[latLngs.length - 1];
+
+            // Update or create Live Marker
+            if (!markerRef.current) {
+                const pulsingIcon = L.divIcon({
+                    className: 'custom-gps-marker',
+                    html: `<div style="
+                        width: 18px; height: 18px; background: #22c55e; border: 3px solid #ffffff;
+                        border-radius: 50%; box-shadow: 0 0 12px #22c55e, 0 0 24px rgba(34,197,94,0.6);
+                    "></div>`,
+                    iconSize: [18, 18],
+                    iconAnchor: [9, 9]
+                });
+                markerRef.current = L.marker(lastCoord, { icon: pulsingIcon }).addTo(map);
+            } else {
+                markerRef.current.setLatLng(lastCoord);
+            }
+
+            // Pan map to latest position if tracking
+            if (isTracking) {
+                map.panTo(lastCoord, { animate: true });
+            }
+
+            // Draw Polyline path
+            if (polylineRef.current) {
+                polylineRef.current.setLatLngs(latLngs);
+            } else {
+                polylineRef.current = L.polyline(latLngs, {
+                    color: '#4ade80',
+                    weight: 4,
+                    dashArray: '6, 6',
+                    opacity: 0.95
+                }).addTo(map);
+            }
+
+            // Draw Polygon shaded field boundary if 3+ points
+            if (latLngs.length >= 3) {
+                if (polygonRef.current) {
+                    polygonRef.current.setLatLngs(latLngs);
+                } else {
+                    polygonRef.current = L.polygon(latLngs, {
+                        color: '#22c55e',
+                        weight: 2,
+                        fillColor: '#22c55e',
+                        fillOpacity: 0.3
+                    }).addTo(map);
+                }
+            }
+        }
+    }, [coordinates, isTracking]);
+
+    // Recenter map button handler
+    const handleRecenter = () => {
+        if (!mapInstanceRef.current || !currentPosition) return;
+        mapInstanceRef.current.setView([currentPosition.lat, currentPosition.lng], 18, { animate: true });
+    };
+
+    // ── Render Interactive GIS Satellite Map ────────────────────────────────
+    const renderMapCanvas = () => {
         return (
             <div style={{
                 position: 'relative',
-                height: '260px',
-                background: 'linear-gradient(180deg, #0b2915 0%, #061c0d 100%)',
+                height: '280px',
+                width: '100%',
                 borderRadius: '20px',
                 overflow: 'hidden',
-                border: '1px solid rgba(34,197,94,0.3)',
-                boxShadow: 'inset 0 2px 10px rgba(0,0,0,0.5)'
+                border: '2px solid rgba(34,197,94,0.4)',
+                boxShadow: '0 8px 24px rgba(0,0,0,0.15)'
             }}>
-                {/* SVG Polygon & Path */}
-                <svg viewBox="0 0 300 200" style={{ width: '100%', height: '100%' }}>
-                    {/* Grid lines */}
-                    <defs>
-                        <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
-                            <path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgba(34,197,94,0.08)" strokeWidth="1" />
-                        </pattern>
-                    </defs>
-                    <rect width="300" height="200" fill="url(#grid)" />
+                {/* Leaflet Map Div */}
+                <div ref={mapContainerRef} style={{ width: '100%', height: '100%', background: '#0b2915' }} />
 
-                    {/* Filled Polygon (when 3+ points) */}
-                    {coordinates.length >= 3 && (
-                        <polygon
-                            points={pointsString}
-                            fill="rgba(34, 197, 94, 0.25)"
-                            stroke="#22c55e"
-                            strokeWidth="2.5"
-                            strokeDasharray="4 2"
-                        />
-                    )}
-
-                    {/* Polyline */}
-                    <polyline
-                        points={pointsString}
-                        fill="none"
-                        stroke="#4ade80"
-                        strokeWidth="3"
-                        strokeLinecap="round"
-                    />
-
-                    {/* Start Point Pin */}
-                    {mapPoints[0] && (
-                        <circle
-                            cx={mapPoints[0].split(',')[0]}
-                            cy={mapPoints[0].split(',')[1]}
-                            r="5"
-                            fill="#eab308"
-                            stroke="#ffffff"
-                            strokeWidth="2"
-                        />
-                    )}
-
-                    {/* Current GPS Position Pulse */}
-                    <circle
-                        cx={lastPt[0]}
-                        cy={lastPt[1]}
-                        r="8"
-                        fill="#22c55e"
-                        stroke="#ffffff"
-                        strokeWidth="2"
-                    >
-                        <animate attributeName="r" values="6;12;6" dur="1.5s" repeatCount="indefinite" />
-                        <animate attributeName="opacity" values="1;0.4;1" dur="1.5s" repeatCount="indefinite" />
-                    </circle>
-                </svg>
-
-                {/* Map Overlay Badge */}
+                {/* Layer Switcher Control (Floating top left) */}
                 <div style={{
                     position: 'absolute',
-                    top: '10px',
-                    left: '10px',
+                    top: '12px',
+                    left: '12px',
+                    zIndex: 400,
+                    background: 'rgba(15, 23, 42, 0.85)',
+                    backdropFilter: 'blur(8px)',
+                    padding: '3px',
+                    borderRadius: '12px',
+                    display: 'flex',
+                    gap: '4px',
+                    border: '1px solid rgba(255,255,255,0.15)'
+                }}>
+                    <button
+                        onClick={() => handleSwitchLayer('satellite')}
+                        style={{
+                            padding: '4px 10px',
+                            borderRadius: '8px',
+                            border: 'none',
+                            fontSize: '0.75rem',
+                            fontWeight: 700,
+                            cursor: 'pointer',
+                            background: mapLayer === 'satellite' ? '#16A34A' : 'transparent',
+                            color: mapLayer === 'satellite' ? '#FFFFFF' : '#94A3B8'
+                        }}
+                    >
+                        🛰 Satellite
+                    </button>
+                    <button
+                        onClick={() => handleSwitchLayer('street')}
+                        style={{
+                            padding: '4px 10px',
+                            borderRadius: '8px',
+                            border: 'none',
+                            fontSize: '0.75rem',
+                            fontWeight: 700,
+                            cursor: 'pointer',
+                            background: mapLayer === 'street' ? '#16A34A' : 'transparent',
+                            color: mapLayer === 'street' ? '#FFFFFF' : '#94A3B8'
+                        }}
+                    >
+                        🗺 Map
+                    </button>
+                </div>
+
+                {/* Live GPS / Tracking Status Badge (Floating top right, under zoom) */}
+                <div style={{
+                    position: 'absolute',
+                    bottom: '12px',
+                    left: '12px',
+                    zIndex: 400,
                     background: 'rgba(15,23,42,0.85)',
-                    backdropFilter: 'blur(4px)',
+                    backdropFilter: 'blur(8px)',
                     padding: '0.35rem 0.75rem',
                     borderRadius: '12px',
                     color: '#ffffff',
@@ -317,7 +419,7 @@ export const FieldMappingPage: React.FC = () => {
                     display: 'flex',
                     alignItems: 'center',
                     gap: '0.4rem',
-                    border: '1px solid rgba(255,255,255,0.1)'
+                    border: '1px solid rgba(255,255,255,0.15)'
                 }}>
                     <span style={{
                         width: '8px',
@@ -325,24 +427,35 @@ export const FieldMappingPage: React.FC = () => {
                         borderRadius: '50%',
                         background: isTracking ? '#22c55e' : '#eab308'
                     }} />
-                    {isDemoMode ? 'Demo Mode Active' : isTracking ? 'GPS Active' : 'Stopped'}
+                    {isDemoMode ? 'Demo Mode Active' : isTracking ? `GPS Active ±${currentPosition?.accuracy ? Math.round(currentPosition.accuracy) : 5}m` : 'Ready'}
                 </div>
 
-                {/* Coords Badge */}
+                {/* Recenter Button (Floating bottom right) */}
                 {currentPosition && (
-                    <div style={{
-                        position: 'absolute',
-                        bottom: '10px',
-                        right: '10px',
-                        background: 'rgba(15,23,42,0.85)',
-                        padding: '0.3rem 0.65rem',
-                        borderRadius: '10px',
-                        color: '#94a3b8',
-                        fontSize: '0.72rem',
-                        fontFamily: 'monospace'
-                    }}>
-                        {currentPosition.lat.toFixed(4)}°, {currentPosition.lng.toFixed(4)}°
-                    </div>
+                    <button
+                        onClick={handleRecenter}
+                        style={{
+                            position: 'absolute',
+                            bottom: '12px',
+                            right: '12px',
+                            zIndex: 400,
+                            background: 'rgba(15,23,42,0.85)',
+                            backdropFilter: 'blur(8px)',
+                            color: '#FFFFFF',
+                            border: '1px solid rgba(255,255,255,0.15)',
+                            borderRadius: '12px',
+                            padding: '0.4rem 0.65rem',
+                            fontSize: '0.78rem',
+                            fontWeight: 700,
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.3rem'
+                        }}
+                    >
+                        <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>my_location</span>
+                        Recenter
+                    </button>
                 )}
             </div>
         );

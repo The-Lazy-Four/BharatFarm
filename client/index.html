@@ -1,53 +1,62 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
 
-    <!-- PWA Primary Favicon -->
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png" />
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png" />
+<head>
+  <meta charset="UTF-8" />
 
-    <!-- Apple Touch Icon -->
-    <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png" />
+  <!-- PWA Primary Favicon -->
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png" />
 
-    <!-- Web App Manifest -->
-    <link rel="manifest" href="/manifest.webmanifest" />
+  <!-- Apple Touch Icon -->
+  <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png" />
 
-    <!-- PWA Meta Tags -->
-    <meta name="theme-color" content="#0d4a1e" />
-    <meta name="mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="apple-mobile-web-app-title" content="BharatFarm" />
-    <meta name="application-name" content="BharatFarm" />
-    <meta name="msapplication-TileColor" content="#0d4a1e" />
-    <meta name="msapplication-TileImage" content="/icons/icon-144.png" />
+  <!-- Web App Manifest -->
+  <link rel="manifest" href="/manifest.webmanifest" />
 
-    <!-- Viewport: Optimised for mobile PWA -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <!-- PWA Meta Tags -->
+  <meta name="theme-color" content="#0d4a1e" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="BharatFarm" />
+  <meta name="application-name" content="BharatFarm" />
+  <meta name="msapplication-TileColor" content="#0d4a1e" />
+  <meta name="msapplication-TileImage" content="/icons/icon-144.png" />
 
-    <!-- SEO Meta -->
-    <title>BharatFarm — Smart Agriculture Platform</title>
-    <meta name="description" content="BharatFarm – Smart agriculture platform empowering Indian farmers with AI-powered climate intelligence, crop risk analysis, mandi intelligence, group aggregation and Sahayak assistance." />
-    <meta name="keywords" content="bharatfarm, agriculture, smart farming, mandi, climate risk, crop insurance, sahayak, SIH" />
-    <meta name="author" content="BharatFarm Team" />
+  <!-- Viewport: Optimised for mobile PWA -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 
-    <!-- Open Graph -->
-    <meta property="og:title" content="BharatFarm – Smart Agriculture" />
-    <meta property="og:description" content="Empowering Indian farmers with AI-powered smart agriculture platform." />
-    <meta property="og:type" content="website" />
-    <meta property="og:image" content="/icons/icon-512.png" />
+  <!-- SEO Meta -->
+  <title>BharatFarm — Smart Agriculture Platform</title>
+  <meta name="description"
+    content="BharatFarm – Smart agriculture platform empowering Indian farmers with AI-powered climate intelligence, crop risk analysis, mandi intelligence, group aggregation and Sahayak assistance." />
+  <meta name="keywords"
+    content="bharatfarm, agriculture, smart farming, mandi, climate risk, crop insurance, sahayak, SIH" />
+  <meta name="author" content="BharatFarm Team" />
 
-    <!-- Fonts Preconnect -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <!-- Urbanist font (Stitch Master Style Fix) -->
-    <link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Material Symbols for icon consistency with Stitch -->
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+  <!-- Open Graph -->
+  <meta property="og:title" content="BharatFarm – Smart Agriculture" />
+  <meta property="og:description" content="Empowering Indian farmers with AI-powered smart agriculture platform." />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="/icons/icon-512.png" />
+
+  <!-- Fonts Preconnect -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <!-- Urbanist font (Stitch Master Style Fix) -->
+  <link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Leaflet GIS CSS for Field Mapping & Esri Satellite Basemap -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+  <!-- Material Symbols for icon consistency with Stitch -->
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+    rel="stylesheet">
+</head>
+
+<body>
+  <div id="root"></div>
+  <script type="module" src="/src/main.tsx"></script>
+</body>
+
 </html>
