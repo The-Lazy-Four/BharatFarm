@@ -1,18 +1,17 @@
 import React from 'react';
 import { HourlyForecastItem } from '../types';
+import { useLanguage } from '../../../../context/LanguageContext';
 
 interface Props {
   hourly: HourlyForecastItem[];
 }
 
 export const BestWorkWindowSection: React.FC<Props> = ({ hourly }) => {
+  const { t } = useLanguage();
   if (!hourly || hourly.length === 0) return null;
 
-  // Derive optimal operational window from real hourly forecast:
-  // Look for morning/daylight hours (06:00 to 18:00) with minimal rain probability and moderate wind.
   const daylightHours = hourly.slice(0, 18);
   
-  // Find safest slot (lowest precipitation and rainProb)
   let bestStartIdx = -1;
   let minRainSum = Infinity;
 
@@ -24,12 +23,10 @@ export const BestWorkWindowSection: React.FC<Props> = ({ hourly }) => {
     }
   }
 
-  // Fallback safe window if index isn't found
   const bestWindowStr = bestStartIdx >= 0 && daylightHours[bestStartIdx]
     ? `${daylightHours[bestStartIdx].time} – ${daylightHours[bestStartIdx + 2]?.time || '12:00'}`
     : '08:00 – 11:00';
 
-  // Find adverse window (highest rainProb)
   let maxRainIdx = 0;
   let maxRainVal = -1;
   daylightHours.forEach((h, idx) => {
@@ -68,10 +65,10 @@ export const BestWorkWindowSection: React.FC<Props> = ({ hourly }) => {
           padding: '0.2rem 0.5rem',
           borderRadius: '4px'
         }}>
-          BEST WORK WINDOW
+          {t('sih.bestWorkWindowTag')}
         </span>
         <span style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 600 }}>
-          Computed from real hourly forecast
+          {t('sih.computedHourly')}
         </span>
       </div>
 
@@ -81,17 +78,17 @@ export const BestWorkWindowSection: React.FC<Props> = ({ hourly }) => {
           <span style={{ color: '#16a34a', fontWeight: 900, fontSize: '0.92rem' }}>✓</span>
           <span style={{ fontWeight: 800, fontSize: '0.86rem', color: '#0f172a' }}>{bestWindowStr}</span>
           <span style={{ fontSize: '0.72rem', color: '#166534', background: '#dcfce7', padding: '0.1rem 0.4rem', borderRadius: '4px', fontWeight: 700 }}>
-            Field work • Spraying • Transport
+            {t('sih.bestWorkTasks')}
           </span>
         </div>
 
         {/* Avoid Window */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
           <span style={{ color: '#dc2626', fontWeight: 900, fontSize: '0.92rem' }}>✕</span>
-          <span style={{ fontSize: '0.8rem', color: '#64748b', fontWeight: 600 }}>Avoid:</span>
+          <span style={{ fontSize: '0.8rem', color: '#64748b', fontWeight: 600 }}>{t('sih.avoid')}</span>
           <span style={{ fontWeight: 800, fontSize: '0.84rem', color: '#991b1b' }}>{avoidWindowStr}</span>
           <span style={{ fontSize: '0.72rem', color: '#991b1b', background: '#fee2e2', padding: '0.1rem 0.4rem', borderRadius: '4px', fontWeight: 700 }}>
-            {isRainLikely ? '🌧 High rain probability' : 'High heat / humidity'}
+            {isRainLikely ? t('sih.highRainProb') : t('sih.highHeat')}
           </span>
         </div>
       </div>

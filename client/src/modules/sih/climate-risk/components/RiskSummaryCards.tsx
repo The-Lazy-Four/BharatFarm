@@ -1,11 +1,14 @@
 import React from 'react';
 import { ClimateAssessmentResult } from '../types';
+import { useLanguage } from '../../../../context/LanguageContext';
 
 interface Props {
   assessment: ClimateAssessmentResult;
 }
 
 export const RiskSummaryCards: React.FC<Props> = ({ assessment }) => {
+  const { t } = useLanguage();
+
   const getBadge = (level: string) => {
     switch (level) {
       case 'SEVERE':
@@ -34,6 +37,20 @@ export const RiskSummaryCards: React.FC<Props> = ({ assessment }) => {
   const crop = getBadge(assessment.cropRisk.cropRiskLevel);
   const harvest = getHarvestBadge(assessment.harvestAdvisory.actionCode);
 
+  const formatRiskLevel = (lvl: string) => {
+    if (!lvl) return '';
+    const lower = lvl.toLowerCase().trim();
+    if (lower.includes('severe') || lower.includes('critical')) return t('risk.severe');
+    if (lower.includes('high')) return t('risk.high');
+    if (lower.includes('moderate') || lower.includes('elevated') || lower.includes('caution')) return t('risk.moderate');
+    if (lower.includes('low') || lower.includes('minimal')) return t('risk.low');
+    if (lower.includes('safe') || lower.includes('normal')) return t('risk.safe');
+    if (lower.includes('protect') || lower.includes('drainage')) return t('risk.protectDrainage');
+    if (lower.includes('early') || lower.includes('harvest')) return t('risk.harvestNow');
+    if (lower.includes('delay')) return t('risk.delayHarvest');
+    return t(`risk.${lower}` as any) || lvl;
+  };
+
   return (
     <div style={{
       display: 'grid',
@@ -53,7 +70,7 @@ export const RiskSummaryCards: React.FC<Props> = ({ assessment }) => {
       }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <span style={{ fontSize: '0.72rem', fontWeight: 800, color: '#64748B', letterSpacing: '0.04em' }}>
-            OVERALL RISK
+            {t('risk.overallRisk')}
           </span>
           <span style={{
             background: overall.bg,
@@ -63,7 +80,7 @@ export const RiskSummaryCards: React.FC<Props> = ({ assessment }) => {
             padding: '0.15rem 0.45rem',
             borderRadius: '4px'
           }}>
-            {assessment.overallRiskLevel}
+            {formatRiskLevel(assessment.overallRiskLevel)}
           </span>
         </div>
         <div style={{ marginTop: '0.4rem' }}>
@@ -95,7 +112,7 @@ export const RiskSummaryCards: React.FC<Props> = ({ assessment }) => {
       }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <span style={{ fontSize: '0.72rem', fontWeight: 800, color: '#64748B', letterSpacing: '0.04em' }}>
-            FLOOD RISK
+            {t('risk.floodRisk')}
           </span>
           <span style={{
             background: flood.bg,
@@ -105,7 +122,7 @@ export const RiskSummaryCards: React.FC<Props> = ({ assessment }) => {
             padding: '0.15rem 0.45rem',
             borderRadius: '4px'
           }}>
-            {assessment.floodRisk.riskLevel}
+            {formatRiskLevel(assessment.floodRisk.riskLevel)}
           </span>
         </div>
         <div style={{ marginTop: '0.4rem' }}>
@@ -137,7 +154,7 @@ export const RiskSummaryCards: React.FC<Props> = ({ assessment }) => {
       }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <span style={{ fontSize: '0.72rem', fontWeight: 800, color: '#64748B', letterSpacing: '0.04em' }}>
-            CROP RISK ({assessment.cropRisk.cropName.toUpperCase()})
+            {t('risk.cropRisk')} ({assessment.cropRisk.cropName.toUpperCase()})
           </span>
           <span style={{
             background: crop.bg,
@@ -147,7 +164,7 @@ export const RiskSummaryCards: React.FC<Props> = ({ assessment }) => {
             padding: '0.15rem 0.45rem',
             borderRadius: '4px'
           }}>
-            {assessment.cropRisk.cropRiskLevel}
+            {formatRiskLevel(assessment.cropRisk.cropRiskLevel)}
           </span>
         </div>
         <div style={{ marginTop: '0.4rem' }}>
@@ -179,7 +196,7 @@ export const RiskSummaryCards: React.FC<Props> = ({ assessment }) => {
       }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <span style={{ fontSize: '0.72rem', fontWeight: 800, color: '#64748B', letterSpacing: '0.04em' }}>
-            HARVEST DECISION
+            {t('risk.harvestDecision')}
           </span>
           <span style={{
             background: harvest.bg,
@@ -189,7 +206,7 @@ export const RiskSummaryCards: React.FC<Props> = ({ assessment }) => {
             padding: '0.15rem 0.45rem',
             borderRadius: '4px'
           }}>
-            {assessment.harvestAdvisory.actionCode.replace('HARVEST', '').trim() || 'NORMAL'}
+            {formatRiskLevel(assessment.harvestAdvisory.actionCode.replace('HARVEST', '').trim() || 'NORMAL')}
           </span>
         </div>
         <div style={{ marginTop: '0.4rem' }}>

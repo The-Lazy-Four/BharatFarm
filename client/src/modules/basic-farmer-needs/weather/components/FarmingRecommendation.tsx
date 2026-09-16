@@ -1,13 +1,16 @@
 import React from 'react';
 import { Card } from '@core/ui/Card';
+import { useLanguage } from '../../../../context/LanguageContext';
 
 export const FarmingRecommendation: React.FC<{ advisory: string; doList: string[]; dontList: string[] }> = ({
   advisory,
   doList,
   dontList
 }) => {
+  const { t } = useLanguage();
+
   return (
-    <Card title="🌾 Hyperlocal Agronomist Advisory" subtitle="AI and meteorologist generated crop protection guidance for current weather.">
+    <Card title={t('weatherPage.agronomistAdvisoryTitle')} subtitle={t('weatherPage.agronomistAdvisorySub')}>
       <div className="alert-warning" style={{ marginBottom: '1rem', borderLeft: '4px solid var(--emerald-primary)', background: 'var(--bg-card-hover)' }}>
         <p style={{ fontSize: '0.88rem', fontWeight: 600, color: 'var(--text-primary)', lineHeight: 1.5 }}>
           {advisory}
@@ -18,7 +21,7 @@ export const FarmingRecommendation: React.FC<{ advisory: string; doList: string[
         <div style={{ background: 'rgba(16, 185, 129, 0.08)', borderRadius: '8px', padding: '1rem', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
           <h4 style={{ color: 'var(--emerald-primary)', fontSize: '0.9rem', fontWeight: 800, marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
             <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>check_circle</span>
-            RECOMMENDED ACTIVITIES (DO)
+            {t('weatherPage.recommendedActivities')}
           </h4>
           <ul style={{ paddingLeft: '1.2rem', fontSize: '0.82rem', color: 'var(--text-primary)', display: 'flex', flexDirection: 'column', gap: '0.4rem', lineHeight: 1.4 }}>
             {doList.map((item, i) => (
@@ -30,7 +33,7 @@ export const FarmingRecommendation: React.FC<{ advisory: string; doList: string[
         <div style={{ background: 'rgba(239, 68, 68, 0.08)', borderRadius: '8px', padding: '1rem', border: '1px solid rgba(239, 68, 68, 0.2)' }}>
           <h4 style={{ color: '#EF4444', fontSize: '0.9rem', fontWeight: 800, marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
             <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>cancel</span>
-            RESTRICTED ACTIVITIES (DON'T)
+            {t('weatherPage.restrictedActivities')}
           </h4>
           <ul style={{ paddingLeft: '1.2rem', fontSize: '0.82rem', color: 'var(--text-primary)', display: 'flex', flexDirection: 'column', gap: '0.4rem', lineHeight: 1.4 }}>
             {dontList.map((item, i) => (

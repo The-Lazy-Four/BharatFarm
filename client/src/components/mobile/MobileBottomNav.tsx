@@ -1,23 +1,26 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
+import { useLanguage } from '../../context/LanguageContext';
 
 interface MobileBottomNavProps {
   type?: 'main' | 'basic';
 }
 
 export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({ type = 'main' }) => {
+  const { t } = useLanguage();
+
   const mainItems = [
-    { to: '/home', label: 'Home', icon: 'home' },
-    { to: '/demo', label: 'Demo', icon: 'play_circle' },
-    { to: '/sih/sahayak', label: 'Sahayak', icon: 'chat' },
-    { to: '/profile', label: 'Profile', icon: 'person' },
+    { to: '/home', label: t('mobileHome.bottomHome'), icon: 'home' },
+    { to: '/demo', label: t('mobileHome.bottomDemo'), icon: 'play_circle' },
+    { to: '/sih/sahayak', label: t('mobileHome.bottomSahayak'), icon: 'chat' },
+    { to: '/profile', label: t('mobileHome.bottomProfile'), icon: 'person' },
   ];
 
   const basicItems = [
-    { to: '/dashboard', label: 'Home', icon: 'home' },
-    { to: '/demo', label: 'Demo', icon: 'play_circle' },
-    { to: '/sih/sahayak', label: 'Sahayak', icon: 'chat' },
-    { to: '/profile', label: 'Profile', icon: 'person' },
+    { to: '/dashboard', label: t('mobileHome.bottomHome'), icon: 'home' },
+    { to: '/demo', label: t('mobileHome.bottomDemo'), icon: 'play_circle' },
+    { to: '/sih/sahayak', label: t('mobileHome.bottomSahayak'), icon: 'chat' },
+    { to: '/profile', label: t('mobileHome.bottomProfile'), icon: 'person' },
   ];
 
   const items = type === 'basic' ? basicItems : mainItems;

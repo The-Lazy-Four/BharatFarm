@@ -1,11 +1,14 @@
 import React from 'react';
 import { HourlyForecastItem } from '../types';
+import { useLanguage } from '../../../../context/LanguageContext';
 
 interface Props {
   hourly: HourlyForecastItem[];
 }
 
 export const HourlyForecastSection: React.FC<Props> = ({ hourly }) => {
+  const { t } = useLanguage();
+
   return (
     <div style={{
       background: '#FFFFFF',
@@ -19,13 +22,13 @@ export const HourlyForecastSection: React.FC<Props> = ({ hourly }) => {
     }}>
       <div>
         <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#0284C7', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-          NEXT 24-HOUR HOURLY TELEMETRY
+          {t('climateComponents.hourlyTelemetry')}
         </span>
         <h3 style={{ fontSize: '1.3rem', fontWeight: 800, color: '#0F172A', margin: '0.2rem 0 0 0' }}>
-          Hourly Field Activity Decision Timeline
+          {t('climateComponents.hourlyDecisionTimeline')}
         </h3>
         <p style={{ fontSize: '0.8rem', color: '#64748B', margin: '0.2rem 0 0 0' }}>
-          Use hourly rain probability and wind speed to decide spraying, irrigation, harvest, transport, and drying operations.
+          {t('climateComponents.hourlyDecisionSub')}
         </p>
       </div>
 

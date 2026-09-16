@@ -1,4 +1,5 @@
 import React from 'react';
+import { useLanguage } from '../../../../context/LanguageContext';
 
 interface Props {
   rainfall: {
@@ -16,6 +17,8 @@ interface Props {
 }
 
 export const RainfallAnalysisSection: React.FC<Props> = ({ rainfall }) => {
+  const { t } = useLanguage();
+
   const getRiskColor = (level: string) => {
     switch (level) {
       case 'SEVERE': return '#dc2626';
@@ -23,6 +26,11 @@ export const RainfallAnalysisSection: React.FC<Props> = ({ rainfall }) => {
       case 'MODERATE': return '#d97706';
       default: return '#16a34a';
     }
+  };
+
+  const formatRiskLevel = (lvl: string) => {
+    const key = lvl.toLowerCase();
+    return t(`risk.${key}` as any) || lvl;
   };
 
   const riskColor = getRiskColor(rainfall.rainfallRiskLevel);
@@ -41,7 +49,7 @@ export const RainfallAnalysisSection: React.FC<Props> = ({ rainfall }) => {
     }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <span style={{ fontSize: '0.72rem', fontWeight: 800, color: '#64748B', letterSpacing: '0.04em' }}>
-          RAINFALL
+          {t('climateComponents.rainfallTitle').toUpperCase()}
         </span>
         <span style={{
           fontSize: '0.68rem',
@@ -52,7 +60,7 @@ export const RainfallAnalysisSection: React.FC<Props> = ({ rainfall }) => {
           borderRadius: '4px',
           border: `1px solid ${riskColor}`
         }}>
-          {rainfall.rainfallRiskLevel}
+          {formatRiskLevel(rainfall.rainfallRiskLevel)}
         </span>
       </div>
 
@@ -98,3 +106,4 @@ export const RainfallAnalysisSection: React.FC<Props> = ({ rainfall }) => {
     </div>
   );
 };
+

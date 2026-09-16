@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useLanguage } from '../../context/LanguageContext';
 
 export interface NotificationItem {
     id: string;
-    title: string;
-    message: string;
+    titleKey: string;
+    messageKey: string;
     time: string;
     type: 'warning' | 'weather' | 'insurance' | 'scheme' | 'mandi';
     icon: string;
@@ -17,9 +18,9 @@ export interface NotificationItem {
 const INITIAL_NOTIFICATIONS: NotificationItem[] = [
     {
         id: '1',
-        title: 'Price-Decrement Warning',
-        message: 'High arrival expected for Tomato in Purba Medinipur next week. Check Before You Sow risk score.',
-        time: '2 mins ago',
+        titleKey: 'notifications.climateAlertTitle',
+        messageKey: 'notifications.climateAlertMsg',
+        time: '2m',
         type: 'warning',
         icon: 'warning',
         color: '#D97706',
@@ -29,9 +30,9 @@ const INITIAL_NOTIFICATIONS: NotificationItem[] = [
     },
     {
         id: '2',
-        title: 'Monsoon Weather Telemetry',
-        message: 'Low pressure over Bay of Bengal approaching coastal West Bengal. Prepare field drainage.',
-        time: '1 hour ago',
+        titleKey: 'notifications.weatherAlertTitle',
+        messageKey: 'notifications.weatherAlertMsg',
+        time: '1h',
         type: 'weather',
         icon: 'thunderstorm',
         color: '#2563EB',
@@ -41,9 +42,9 @@ const INITIAL_NOTIFICATIONS: NotificationItem[] = [
     },
     {
         id: '3',
-        title: 'Satellite NDVI Claim Verification',
-        message: 'Satellite scan completed for North Paddy Field. Vegetation Index (NDVI: 0.74 - Healthy).',
-        time: '4 hours ago',
+        titleKey: 'notifications.insuranceAlertTitle',
+        messageKey: 'notifications.insuranceAlertMsg',
+        time: '4h',
         type: 'insurance',
         icon: 'verified_user',
         color: '#059669',
@@ -53,9 +54,9 @@ const INITIAL_NOTIFICATIONS: NotificationItem[] = [
     },
     {
         id: '4',
-        title: 'PM-KISAN Installment Credited',
-        message: 'Direct benefit transfer of ₹2,000 credited under 17th PM-KISAN installment.',
-        time: 'Yesterday',
+        titleKey: 'notifications.schemeAlertTitle',
+        messageKey: 'notifications.schemeAlertMsg',
+        time: '1d',
         type: 'scheme',
         icon: 'account_balance',
         color: '#7C3AED',
@@ -65,9 +66,9 @@ const INITIAL_NOTIFICATIONS: NotificationItem[] = [
     },
     {
         id: '5',
-        title: 'Smart Mandi Price Update',
-        message: 'Wheat mandi price in Haldia rose by ₹120/qtl to ₹2,350/qtl today.',
-        time: '2 days ago',
+        titleKey: 'notifications.mandiAlertTitle',
+        messageKey: 'notifications.mandiAlertMsg',
+        time: '2d',
         type: 'mandi',
         icon: 'trending_up',
         color: '#EA580C',
@@ -84,6 +85,7 @@ interface NotificationDrawerProps {
 
 export const NotificationDrawer: React.FC<NotificationDrawerProps> = ({ isOpen, onClose }) => {
     const navigate = useNavigate();
+    const { t } = useLanguage();
     const [notifications, setNotifications] = useState<NotificationItem[]>(INITIAL_NOTIFICATIONS);
 
     if (!isOpen) return null;
@@ -95,7 +97,6 @@ export const NotificationDrawer: React.FC<NotificationDrawerProps> = ({ isOpen, 
     };
 
     const handleItemClick = (notification: NotificationItem) => {
-        // Mark as read
         setNotifications(prev => prev.map(n => n.id === notification.id ? { ...n, read: true } : n));
         onClose();
         if (notification.link) {
@@ -153,10 +154,10 @@ export const NotificationDrawer: React.FC<NotificationDrawerProps> = ({ isOpen, 
                         </span>
                         <div>
                             <h2 style={{ fontSize: '1.15rem', fontWeight: 900, color: '#0F172A', margin: 0, lineHeight: 1.2 }}>
-                                Notifications
+                                {t('notifications.title')}
                             </h2>
                             <span style={{ fontSize: '0.78rem', color: '#64748B', fontWeight: 600 }}>
-                                {unreadCount > 0 ? `${unreadCount} unread alert${unreadCount > 1 ? 's' : ''}` : 'All caught up ✓'}
+                                {unreadCount > 0 ? t('notifications.unreadCount', { count: unreadCount }) : t('notifications.allCaughtUp')}
                             </span>
                         </div>
                     </div>
@@ -176,7 +177,7 @@ export const NotificationDrawer: React.FC<NotificationDrawerProps> = ({ isOpen, 
                                     cursor: 'pointer'
                                 }}
                             >
-                                Mark all read
+                                {t('notifications.markAllRead')}
                             </button>
                         )}
 
@@ -216,14 +217,6 @@ export const NotificationDrawer: React.FC<NotificationDrawerProps> = ({ isOpen, 
                                     transition: 'transform 0.15s ease, boxShadow 0.15s ease',
                                     position: 'relative',
                                     boxShadow: item.read ? '0 1px 3px rgba(0,0,0,0.03)' : '0 4px 12px rgba(22,163,74,0.08)'
-                                }}
-                                onMouseEnter={(e) => {
-                                    e.currentTarget.style.transform = 'translateY(-1px)';
-                                    e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.08)';
-                                }}
-                                onMouseLeave={(e) => {
-                                    e.currentTarget.style.transform = 'translateY(0)';
-                                    e.currentTarget.style.boxShadow = item.read ? '0 1px 3px rgba(0,0,0,0.03)' : '0 4px 12px rgba(22,163,74,0.08)';
                                 }}
                             >
                                 {/* Unread indicator dot */}
@@ -265,7 +258,7 @@ export const NotificationDrawer: React.FC<NotificationDrawerProps> = ({ isOpen, 
                                     <div style={{ flex: 1 }}>
                                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: '0.5rem' }}>
                                             <h3 style={{ fontSize: '0.9rem', fontWeight: 800, color: '#0F172A', margin: 0 }}>
-                                                {item.title}
+                                                {t(item.titleKey as any)}
                                             </h3>
                                             <span style={{ fontSize: '0.72rem', color: '#94A3B8', fontWeight: 600, whiteSpace: 'nowrap' }}>
                                                 {item.time}
@@ -273,12 +266,12 @@ export const NotificationDrawer: React.FC<NotificationDrawerProps> = ({ isOpen, 
                                         </div>
 
                                         <p style={{ fontSize: '0.82rem', color: '#475569', margin: '0.3rem 0 0 0', lineHeight: 1.4 }}>
-                                            {item.message}
+                                            {t(item.messageKey as any)}
                                         </p>
 
                                         {item.link && (
                                             <div style={{ marginTop: '0.4rem', display: 'flex', alignItems: 'center', gap: '0.2rem', fontSize: '0.75rem', fontWeight: 700, color: '#16A34A' }}>
-                                                <span>Open Feature</span>
+                                                <span>{t('notifications.openFeature')}</span>
                                                 <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>arrow_forward</span>
                                             </div>
                                         )}
@@ -292,7 +285,7 @@ export const NotificationDrawer: React.FC<NotificationDrawerProps> = ({ isOpen, 
                 {/* Drawer Footer */}
                 <div style={{ padding: '1rem', borderTop: '1px solid #E2E8F0', background: '#F8FAFC', textAlign: 'center' }}>
                     <span style={{ fontSize: '0.78rem', color: '#94A3B8', fontWeight: 600 }}>
-                        BharatFarm Real-Time Agricultural Alert System
+                        {t('notifications.alertSystemTag')}
                     </span>
                 </div>
             </div>

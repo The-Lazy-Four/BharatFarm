@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import { Card } from '@core/ui/Card';
 import { Input } from '@core/ui/Input';
 import { FEATURE_IMAGES } from '@core/constants/featureImages';
+import { useLanguage } from '../../../context/LanguageContext';
 
 export const FarmCalculatorPage: React.FC = () => {
+  const { t, formatCurrency } = useLanguage();
   const [area, setArea] = useState<number>(2.5);
   const [crop, setCrop] = useState<string>('wheat');
 
@@ -24,10 +26,10 @@ export const FarmCalculatorPage: React.FC = () => {
         <div>
           <span className="badge badge-primary" style={{ marginBottom: '0.35rem' }}>Agronomic Cost & Yield Matrix</span>
           <h1 style={{ fontSize: '1.75rem', fontWeight: 700, color: '#FFFFFF' }}>
-            Farm Calculator — Input Dosage & Profitability Engine
+            {t('basicNeeds.calculatorTitle')}
           </h1>
           <p style={{ color: 'rgba(255,255,255,0.85)', fontSize: '0.9rem', marginTop: '0.2rem' }}>
-            Calculate exact seed, fertilizer dosage, total input expenditure, and projected harvest profitability.
+            {t('basicNeeds.calculatorSub')}
           </p>
         </div>
       </div>

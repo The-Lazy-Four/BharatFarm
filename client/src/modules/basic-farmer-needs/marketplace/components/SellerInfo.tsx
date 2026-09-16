@@ -1,6 +1,7 @@
 import React from 'react';
 import { Badge } from '@core/ui/Badge';
 import { buildWhatsAppLink, buildTelLink } from '../utils/marketplace.utils';
+import { useLanguage } from '../../../../context/LanguageContext';
 
 export const SellerInfo: React.FC<{
   name: string;
@@ -9,6 +10,7 @@ export const SellerInfo: React.FC<{
   phone?: string;
   whatsapp?: string;
 }> = ({ name, rating, verified, phone, whatsapp }) => {
+  const { t } = useLanguage();
   const waLink = buildWhatsAppLink(whatsapp, phone);
   const telLink = buildTelLink(phone);
 
@@ -17,7 +19,7 @@ export const SellerInfo: React.FC<{
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.95rem' }}>
         <span>👤 {name}</span>
         {rating !== undefined && <span style={{ color: 'var(--text-muted)' }}>⭐ {rating.toFixed(1)}</span>}
-        {verified && <Badge variant="primary">✓ Govt Verified</Badge>}
+        {verified && <Badge variant="primary">{t('marketplace.govtVerified')}</Badge>}
       </div>
       <div style={{ display: 'flex', gap: '0.5rem' }}>
         {waLink && (
@@ -35,7 +37,7 @@ export const SellerInfo: React.FC<{
               fontWeight: 600
             }}
           >
-            💬 WhatsApp Chat
+            {t('marketplace.whatsappChat')}
           </a>
         )}
         {telLink && (
@@ -51,7 +53,7 @@ export const SellerInfo: React.FC<{
               fontWeight: 600
             }}
           >
-            📞 Call Farmer
+            {t('marketplace.callFarmer')}
           </a>
         )}
       </div>

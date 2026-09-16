@@ -1,30 +1,32 @@
 import React, { useState } from 'react';
 import { ClimateAssessmentResult } from '../types';
+import { useLanguage } from '../../../../context/LanguageContext';
 
 interface Props {
   advisories: ClimateAssessmentResult['operationalAdvisories'];
 }
 
 export const FieldOperationsTable: React.FC<Props> = ({ advisories }) => {
+  const { t } = useLanguage();
   const [expandedIdx, setExpandedIdx] = useState<number | null>(null);
 
   const rows = [
-    { activity: 'Spraying', icon: '💨', data: advisories.spraying },
-    { activity: 'Irrigation', icon: '💧', data: advisories.irrigation },
-    { activity: 'Fertilizer', icon: '🌱', data: advisories.fertilizer },
-    { activity: 'Field Work', icon: '🚜', data: advisories.fieldWork },
-    { activity: 'Drying', icon: '☀️', data: advisories.drying }
+    { activity: t('climateComponents.spraying'), icon: '💨', data: advisories.spraying },
+    { activity: t('climateComponents.irrigation'), icon: '💧', data: advisories.irrigation },
+    { activity: t('climateComponents.fertilizer'), icon: '🌱', data: advisories.fertilizer },
+    { activity: t('climateComponents.fieldWork'), icon: '🚜', data: advisories.fieldWork },
+    { activity: t('climateComponents.outdoorDrying'), icon: '☀️', data: advisories.drying }
   ];
 
   const getBadge = (status: string) => {
     const s = status.toUpperCase();
     if (s.includes('AVOID') || s.includes('STOP') || s.includes('HALT') || s.includes('HIGH')) {
-      return { text: '❌ Avoid', color: '#991b1b', bg: '#fee2e2' };
+      return { text: `❌ ${t('climateComponents.notSuitable')}`, color: '#991b1b', bg: '#fee2e2' };
     }
     if (s.includes('POSTPONE') || s.includes('REDUCE') || s.includes('CAUTION') || s.includes('MODERATE')) {
-      return { text: '⏸ Postpone', color: '#854d0e', bg: '#fef9c3' };
+      return { text: `⏸ ${t('climateComponents.caution')}`, color: '#854d0e', bg: '#fef9c3' };
     }
-    return { text: '✓ Proceed', color: '#166534', bg: '#dcfce7' };
+    return { text: `✓ ${t('climateComponents.suitable')}`, color: '#166534', bg: '#dcfce7' };
   };
 
   return (
@@ -41,9 +43,9 @@ export const FieldOperationsTable: React.FC<Props> = ({ advisories }) => {
     }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem' }}>
         <span style={{ fontSize: '0.72rem', fontWeight: 800, color: '#64748B', letterSpacing: '0.04em' }}>
-          FIELD OPERATIONS
+          {t('sih.fieldOperationsTitle')}
         </span>
-        <span style={{ fontSize: '0.66rem', color: '#94a3b8' }}>Click row for reason</span>
+        <span style={{ fontSize: '0.66rem', color: '#94a3b8' }}>{t('climateComponents.decisionFactors')}</span>
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>

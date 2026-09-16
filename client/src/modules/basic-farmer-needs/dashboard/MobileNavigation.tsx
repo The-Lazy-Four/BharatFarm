@@ -1,7 +1,11 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
+import { useLanguage } from '@core/context/LanguageContext';
 
+/* Bottom mobile navigation bar for small screens */
 export const MobileNavigation: React.FC = () => {
+  const { t } = useLanguage();
+
   return (
     <nav
       className="app-mobile-nav mobile-nav-surface"
@@ -38,7 +42,7 @@ export const MobileNavigation: React.FC = () => {
         <span className="material-symbols-outlined" style={{ fontSize: '22px' }}>
           home
         </span>
-        <span>Home</span>
+        <span>{t('mobileNav.home')}</span>
       </NavLink>
 
       <NavLink
@@ -58,7 +62,7 @@ export const MobileNavigation: React.FC = () => {
         <span className="material-symbols-outlined" style={{ fontSize: '22px' }}>
           play_circle
         </span>
-        <span>Demo</span>
+        <span>{t('mobileNav.demo')}</span>
       </NavLink>
 
       <NavLink
@@ -78,7 +82,7 @@ export const MobileNavigation: React.FC = () => {
         <span className="material-symbols-outlined" style={{ fontSize: '22px' }}>
           chat
         </span>
-        <span>Sahaya</span>
+        <span>{t('mobileNav.sahayak')}</span>
       </NavLink>
 
       <NavLink
@@ -98,7 +102,7 @@ export const MobileNavigation: React.FC = () => {
         <span className="material-symbols-outlined" style={{ fontSize: '22px' }}>
           person
         </span>
-        <span>Profile</span>
+        <span>{t('mobileNav.profile')}</span>
       </NavLink>
     </nav>
   );

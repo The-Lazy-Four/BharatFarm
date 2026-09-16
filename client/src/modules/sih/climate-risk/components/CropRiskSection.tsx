@@ -1,11 +1,14 @@
 import React from 'react';
 import { ClimateAssessmentResult } from '../types';
+import { useLanguage } from '../../../../context/LanguageContext';
 
 interface Props {
   cropRisk: ClimateAssessmentResult['cropRisk'];
 }
 
 export const CropRiskSection: React.FC<Props> = ({ cropRisk }) => {
+  const { t } = useLanguage();
+
   const getBadge = (level: string) => {
     switch (level) {
       case 'SEVERE': return { bg: '#fee2e2', color: '#991b1b' };
@@ -47,7 +50,7 @@ export const CropRiskSection: React.FC<Props> = ({ cropRisk }) => {
 
       <div style={{ margin: '0.5rem 0' }}>
         <span style={{ fontSize: '0.68rem', fontWeight: 700, color: '#475569', display: 'block', marginBottom: '0.25rem' }}>
-          Stress Drivers:
+          {t('climateComponents.stressDrivers')}
         </span>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
           {cropRisk.factors.slice(0, 3).map((f, i) => (
@@ -67,7 +70,7 @@ export const CropRiskSection: React.FC<Props> = ({ cropRisk }) => {
         fontWeight: 700,
         color: '#0f172a'
       }}>
-        Primary Action: <span style={{ color: '#166534' }}>{cropRisk.potentialExposure || 'Protect field drainage'}</span>
+        {t('climateComponents.primaryAction')} <span style={{ color: '#166534' }}>{cropRisk.potentialExposure || t('climateComponents.protectDrainage')}</span>
       </div>
     </div>
   );

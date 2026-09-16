@@ -7,10 +7,12 @@ import { ScanResult } from '../components/ScanResult';
 import { useScanner } from '../hooks/useScanner';
 import { Button } from '@core/ui/Button';
 import { FEATURE_IMAGES } from '@core/constants/featureImages';
+import { useLanguage } from '../../../../context/LanguageContext';
 
 const COMMON_CROPS = ['Tomato', 'Rice', 'Wheat', 'Cotton', 'Potato', 'Sugarcane', 'Maize', 'Chilli', 'Soybean'];
 
 export const ScannerPage: React.FC = () => {
+  const { t } = useLanguage();
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [selectedCrop, setSelectedCrop] = useState<string>('Tomato');
   const [question, setQuestion] = useState<string>('');
@@ -39,12 +41,12 @@ export const ScannerPage: React.FC = () => {
       <div className="page-header-banner">
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', flexWrap: 'wrap', gap: '1rem' }}>
           <div>
-            <span className="badge badge-primary" style={{ marginBottom: '0.35rem' }}>AI Vision Telemetry</span>
+            <span className="badge badge-primary" style={{ marginBottom: '0.35rem' }}>{t('scanner.badgeTelemetry')}</span>
             <h1 style={{ fontSize: '1.75rem', fontWeight: 700, color: '#FFFFFF' }}>
-              Leaf Scanner — AI-Powered Crop Health Intelligence
+              {t('basicNeeds.scannerTitle')}
             </h1>
             <p style={{ color: 'rgba(255,255,255,0.85)', fontSize: '0.9rem', marginTop: '0.2rem' }}>
-              Capture or upload leaf images for instant pathogen identification, symptoms, and safety-verified advisory.
+              {t('basicNeeds.scannerSub')}
             </p>
           </div>
 
@@ -54,14 +56,14 @@ export const ScannerPage: React.FC = () => {
               onClick={() => setActiveTab('scan')}
               style={{ fontSize: '0.85rem' }}
             >
-              📷 Live Scanner
+              📷 {t('moduleHome.leafScanner')}
             </Button>
             <Button
               variant={activeTab === 'history' ? 'primary' : 'outline'}
               onClick={() => setActiveTab('history')}
               style={{ fontSize: '0.85rem' }}
             >
-              📜 Scan History ({history.length})
+              {t('scanner.scanHistoryTab', { count: history.length })}
             </Button>
           </div>
         </div>
@@ -72,12 +74,12 @@ export const ScannerPage: React.FC = () => {
         <div className="grid-dashboard">
           {/* Left Column (Span 8): Scanner Frame & Active Analysis */}
           <div className="col-span-8" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-            <Card title="Capture Leaf Image" subtitle="Position the crop leaf inside the frame with natural lighting.">
+            <Card title={t('scanner.captureCardTitle')} subtitle={t('scanner.captureCardSub')}>
               {/* Optional Crop Selector & Question */}
               <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', marginBottom: '1.2rem' }}>
                 <div style={{ flex: 1, minWidth: '200px' }}>
                   <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, marginBottom: '0.3rem', color: 'var(--text-muted)' }}>
-                    Crop Type (Optional Hint)
+                    {t('scanner.cropTypeLabel')}
                   </label>
                   <select
                     value={selectedCrop}
@@ -99,11 +101,11 @@ export const ScannerPage: React.FC = () => {
 
                 <div style={{ flex: 2, minWidth: '240px' }}>
                   <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, marginBottom: '0.3rem', color: 'var(--text-muted)' }}>
-                    Specific Observation / Question (Optional)
+                    {t('scanner.observationLabel')}
                   </label>
                   <input
                     type="text"
-                    placeholder="e.g. Yellow spots appeared after heavy rains"
+                    placeholder={t('scanner.observationPlaceholder')}
                     value={question}
                     onChange={e => setQuestion(e.target.value)}
                     style={{
@@ -126,7 +128,7 @@ export const ScannerPage: React.FC = () => {
                   <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1rem' }}>
                     <ScanButton isScanning={isScanning} onClick={handleScanClick} />
                     <Button variant="secondary" onClick={handleReset} disabled={isScanning}>
-                      Retake Image
+                      {t('scanner.retakeImage')}
                     </Button>
                   </div>
                   {error && <p style={{ color: 'var(--danger)', fontSize: '0.85rem', marginTop: '0.75rem' }}>⚠️ {error}</p>}
@@ -148,21 +150,21 @@ export const ScannerPage: React.FC = () => {
               <img src={FEATURE_IMAGES.scanner.url} alt="Leaf Disease Diagnosis" className="card-feature-bg" />
               <div className="card-feature-overlay" />
               <div className="card-feature-content">
-                <span className="badge badge-success">Neural Vision v3</span>
-                <h4 style={{ fontSize: '1.1rem', fontWeight: 800, marginTop: '0.3rem', color: '#FFFFFF' }}>Instant Pathogen Identification</h4>
-                <p style={{ fontSize: '0.75rem', opacity: 0.88, color: '#FFFFFF' }}>Trained on 50,000+ Indian crop disease samples.</p>
+                <span className="badge badge-success">{t('scanner.neuralBadge')}</span>
+                <h4 style={{ fontSize: '1.1rem', fontWeight: 800, marginTop: '0.3rem', color: '#FFFFFF' }}>{t('scanner.pathogenTitle')}</h4>
+                <p style={{ fontSize: '0.75rem', opacity: 0.88, color: '#FFFFFF' }}>{t('scanner.pathogenDesc')}</p>
               </div>
             </div>
 
             {/* Capturing a Good Image Guidance */}
-            <Card title="Capturing a Good Image" subtitle="Tips for maximum AI vision accuracy">
+            <Card title={t('scanner.goodImageTitle')} subtitle={t('scanner.goodImageSub')}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '0.5rem' }}>
                 <div className="alert-success" style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
                   <span className="material-symbols-outlined">wb_sunny</span>
                   <div>
-                    <h5 style={{ fontSize: '0.9rem', fontWeight: 700 }}>Natural Lighting</h5>
+                    <h5 style={{ fontSize: '0.9rem', fontWeight: 700 }}>{t('scanner.lightingTitle')}</h5>
                     <p style={{ fontSize: '0.8rem', opacity: 0.85, marginTop: '0.2rem' }}>
-                      Ensure even natural light; avoid harsh shadows or camera flash glares.
+                      {t('scanner.lightingDesc')}
                     </p>
                   </div>
                 </div>
@@ -170,9 +172,9 @@ export const ScannerPage: React.FC = () => {
                 <div className="alert-warning" style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
                   <span className="material-symbols-outlined">center_focus_weak</span>
                   <div>
-                    <h5 style={{ fontSize: '0.9rem', fontWeight: 700 }}>Focus & Isolation</h5>
+                    <h5 style={{ fontSize: '0.9rem', fontWeight: 700 }}>{t('scanner.focusTitle')}</h5>
                     <p style={{ fontSize: '0.8rem', opacity: 0.85, marginTop: '0.2rem' }}>
-                      Tap to focus directly on the lesion or discolored area of the leaf.
+                      {t('scanner.focusDesc')}
                     </p>
                   </div>
                 </div>
@@ -180,9 +182,9 @@ export const ScannerPage: React.FC = () => {
                 <div className="alert-info" style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
                   <span className="material-symbols-outlined">image</span>
                   <div>
-                    <h5 style={{ fontSize: '0.9rem', fontWeight: 700 }}>Single Leaf Close-up</h5>
+                    <h5 style={{ fontSize: '0.9rem', fontWeight: 700 }}>{t('scanner.closeupTitle')}</h5>
                     <p style={{ fontSize: '0.8rem', opacity: 0.85, marginTop: '0.2rem' }}>
-                      Fill 70% of the camera frame with the affected crop leaf area.
+                      {t('scanner.closeupDesc')}
                     </p>
                   </div>
                 </div>
@@ -192,11 +194,11 @@ export const ScannerPage: React.FC = () => {
         </div>
       ) : (
         /* History View */
-        <Card title="Scan Telemetry History" subtitle="Saved scan diagnoses and historical crop pathogen records">
+        <Card title={t('scanner.historyTitle')} subtitle={t('scanner.historySub')}>
           {isLoadingHistory ? (
-            <p style={{ color: 'var(--text-muted)' }}>Loading scan history...</p>
+            <p style={{ color: 'var(--text-muted)' }}>{t('dashboard.loadingScanHistory')}</p>
           ) : history.length === 0 ? (
-            <p style={{ color: 'var(--text-muted)' }}>No historical scans recorded yet. Perform your first scan!</p>
+            <p style={{ color: 'var(--text-muted)' }}>{t('scanner.noHistory')}</p>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               {history.map(item => (
@@ -226,7 +228,7 @@ export const ScannerPage: React.FC = () => {
                     <h4 style={{ fontSize: '1.05rem', fontWeight: 700 }}>{item.disease}</h4>
                     {item.recommendations.length > 0 && (
                       <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                        Top tip: {item.recommendations[0]}
+                        {t('scanner.topTip', { tip: item.recommendations[0] })}
                       </p>
                     )}
                   </div>
@@ -241,14 +243,14 @@ export const ScannerPage: React.FC = () => {
                       }}
                       style={{ fontSize: '0.8rem' }}
                     >
-                      View Report
+                      {t('scanner.viewReport')}
                     </Button>
                     <Button
                       variant="secondary"
                       onClick={() => deleteScan(item.scanId)}
                       style={{ fontSize: '0.8rem', color: 'var(--danger)' }}
                     >
-                      Delete
+                      {t('common.delete')}
                     </Button>
                   </div>
                 </div>

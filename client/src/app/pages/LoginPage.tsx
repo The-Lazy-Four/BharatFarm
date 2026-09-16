@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext.js';
+import { useLanguage } from '../../context/LanguageContext.js';
 import { useIsMobile } from '../../hooks/useIsMobile';
 import { MobileAuthPage } from '../../components/mobile/MobileAuthPage';
 
 export const LoginPage: React.FC = () => {
   const isMobile = useIsMobile();
   const { login } = useAuth();
+  const { language, setLanguage, t } = useLanguage();
   const navigate = useNavigate();
 
   if (isMobile) {
@@ -27,18 +29,17 @@ export const LoginPage: React.FC = () => {
 
     const input = emailOrPhone.trim();
     if (!input) {
-      setErrorMsg('Please enter your email or phone number.');
+      setErrorMsg(t('auth.invalidCredentials'));
       return;
     }
 
     if (!password) {
-      setErrorMsg('Please enter your password.');
+      setErrorMsg(t('auth.invalidCredentials'));
       return;
     }
 
     setIsLoading(true);
     try {
-      // If phone input, append mock domain if not email format for login API compatibility
       const loginEmail = input.includes('@') ? input : `${input.replace(/\D/g, '')}@bharatfarm.org`;
       const res = await login(loginEmail, password);
       if (res.success) {
@@ -46,15 +47,15 @@ export const LoginPage: React.FC = () => {
       } else {
         const code = res.error?.code;
         if (code === 'INVALID_CREDENTIALS') {
-          setErrorMsg('Email/phone or password is incorrect. Please check and try again.');
+          setErrorMsg(t('auth.invalidCredentials'));
         } else if (code === 'VALIDATION_ERROR') {
-          setErrorMsg(res.error?.message || 'Please provide valid login credentials.');
+          setErrorMsg(res.error?.message || t('auth.invalidCredentials'));
         } else {
-          setErrorMsg(res.error?.message || 'Unable to connect right now. Check your internet connection.');
+          setErrorMsg(res.error?.message || t('common.error'));
         }
       }
     } catch {
-      setErrorMsg('Unable to connect right now. Check your internet connection.');
+      setErrorMsg(t('common.error'));
     } finally {
       setIsLoading(false);
     }
@@ -72,8 +73,8 @@ export const LoginPage: React.FC = () => {
       position: 'relative'
     }}>
 
-      {/* Top Header Logo */}
-      <header style={{ padding: '1.5rem 2rem', display: 'flex', justifyContent: 'center' }}>
+      {/* Top Header Logo & Language Selector */}
+      <header style={{ padding: '1.5rem 2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', textDecoration: 'none' }}>
           <img
             src="/logo.png"
@@ -82,6 +83,29 @@ export const LoginPage: React.FC = () => {
           />
           <span style={{ fontSize: '1.5rem', fontWeight: 900, color: '#1E293B', letterSpacing: '-0.02em' }}>BharatFarm</span>
         </Link>
+
+        {/* Language Selector Dropdown */}
+        <select
+          value={language}
+          onChange={(e) => setLanguage(e.target.value)}
+          title={t('common.languageSelect')}
+          style={{
+            background: '#FFFFFF',
+            color: '#0F172A',
+            border: '1px solid #CBD5E1',
+            borderRadius: '20px',
+            padding: '0.35rem 0.75rem',
+            fontSize: '0.8rem',
+            fontWeight: 700,
+            cursor: 'pointer',
+            outline: 'none',
+            boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
+          }}
+        >
+          <option value="en">English (en-IN)</option>
+          <option value="hi">हिंदी (Hindi)</option>
+          <option value="bn">বাংলা (Bengali)</option>
+        </select>
       </header>
 
       {/* Main Centered Login Box */}
@@ -102,10 +126,10 @@ export const LoginPage: React.FC = () => {
 
           <div style={{ textAlign: 'center', marginBottom: '1.75rem' }}>
             <h1 style={{ fontSize: '1.75rem', fontWeight: 900, color: '#0F172A', margin: 0 }}>
-              Welcome Back!
+              {t('auth.loginTitle')}
             </h1>
             <p style={{ fontSize: '0.9rem', color: '#64748B', marginTop: '0.35rem', marginBottom: 0 }}>
-              Login to continue your journey
+              {t('auth.loginSubtitle')}
             </p>
           </div>
 
@@ -134,14 +158,14 @@ export const LoginPage: React.FC = () => {
             {/* Email or Phone Input */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
               <label style={{ fontSize: '0.85rem', fontWeight: 700, color: '#334155' }}>
-                Email or Phone
+                {t('auth.emailOrPhone')}
               </label>
               <div style={{ position: 'relative' }}>
                 <input
                   type="text"
                   value={emailOrPhone}
                   onChange={(e) => setEmailOrPhone(e.target.value)}
-                  placeholder="Enter email or phone number"
+                  placeholder={t('auth.enterEmailOrPhone')}
                   disabled={isLoading}
                   required
                   style={{
@@ -170,14 +194,14 @@ export const LoginPage: React.FC = () => {
             {/* Password Input */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
               <label style={{ fontSize: '0.85rem', fontWeight: 700, color: '#334155' }}>
-                Password
+                {t('auth.password')}
               </label>
               <div style={{ position: 'relative' }}>
                 <input
                   type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Enter password"
+                  placeholder={t('auth.passwordPlaceholder')}
                   disabled={isLoading}
                   required
                   style={{
@@ -232,11 +256,11 @@ export const LoginPage: React.FC = () => {
                   onChange={(e) => setRememberMe(e.target.checked)}
                   style={{ borderRadius: '4px', accentColor: '#16A34A' }}
                 />
-                <span>Remember me</span>
+                <span>{t('auth.rememberMe')}</span>
               </label>
 
-              <a href="#forgot" onClick={(e) => { e.preventDefault(); alert('Password reset link sent to your registered email/phone.'); }} style={{ color: '#16A34A', fontWeight: 700, textDecoration: 'none' }}>
-                Forgot Password?
+              <a href="#forgot" onClick={(e) => { e.preventDefault(); alert(t('auth.passwordResetAlert')); }} style={{ color: '#16A34A', fontWeight: 700, textDecoration: 'none' }}>
+                {t('auth.forgotPassword')}
               </a>
             </div>
 
@@ -258,7 +282,7 @@ export const LoginPage: React.FC = () => {
                 marginTop: '0.5rem'
               }}
             >
-              {isLoading ? 'Logging in...' : 'Login'}
+              {isLoading ? t('common.loading') : t('auth.login')}
             </button>
           </form>
 
@@ -273,7 +297,7 @@ export const LoginPage: React.FC = () => {
             fontWeight: 700
           }}>
             <div style={{ flex: 1, height: '1px', background: '#E2E8F0' }} />
-            <span>OR</span>
+            <span>{t('auth.or')}</span>
             <div style={{ flex: 1, height: '1px', background: '#E2E8F0' }} />
           </div>
 
@@ -295,7 +319,7 @@ export const LoginPage: React.FC = () => {
               boxSizing: 'border-box'
             }}
           >
-            Create New Account
+            {t('auth.createNewAccount')}
           </Link>
         </div>
       </main>
@@ -309,7 +333,7 @@ export const LoginPage: React.FC = () => {
         borderTop: '1px solid #E2E8F0'
       }}>
         <div style={{ fontSize: '0.85rem', color: '#16A34A', fontWeight: 800, letterSpacing: '0.05em' }}>
-          Grow • Learn • Prosper
+          {t('auth.tagline')}
         </div>
       </footer>
     </div>

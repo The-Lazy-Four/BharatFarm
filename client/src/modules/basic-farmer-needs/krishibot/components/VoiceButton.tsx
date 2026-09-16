@@ -1,6 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { Button } from '@core/ui/Button';
 import { speechRecognitionLocale } from '../utils/krishiBot.utils';
+import { useLanguage } from '@core/context/LanguageContext';
 
 /**
  * Adapted from OLD project's `chatbotToggleVoice()` (js/chatbot.js),
@@ -11,6 +12,7 @@ export const VoiceButton: React.FC<{ language: string; onSpeechRecognized: (text
   language,
   onSpeechRecognized
 }) => {
+  const { t } = useLanguage();
   const [isListening, setIsListening] = useState(false);
   const recognitionRef = useRef<any>(null);
 
@@ -45,7 +47,7 @@ export const VoiceButton: React.FC<{ language: string; onSpeechRecognized: (text
 
   return (
     <Button type="button" variant={isListening ? 'danger' : 'outline'} size="sm" onClick={toggleVoice}>
-      {isListening ? '🔴 Listening…' : '🎙️ Voice'}
+      {isListening ? `🔴 ${t('krishiBot.listening')}` : `🎙️ ${t('krishiBot.voiceInput')}`}
     </Button>
   );
 };

@@ -1,5 +1,6 @@
 import React from 'react';
 import { AiInsightResult } from '../types';
+import { useLanguage } from '../../../../context/LanguageContext';
 
 interface Props {
   insight: AiInsightResult | null;
@@ -7,6 +8,7 @@ interface Props {
 }
 
 export const WhatToDoNowHero: React.FC<Props> = ({ insight, dominantThreat }) => {
+  const { t } = useLanguage();
   if (!insight) return null;
 
   const isSevere = insight.severity === 'SEVERE' || insight.severity === 'HIGH';
@@ -35,7 +37,7 @@ export const WhatToDoNowHero: React.FC<Props> = ({ insight, dominantThreat }) =>
             borderRadius: '4px',
             letterSpacing: '0.04em'
           }}>
-            WHAT TO DO NOW
+            {t('risk.whatToDoNow')}
           </span>
           <span style={{ fontSize: '0.78rem', color: '#cbd5e1', fontWeight: 600 }}>
             {insight.timing}
@@ -50,7 +52,7 @@ export const WhatToDoNowHero: React.FC<Props> = ({ insight, dominantThreat }) =>
           padding: '0.15rem 0.45rem',
           borderRadius: '999px'
         }}>
-          {insight.source === 'OPENROUTER_AI' ? '⚡ AI INSIGHT • OpenRouter' : '📋 RULE-BASED INSIGHT'}
+          {insight.source === 'OPENROUTER_AI' ? t('risk.aiInsight') : t('risk.ruleInsight')}
         </span>
       </div>
 

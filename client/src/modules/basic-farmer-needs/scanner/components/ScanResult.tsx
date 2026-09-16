@@ -5,13 +5,7 @@ import { ConfidenceIndicator } from './ConfidenceIndicator';
 import { Card } from '@core/ui/Card';
 import { Badge } from '@core/ui/Badge';
 import { Button } from '@core/ui/Button';
-
-const SEVERITY_LABEL: Record<IScanResult['severity'], string> = {
-  none: 'No Issue',
-  low: 'Low Risk',
-  medium: 'Moderate Severity',
-  high: 'High Severity'
-};
+import { useLanguage } from '../../../../context/LanguageContext';
 
 const SEVERITY_VARIANT: Record<IScanResult['severity'], 'primary' | 'warning' | 'secondary'> = {
   none: 'primary',
@@ -22,11 +16,23 @@ const SEVERITY_VARIANT: Record<IScanResult['severity'], 'primary' | 'warning' | 
 
 export const ScanResult: React.FC<{ result: IScanResult }> = ({ result }) => {
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const isNotPlant = result.status === 'not_a_plant';
   const isHealthy = result.severity === 'none' && !isNotPlant;
 
+  const severityLabels: Record<IScanResult['severity'], string> = {
+    none: t('scanner.severityNoIssue'),
+    low: t('scanner.severityLow'),
+    medium: t('scanner.severityMedium'),
+    high: t('scanner.severityHigh')
+  };
+
   const handleAskShayak = () => {
-    const prompt = `I scanned a ${result.cropName} leaf image and the AI scanner detected "${result.disease}" with ${Math.round(result.confidence * 100)}% confidence. Can you provide detailed organic care, fertilizer guidance, or local weather advice for this?`;
+    const prompt = t('scanner.askShayakPrompt', {
+      crop: result.cropName,
+      disease: result.disease,
+      confidence: Math.round(result.confidence * 100)
+    });
     navigate(`/krishibot?initialPrompt=${encodeURIComponent(prompt)}`);
   };
 
@@ -38,18 +44,18 @@ export const ScanResult: React.FC<{ result: IScanResult }> = ({ result }) => {
 
   if (isAiUnavailable) {
     return (
-      <Card title="📡 AI Analysis Temporarily Unavailable" subtitle="Our AI vision provider is currently experiencing high load or limits.">
+      <Card title={t('scanner.aiUnavailableTitle')} subtitle={t('scanner.aiUnavailableSub')}>
         <div style={{ padding: '1.25rem', background: 'rgba(234, 179, 8, 0.08)', borderRadius: 'var(--radius)', border: '1px solid rgba(234, 179, 8, 0.3)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--warning)', fontWeight: 700, fontSize: '1rem', marginBottom: '0.5rem' }}>
             <span className="material-symbols-outlined">cloud_off</span>
-            <span>AI Provider Reachability Issue</span>
+            <span>{t('scanner.aiReachabilityIssue')}</span>
           </div>
           <p style={{ fontSize: '0.85rem', color: 'var(--text-main)', lineHeight: 1.5 }}>
-            AI analysis is temporarily unavailable. Please try scanning again shortly. No automated disease diagnosis was fabricated for this image.
+            {t('scanner.aiUnavailableDesc')}
           </p>
           <div style={{ marginTop: '1rem', display: 'flex', gap: '0.75rem' }}>
             <Button variant="primary" onClick={() => window.location.reload()} style={{ fontSize: '0.85rem' }}>
-              🔄 Try Again
+              {t('common.retry')}
             </Button>
           </div>
         </div>
@@ -59,11 +65,11 @@ export const ScanResult: React.FC<{ result: IScanResult }> = ({ result }) => {
 
   if (isNotPlant) {
     return (
-      <Card title="⚠️ Invalid Image" subtitle="The AI vision model did not detect a plant or crop leaf in this picture.">
+      <Card title={t('scanner.invalidImageTitle')} subtitle={t('scanner.invalidImageSub')}>
         <div style={{ padding: '1rem', background: 'rgba(239, 68, 68, 0.1)', borderRadius: 'var(--radius)', border: '1px solid rgba(239, 68, 68, 0.3)' }}>
-          <p style={{ fontWeight: 600, color: 'var(--danger)' }}>Non-Plant Object Detected</p>
+          <p style={{ fontWeight: 600, color: 'var(--danger)' }}>{t('scanner.nonPlantDetected')}</p>
           <p style={{ fontSize: '0.85rem', marginTop: '0.3rem', color: 'var(--text-main)' }}>
-            Please make sure you take a clear, well-lit photo focusing on an actual crop or plant leaf to get an accurate disease diagnosis.
+            {t('scanner.nonPlantDesc')}
           </p>
         </div>
       </Card>
@@ -72,8 +78,8 @@ export const ScanResult: React.FC<{ result: IScanResult }> = ({ result }) => {
 
   return (
     <Card
-      title={isHealthy ? '🌿 Healthy Crop Detected' : '⚠️ Diagnosis & Pathogen Report'}
-      subtitle={`Analysis completed on ${result.cropName} sample.`}
+      title={isHealthy ? t('scanner.healthyTitle') : t('scanner.diagnosisTitle')}
+      subtitle={t('scanner.analysisCompleted', { crop: result.cropName })}
       action={<ConfidenceIndicator confidence={result.confidence} />}
     >
       <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
@@ -87,9 +93,9 @@ export const ScanResult: React.FC<{ result: IScanResult }> = ({ result }) => {
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.35rem' }}>
-            <Badge variant={SEVERITY_VARIANT[result.severity]}>{SEVERITY_LABEL[result.severity]}</Badge>
+            <Badge variant={SEVERITY_VARIANT[result.severity]}>{severityLabels[result.severity]}</Badge>
             <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: 500 }}>
-              Crop: <strong>{result.cropName}</strong>
+              {t('basicNeeds.primaryCrop')}: <strong>{result.cropName}</strong>
             </span>
           </div>
           <h3 style={{ fontSize: '1.2rem', fontWeight: 700, color: 'var(--text-main)' }}>{result.disease}</h3>
@@ -100,7 +106,7 @@ export const ScanResult: React.FC<{ result: IScanResult }> = ({ result }) => {
           <div className="alert-info" style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', fontSize: '0.85rem' }}>
             <span className="material-symbols-outlined" style={{ fontSize: '1.2rem' }}>cloud_sync</span>
             <div>
-              <strong>Weather Context:</strong> {result.weatherWarning}
+              <strong>{t('scanner.weatherContext')}</strong> {result.weatherWarning}
             </div>
           </div>
         )}
@@ -109,7 +115,7 @@ export const ScanResult: React.FC<{ result: IScanResult }> = ({ result }) => {
         {result.symptoms && result.symptoms.length > 0 && (
           <div style={{ background: 'var(--bg-card-hover)', borderRadius: 'var(--radius)', padding: '0.85rem' }}>
             <h4 style={{ color: 'var(--text-main)', marginBottom: '0.4rem', fontSize: '0.9rem', fontWeight: 700 }}>
-              🔍 Observed Symptoms
+              {t('scanner.observedSymptoms')}
             </h4>
             <ul style={{ paddingLeft: '1.2rem', fontSize: '0.85rem', display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
               {result.symptoms.map((sym, i) => (
@@ -123,7 +129,7 @@ export const ScanResult: React.FC<{ result: IScanResult }> = ({ result }) => {
         {result.recommendations.length > 0 && (
           <div style={{ background: 'var(--bg-card-hover)', borderRadius: 'var(--radius)', padding: '0.85rem' }}>
             <h4 style={{ color: 'var(--primary)', marginBottom: '0.4rem', fontSize: '0.9rem', fontWeight: 700 }}>
-              💊 Actionable Guidance & Advisory
+              {t('scanner.actionableGuidance')}
             </h4>
             <ul style={{ paddingLeft: '1.2rem', fontSize: '0.85rem', display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
               {result.recommendations.map((rec, i) => (
@@ -137,7 +143,7 @@ export const ScanResult: React.FC<{ result: IScanResult }> = ({ result }) => {
         {result.preventativeMeasures.length > 0 && (
           <div style={{ background: 'var(--bg-card-hover)', borderRadius: 'var(--radius)', padding: '0.85rem' }}>
             <h4 style={{ color: 'var(--accent)', marginBottom: '0.4rem', fontSize: '0.9rem', fontWeight: 700 }}>
-              🛡️ Long-Term Prevention
+              {t('scanner.longTermPrevention')}
             </h4>
             <ul style={{ paddingLeft: '1.2rem', fontSize: '0.85rem', display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
               {result.preventativeMeasures.map((tip, i) => (
@@ -150,17 +156,17 @@ export const ScanResult: React.FC<{ result: IScanResult }> = ({ result }) => {
         {/* Safety & Legal Disclaimer */}
         <div style={{ padding: '0.75rem', borderRadius: 'var(--radius)', background: 'rgba(255, 255, 255, 0.04)', border: '1px solid var(--border-color)' }}>
           <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontStyle: 'italic', lineHeight: 1.4 }}>
-            ℹ️ <strong>Safety Disclaimer:</strong> {result.disclaimer}
+            ℹ️ <strong>{t('scanner.safetyDisclaimer')}</strong> {result.disclaimer}
           </p>
         </div>
 
         {/* Cross-Module Integration Actions */}
         <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', marginTop: '0.5rem' }}>
           <Button onClick={handleAskShayak} style={{ flex: 1, minWidth: '200px' }}>
-            🤖 Ask Shayak AI About Treatment
+            {t('scanner.askShayakBtn')}
           </Button>
           <Button variant="outline" onClick={handleViewRoadmap} style={{ flex: 1, minWidth: '180px' }}>
-            📅 Check Crop Roadmap
+            {t('scanner.checkRoadmapBtn')}
           </Button>
         </div>
       </div>

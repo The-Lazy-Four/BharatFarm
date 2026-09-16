@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../../context/AuthContext.js';
+import { useLanguage } from '../../../../context/LanguageContext.js';
 import { SihLayout } from '../../shared/SihLayout.js';
 import {
   PriceRiskService,
@@ -27,6 +28,7 @@ const CROP_ICONS: Record<string, string> = {
 export const BeforeYouSowPage: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { t } = useLanguage();
 
   // Registration state
   const [registration, setRegistration] = useState<FarmerFieldRegistration | null>(null);
@@ -143,7 +145,7 @@ export const BeforeYouSowPage: React.FC = () => {
   return (
     <SihLayout
       activeModuleId="price-risk"
-      moduleTitle="Before You Sow — Price Risk Advisor"
+      moduleTitle={t('sih.priceRiskTitle')}
     >
       <div style={{ maxWidth: '1080px', margin: '0 auto', padding: '1.25rem 1rem 3rem' }}>
 
@@ -166,10 +168,10 @@ export const BeforeYouSowPage: React.FC = () => {
               <span style={{ fontSize: '1.75rem' }}>📋</span>
               <div>
                 <div style={{ fontWeight: 700, color: '#92400E', fontSize: '0.95rem' }}>
-                  Step 1 Required: Register Your Farming Crop & Land
+                  {t('farmerRegistration.headerBadge')}
                 </div>
                 <div style={{ color: '#B45309', fontSize: '0.82rem' }}>
-                  Register your upcoming crop & land size first so BharatFarm can calibrate accurate local supply-pressure calculations.
+                  {t('farmerRegistration.pageSubtitle')}
                 </div>
               </div>
             </div>
@@ -190,7 +192,7 @@ export const BeforeYouSowPage: React.FC = () => {
                 whiteSpace: 'nowrap'
               }}
             >
-              <span>Register Field Now</span>
+              <span>{t('farmerRegistration.registerFarm')}</span>
               <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>arrow_forward</span>
             </button>
           </div>
@@ -209,7 +211,7 @@ export const BeforeYouSowPage: React.FC = () => {
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem', color: '#166534' }}>
               <span className="material-symbols-outlined" style={{ fontSize: '18px', color: '#16A34A' }}>check_circle</span>
-              <span><strong>Registered Farm:</strong> {registration.fieldName} ({registration.crop}, {registration.landSizeAcres} Acres) in {registration.district}, {registration.state}</span>
+              <span><strong>{t('fieldMapping.savedFields')}:</strong> {registration.fieldName} ({registration.crop}, {registration.landSizeAcres} {t('common.acres')}) in {registration.district}, {registration.state}</span>
             </div>
             <button
               onClick={() => navigate('/sih/field-mapping')}
@@ -223,7 +225,7 @@ export const BeforeYouSowPage: React.FC = () => {
                 cursor: 'pointer'
               }}
             >
-              Update Registration
+              {t('fieldMapping.editField')}
             </button>
           </div>
         ) : null}
@@ -234,10 +236,10 @@ export const BeforeYouSowPage: React.FC = () => {
             <span style={{ fontSize: '2rem' }}>🌾</span>
             <div>
               <h1 style={{ margin: 0, fontSize: '1.6rem', fontWeight: 900, color: '#0F172A', letterSpacing: '-0.02em' }}>
-                Before You Sow — Crop Decision Advisor
+                {t('beforeYouSow.pageTitle')}
               </h1>
               <p style={{ margin: '0.2rem 0 0', fontSize: '0.88rem', color: '#64748B' }}>
-                Check local supply pressure & price-decrement risk before planting. Make informed crop decisions backed by evidence.
+                {t('beforeYouSow.pageSubtitle')}
               </p>
             </div>
           </div>
@@ -257,7 +259,7 @@ export const BeforeYouSowPage: React.FC = () => {
             {/* Location Selector */}
             <div style={{ position: 'relative' }}>
               <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, color: '#475569', textTransform: 'uppercase', marginBottom: '0.35rem' }}>
-                📍 Your Location
+                📍 {t('beforeYouSow.yourLocation')}
               </label>
               <div style={{ display: 'flex', gap: '0.4rem' }}>
                 <input
@@ -271,7 +273,7 @@ export const BeforeYouSowPage: React.FC = () => {
                     setDistrictSearch(district);
                     setShowDistrictDropdown(true);
                   }}
-                  placeholder="Search District / Mandi..."
+                  placeholder={t('beforeYouSow.searchDistrictPlaceholder')}
                   style={{
                     flex: 1,
                     padding: '0.65rem 0.85rem',
@@ -286,7 +288,7 @@ export const BeforeYouSowPage: React.FC = () => {
                   type="button"
                   onClick={handleUseGps}
                   disabled={gpsLoading}
-                  title="Use My Current Location via GPS"
+                  title={t('beforeYouSow.gpsTooltip')}
                   style={{
                     background: '#EFF6FF',
                     border: '1px solid #BFDBFE',
@@ -352,7 +354,7 @@ export const BeforeYouSowPage: React.FC = () => {
                     ))
                   ) : (
                     <div style={{ padding: '0.75rem', fontSize: '0.82rem', color: '#94A3B8' }}>
-                      No matching district. Press ESC or click outside.
+                      {t('beforeYouSow.noMatchingDistrict')}
                     </div>
                   )}
                 </div>
@@ -362,7 +364,7 @@ export const BeforeYouSowPage: React.FC = () => {
             {/* Upcoming Season */}
             <div>
               <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, color: '#475569', textTransform: 'uppercase', marginBottom: '0.35rem' }}>
-                🌦 Upcoming Season
+                🌦 {t('beforeYouSow.upcomingSeason')}
               </label>
               <select
                 value={season}
@@ -377,17 +379,17 @@ export const BeforeYouSowPage: React.FC = () => {
                   background: '#F8FAFC'
                 }}
               >
-                <option value="Kharif">Kharif (Monsoon — Jun to Oct)</option>
-                <option value="Rabi">Rabi (Winter — Oct to Mar)</option>
-                <option value="Zaid">Zaid (Summer — Mar to Jun)</option>
-                <option value="Perennial">Perennial (Annual)</option>
+                <option value="Kharif">{t('beforeYouSow.kharifOption')}</option>
+                <option value="Rabi">{t('beforeYouSow.rabiOption')}</option>
+                <option value="Zaid">{t('beforeYouSow.zaidOption')}</option>
+                <option value="Perennial">{t('beforeYouSow.perennialOption')}</option>
               </select>
             </div>
 
             {/* Crop Selector */}
             <div>
               <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, color: '#475569', textTransform: 'uppercase', marginBottom: '0.35rem' }}>
-                🌱 Planned Crop
+                🌱 {t('beforeYouSow.plannedCrop')}
               </label>
               <select
                 value={crop}
@@ -415,7 +417,7 @@ export const BeforeYouSowPage: React.FC = () => {
           {/* Action Button */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem' }}>
             <div style={{ fontSize: '0.78rem', color: '#64748B' }}>
-              💡 Evaluates intention registry, historical arrivals, yield capacity & nearby mandis
+              💡 {t('beforeYouSow.evaluatesNotice')}
             </div>
             <button
               onClick={handleAnalyze}
@@ -438,12 +440,12 @@ export const BeforeYouSowPage: React.FC = () => {
               {loading ? (
                 <>
                   <span className="material-symbols-outlined" style={{ fontSize: '20px', animation: 'spin 1s linear infinite' }}>sync</span>
-                  <span>Analyzing Local Risk...</span>
+                  <span>{t('beforeYouSow.analyzingLocalRisk')}</span>
                 </>
               ) : (
                 <>
                   <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>query_stats</span>
-                  <span>Analyze Crop Risk</span>
+                  <span>{t('beforeYouSow.analyzeCropRisk')}</span>
                 </>
               )}
             </button>
@@ -471,10 +473,10 @@ export const BeforeYouSowPage: React.FC = () => {
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem', marginBottom: '1rem' }}>
                 <div>
                   <div style={{ fontSize: '0.8rem', fontWeight: 800, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                    Price-Decrement Risk Assessment
+                    {t('sih.priceRiskTitle')}
                   </div>
                   <div style={{ fontSize: '1.3rem', fontWeight: 900, color: '#0F172A', marginTop: '0.2rem' }}>
-                    {CROP_ICONS[analysis.crop] || '🌱'} {analysis.crop} · {analysis.season} Season
+                    {CROP_ICONS[analysis.crop] || '🌱'} {analysis.crop} · {analysis.season} {t('beforeYouSow.season')}
                   </div>
                   <div style={{ fontSize: '0.85rem', color: '#64748B', marginTop: '0.1rem' }}>
                     📍 {analysis.location.district}, {analysis.location.state}
@@ -499,10 +501,10 @@ export const BeforeYouSowPage: React.FC = () => {
                   }} />
                   <div>
                     <div style={{ fontSize: '1.15rem', fontWeight: 900, color: getRiskColor(analysis.risk.level).text, lineHeight: 1 }}>
-                      {analysis.risk.level.replace('_', ' ')}
+                      {String(analysis.risk.level).includes('HIGH') ? t('risk.high') : String(analysis.risk.level).includes('SEVERE') ? t('risk.severe') : String(analysis.risk.level).includes('MODERATE') ? t('risk.moderate') : t('risk.low')}
                     </div>
                     <div style={{ fontSize: '0.72rem', color: getRiskColor(analysis.risk.level).text, fontWeight: 600 }}>
-                      {analysis.risk.probability}% Probability
+                      {analysis.risk.probability}% {t('sih.priceForecastTitle')}
                     </div>
                   </div>
                 </div>
@@ -520,17 +522,17 @@ export const BeforeYouSowPage: React.FC = () => {
                   {analysis.risk.meaning}
                 </div>
                 <div style={{ color: '#475569', fontSize: '0.84rem', marginTop: '0.25rem' }}>
-                  <strong>Decision Advice:</strong> {analysis.decisionExplanation}
+                  <strong>{t('risk.primaryAction')}</strong> {analysis.decisionExplanation}
                 </div>
               </div>
 
               {/* Progress visual indicator */}
               <div style={{ marginBottom: '1.25rem' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: '#64748B', marginBottom: '0.35rem' }}>
-                  <span>Low Risk (0-35%)</span>
-                  <span>Moderate (36-55%)</span>
-                  <span>High (56-75%)</span>
-                  <span>Critical (76-100%)</span>
+                  <span>{t('risk.low')} (0-35%)</span>
+                  <span>{t('risk.moderate')} (36-55%)</span>
+                  <span>{t('risk.high')} (56-75%)</span>
+                  <span>{t('risk.severe')} (76-100%)</span>
                 </div>
                 <div style={{ width: '100%', height: '10px', background: '#E2E8F0', borderRadius: '5px', overflow: 'hidden', position: 'relative' }}>
                   <div style={{
@@ -562,7 +564,7 @@ export const BeforeYouSowPage: React.FC = () => {
                   }}
                 >
                   <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>psychology</span>
-                  <span>{showWhyDrawer ? 'Hide Why' : 'Why this result?'}</span>
+                  <span>{showWhyDrawer ? t('common.close') : t('risk.why')}</span>
                 </button>
 
                 <button
@@ -582,7 +584,7 @@ export const BeforeYouSowPage: React.FC = () => {
                   }}
                 >
                   <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>compare_arrows</span>
-                  <span>{showComparison ? 'Hide Comparison' : 'Compare Crops'}</span>
+                  <span>{showComparison ? t('common.close') : t('beforeYouSow.sideBySideComparison')}</span>
                 </button>
               </div>
 
@@ -598,13 +600,13 @@ export const BeforeYouSowPage: React.FC = () => {
                 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.6rem' }}>
                     <span className="material-symbols-outlined" style={{ color: '#2563EB', fontSize: '20px' }}>smart_toy</span>
-                    <span style={{ fontWeight: 700, fontSize: '0.9rem', color: '#1E293B' }}>AI Evidence Reasoning & Explanation</span>
+                    <span style={{ fontWeight: 700, fontSize: '0.9rem', color: '#1E293B' }}>{t('beforeYouSow.aiEvidenceTitle')}</span>
                   </div>
                   <p style={{ margin: '0 0 0.85rem', fontSize: '0.86rem', color: '#334155', lineHeight: 1.5 }}>
                     {analysis.llmExplanation}
                   </p>
                   <div style={{ fontWeight: 700, fontSize: '0.78rem', color: '#64748B', textTransform: 'uppercase', marginBottom: '0.4rem' }}>
-                    Key Contributing Risk Factors:
+                    {t('beforeYouSow.keyRiskFactorsTitle')}
                   </div>
                   <ul style={{ margin: 0, paddingLeft: '1.2rem', fontSize: '0.84rem', color: '#475569', display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
                     {analysis.riskFactors.map((rf, idx) => (
@@ -626,14 +628,14 @@ export const BeforeYouSowPage: React.FC = () => {
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.5rem' }}>
                 <div>
                   <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 800, color: '#0F172A' }}>
-                    📊 Local Supply Evidence & Indicators
+                    📊 {t('beforeYouSow.localSupplyEvidenceTitle')}
                   </h3>
                   <div style={{ fontSize: '0.78rem', color: '#64748B' }}>
-                    Calculated from BharatFarm intention registry and historical district benchmarks.
+                    {t('beforeYouSow.localSupplyEvidenceSub')}
                   </div>
                 </div>
                 <span style={{ fontSize: '0.72rem', background: '#F1F5F9', color: '#475569', padding: '0.25rem 0.6rem', borderRadius: '6px', fontWeight: 600 }}>
-                  🔒 Anonymized Aggregations
+                  🔒 {t('beforeYouSow.anonymizedAggregations')}
                 </span>
               </div>
 
@@ -644,7 +646,7 @@ export const BeforeYouSowPage: React.FC = () => {
               }}>
                 {/* Farmer Count */}
                 <div style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '10px', padding: '1rem' }}>
-                  <div style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 600 }}>Active Farmer Intentions</div>
+                  <div style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 600 }}>{t('beforeYouSow.activeFarmerIntentions')}</div>
                   <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#0F172A', marginTop: '0.2rem' }}>
                     {analysis.farmerIntention.farmerCount.toLocaleString()}
                   </div>
@@ -655,34 +657,34 @@ export const BeforeYouSowPage: React.FC = () => {
 
                 {/* Intended Area vs Baseline */}
                 <div style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '10px', padding: '1rem' }}>
-                  <div style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 600 }}>Intended Area</div>
+                  <div style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 600 }}>{t('beforeYouSow.intendedArea')}</div>
                   <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#0F172A', marginTop: '0.2rem' }}>
                     {analysis.supply.currentIntendedAreaHectares.toLocaleString()} <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>ha</span>
                   </div>
                   <div style={{ fontSize: '0.72rem', color: analysis.supply.areaChangePercent > 0 ? '#C2410C' : '#15803D', fontWeight: 700, marginTop: '0.2rem' }}>
-                    {analysis.supply.areaChangePercent > 0 ? `+${analysis.supply.areaChangePercent}%` : `${analysis.supply.areaChangePercent}%`} vs Baseline ({analysis.supply.historicalAverageAreaHectares} ha)
+                    {analysis.supply.areaChangePercent > 0 ? `+${analysis.supply.areaChangePercent}%` : `${analysis.supply.areaChangePercent}%`} {t('beforeYouSow.vsBaseline')} ({analysis.supply.historicalAverageAreaHectares} ha)
                   </div>
                 </div>
 
                 {/* Estimated Supply */}
                 <div style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '10px', padding: '1rem' }}>
-                  <div style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 600 }}>Estimated Supply</div>
+                  <div style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 600 }}>{t('beforeYouSow.estimatedSupply')}</div>
                   <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#0F172A', marginTop: '0.2rem' }}>
                     {analysis.supply.estimatedSupplyTonnes.toLocaleString()} <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>tonnes</span>
                   </div>
                   <div style={{ fontSize: '0.72rem', color: '#64748B', marginTop: '0.2rem' }}>
-                    Yield benchmark: {analysis.supply.yieldBenchmarkTonnesPerHectare} t/ha
+                    {t('beforeYouSow.yieldBenchmark')}: {analysis.supply.yieldBenchmarkTonnesPerHectare} t/ha
                   </div>
                 </div>
 
                 {/* Historical Market Absorption */}
                 <div style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '10px', padding: '1rem' }}>
-                  <div style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 600 }}>Market Absorption Proxy</div>
+                  <div style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 600 }}>{t('beforeYouSow.marketAbsorption')}</div>
                   <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#0F172A', marginTop: '0.2rem' }}>
                     {analysis.supply.historicalRequirementTonnes.toLocaleString()} <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>tonnes</span>
                   </div>
                   <div style={{ fontSize: '0.72rem', color: '#64748B', marginTop: '0.2rem' }}>
-                    Historical regional capacity
+                    {t('beforeYouSow.historicalRegionalCapacity')}
                   </div>
                 </div>
 
@@ -693,23 +695,23 @@ export const BeforeYouSowPage: React.FC = () => {
                   borderRadius: '10px',
                   padding: '1rem'
                 }}>
-                  <div style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 600 }}>Potential Surplus</div>
+                  <div style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 600 }}>{t('beforeYouSow.potentialSurplus')}</div>
                   <div style={{ fontSize: '1.4rem', fontWeight: 900, color: analysis.supply.surplusPercent > 10 ? '#C2410C' : '#0F172A', marginTop: '0.2rem' }}>
                     +{analysis.supply.surplusPercent}%
                   </div>
                   <div style={{ fontSize: '0.72rem', color: '#64748B', marginTop: '0.2rem' }}>
-                    {analysis.supply.surplusTonnes.toLocaleString()} tonnes excess
+                    {analysis.supply.surplusTonnes.toLocaleString()} {t('beforeYouSow.tonnesExcess')}
                   </div>
                 </div>
 
                 {/* Supply Pressure Ratio */}
                 <div style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '10px', padding: '1rem' }}>
-                  <div style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 600 }}>Supply Pressure Ratio</div>
+                  <div style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 600 }}>{t('beforeYouSow.supplyPressureRatio')}</div>
                   <div style={{ fontSize: '1.4rem', fontWeight: 900, color: analysis.supply.supplyPressureRatio > 1.15 ? '#C2410C' : '#0F172A', marginTop: '0.2rem' }}>
                     {analysis.supply.supplyPressureRatio}x
                   </div>
                   <div style={{ fontSize: '0.72rem', color: '#64748B', marginTop: '0.2rem' }}>
-                    Supply / Absorption ratio
+                    {t('beforeYouSow.supplyAbsorptionRatio')}
                   </div>
                 </div>
               </div>
@@ -724,16 +726,16 @@ export const BeforeYouSowPage: React.FC = () => {
               boxShadow: '0 4px 12px rgba(0,0,0,0.03)'
             }}>
               <h3 style={{ margin: '0 0 0.35rem', fontSize: '1.05rem', fontWeight: 800, color: '#0F172A' }}>
-                📈 Historical Mandi Arrival & Price Pattern
+                📈 {t('beforeYouSow.arrivalTrend')}
               </h3>
               <p style={{ margin: '0 0 1rem', fontSize: '0.82rem', color: '#64748B' }}>
-                Historical observations across recent seasons show how prices behaved during high-arrival periods.
+                {t('beforeYouSow.pageSubtitle')}
               </p>
 
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.75rem', marginBottom: '1rem' }}>
                 {analysis.historicalPattern.historicalData.map(item => (
                   <div key={item.year} style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '8px', padding: '0.85rem' }}>
-                    <div style={{ fontWeight: 800, color: '#1E293B', fontSize: '0.9rem' }}>{item.year} Season</div>
+                    <div style={{ fontWeight: 800, color: '#1E293B', fontSize: '0.9rem' }}>{item.year} {t('beforeYouSow.season')}</div>
                     <div style={{ fontSize: '0.8rem', color: '#475569', marginTop: '0.2rem' }}>
                       Arrivals: <strong>{item.arrivalsTonnes.toLocaleString()} tonnes</strong>
                     </div>
@@ -773,22 +775,22 @@ export const BeforeYouSowPage: React.FC = () => {
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem', flexWrap: 'wrap', gap: '0.5rem' }}>
                 <div>
                   <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 800, color: '#0F172A' }}>
-                    🧪 "What If?" Scenario Simulator
+                    🧪 {t('beforeYouSow.whatIfTitle')}
                   </h3>
                   <div style={{ fontSize: '0.78rem', color: '#64748B' }}>
-                    Simulate: What if more farmers decide to sow {analysis.crop} this season?
+                    {t('beforeYouSow.whatIfSub', { crop: analysis.crop })}
                   </div>
                 </div>
                 <span style={{ fontSize: '0.72rem', background: '#F1F5F9', color: '#64748B', padding: '0.25rem 0.6rem', borderRadius: '6px' }}>
-                  Scenario calculation only
+                  {t('beforeYouSow.scenarioCalculationOnly')}
                 </span>
               </div>
 
               {/* Slider Control */}
               <div style={{ margin: '1rem 0' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.84rem', fontWeight: 700, color: '#1E293B', marginBottom: '0.35rem' }}>
-                  <span>Simulate additional farmer intention:</span>
-                  <span style={{ color: '#2563EB', fontSize: '0.95rem' }}>+{whatIfPercent}% More Cultivation</span>
+                  <span>{t('beforeYouSow.simulateAdditional')}</span>
+                  <span style={{ color: '#2563EB', fontSize: '0.95rem' }}>+{whatIfPercent}% {t('beforeYouSow.moreCultivation')}</span>
                 </div>
                 <input
                   type="range"
@@ -800,11 +802,11 @@ export const BeforeYouSowPage: React.FC = () => {
                   style={{ width: '100%', accentColor: '#2563EB', cursor: 'pointer' }}
                 />
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.72rem', color: '#94A3B8' }}>
-                  <span>0% (Current)</span>
+                  <span>{t('beforeYouSow.currentZero')}</span>
                   <span>+25%</span>
                   <span>+50%</span>
                   <span>+75%</span>
-                  <span>+100% (Double)</span>
+                  <span>{t('beforeYouSow.doubleCultivation')}</span>
                 </div>
               </div>
 
@@ -820,25 +822,25 @@ export const BeforeYouSowPage: React.FC = () => {
                   gap: '0.85rem'
                 }}>
                   <div>
-                    <div style={{ fontSize: '0.72rem', color: '#64748B' }}>Simulated Intended Area</div>
+                    <div style={{ fontSize: '0.72rem', color: '#64748B' }}>{t('beforeYouSow.simulatedArea')}</div>
                     <div style={{ fontSize: '1.15rem', fontWeight: 800, color: '#0F172A' }}>
                       {whatIfResult.newIntendedAreaHectares.toLocaleString()} ha
                     </div>
                   </div>
                   <div>
-                    <div style={{ fontSize: '0.72rem', color: '#64748B' }}>Simulated Supply</div>
+                    <div style={{ fontSize: '0.72rem', color: '#64748B' }}>{t('beforeYouSow.simulatedSupply')}</div>
                     <div style={{ fontSize: '1.15rem', fontWeight: 800, color: '#0F172A' }}>
                       {whatIfResult.newEstimatedSupplyTonnes.toLocaleString()} t
                     </div>
                   </div>
                   <div>
-                    <div style={{ fontSize: '0.72rem', color: '#64748B' }}>Simulated Surplus</div>
+                    <div style={{ fontSize: '0.72rem', color: '#64748B' }}>{t('beforeYouSow.simulatedSurplus')}</div>
                     <div style={{ fontSize: '1.15rem', fontWeight: 800, color: whatIfResult.newSurplusPercent > 20 ? '#DC2626' : '#0F172A' }}>
                       +{whatIfResult.newSurplusPercent}%
                     </div>
                   </div>
                   <div>
-                    <div style={{ fontSize: '0.72rem', color: '#64748B' }}>Simulated Risk Score</div>
+                    <div style={{ fontSize: '0.72rem', color: '#64748B' }}>{t('beforeYouSow.simulatedRiskScore')}</div>
                     <div style={{
                       fontSize: '1.15rem',
                       fontWeight: 900,
@@ -863,14 +865,14 @@ export const BeforeYouSowPage: React.FC = () => {
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.5rem' }}>
                   <div>
                     <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 800, color: '#0F172A' }}>
-                      🌱 Safer Alternative Crops for {analysis.season} Season
+                      🌱 {t('beforeYouSow.saferAlternativeCrops', { season: analysis.season })}
                     </h3>
                     <div style={{ fontSize: '0.78rem', color: '#64748B' }}>
-                      Ranked by lower supply pressure and historical market stability in your agro-climatic zone.
+                      {t('beforeYouSow.alternativeCropsSub')}
                     </div>
                   </div>
                   <span style={{ fontSize: '0.75rem', color: '#16A34A', fontWeight: 700, background: '#DCFCE7', padding: '0.25rem 0.6rem', borderRadius: '6px' }}>
-                    ✓ Diversification Recommended
+                    {t('beforeYouSow.diversificationRecommended')}
                   </span>
                 </div>
 
@@ -905,7 +907,7 @@ export const BeforeYouSowPage: React.FC = () => {
                           </span>
                         </div>
                         <div style={{ fontSize: '0.78rem', color: '#64748B', marginBottom: '0.4rem' }}>
-                          <strong>Season Suitability:</strong> {alt.seasonFit} Fit
+                          <strong>{t('beforeYouSow.seasonSuitabilityTh')}:</strong> {alt.seasonFit}
                         </div>
                         <div style={{ fontSize: '0.8rem', color: '#475569', lineHeight: 1.4 }}>
                           {alt.reasoning}
@@ -929,7 +931,7 @@ export const BeforeYouSowPage: React.FC = () => {
                           cursor: 'pointer'
                         }}
                       >
-                        Analyze {alt.crop} Instead
+                        {t('beforeYouSow.analyzeInstead', { crop: alt.crop })}
                       </button>
                     </div>
                   ))}
@@ -948,23 +950,23 @@ export const BeforeYouSowPage: React.FC = () => {
                 overflowX: 'auto'
               }}>
                 <h3 style={{ margin: '0 0 0.5rem', fontSize: '1.05rem', fontWeight: 800, color: '#0F172A' }}>
-                  ⚖️ Side-by-Side Crop Comparison
+                  ⚖️ {t('beforeYouSow.sideBySideComparison')}
                 </h3>
                 <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.84rem' }}>
                   <thead>
                     <tr style={{ background: '#F8FAFC', borderBottom: '2px solid #E2E8F0', textAlign: 'left' }}>
-                      <th style={{ padding: '0.75rem' }}>Crop</th>
-                      <th style={{ padding: '0.75rem' }}>Supply Pressure</th>
-                      <th style={{ padding: '0.75rem' }}>Risk Score</th>
-                      <th style={{ padding: '0.75rem' }}>Season Suitability</th>
-                      <th style={{ padding: '0.75rem' }}>Recommendation</th>
+                      <th style={{ padding: '0.75rem' }}>{t('beforeYouSow.cropTh')}</th>
+                      <th style={{ padding: '0.75rem' }}>{t('beforeYouSow.supplyPressureTh')}</th>
+                      <th style={{ padding: '0.75rem' }}>{t('beforeYouSow.riskScoreTh')}</th>
+                      <th style={{ padding: '0.75rem' }}>{t('beforeYouSow.seasonSuitabilityTh')}</th>
+                      <th style={{ padding: '0.75rem' }}>{t('beforeYouSow.recommendationTh')}</th>
                     </tr>
                   </thead>
                   <tbody>
                     {/* Current Crop */}
                     <tr style={{ borderBottom: '1px solid #E2E8F0', background: '#FEF3C7' }}>
                       <td style={{ padding: '0.75rem', fontWeight: 800 }}>
-                        {CROP_ICONS[analysis.crop] || '🌱'} {analysis.crop} (Selected)
+                        {CROP_ICONS[analysis.crop] || '🌱'} {analysis.crop} {t('beforeYouSow.selectedBadge')}
                       </td>
                       <td style={{ padding: '0.75rem' }}>
                         <span style={{ fontWeight: 700, color: getRiskColor(analysis.risk.level).text }}>
@@ -988,7 +990,7 @@ export const BeforeYouSowPage: React.FC = () => {
                         </td>
                         <td style={{ padding: '0.75rem', fontWeight: 700 }}>{alt.riskProbability}%</td>
                         <td style={{ padding: '0.75rem' }}>{alt.seasonFit}</td>
-                        <td style={{ padding: '0.75rem', color: '#16A34A', fontWeight: 600 }}>SAFER OPTION</td>
+                        <td style={{ padding: '0.75rem', color: '#16A34A', fontWeight: 600 }}>{t('beforeYouSow.saferOptionBadge')}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -1006,10 +1008,10 @@ export const BeforeYouSowPage: React.FC = () => {
                 boxShadow: '0 4px 12px rgba(0,0,0,0.03)'
               }}>
                 <h3 style={{ margin: '0 0 0.35rem', fontSize: '1.05rem', fontWeight: 800, color: '#0F172A' }}>
-                  🏪 Nearby Relevant Mandis
+                  🏪 {t('beforeYouSow.nearbyMandisTitle')}
                 </h3>
                 <p style={{ margin: '0 0 1rem', fontSize: '0.82rem', color: '#64748B' }}>
-                  Reference market rates across nearby APMC mandis (considers regional markets across district boundaries).
+                  {t('beforeYouSow.nearbyMandisSub')}
                 </p>
 
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.75rem' }}>
@@ -1023,8 +1025,8 @@ export const BeforeYouSowPage: React.FC = () => {
                         {mandi.currentPricePerQtl ? `₹${mandi.currentPricePerQtl}/qtl` : 'N/A'}
                       </div>
                       <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.72rem', color: '#64748B', marginTop: '0.25rem' }}>
-                        <span>Trend: <strong>{mandi.priceTrend || 'STABLE'}</strong></span>
-                        <span>As of: {mandi.dataFreshness}</span>
+                        <span>{t('beforeYouSow.trendLabel')} <strong>{mandi.priceTrend || 'STABLE'}</strong></span>
+                        <span>{t('beforeYouSow.asOfLabel')} {mandi.dataFreshness}</span>
                       </div>
                     </div>
                   ))}
@@ -1044,18 +1046,18 @@ export const BeforeYouSowPage: React.FC = () => {
             }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
                 <div style={{ fontSize: '0.82rem', color: '#475569' }}>
-                  <strong>Data Confidence:</strong> <span style={{
+                  <strong>{t('beforeYouSow.dataConfidenceLabel')}</strong> <span style={{
                     fontWeight: 800,
                     color: analysis.dataConfidence === 'HIGH' ? '#15803D' : analysis.dataConfidence === 'MEDIUM' ? '#B45309' : '#DC2626'
-                  }}>{analysis.dataConfidence}</span> — Based on {analysis.farmerIntention.farmerCount} farmer records &amp; {analysis.historicalPattern.yearsAnalyzed}-year arrival patterns.
+                  }}>{analysis.dataConfidence}</span> — {t('beforeYouSow.basedOnRecords', { farmers: analysis.farmerIntention.farmerCount, years: analysis.historicalPattern.yearsAnalyzed })}
                 </div>
                 <span style={{ fontSize: '0.72rem', color: '#94A3B8' }}>
-                  Analyzed at: {new Date(analysis.analysisTimestamp).toLocaleString()}
+                  {t('beforeYouSow.analyzedAt')} {new Date(analysis.analysisTimestamp).toLocaleString()}
                 </span>
               </div>
 
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem', fontSize: '0.72rem', color: '#64748B' }}>
-                <span style={{ fontWeight: 600 }}>Sources:</span>
+                <span style={{ fontWeight: 600 }}>{t('beforeYouSow.sourcesLabel')}</span>
                 {analysis.dataSources.map(ds => (
                   <span key={ds.name} style={{ background: '#FFFFFF', border: '1px solid #CBD5E1', padding: '0.15rem 0.45rem', borderRadius: '4px' }}>
                     ✓ {ds.name} ({ds.dataType})
@@ -1064,7 +1066,7 @@ export const BeforeYouSowPage: React.FC = () => {
               </div>
 
               <div style={{ fontSize: '0.74rem', color: '#94A3B8', borderTop: '1px solid #E2E8F0', paddingTop: '0.5rem', fontStyle: 'italic' }}>
-                ⚠️ <strong>Disclaimer:</strong> This is an AI-assisted early risk estimate based on aggregated local intention signals. It does not guarantee future market prices or weather outcomes.
+                ⚠️ <strong>{t('common.warning')}:</strong> {t('beforeYouSow.disclaimerNotice')}
               </div>
             </div>
 

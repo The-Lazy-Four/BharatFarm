@@ -3,11 +3,12 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useIsMobile } from '../../hooks/useIsMobile';
 import { MobileLandingPage } from '../../components/mobile/MobileLandingPage';
 import { InstallCTA } from '../../components/pwa/InstallCTA.js';
-
+import { useLanguage } from '../../context/LanguageContext';
 
 export const LandingPage: React.FC = () => {
   const isMobile = useIsMobile();
   const navigate = useNavigate();
+  const { language, setLanguage, t } = useLanguage();
 
   if (isMobile) {
     return <MobileLandingPage />;
@@ -48,14 +49,35 @@ export const LandingPage: React.FC = () => {
 
         {/* Links */}
         <nav style={{ display: 'flex', alignItems: 'center', gap: '2rem' }} className="landing-nav">
-          <a href="#home" style={{ color: '#475569', textDecoration: 'none', fontWeight: 600, fontSize: '0.95rem' }}>Home</a>
-          <a href="#about" style={{ color: '#475569', textDecoration: 'none', fontWeight: 600, fontSize: '0.95rem' }}>About</a>
-          <a href="#features" style={{ color: '#475569', textDecoration: 'none', fontWeight: 600, fontSize: '0.95rem' }}>Features</a>
-          <a href="#impact" style={{ color: '#475569', textDecoration: 'none', fontWeight: 600, fontSize: '0.95rem' }}>Impact</a>
+          <a href="#home" style={{ color: '#475569', textDecoration: 'none', fontWeight: 600, fontSize: '0.95rem' }}>{t('common.home')}</a>
+          <a href="#about" style={{ color: '#475569', textDecoration: 'none', fontWeight: 600, fontSize: '0.95rem' }}>{t('common.about')}</a>
+          <a href="#features" style={{ color: '#475569', textDecoration: 'none', fontWeight: 600, fontSize: '0.95rem' }}>{t('common.features')}</a>
+          <a href="#impact" style={{ color: '#475569', textDecoration: 'none', fontWeight: 600, fontSize: '0.95rem' }}>{t('common.impact')}</a>
         </nav>
 
-        {/* CTA */}
+        {/* CTA & Language Selector */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <select
+            value={language}
+            onChange={(e) => setLanguage(e.target.value)}
+            title={t('common.languageSelect')}
+            style={{
+              background: '#F1F5F9',
+              color: '#0F172A',
+              border: '1px solid #CBD5E1',
+              borderRadius: '20px',
+              padding: '0.35rem 0.65rem',
+              fontSize: '0.8rem',
+              fontWeight: 700,
+              cursor: 'pointer',
+              outline: 'none'
+            }}
+          >
+            <option value="en">EN</option>
+            <option value="hi">हिंदी</option>
+            <option value="bn">বাংলা</option>
+          </select>
+
           <Link
             to="/login"
             style={{
@@ -66,7 +88,7 @@ export const LandingPage: React.FC = () => {
               padding: '0.5rem 1rem'
             }}
           >
-            Sign In
+            {t('common.login')}
           </Link>
           <button
             onClick={() => navigate('/login')}
@@ -83,7 +105,7 @@ export const LandingPage: React.FC = () => {
               transition: 'transform 0.15s ease, background 0.15s ease'
             }}
           >
-            Get Started
+            {t('landing.getStartedFree')}
           </button>
         </div>
       </header>
@@ -114,7 +136,7 @@ export const LandingPage: React.FC = () => {
             fontWeight: 800,
             marginBottom: '1.25rem'
           }}>
-            <span>🌱 Smart Agriculture Platform</span>
+            <span>{t('landing.smartAgriPlatform')}</span>
           </div>
 
           <h1 style={{
@@ -125,7 +147,7 @@ export const LandingPage: React.FC = () => {
             letterSpacing: '-0.03em',
             margin: '0 0 1.25rem 0'
           }}>
-            Empowering Farmers for a <span style={{ color: '#16A34A' }}>Brighter Tomorrow</span>
+            {t('landing.heroTitleMain')} <span style={{ color: '#16A34A' }}>{t('landing.heroHighlight')}</span>
           </h1>
 
           <p style={{
@@ -135,7 +157,7 @@ export const LandingPage: React.FC = () => {
             margin: '0 0 2rem 0',
             maxWidth: '540px'
           }}>
-            Technology, Knowledge, and Community coming together for a better and more sustainable agricultural future.
+            {t('landing.heroDesc')}
           </p>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
@@ -156,7 +178,7 @@ export const LandingPage: React.FC = () => {
                 gap: '0.5rem'
               }}
             >
-              <span>Get Started</span>
+              <span>{t('landing.getStarted')}</span>
               <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>arrow_forward</span>
             </button>
 
@@ -177,7 +199,7 @@ export const LandingPage: React.FC = () => {
                 boxShadow: '0 2px 4px rgba(0,0,0,0.04)'
               }}
             >
-              Learn More
+              {t('landing.learnMore')}
             </a>
 
             {/* PWA Install CTA — only shows when installation is available */}
@@ -219,10 +241,10 @@ export const LandingPage: React.FC = () => {
               zIndex: 2
             }}>
               <span style={{ fontSize: '0.8rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#86EFAC' }}>
-                FARMER FIRST INNOVATION
+                {t('landing.farmerFirstTag')}
               </span>
               <h3 style={{ fontSize: '1.25rem', fontWeight: 800, margin: '0.2rem 0 0 0' }}>
-                Connecting 1M+ Farmers across India
+                {t('landing.connectingFarmers')}
               </h3>
             </div>
           </div>
@@ -245,20 +267,20 @@ export const LandingPage: React.FC = () => {
           textAlign: 'center'
         }}>
           <div>
-            <div style={{ fontSize: '2.5rem', fontWeight: 900, color: '#16A34A', lineHeight: 1 }}>1M+</div>
-            <div style={{ fontSize: '0.95rem', fontWeight: 700, color: '#64748B', marginTop: '0.4rem' }}>Farmers Empowered</div>
+            <div style={{ fontSize: '2.5rem', fontWeight: 900, color: '#16A34A', lineHeight: 1 }}>{t('landing.statFarmersVal')}</div>
+            <div style={{ fontSize: '0.95rem', fontWeight: 700, color: '#64748B', marginTop: '0.4rem' }}>{t('landing.statFarmersLabel')}</div>
           </div>
           <div>
-            <div style={{ fontSize: '2.5rem', fontWeight: 900, color: '#16A34A', lineHeight: 1 }}>50+</div>
-            <div style={{ fontSize: '0.95rem', fontWeight: 700, color: '#64748B', marginTop: '0.4rem' }}>Crops Covered</div>
+            <div style={{ fontSize: '2.5rem', fontWeight: 900, color: '#16A34A', lineHeight: 1 }}>{t('landing.statCropsVal')}</div>
+            <div style={{ fontSize: '0.95rem', fontWeight: 700, color: '#64748B', marginTop: '0.4rem' }}>{t('landing.statCropsLabel')}</div>
           </div>
           <div>
-            <div style={{ fontSize: '2.5rem', fontWeight: 900, color: '#16A34A', lineHeight: 1 }}>100+</div>
-            <div style={{ fontSize: '0.95rem', fontWeight: 700, color: '#64748B', marginTop: '0.4rem' }}>Districts Supported</div>
+            <div style={{ fontSize: '2.5rem', fontWeight: 900, color: '#16A34A', lineHeight: 1 }}>{t('landing.statDistrictsVal')}</div>
+            <div style={{ fontSize: '0.95rem', fontWeight: 700, color: '#64748B', marginTop: '0.4rem' }}>{t('landing.statDistrictsLabel')}</div>
           </div>
           <div>
-            <div style={{ fontSize: '2.5rem', fontWeight: 900, color: '#16A34A', lineHeight: 1 }}>AI</div>
-            <div style={{ fontSize: '0.95rem', fontWeight: 700, color: '#64748B', marginTop: '0.4rem' }}>Powered Telemetry</div>
+            <div style={{ fontSize: '2.5rem', fontWeight: 900, color: '#16A34A', lineHeight: 1 }}>{t('landing.statTelemetryVal')}</div>
+            <div style={{ fontSize: '0.95rem', fontWeight: 700, color: '#64748B', marginTop: '0.4rem' }}>{t('landing.statTelemetryLabel')}</div>
           </div>
         </div>
       </section>
@@ -273,10 +295,10 @@ export const LandingPage: React.FC = () => {
       }}>
         <div style={{ textAlign: 'center', marginBottom: '3.5rem' }}>
           <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#16A34A', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-            WHY BHARATFARM
+            {t('landing.whyTag')}
           </span>
           <h2 style={{ fontSize: '2.25rem', fontWeight: 900, color: '#0F172A', marginTop: '0.35rem' }}>
-            Comprehensive Solutions for Modern Farming
+            {t('landing.whyTitle')}
           </h2>
         </div>
 
@@ -286,11 +308,11 @@ export const LandingPage: React.FC = () => {
           gap: '2rem'
         }}>
           {[
-            { icon: 'partly_cloudy_day', title: 'Climate Risk Procurement', desc: 'Predictive microclimate weather telemetry for harvest and spraying timing.' },
-            { icon: 'groups', title: 'Small-Farm Aggregation', desc: 'Group buying discounts on fertilizers and collective produce selling pools.' },
-            { icon: 'satellite_alt', title: 'Crop Risk & Insurance', desc: 'Multispectral satellite NDVI damage audit for 48-hour claim settlements.' },
-            { icon: 'pin_drop', title: 'Smart Mandi Intelligence', desc: 'APMC market rate router accounting for transport costs to maximize net return.' },
-            { icon: 'support_agent', title: 'Sahayak & WhatsApp Support', desc: '24/7 WhatsApp AI voice/photo assistant and local village human advisor network.' }
+            { icon: 'partly_cloudy_day', title: t('landing.feat1Title'), desc: t('landing.feat1Desc') },
+            { icon: 'groups', title: t('landing.feat2Title'), desc: t('landing.feat2Desc') },
+            { icon: 'satellite_alt', title: t('landing.feat3Title'), desc: t('landing.feat3Desc') },
+            { icon: 'pin_drop', title: t('landing.feat4Title'), desc: t('landing.feat4Desc') },
+            { icon: 'support_agent', title: t('landing.feat5Title'), desc: t('landing.feat5Desc') }
           ].map((item, idx) => (
             <div
               key={idx}
@@ -352,7 +374,7 @@ export const LandingPage: React.FC = () => {
           </div>
 
           <div style={{ fontSize: '0.9rem' }}>
-            Smart India Hackathon Innovation Platform
+            {t('landing.sihPlatform')}
           </div>
         </div>
 
@@ -362,7 +384,7 @@ export const LandingPage: React.FC = () => {
           textAlign: 'center',
           fontSize: '0.85rem'
         }}>
-          © {new Date().getFullYear()} BharatFarm. All rights reserved.
+          {t('landing.rightsReserved', { year: new Date().getFullYear() })}
         </div>
       </footer>
     </div>

@@ -1,18 +1,13 @@
 import React, { useRef, useState } from 'react';
 import { Button } from '@core/ui/Button';
 import { compressImage, validateImageFile, captureFrameFromVideo } from '../utils/image.utils';
+import { useLanguage } from '../../../../context/LanguageContext';
 
-/**
- * Capture/upload entry point for a leaf photo. Adapted from the OLD project's
- * `openCamera` / `capturePhoto` / `handleLeafUpload` (js/scanner.js), which
- * used the browser MediaDevices API directly against the DOM. Here the same
- * flow (upload a file OR open a live camera and snap a frame) is expressed
- * as React state instead of manual DOM manipulation.
- */
 export const ScannerCamera: React.FC<{ onCapture: (base64: string) => void }> = ({ onCapture }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
+  const { t } = useLanguage();
 
   const [isCameraOpen, setIsCameraOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -21,7 +16,7 @@ export const ScannerCamera: React.FC<{ onCapture: (base64: string) => void }> = 
     const file = event.target.files?.[0];
     if (!file) return;
 
-    const validation = validateImageFile(file);
+    const validation = validateImageFile(file, t);
     if (!validation.valid) {
       setError(validation.error ?? 'Invalid image');
       return;
@@ -43,7 +38,7 @@ export const ScannerCamera: React.FC<{ onCapture: (base64: string) => void }> = 
         await videoRef.current.play();
       }
     } catch {
-      setError('Camera access was denied or is not available. Try uploading a photo instead.');
+      setError(t('scanner.cameraErrorMsg'));
       setIsCameraOpen(false);
     }
   };
@@ -69,8 +64,8 @@ export const ScannerCamera: React.FC<{ onCapture: (base64: string) => void }> = 
             <video ref={videoRef} style={{ width: '100%', maxHeight: '320px', objectFit: 'cover' }} playsInline muted />
           </div>
           <div style={{ display: 'flex', gap: '0.5rem' }}>
-            <Button onClick={capturePhoto} style={{ flex: 1 }}>📸 Capture</Button>
-            <Button variant="secondary" onClick={closeCamera} style={{ flex: 1 }}>Cancel</Button>
+            <Button onClick={capturePhoto} style={{ flex: 1 }}>{t('scanner.captureBtn')}</Button>
+            <Button variant="secondary" onClick={closeCamera} style={{ flex: 1 }}>{t('common.cancel')}</Button>
           </div>
         </div>
       ) : (
@@ -84,16 +79,16 @@ export const ScannerCamera: React.FC<{ onCapture: (base64: string) => void }> = 
           }}
         >
           <p style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>📷</p>
-          <p style={{ fontWeight: 600 }}>Scan Your Crop</p>
+          <p style={{ fontWeight: 600 }}>{t('scanner.scanYourCrop')}</p>
           <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', margin: '0.25rem 0 1rem' }}>
-            Detect diseases instantly and get treatment recommendations.
+            {t('scanner.cameraInstruction')}
           </p>
           <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-            <Button onClick={openCamera}>📷 Open Camera</Button>
-            <Button variant="outline" onClick={() => fileInputRef.current?.click()}>🖼️ Upload from Gallery</Button>
+            <Button onClick={openCamera}>{t('scanner.openCameraBtn')}</Button>
+            <Button variant="outline" onClick={() => fileInputRef.current?.click()}>{t('scanner.uploadGalleryBtn')}</Button>
           </div>
           <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.75rem' }}>
-            Supports JPG, PNG, WEBP (Max 5MB)
+            {t('scanner.supportedFormats')}
           </p>
           <input
             ref={fileInputRef}

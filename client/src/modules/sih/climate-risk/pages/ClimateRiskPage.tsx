@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { SihLayout } from '../../shared/SihLayout';
+import { useLanguage } from '../../../../context/LanguageContext';
 import { ClimateRiskService } from '../climateRisk.service';
 import {
   WeatherData,
@@ -32,6 +33,7 @@ import { HistoricalRiskSection } from '../components/HistoricalRiskSection';
 import { FoodSecurityDashboard } from '../components/FoodSecurityDashboard';
 
 export const ClimateRiskPage: React.FC = () => {
+  const { t } = useLanguage();
   // Navigation tab state
   const [activeTab, setActiveTab] = useState<'farmer' | 'government'>('farmer');
 
@@ -176,7 +178,7 @@ export const ClimateRiskPage: React.FC = () => {
               boxShadow: activeTab === 'farmer' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none'
             }}
           >
-            👨‍🌾 Farmer Decision Hub
+            {t('sih.farmerDecisionHub')}
           </button>
 
           <button
@@ -193,7 +195,7 @@ export const ClimateRiskPage: React.FC = () => {
               boxShadow: activeTab === 'government' ? '0 1px 3px rgba(0,0,0,0.15)' : 'none'
             }}
           >
-            🏛️ Govt Food Security Tab
+            {t('sih.govtFoodSecurityTab')}
           </button>
         </div>
 

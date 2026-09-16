@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { FloodRiskAssessment } from '../types';
+import { useLanguage } from '../../../../context/LanguageContext';
 
 interface Props {
   flood: FloodRiskAssessment;
@@ -7,6 +8,7 @@ interface Props {
 
 export const FloodRiskSection: React.FC<Props> = ({ flood }) => {
   const [showDetails, setShowDetails] = useState(false);
+  const { t } = useLanguage();
 
   const getStyle = (level: string) => {
     switch (level) {
@@ -34,9 +36,9 @@ export const FloodRiskSection: React.FC<Props> = ({ flood }) => {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
           <span style={{ fontSize: '0.72rem', fontWeight: 800, color: '#64748B', letterSpacing: '0.04em' }}>
-            FLOOD RISK ASSESSMENT
+            {t('climateComponents.floodRiskUpper')}
           </span>
-          <span style={{ fontSize: '0.64rem', color: '#94a3b8' }}>Weather-based</span>
+          <span style={{ fontSize: '0.64rem', color: '#94a3b8' }}>{t('climateComponents.weatherBased')}</span>
         </div>
         <span style={{
           background: style.bg,
@@ -53,7 +55,7 @@ export const FloodRiskSection: React.FC<Props> = ({ flood }) => {
       {/* Main Drivers Stack */}
       <div style={{ margin: '0.5rem 0' }}>
         <span style={{ fontSize: '0.68rem', fontWeight: 700, color: '#475569', display: 'block', marginBottom: '0.25rem' }}>
-          Key Drivers (Next 48–72h):
+          {t('climateComponents.keyDriversNext')}
         </span>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
           {flood.reasons.slice(0, 3).map((r, i) => (
@@ -80,7 +82,7 @@ export const FloodRiskSection: React.FC<Props> = ({ flood }) => {
             textDecoration: 'underline'
           }}
         >
-          {showDetails ? 'Hide Model Weights ▲' : 'View Risk Model Weights ▼'}
+          {showDetails ? `${t('climateComponents.hideModelWeights')} ▲` : `${t('climateComponents.viewRiskModelWeights')} ▼`}
         </button>
 
         {showDetails && (
@@ -95,12 +97,12 @@ export const FloodRiskSection: React.FC<Props> = ({ flood }) => {
             gridTemplateColumns: 'repeat(2, 1fr)',
             gap: '0.25rem'
           }}>
-            <div>Rain Intensity: 30%</div>
-            <div>Water Level: 25%</div>
-            <div>Rain Prob: 15%</div>
-            <div>Elevation: 10%</div>
-            <div>Susceptibility: 15%</div>
-            <div>Soil Drainage: 5%</div>
+            <div>{t('climateComponents.rainIntensity')}: 30%</div>
+            <div>{t('climateComponents.waterLevel')}: 25%</div>
+            <div>{t('climateComponents.rainProb')}: 15%</div>
+            <div>{t('climateComponents.elevation')}: 10%</div>
+            <div>{t('climateComponents.susceptibility')}: 15%</div>
+            <div>{t('climateComponents.soilDrainage')}: 5%</div>
           </div>
         )}
       </div>

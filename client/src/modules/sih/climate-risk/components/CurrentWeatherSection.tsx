@@ -1,11 +1,13 @@
 import React from 'react';
 import { WeatherData } from '../types';
+import { useLanguage } from '../../../../context/LanguageContext';
 
 interface Props {
   weather: WeatherData;
 }
 
 export const CurrentWeatherSection: React.FC<Props> = ({ weather }) => {
+  const { t } = useLanguage();
   const icon = weather.condition.includes('Rain') ? '🌧️' : weather.condition.includes('Cloud') ? '⛅' : '☀️';
 
   return (
@@ -34,7 +36,7 @@ export const CurrentWeatherSection: React.FC<Props> = ({ weather }) => {
             </span>
           </div>
           <div style={{ fontSize: '0.72rem', color: '#94a3b8', marginTop: '0.15rem' }}>
-            Feels {Math.round(weather.feelsLikeCelsius)}°C • Updated {new Date(weather.updatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+            {t('sih.feels')} {Math.round(weather.feelsLikeCelsius)}°C • {t('sih.updated')} {new Date(weather.updatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
           </div>
         </div>
       </div>
@@ -42,28 +44,28 @@ export const CurrentWeatherSection: React.FC<Props> = ({ weather }) => {
       {/* Right: Key Decision Metrics in a clean row */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', flexWrap: 'wrap' }}>
         <div style={{ textAlign: 'center', background: '#f8fafc', padding: '0.35rem 0.65rem', borderRadius: '6px' }}>
-          <span style={{ fontSize: '0.66rem', color: '#64748b', fontWeight: 700, display: 'block' }}>RAIN PROB</span>
+          <span style={{ fontSize: '0.66rem', color: '#64748b', fontWeight: 700, display: 'block' }}>{t('sih.rainProb')}</span>
           <span style={{ fontSize: '0.86rem', fontWeight: 800, color: weather.rainfallProbability >= 50 ? '#0284c7' : '#0f172a' }}>
             {Math.round(weather.rainfallProbability)}%
           </span>
         </div>
 
         <div style={{ textAlign: 'center', background: '#f8fafc', padding: '0.35rem 0.65rem', borderRadius: '6px' }}>
-          <span style={{ fontSize: '0.66rem', color: '#64748b', fontWeight: 700, display: 'block' }}>RAIN EXP</span>
+          <span style={{ fontSize: '0.66rem', color: '#64748b', fontWeight: 700, display: 'block' }}>{t('sih.rainExp')}</span>
           <span style={{ fontSize: '0.86rem', fontWeight: 800, color: weather.expectedRainfallMm >= 20 ? '#dc2626' : '#0f172a' }}>
             {Number(weather.expectedRainfallMm.toFixed(1))} mm
           </span>
         </div>
 
         <div style={{ textAlign: 'center', background: '#f8fafc', padding: '0.35rem 0.65rem', borderRadius: '6px' }}>
-          <span style={{ fontSize: '0.66rem', color: '#64748b', fontWeight: 700, display: 'block' }}>HUMIDITY</span>
+          <span style={{ fontSize: '0.66rem', color: '#64748b', fontWeight: 700, display: 'block' }}>{t('sih.humidity')}</span>
           <span style={{ fontSize: '0.86rem', fontWeight: 800, color: '#0f172a' }}>
             {Math.round(weather.humidityPercent)}%
           </span>
         </div>
 
         <div style={{ textAlign: 'center', background: '#f8fafc', padding: '0.35rem 0.65rem', borderRadius: '6px' }}>
-          <span style={{ fontSize: '0.66rem', color: '#64748b', fontWeight: 700, display: 'block' }}>WIND</span>
+          <span style={{ fontSize: '0.66rem', color: '#64748b', fontWeight: 700, display: 'block' }}>{t('sih.wind')}</span>
           <span style={{ fontSize: '0.86rem', fontWeight: 800, color: '#0f172a' }}>
             {Math.round(weather.windSpeedKmh)} km/h
           </span>

@@ -1,15 +1,18 @@
 import React from 'react';
 import { ClimateAssessmentResult } from '../types';
+import { useLanguage } from '../../../../context/LanguageContext';
 
 interface Props {
   plan: ClimateAssessmentResult['farmerActionPlan'];
 }
 
 export const FarmerActionTimelineSection: React.FC<Props> = ({ plan }) => {
+  const { t } = useLanguage();
+
   const steps = [
-    { label: 'NOW', text: plan.today[0] || 'Inspect and clear field drainage exits', color: '#16a34a' },
-    { label: '24H', text: plan.next24h[0] || 'Prepare harvest logistics & avoid spraying', color: '#0284c7' },
-    { label: '48H', text: plan.next48h[0] || 'Move cut produce to covered storage', color: '#d97706' }
+    { label: t('climateComponents.now'), text: plan.today[0] || t('climateComponents.fallbackInspectDrainage'), color: '#16a34a' },
+    { label: '24H', text: plan.next24h[0] || t('climateComponents.fallbackPrepareHarvest'), color: '#0284c7' },
+    { label: '48H', text: plan.next48h[0] || t('climateComponents.fallbackMoveProduce'), color: '#d97706' }
   ];
 
   return (
@@ -26,9 +29,9 @@ export const FarmerActionTimelineSection: React.FC<Props> = ({ plan }) => {
     }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem' }}>
         <span style={{ fontSize: '0.72rem', fontWeight: 800, color: '#64748B', letterSpacing: '0.04em' }}>
-          ACTION TIMELINE
+          {t('climateComponents.actionTimeline')}
         </span>
-        <span style={{ fontSize: '0.66rem', color: '#94a3b8' }}>3-Phase Plan</span>
+        <span style={{ fontSize: '0.66rem', color: '#94a3b8' }}>{t('climateComponents.threePhasePlan')}</span>
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>

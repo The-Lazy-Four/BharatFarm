@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { ClimateRiskService } from '../climateRisk.service';
 import { GeocodeResult } from '../types';
+import { useLanguage } from '../../../../context/LanguageContext';
 
 interface Props {
   selectedLocation: string;
@@ -25,6 +26,7 @@ export const TopSelectorHeader: React.FC<Props> = ({
   isAnalyzing,
   dataSource
 }) => {
+  const { t } = useLanguage();
   const [isSearching, setIsSearching] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [suggestions, setSuggestions] = useState<GeocodeResult[]>([]);
@@ -92,7 +94,7 @@ export const TopSelectorHeader: React.FC<Props> = ({
             borderRadius: '4px',
             letterSpacing: '0.04em'
           }}>
-            CLIMATE RISK PLANNER
+            {t('sih.climateRiskPlanner')}
           </span>
           <span style={{ fontSize: '0.82rem', color: '#a7f3d0', fontWeight: 600 }}>
             {selectedLocation} • {selectedCrop} ({selectedStage})
@@ -109,7 +111,7 @@ export const TopSelectorHeader: React.FC<Props> = ({
             padding: '0.2rem 0.5rem',
             borderRadius: '999px'
           }}>
-            {dataSource.includes('LIVE') ? 'LIVE WEATHER • Open-Meteo' : 'DEMO WEATHER • Open-Meteo'}
+            {t('sih.liveWeather')}
           </span>
         </div>
       </div>
@@ -146,7 +148,7 @@ export const TopSelectorHeader: React.FC<Props> = ({
                 </span>
               </div>
               <span style={{ fontSize: '0.7rem', color: '#86efac', fontWeight: 600, textDecoration: 'underline' }}>
-                Change
+                {t('common.change')}
               </span>
             </div>
           ) : (
@@ -154,7 +156,7 @@ export const TopSelectorHeader: React.FC<Props> = ({
               <input
                 type="text"
                 autoFocus
-                placeholder="Type city (e.g. Haldia, Kolkata)..."
+                placeholder={t('common.search')}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 style={{
@@ -186,7 +188,7 @@ export const TopSelectorHeader: React.FC<Props> = ({
               }}>
                 {loadingSuggestions ? (
                   <div style={{ padding: '0.6rem', fontSize: '0.75rem', color: '#a7f3d0', textAlign: 'center' }}>
-                    Searching coordinates...
+                    {t('common.loading')}
                   </div>
                 ) : suggestions.length > 0 ? (
                   suggestions.map((loc, idx) => (
@@ -210,7 +212,7 @@ export const TopSelectorHeader: React.FC<Props> = ({
                   ))
                 ) : searchQuery.length >= 2 ? (
                   <div style={{ padding: '0.6rem', fontSize: '0.75rem', color: '#94a3b8', textAlign: 'center' }}>
-                    No matching location found
+                    {t('common.noData')}
                   </div>
                 ) : (
                   <div style={{ padding: '0.5rem 0.75rem', fontSize: '0.72rem', color: '#86efac' }}>
@@ -290,7 +292,7 @@ export const TopSelectorHeader: React.FC<Props> = ({
             boxShadow: '0 2px 8px rgba(34, 197, 94, 0.3)'
           }}
         >
-          <span>{isAnalyzing ? 'Analyzing...' : 'Refresh'}</span>
+          <span>{isAnalyzing ? t('common.analyzing') : t('common.refresh')}</span>
         </button>
       </div>
     </div>

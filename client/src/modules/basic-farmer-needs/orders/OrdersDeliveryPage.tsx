@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Card } from '@core/ui/Card';
 import { FEATURE_IMAGES } from '@core/constants/featureImages';
+import { useLanguage } from '@core/context/LanguageContext';
 
 interface Order {
   id: string;
@@ -55,6 +56,7 @@ const MOCK_ORDERS: Order[] = [
 ];
 
 export const OrdersDeliveryPage: React.FC = () => {
+  const { t } = useLanguage();
   const [orders] = useState<Order[]>(MOCK_ORDERS);
   const [selectedOrderId, setSelectedOrderId] = useState<string>('ORD-8821');
 
@@ -65,12 +67,12 @@ export const OrdersDeliveryPage: React.FC = () => {
       {/* Header Banner */}
       <div className="page-header-banner">
         <div>
-          <span className="badge badge-primary" style={{ marginBottom: '0.35rem' }}>Logistics Telemetry</span>
+          <span className="badge badge-primary" style={{ marginBottom: '0.35rem' }}>{t('ordersPage.headerBadge')}</span>
           <h1 style={{ fontSize: '1.75rem', fontWeight: 700, color: '#FFFFFF' }}>
-            Orders & Delivery — Active Fulfillment Tracker
+            {t('ordersPage.pageTitle')}
           </h1>
           <p style={{ color: 'rgba(255,255,255,0.85)', fontSize: '0.9rem', marginTop: '0.2rem' }}>
-            Real-time status updates on input orders, group buying shipments, and marketplace deliveries.
+            {t('ordersPage.pageSubtitle')}
           </p>
         </div>
       </div>
@@ -79,7 +81,7 @@ export const OrdersDeliveryPage: React.FC = () => {
       <div className="grid-dashboard">
         {/* Left Column (Span 6): Active Orders List */}
         <div className="col-span-6" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-          <Card title="Your Orders" subtitle="Select an order to view dispatch details and live delivery tracking.">
+          <Card title={t('ordersPage.activeOrders')} subtitle="Select an order to view dispatch details and live delivery tracking.">
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '0.5rem' }}>
               {orders.map(ord => (
                 <div
@@ -96,7 +98,7 @@ export const OrdersDeliveryPage: React.FC = () => {
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-muted)' }}>{ord.id}</span>
                     <span className={`badge badge-${ord.status === 'IN_TRANSIT' ? 'warning' : 'success'}`}>
-                      {ord.status.replace('_', ' ')}
+                      {ord.status === 'IN_TRANSIT' ? t('ordersPage.inTransit') : ord.status === 'DELIVERED' ? t('ordersPage.delivered') : ord.status}
                     </span>
                   </div>
                   <h4 style={{ fontSize: '1.05rem', fontWeight: 700, color: 'var(--text-primary)', marginTop: '0.4rem' }}>
@@ -125,7 +127,7 @@ export const OrdersDeliveryPage: React.FC = () => {
             </div>
           </div>
 
-          <Card title={`Order Tracking — ${selectedOrder.id}`} subtitle={`Fulfillment Status: ${selectedOrder.status.replace('_', ' ')}`}>
+          <Card title={`${t('ordersPage.trackOrder')} — ${selectedOrder.id}`} subtitle={`Fulfillment Status: ${selectedOrder.status === 'IN_TRANSIT' ? t('ordersPage.inTransit') : t('ordersPage.delivered')}`}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', marginTop: '0.5rem' }}>
               <div className="alert-warning" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem' }}>
                 <div>
@@ -133,7 +135,7 @@ export const OrdersDeliveryPage: React.FC = () => {
                   <h3 style={{ fontSize: '1.75rem', fontWeight: 800, letterSpacing: '0.1em' }}>{selectedOrder.otp}</h3>
                 </div>
                 <div style={{ textAlign: 'right' }}>
-                  <span style={{ fontSize: '0.75rem', opacity: 0.85, display: 'block' }}>ESTIMATED ARRIVAL</span>
+                  <span style={{ fontSize: '0.75rem', opacity: 0.85, display: 'block' }}>{t('ordersPage.expectedDelivery').toUpperCase()}</span>
                   <strong style={{ fontSize: '0.95rem' }}>{selectedOrder.estimatedDelivery}</strong>
                 </div>
               </div>
@@ -160,4 +162,5 @@ export const OrdersDeliveryPage: React.FC = () => {
     </div>
   );
 };
+
 

@@ -7,11 +7,13 @@ import { GroupBuyingApi } from '../services/groupBuyingApi';
 import { Spinner } from '@core/ui/Spinner';
 import { EmptyState } from '@core/ui/EmptyState';
 import { FEATURE_IMAGES } from '@core/constants/featureImages';
+import { useLanguage } from '../../../../context/LanguageContext';
 
 const CATEGORIES = ['all', 'fertilizer', 'seeds', 'machinery'] as const;
 
 export const GroupBuyingPage: React.FC = () => {
   const { pools, isLoading, error, joinPool } = useGroupBuying();
+  const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState<'pools' | 'my-purchases'>('pools');
   const [myPurchases, setMyPurchases] = useState<{ pool: any; myQuantity: number; joinedAt: string }[]>([]);
   const [isLoadingPurchases, setIsLoadingPurchases] = useState(false);
@@ -43,17 +45,25 @@ export const GroupBuyingPage: React.FC = () => {
     return matchesSearch && matchesCategory;
   });
 
+  const getCategoryLabel = (cat: string) => {
+    if (cat === 'all') return t('groupBuying.allCat');
+    if (cat === 'fertilizer') return t('groupBuying.fertilizerCat');
+    if (cat === 'seeds') return t('groupBuying.seedsCat');
+    if (cat === 'machinery') return t('groupBuying.machineryCat');
+    return cat;
+  };
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', maxWidth: '1280px', margin: '0 auto' }}>
       {/* Header Banner */}
       <div className="page-header-banner">
         <div>
-          <span className="badge badge-primary" style={{ marginBottom: '0.35rem' }}>Collective Bargaining Hub</span>
+          <span className="badge badge-primary" style={{ marginBottom: '0.35rem' }}>{t('groupBuying.hubBadge')}</span>
           <h1 style={{ fontSize: '1.75rem', fontWeight: 700, color: '#FFFFFF' }}>
-            Group Buying & Input Pooling
+            {t('groupBuying.pageTitle')}
           </h1>
           <p style={{ color: 'rgba(255,255,255,0.85)', fontSize: '0.9rem', marginTop: '0.2rem' }}>
-            Leverage regional farming power to secure wholesale pricing on fertilizers, seeds, and equipment.
+            {t('groupBuying.pageSub')}
           </p>
         </div>
       </div>
@@ -74,7 +84,7 @@ export const GroupBuyingPage: React.FC = () => {
             transition: 'var(--transition)'
           }}
         >
-          🤝 Active Cooperative Pools
+          {t('groupBuying.activePoolsTab')}
         </button>
         <button
           onClick={() => handleTabChange('my-purchases')}
@@ -90,7 +100,7 @@ export const GroupBuyingPage: React.FC = () => {
             transition: 'var(--transition)'
           }}
         >
-          📦 My Group Purchases ({myPurchases.length})
+          {t('groupBuying.myPurchasesTab', { count: myPurchases.length })}
         </button>
       </div>
 
@@ -98,25 +108,25 @@ export const GroupBuyingPage: React.FC = () => {
       <div className="grid-dashboard">
         <div className="col-span-4">
           <Card variant="surface2">
-            <span style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', fontWeight: 750, letterSpacing: '0.04em' }}>TOTAL ACTIVE GROUPS</span>
-            <h3 style={{ fontSize: '1.65rem', fontWeight: 850, color: 'var(--text-primary)', margin: '0.15rem 0' }}>24 Pools</h3>
-            <p style={{ fontSize: '0.74rem', color: 'var(--text-secondary)', margin: 0 }}>Active across 12 neighboring districts</p>
+            <span style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', fontWeight: 750, letterSpacing: '0.04em' }}>{t('groupBuying.totalActiveGroups')}</span>
+            <h3 style={{ fontSize: '1.65rem', fontWeight: 850, color: 'var(--text-primary)', margin: '0.15rem 0' }}>{t('groupBuying.poolsCount', { count: 24 })}</h3>
+            <p style={{ fontSize: '0.74rem', color: 'var(--text-secondary)', margin: 0 }}>{t('groupBuying.poolsActiveSub')}</p>
           </Card>
         </div>
 
         <div className="col-span-4">
           <Card variant="surface2">
-            <span style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', fontWeight: 750, letterSpacing: '0.04em' }}>NEARBY OPPORTUNITIES</span>
-            <h3 style={{ fontSize: '1.65rem', fontWeight: 850, color: 'var(--text-primary)', margin: '0.15rem 0' }}>8 Nearby</h3>
-            <p style={{ fontSize: '0.74rem', color: 'var(--text-secondary)', margin: 0 }}>Within 15 km radius of your location</p>
+            <span style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', fontWeight: 750, letterSpacing: '0.04em' }}>{t('groupBuying.nearbyOpp')}</span>
+            <h3 style={{ fontSize: '1.65rem', fontWeight: 850, color: 'var(--text-primary)', margin: '0.15rem 0' }}>{t('groupBuying.nearbyCount', { count: 8 })}</h3>
+            <p style={{ fontSize: '0.74rem', color: 'var(--text-secondary)', margin: 0 }}>{t('groupBuying.nearbySub')}</p>
           </Card>
         </div>
 
         <div className="col-span-4">
           <Card variant="surface2">
-            <span style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', fontWeight: 750, letterSpacing: '0.04em' }}>ESTIMATED SAVINGS POTENTIAL</span>
-            <h3 style={{ fontSize: '1.65rem', fontWeight: 850, color: 'var(--signal-lime)', margin: '0.15rem 0' }}>₹42,500</h3>
-            <p style={{ fontSize: '0.74rem', color: 'var(--text-secondary)', margin: 0 }}>Average seasonal input cost reduction</p>
+            <span style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', fontWeight: 750, letterSpacing: '0.04em' }}>{t('groupBuying.estSavingsTitle')}</span>
+            <h3 style={{ fontSize: '1.65rem', fontWeight: 850, color: 'var(--signal-lime)', margin: '0.15rem 0' }}>{t('groupBuying.estSavingsVal')}</h3>
+            <p style={{ fontSize: '0.74rem', color: 'var(--text-secondary)', margin: 0 }}>{t('groupBuying.estSavingsSub')}</p>
           </Card>
         </div>
       </div>
@@ -129,9 +139,9 @@ export const GroupBuyingPage: React.FC = () => {
               <img src={FEATURE_IMAGES.groupbuying.url} alt="Bulk Fertilizer" className="card-feature-bg" />
               <div className="card-feature-overlay" />
               <div className="card-feature-content">
-                <span className="badge badge-success">Bulk Subsidy</span>
-                <h4 className="text-embossed" style={{ fontSize: '1rem', fontWeight: 850, marginTop: '0.2rem' }}>DAP & NPK Fertilizer Pools</h4>
-                <p style={{ fontSize: '0.72rem', color: '#FFFFFF', textShadow: '0 1px 3px rgba(0,0,0,0.85)' }}>Direct factory freight savings for local farmer groups</p>
+                <span className="badge badge-success">{t('groupBuying.bulkSubsidy')}</span>
+                <h4 className="text-embossed" style={{ fontSize: '1rem', fontWeight: 850, marginTop: '0.2rem' }}>{t('groupBuying.dapNpkTitle')}</h4>
+                <p style={{ fontSize: '0.72rem', color: '#FFFFFF', textShadow: '0 1px 3px rgba(0,0,0,0.85)' }}>{t('groupBuying.dapNpkDesc')}</p>
               </div>
             </div>
 
@@ -139,9 +149,9 @@ export const GroupBuyingPage: React.FC = () => {
               <img src={FEATURE_IMAGES.marketplace.url} alt="Hybrid Seeds" className="card-feature-bg" />
               <div className="card-feature-overlay" />
               <div className="card-feature-content">
-                <span className="badge badge-primary">Certified Quality</span>
-                <h4 className="text-embossed" style={{ fontSize: '1rem', fontWeight: 850, marginTop: '0.2rem' }}>Hybrid Seed Varieties</h4>
-                <p style={{ fontSize: '0.72rem', color: '#FFFFFF', textShadow: '0 1px 3px rgba(0,0,0,0.85)' }}>High-yield wheat & mustard certified seed batches</p>
+                <span className="badge badge-primary">{t('groupBuying.certifiedQuality')}</span>
+                <h4 className="text-embossed" style={{ fontSize: '1rem', fontWeight: 850, marginTop: '0.2rem' }}>{t('groupBuying.hybridSeedTitle')}</h4>
+                <p style={{ fontSize: '0.72rem', color: '#FFFFFF', textShadow: '0 1px 3px rgba(0,0,0,0.85)' }}>{t('groupBuying.hybridSeedDesc')}</p>
               </div>
             </div>
           </div>
@@ -150,8 +160,8 @@ export const GroupBuyingPage: React.FC = () => {
           <div className="grid-dashboard">
             {/* Left Column (Span 8): Search, Category Filter & Active Pools */}
             <div className="col-span-8" style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-              <Card title="Active Cooperative Pools">
-                <Input placeholder="Search fertilizer, seeds, heavy machinery..." value={search} onChange={e => setSearch(e.target.value)} />
+              <Card title={t('groupBuying.activePoolsTitle')}>
+                <Input placeholder={t('groupBuying.searchPlaceholder')} value={search} onChange={e => setSearch(e.target.value)} />
                 <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap', marginTop: '0.85rem' }}>
                   {CATEGORIES.map(cat => (
                     <button
@@ -170,7 +180,7 @@ export const GroupBuyingPage: React.FC = () => {
                         transition: 'var(--transition)'
                       }}
                     >
-                      {cat}
+                      {getCategoryLabel(cat)}
                     </button>
                   ))}
                 </div>
@@ -181,7 +191,7 @@ export const GroupBuyingPage: React.FC = () => {
               {isLoading ? (
                 <Spinner />
               ) : filtered.length === 0 ? (
-                <EmptyState message="No active group buying pools found matching your filter." />
+                <EmptyState message={t('groupBuying.noPoolsFound')} />
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                   {filtered.map(pool => (
@@ -193,29 +203,29 @@ export const GroupBuyingPage: React.FC = () => {
 
             {/* Right Column (Span 4): How Group Buying Works & District Stats */}
             <div className="col-span-4" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-              <Card title="How Group Buying Works" subtitle="4 simple steps to save on farm inputs">
+              <Card title={t('groupBuying.howItWorksTitle')} subtitle={t('groupBuying.howItWorksSub')}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem', marginTop: '0.5rem' }}>
                   <div className="alert-success" style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
                     <span style={{ fontSize: '1rem', fontWeight: 800 }}>1</span>
                     <div>
-                      <h5 style={{ fontSize: '0.88rem', fontWeight: 700 }}>Browse Active Pools</h5>
-                      <p style={{ fontSize: '0.75rem', opacity: 0.85 }}>Select inputs needed for your upcoming crop cycle.</p>
+                      <h5 style={{ fontSize: '0.88rem', fontWeight: 700 }}>{t('groupBuying.step1Title')}</h5>
+                      <p style={{ fontSize: '0.75rem', opacity: 0.85 }}>{t('groupBuying.step1Desc')}</p>
                     </div>
                   </div>
 
                   <div className="alert-info" style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
                     <span style={{ fontSize: '1rem', fontWeight: 800 }}>2</span>
                     <div>
-                      <h5 style={{ fontSize: '0.88rem', fontWeight: 700 }}>Pledge Order Quantity</h5>
-                      <p style={{ fontSize: '0.75rem', opacity: 0.85 }}>Commit quantity to unlock tiered wholesale prices.</p>
+                      <h5 style={{ fontSize: '0.88rem', fontWeight: 700 }}>{t('groupBuying.step2Title')}</h5>
+                      <p style={{ fontSize: '0.75rem', opacity: 0.85 }}>{t('groupBuying.step2Desc')}</p>
                     </div>
                   </div>
 
                   <div className="alert-warning" style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
                     <span style={{ fontSize: '1rem', fontWeight: 800 }}>3</span>
                     <div>
-                      <h5 style={{ fontSize: '0.88rem', fontWeight: 700 }}>Direct Mandi Dispatch</h5>
-                      <p style={{ fontSize: '0.75rem', opacity: 0.85 }}>Bulk shipment delivered to your regional hub.</p>
+                      <h5 style={{ fontSize: '0.88rem', fontWeight: 700 }}>{t('groupBuying.step3Title')}</h5>
+                      <p style={{ fontSize: '0.75rem', opacity: 0.85 }}>{t('groupBuying.step3Desc')}</p>
                     </div>
                   </div>
                 </div>
@@ -226,11 +236,11 @@ export const GroupBuyingPage: React.FC = () => {
       ) : (
         /* My Group Purchases Dashboard View */
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-          <Card title="My Active & Historical Group Orders" subtitle="Track your bulk order pledges, threshold progress, and delivery statuses.">
+          <Card title={t('groupBuying.myOrdersTitle')} subtitle={t('groupBuying.myOrdersSub')}>
             {isLoadingPurchases ? (
               <Spinner />
             ) : myPurchases.length === 0 ? (
-              <EmptyState message="You haven't joined any group buying pools yet. Browse active pools above to participate!" />
+              <EmptyState message={t('groupBuying.noJoinedPools')} />
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '1rem' }}>
                 {myPurchases.map(({ pool, myQuantity, joinedAt }) => {
@@ -250,30 +260,30 @@ export const GroupBuyingPage: React.FC = () => {
                     >
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                         <div>
-                          <span className="badge badge-secondary" style={{ textTransform: 'uppercase', fontSize: '0.7rem' }}>{pool.category}</span>
+                          <span className="badge badge-secondary" style={{ textTransform: 'uppercase', fontSize: '0.7rem' }}>{getCategoryLabel(pool.category)}</span>
                           <h3 style={{ fontSize: '1.15rem', fontWeight: 700, marginTop: '0.25rem' }}>{pool.itemTitle}</h3>
-                          <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>📍 Location: {pool.location}</p>
+                          <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{t('groupBuying.locationLabel', { location: pool.location })}</p>
                         </div>
                         <span className={`badge ${pool.status === 'THRESHOLD_REACHED' ? 'badge-success' : pool.status === 'COMPLETED' ? 'badge-primary' : 'badge-warning'}`}>
-                          {pool.status}
+                          {pool.status === 'THRESHOLD_REACHED' ? t('groupBuying.targetReached') : pool.status === 'COMPLETED' ? t('groupBuying.orderCompleted') : t('groupBuying.joinOrderPool')}
                         </span>
                       </div>
 
                       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '0.75rem', background: 'var(--surface-input)', padding: '0.75rem', borderRadius: 'var(--radius-sm)' }}>
                         <div>
-                          <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>YOUR PLEDGED QTY</span>
-                          <p style={{ fontWeight: 700, fontSize: '0.95rem' }}>{myQuantity} units</p>
+                          <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{t('groupBuying.pledgedQty')}</span>
+                          <p style={{ fontWeight: 700, fontSize: '0.95rem' }}>{t('groupBuying.units', { count: myQuantity })}</p>
                         </div>
                         <div>
-                          <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>PRICE PER UNIT</span>
+                          <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{t('groupBuying.pricePerUnitLabel')}</span>
                           <p style={{ fontWeight: 700, fontSize: '0.95rem', color: 'var(--primary)' }}>₹{pool.discountedPricePerUnit}</p>
                         </div>
                         <div>
-                          <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>TOTAL PLEDGE COST</span>
+                          <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{t('groupBuying.totalCostLabel')}</span>
                           <p style={{ fontWeight: 700, fontSize: '0.95rem', color: 'var(--primary)' }}>₹{totalPrice.toLocaleString('en-IN')}</p>
                         </div>
                         <div>
-                          <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>JOINED ON</span>
+                          <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{t('groupBuying.joinedOnLabel')}</span>
                           <p style={{ fontWeight: 600, fontSize: '0.85rem' }}>{new Date(joinedAt).toLocaleDateString()}</p>
                         </div>
                       </div>

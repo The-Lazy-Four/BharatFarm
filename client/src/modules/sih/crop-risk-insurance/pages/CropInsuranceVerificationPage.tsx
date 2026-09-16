@@ -1,18 +1,21 @@
 import React from 'react';
 import { SihLayout } from '../../shared/SihLayout';
+import { useLanguage } from '@core/context/LanguageContext';
 
 export const CropInsuranceVerificationPage: React.FC = () => {
+  const { t } = useLanguage();
+
   return (
-    <SihLayout activeModuleId="crop-insurance" moduleTitle="Crop Insurance" moduleIcon="verified_user">
+    <SihLayout activeModuleId="crop-insurance" moduleTitle={t('sihDashboard.cropInsuranceTitle')} moduleIcon="verified_user">
       <div style={{ display: 'flex', flexDirection: 'column', gap: '1.75rem' }}>
         
         {/* Heading */}
         <div>
           <h1 style={{ fontSize: '1.75rem', fontWeight: 900, color: '#0F172A', margin: 0 }}>
-            Crop Risk & Insurance
+            {t('cropInsurance.pageTitle')}
           </h1>
           <p style={{ fontSize: '0.95rem', color: '#64748B', marginTop: '0.35rem', margin: 0 }}>
-            Protect your crop, secure your future.
+            {t('cropInsurance.pageSubtitle')}
           </p>
         </div>
 
@@ -42,10 +45,10 @@ export const CropInsuranceVerificationPage: React.FC = () => {
             color: '#FFFFFF'
           }}>
             <span style={{ fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#86EFAC' }}>
-              LIVE SATELLITE FIELD AUDIT
+              {t('cropInsurance.headerBadge').toUpperCase()}
             </span>
             <h3 style={{ fontSize: '1.25rem', fontWeight: 800, margin: '0.2rem 0 0 0' }}>
-              Field Plot #402 - Sector B
+              {t('cropInsurance.fieldId')} #402 - Sector B
             </h3>
           </div>
         </div>
@@ -65,17 +68,17 @@ export const CropInsuranceVerificationPage: React.FC = () => {
         }}>
           <div>
             <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#64748B', textTransform: 'uppercase' }}>
-              Crop Health Status
+              {t('cropInsurance.damageAssessment')}
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.35rem' }}>
               <span className="material-symbols-outlined" style={{ color: '#16A34A', fontSize: '24px' }}>check_circle</span>
-              <span style={{ fontSize: '1.35rem', fontWeight: 900, color: '#16A34A' }}>Healthy</span>
+              <span style={{ fontSize: '1.35rem', fontWeight: 900, color: '#16A34A' }}>{t('cropInsurance.verified')}</span>
             </div>
           </div>
 
           <div style={{ textAlign: 'right' }}>
             <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#64748B', textTransform: 'uppercase' }}>
-              NDVI Index Value
+              {t('cropInsurance.ndviScore')}
             </div>
             <div style={{ fontSize: '1.5rem', fontWeight: 900, color: '#0F172A', marginTop: '0.2rem' }}>
               NDVI: 0.72
@@ -108,7 +111,7 @@ export const CropInsuranceVerificationPage: React.FC = () => {
             }}
           >
             <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>description</span>
-            <span>File a Claim</span>
+            <span>{t('cropInsurance.submitClaim')}</span>
           </button>
 
           <button
@@ -129,7 +132,7 @@ export const CropInsuranceVerificationPage: React.FC = () => {
             }}
           >
             <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>pending_actions</span>
-            <span>Check Status</span>
+            <span>{t('cropInsurance.claimStatus')}</span>
           </button>
 
           <button
@@ -150,7 +153,7 @@ export const CropInsuranceVerificationPage: React.FC = () => {
             }}
           >
             <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>help_outline</span>
-            <span>Guidelines</span>
+            <span>{t('cropInsurance.viewReport')}</span>
           </button>
         </div>
 
@@ -158,3 +161,4 @@ export const CropInsuranceVerificationPage: React.FC = () => {
     </SihLayout>
   );
 };
+

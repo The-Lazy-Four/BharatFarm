@@ -2,8 +2,10 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { ProductListing } from '../types/marketplace.types';
 import { formatCurrency, buildWhatsAppLink, buildTelLink } from '../utils/marketplace.utils';
+import { useLanguage } from '../../../../context/LanguageContext';
 
 export const ProductCard: React.FC<{ product: ProductListing }> = ({ product }) => {
+  const { t } = useLanguage();
   const waLink = buildWhatsAppLink(product.sellerWhatsapp, product.sellerPhone);
   const telLink = buildTelLink(product.sellerPhone);
 
@@ -67,7 +69,7 @@ export const ProductCard: React.FC<{ product: ProductListing }> = ({ product }) 
                 padding: '0.15rem 0.45rem'
               }}
             >
-              ✓ Verified
+              {t('marketplace.verifiedBadge')}
             </span>
           )}
         </div>
@@ -99,7 +101,7 @@ export const ProductCard: React.FC<{ product: ProductListing }> = ({ product }) 
             <span style={{ fontSize: '0.72rem', fontWeight: 500, color: 'var(--text-muted)' }}>/{product.unit}</span>
           </span>
           <span style={{ fontSize: '0.68rem', color: 'var(--text-secondary)', fontWeight: 600, background: 'var(--surface-inset)', padding: '0.15rem 0.4rem', borderRadius: '4px' }}>
-            {product.quantityAvailable} {product.unit} left
+            {t('marketplace.qtyLeft', { count: product.quantityAvailable, unit: product.unit })}
           </span>
         </div>
 
@@ -132,7 +134,7 @@ export const ProductCard: React.FC<{ product: ProductListing }> = ({ product }) 
             transition: 'var(--transition)'
           }}
         >
-          View Product
+          {t('marketplace.viewProduct')}
         </Link>
 
         {waLink && (
@@ -153,7 +155,7 @@ export const ProductCard: React.FC<{ product: ProductListing }> = ({ product }) 
               textDecoration: 'none',
               boxShadow: '0 2px 8px rgba(37, 211, 102, 0.25)'
             }}
-            title="Chat on WhatsApp"
+            title={t('marketplace.chatWhatsapp')}
           >
             💬
           </a>
@@ -175,7 +177,7 @@ export const ProductCard: React.FC<{ product: ProductListing }> = ({ product }) 
               textDecoration: 'none',
               boxShadow: '0 2px 8px rgba(22, 101, 52, 0.25)'
             }}
-            title="Call Seller Direct"
+            title={t('marketplace.callSellerDirect')}
           >
             📞
           </a>

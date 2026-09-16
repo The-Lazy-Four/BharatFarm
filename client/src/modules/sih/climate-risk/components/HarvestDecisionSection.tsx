@@ -1,5 +1,6 @@
 import React from 'react';
 import { ClimateAssessmentResult } from '../types';
+import { useLanguage } from '../../../../context/LanguageContext';
 
 interface Props {
   harvestAdvisory: ClimateAssessmentResult['harvestAdvisory'];
@@ -7,10 +8,19 @@ interface Props {
 }
 
 export const HarvestDecisionSection: React.FC<Props> = ({ harvestAdvisory, cropRisk }) => {
+  const { t } = useLanguage();
   const isEarly = harvestAdvisory.actionCode.includes('EARLY') || harvestAdvisory.actionCode.includes('PREPARE');
   const isDelay = harvestAdvisory.actionCode.includes('DELAY') || harvestAdvisory.actionCode.includes('PROTECT');
   const badgeColor = isEarly ? '#c2410c' : isDelay ? '#991b1b' : '#166534';
   const badgeBg = isEarly ? '#ffedd5' : isDelay ? '#fee2e2' : '#dcfce7';
+
+  const formatActionCode = (code: string) => {
+    const lower = (code || '').toLowerCase();
+    if (lower.includes('early') || lower.includes('prepare')) return t('risk.harvestNow');
+    if (lower.includes('delay')) return t('risk.delayHarvest');
+    if (lower.includes('protect') || lower.includes('drainage')) return t('risk.protectDrainage');
+    return code;
+  };
 
   return (
     <div style={{
@@ -26,7 +36,7 @@ export const HarvestDecisionSection: React.FC<Props> = ({ harvestAdvisory, cropR
     }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <span style={{ fontSize: '0.72rem', fontWeight: 800, color: '#64748B', letterSpacing: '0.04em' }}>
-          HARVEST DECISION
+          {t('climateComponents.harvestDecisionShort')}
         </span>
         <span style={{
           background: badgeBg,
@@ -36,7 +46,7 @@ export const HarvestDecisionSection: React.FC<Props> = ({ harvestAdvisory, cropR
           padding: '0.15rem 0.45rem',
           borderRadius: '4px'
         }}>
-          {harvestAdvisory.actionCode}
+          {formatActionCode(harvestAdvisory.actionCode)}
         </span>
       </div>
 
@@ -45,7 +55,7 @@ export const HarvestDecisionSection: React.FC<Props> = ({ harvestAdvisory, cropR
           {harvestAdvisory.headline}
         </div>
         <div style={{ fontSize: '0.75rem', color: '#475569', marginTop: '0.25rem', fontWeight: 600 }}>
-          <strong>Why:</strong> {harvestAdvisory.primaryReason}
+          <strong>{t('climateComponents.why')}:</strong> {harvestAdvisory.primaryReason}
         </div>
       </div>
 
@@ -58,7 +68,7 @@ export const HarvestDecisionSection: React.FC<Props> = ({ harvestAdvisory, cropR
         justifyContent: 'space-between',
         fontSize: '0.72rem'
       }}>
-        <span style={{ color: '#64748b' }}>Crop & Stage:</span>
+        <span style={{ color: '#64748b' }}>{t('climateComponents.cropAndStage')}:</span>
         <span style={{ fontWeight: 800, color: '#0f172a' }}>{cropRisk.cropName} • {cropRisk.cropStage}</span>
       </div>
     </div>

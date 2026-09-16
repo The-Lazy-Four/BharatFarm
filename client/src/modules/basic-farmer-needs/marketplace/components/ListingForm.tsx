@@ -3,23 +3,10 @@ import { Input } from '@core/ui/Input';
 import { Button } from '@core/ui/Button';
 import { CreateListingInput } from '../types/marketplace.types';
 import { MARKETPLACE_CONSTANTS } from '../constants/marketplace.constants';
-
-/**
- * Adapted from the OLD project's sell form (`handleSellSubmit` in
- * js/marketplace.js). The old form used an AI crop-metadata lookup to
- * auto-fill an image and category; that lookup is out of scope for this
- * migration (not one of the approved features), so category is a plain
- * select here and the seller enters their own details directly.
- */
-
-interface CropLookupResult {
-  isCrop: boolean;
-  name: string;
-  imageUrl: string | null;
-  description: string | null;
-}
+import { useLanguage } from '../../../../context/LanguageContext';
 
 export const ListingForm: React.FC<{ onSubmit: (data: CreateListingInput) => Promise<void> | void }> = ({ onSubmit }) => {
+  const { t } = useLanguage();
   const [selectedState, setSelectedState] = useState('');
   const [selectedDistrict, setSelectedDistrict] = useState('');
   const [locality, setLocality] = useState('');
@@ -84,7 +71,6 @@ export const ListingForm: React.FC<{ onSubmit: (data: CreateListingInput) => Pro
       return;
     }
 
-    // Abort previous request if pending
     if (abortRef.current) {
       abortRef.current.abort();
     }
@@ -107,7 +93,7 @@ export const ListingForm: React.FC<{ onSubmit: (data: CreateListingInput) => Pro
         setCropLookupStatus('found');
       } else if (data.success && data.data?.isCrop && !data.data?.imageUrl) {
         setCropImage(null);
-        setCropLookupStatus('found'); // It's a crop, just no image
+        setCropLookupStatus('found');
       } else {
         setCropImage(null);
         setCropLookupStatus('not-found');
@@ -123,7 +109,6 @@ export const ListingForm: React.FC<{ onSubmit: (data: CreateListingInput) => Pro
   const handleTitleChange = (value: string) => {
     update('title', value);
 
-    // Debounce the crop lookup (600ms after user stops typing)
     if (debounceTimer.current) {
       clearTimeout(debounceTimer.current);
     }
@@ -139,7 +124,6 @@ export const ListingForm: React.FC<{ onSubmit: (data: CreateListingInput) => Pro
     }, 600);
   };
 
-  // Cleanup on unmount
   useEffect(() => {
     return () => {
       if (debounceTimer.current) clearTimeout(debounceTimer.current);
@@ -147,7 +131,6 @@ export const ListingForm: React.FC<{ onSubmit: (data: CreateListingInput) => Pro
     };
   }, []);
 
-  // ── Location helpers ─────────────────────────────────────────
   const updateLocation = (district: string, state: string, area = locality) => {
     const location = [area.trim(), district.trim(), state.trim()].filter(Boolean).join(', ');
     setForm(prev => ({ ...prev, location }));
@@ -169,20 +152,19 @@ export const ListingForm: React.FC<{ onSubmit: (data: CreateListingInput) => Pro
     updateLocation(selectedDistrict, selectedState, value);
   };
 
-  // ── Submit ───────────────────────────────────────────────────
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
-    if (!form.title.trim()) return setError('Please enter a listing title.');
-    if (form.price <= 0) return setError('Price must be greater than 0.');
-    if (form.quantityAvailable <= 0) return setError('Quantity must be greater than 0.');
-    if (!selectedState) return setError('Please select your state.');
-    if (!selectedDistrict.trim()) return setError('Please select or type your district.');
-    if (!form.location.trim()) return setError('Please enter your location.');
-    if (!form.sellerPhone?.trim()) return setError('Mobile number is required.');
+    if (!form.title.trim()) return setError(t('marketplace.errTitle'));
+    if (form.price <= 0) return setError(t('marketplace.errPrice'));
+    if (form.quantityAvailable <= 0) return setError(t('marketplace.errQuantity'));
+    if (!selectedState) return setError(t('marketplace.errState'));
+    if (!selectedDistrict.trim()) return setError(t('marketplace.errDistrict'));
+    if (!form.location.trim()) return setError(t('marketplace.errLocation'));
+    if (!form.sellerPhone?.trim()) return setError(t('marketplace.errMobile'));
     if (!/^(?:\+91[\s-]?)?[6-9]\d{9}$/.test(form.sellerPhone.replace(/\s/g, ''))) {
-      return setError('Enter a valid 10 digit Indian mobile number.');
+      return setError(t('marketplace.errMobileInvalid'));
     }
 
     setIsSubmitting(true);
@@ -209,11 +191,11 @@ export const ListingForm: React.FC<{ onSubmit: (data: CreateListingInput) => Pro
 
       {/* ── Crop / Product Name with Image Preview ─────────────── */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-        <label style={labelStyle}>Crop / Product Name</label>
+        <label style={labelStyle}>{t('marketplace.cropProductName')}</label>
         <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-start' }}>
           <div style={{ flex: 1 }}>
             <input
-              placeholder="Type or select crop"
+              placeholder={t('marketplace.cropNamePlaceholder')}
               list="marketplace-crop-options"
               value={form.title}
               onChange={e => handleTitleChange(e.target.value)}
@@ -222,7 +204,6 @@ export const ListingForm: React.FC<{ onSubmit: (data: CreateListingInput) => Pro
             />
           </div>
 
-          {/* Crop Image Preview Box */}
           <div style={{
             width: '68px',
             height: '68px',
@@ -295,18 +276,17 @@ export const ListingForm: React.FC<{ onSubmit: (data: CreateListingInput) => Pro
         {/* Status text */}
         {cropLookupStatus === 'not-found' && form.title.trim().length >= 2 && (
           <span style={{ fontSize: '0.72rem', color: 'var(--danger)', opacity: 0.85 }}>
-            ⚠ Not recognized as a crop or agricultural product
+            {t('marketplace.cropNotRecognized')}
           </span>
         )}
 
         {cropLookupStatus === 'found' && cropImage && (
           <span style={{ fontSize: '0.72rem', color: 'var(--signal-lime)', opacity: 0.85 }}>
-            ✓ Crop identified
+            {t('marketplace.cropIdentified')}
           </span>
         )}
       </div>
 
-      {/* Inline keyframes for spinner and fade-in */}
       <style>{`
         @keyframes cropSpin {
           to { transform: rotate(360deg); }
@@ -325,7 +305,7 @@ export const ListingForm: React.FC<{ onSubmit: (data: CreateListingInput) => Pro
 
       {/* ── Category ──────────────────────────────────────────── */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-        <label style={labelStyle}>Category</label>
+        <label style={labelStyle}>{t('basicNeeds.filterCategory')}</label>
         <select
           value={form.category}
           onChange={e => update('category', e.target.value)}
@@ -342,7 +322,7 @@ export const ListingForm: React.FC<{ onSubmit: (data: CreateListingInput) => Pro
       {/* ── Price + Unit ──────────────────────────────────────── */}
       <div style={{ display: 'flex', gap: '1rem' }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', flex: 2 }}>
-          <label style={labelStyle}>Price (₹)</label>
+          <label style={labelStyle}>{t('marketplace.priceLabel')}</label>
           <input
             type="number"
             placeholder="2500"
@@ -352,7 +332,7 @@ export const ListingForm: React.FC<{ onSubmit: (data: CreateListingInput) => Pro
           />
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', flex: 1 }}>
-          <label style={labelStyle}>Unit</label>
+          <label style={labelStyle}>{t('marketplace.unitLabel')}</label>
           <select value={form.unit} onChange={e => update('unit', e.target.value)} style={selectStyle}>
             {MARKETPLACE_CONSTANTS.UNITS.map(unit => (
               <option key={unit} value={unit}>{unit}</option>
@@ -363,7 +343,7 @@ export const ListingForm: React.FC<{ onSubmit: (data: CreateListingInput) => Pro
 
       {/* ── Quantity ──────────────────────────────────────────── */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-        <label style={labelStyle}>Quantity Available</label>
+        <label style={labelStyle}>{t('marketplace.quantityLabel')}</label>
         <input
           type="number"
           placeholder="10"
@@ -376,19 +356,19 @@ export const ListingForm: React.FC<{ onSubmit: (data: CreateListingInput) => Pro
       {/* ── State + District ──────────────────────────────────── */}
       <div style={{ display: 'flex', gap: '1rem' }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', flex: 1 }}>
-          <label style={labelStyle}>State</label>
+          <label style={labelStyle}>{t('auth.state')}</label>
           <select value={selectedState} onChange={e => updateState(e.target.value)} style={selectStyle} required>
-            <option value="">Select State</option>
+            <option value="">{t('auth.selectState')}</option>
             {MARKETPLACE_CONSTANTS.STATES.map(state => (
               <option key={state} value={state}>{state}</option>
             ))}
           </select>
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', flex: 1 }}>
-          <label style={labelStyle}>District</label>
+          <label style={labelStyle}>{t('auth.district')}</label>
           <input
             list="marketplace-district-options"
-            placeholder="Select District"
+            placeholder={t('auth.selectDistrict')}
             value={selectedDistrict}
             onChange={e => updateDistrict(e.target.value)}
             style={inputStyle}
@@ -405,9 +385,9 @@ export const ListingForm: React.FC<{ onSubmit: (data: CreateListingInput) => Pro
 
       {/* ── Locality ──────────────────────────────────────────── */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-        <label style={labelStyle}>Locality / Village</label>
+        <label style={labelStyle}>{t('marketplace.localityLabel')}</label>
         <input
-          placeholder="Enter village or area name"
+          placeholder={t('marketplace.localityPlaceholder')}
           value={locality}
           onChange={e => updateLocality(e.target.value)}
           style={inputStyle}
@@ -416,10 +396,10 @@ export const ListingForm: React.FC<{ onSubmit: (data: CreateListingInput) => Pro
 
       {/* ── Mobile Number ─────────────────────────────────────── */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-        <label style={labelStyle}>Mobile Number (WhatsApp / Call)</label>
+        <label style={labelStyle}>{t('marketplace.mobileLabel')}</label>
         <input
           type="tel"
-          placeholder="10 digit mobile number"
+          placeholder={t('marketplace.mobilePlaceholder')}
           value={form.sellerPhone}
           onChange={e => update('sellerPhone', e.target.value)}
           required
@@ -430,7 +410,7 @@ export const ListingForm: React.FC<{ onSubmit: (data: CreateListingInput) => Pro
       {error && <p style={{ color: 'var(--danger)', fontSize: '0.85rem' }}>{error}</p>}
 
       <Button type="submit" isLoading={isSubmitting}>
-        Post Agri Listing
+        {t('marketplace.postListingBtn')}
       </Button>
     </form>
   );

@@ -3,10 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import { SpeakToAiService } from '../services/speakToAiService';
 import { detectSpokenLanguage, normalizeText, LanguageCode } from '../voiceKnowledge/intentClassifier';
 import { speakText, stopSpeaking } from '../utils/krishiBot.utils';
+import { useLanguage } from '@core/context/LanguageContext';
 
 export type VoiceState = 'IDLE' | 'LISTENING' | 'PROCESSING' | 'SPEAKING' | 'INTERRUPTED' | 'ERROR';
 
 export const SpeakToAiControl: React.FC = () => {
+  const { t } = useLanguage();
   const [assistantState, setAssistantState] = useState<VoiceState>('IDLE');
   const [transcript, setTranscript] = useState<string | null>(null);
   const [response, setResponse] = useState<string | null>(null);
@@ -282,7 +284,7 @@ export const SpeakToAiControl: React.FC = () => {
             transition: 'all 0.25s ease',
             outline: 'none'
           }}
-          title="Toggle Continuous Speak to AI Mode"
+          title={t('krishiBot.speakToAi')}
         >
           <span
             className="material-symbols-outlined"
@@ -305,19 +307,19 @@ export const SpeakToAiControl: React.FC = () => {
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', lineHeight: 1.1 }}>
             <span>
               {assistantState === 'IDLE'
-                ? 'Speak to AI'
+                ? t('krishiBot.speakToAi')
                 : assistantState === 'LISTENING'
-                ? 'Listening...'
+                ? t('krishiBot.listening')
                 : assistantState === 'PROCESSING'
-                ? 'Thinking...'
+                ? t('krishiBot.processing')
                 : assistantState === 'SPEAKING'
-                ? 'Speaking (Barge-in On)'
+                ? t('krishiBot.speakToAi')
                 : assistantState === 'INTERRUPTED'
-                ? 'Interrupted!'
-                : 'Speak to AI'}
+                ? t('krishiBot.speakToAi')
+                : t('krishiBot.speakToAi')}
             </span>
             <span style={{ fontSize: '0.62rem', color: 'var(--signal-lime)', fontWeight: 600 }}>
-              {isModeActiveRef.current ? `${activeLang.toUpperCase()} • CONTINUOUS MODE` : 'EN • HI • BN'}
+              {isModeActiveRef.current ? `${activeLang.toUpperCase()} • CONTINUOUS` : 'EN • HI • BN'}
             </span>
           </div>
         </button>
@@ -372,7 +374,7 @@ export const SpeakToAiControl: React.FC = () => {
                 record_voice_over
               </span>
               <span style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--text-primary)' }}>
-                BharatFarm Voice Assistant
+                BharatFarm {t('krishiBot.voiceSupport')}
               </span>
             </div>
             <button
@@ -388,21 +390,21 @@ export const SpeakToAiControl: React.FC = () => {
           {assistantState === 'LISTENING' && (
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#ef4444', fontSize: '0.8rem', fontWeight: 700, margin: '0.4rem 0' }}>
               <span className="material-symbols-outlined" style={{ fontSize: '18px', animation: 'pulse 1s infinite' }}>graphic_eq</span>
-              <span>Continuous Listening ({activeLang === 'hi' ? 'Hindi' : activeLang === 'bn' ? 'Bengali' : 'English'})...</span>
+              <span>{t('krishiBot.listening')} ({activeLang === 'hi' ? t('common.hindi') : activeLang === 'bn' ? t('common.bengali') : t('common.english')})...</span>
             </div>
           )}
 
           {assistantState === 'PROCESSING' && (
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#f59e0b', fontSize: '0.8rem', fontWeight: 700, margin: '0.4rem 0' }}>
               <span className="material-symbols-outlined" style={{ fontSize: '18px', animation: 'spin 1s linear infinite' }}>sync</span>
-              <span>Thinking & processing query...</span>
+              <span>{t('krishiBot.processing')}</span>
             </div>
           )}
 
           {assistantState === 'INTERRUPTED' && (
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#8b5cf6', fontSize: '0.8rem', fontWeight: 700, margin: '0.4rem 0' }}>
               <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>bolt</span>
-              <span>Speech interrupted! Listening to your new request...</span>
+              <span>{t('krishiBot.listening')}</span>
             </div>
           )}
 
@@ -414,7 +416,7 @@ export const SpeakToAiControl: React.FC = () => {
 
           {transcript && (
             <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', background: 'var(--surface-inset)', padding: '0.45rem 0.65rem', borderRadius: '8px', marginBottom: '0.5rem' }}>
-              <strong>You:</strong> "{transcript}"
+              "{transcript}"
             </div>
           )}
 
@@ -436,13 +438,13 @@ export const SpeakToAiControl: React.FC = () => {
                     }}
                     style={{ background: 'transparent', border: 'none', color: 'var(--emerald-primary)', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.2rem' }}
                   >
-                    <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>volume_up</span> Replay
+                    <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>volume_up</span>
                   </button>
                   <button
                     onClick={cancelTTS}
                     style={{ background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: '0.75rem' }}
                   >
-                    Stop
+                    <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>stop</span>
                   </button>
                 </div>
               </div>
