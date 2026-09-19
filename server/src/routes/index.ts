@@ -7,6 +7,7 @@ import cropRiskRoutes from './cropRisk.routes.js';
 import climateRiskRoutes from './climateRisk.routes.js';
 import foodSecurityRoutes from './foodSecurity.routes.js';
 import smartMandiRoutes from './smartMandi.routes.js';
+import insuranceRoutes from './insurance.routes.js';
 
 const aggregateRouter = Router();
 
@@ -18,5 +19,7 @@ aggregateRouter.use('/crop-risk', cropRiskRoutes);
 aggregateRouter.use('/climate-risk', climateRiskRoutes);
 aggregateRouter.use('/food-security', foodSecurityRoutes);
 aggregateRouter.use('/smart-mandi', smartMandiRoutes);
+aggregateRouter.use('/insurance', insuranceRoutes);
 
 export default aggregateRouter;
+
