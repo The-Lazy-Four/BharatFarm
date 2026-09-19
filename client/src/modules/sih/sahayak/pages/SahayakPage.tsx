@@ -2,12 +2,14 @@ import React, { useState } from 'react';
 import { SihLayout } from '../../shared/SihLayout';
 import { useLanguage } from '@core/context/LanguageContext';
 import { WhatsAppSimulatorModal } from '../components/WhatsAppSimulatorModal';
+import { CallSimulatorModal } from '../components/CallSimulatorModal';
 
 /* Sahayak AI voice/text companion page with human advisor directory */
 export const SahayakPage: React.FC = () => {
   const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState<'ai' | 'human'>('ai');
   const [isSimulatorOpen, setIsSimulatorOpen] = useState(false);
+  const [isCallModalOpen, setIsCallModalOpen] = useState(false);
   const [messages, setMessages] = useState<Array<{ sender: 'user' | 'ai'; text: string }>>([
     { sender: 'ai', text: t('sahayakPage.aiGreeting') }
   ]);
@@ -379,10 +381,94 @@ export const SahayakPage: React.FC = () => {
           </div>
         </div>
 
+        {/* AI Call Sahayak Phone Line Section (Low-Literacy Voice Access Layer) */}
+        <div style={{
+          background: 'linear-gradient(135deg, #0F172A 0%, #1E293B 100%)',
+          borderRadius: '20px',
+          padding: '1.5rem',
+          color: '#FFFFFF',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: '1.25rem',
+          border: '1px solid #334155',
+          boxShadow: '0 10px 25px -5px rgba(15, 23, 42, 0.35)'
+        }}>
+          <div style={{ maxWidth: '640px' }}>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', background: 'rgba(16, 185, 129, 0.15)', color: '#34D399', padding: '0.25rem 0.75rem', borderRadius: '20px', fontSize: '0.78rem', fontWeight: 800, marginBottom: '0.6rem', border: '1px solid rgba(16, 185, 129, 0.3)' }}>
+              <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>support_agent</span>
+              AI Call Sahayak · Low-Literacy Telephony Layer
+            </div>
+            <h3 style={{ fontSize: '1.25rem', fontWeight: 900, margin: '0 0 0.4rem 0' }}>
+              No Smartphone Skills Required — Call BharatFarm AI
+            </h3>
+            <p style={{ fontSize: '0.88rem', color: '#CBD5E1', margin: 0, lineHeight: 1.5 }}>
+              Call or simulate a BharatFarm Sahayak telephone conversation and get step-by-step agricultural guidance in your language:
+            </p>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', marginTop: '0.75rem', fontSize: '0.82rem', fontWeight: 700, color: '#94A3B8' }}>
+              <span>✓ Dual Modality: DTMF Keypad (1–6) or Natural Voice</span>
+              <span>✓ Direct Integration with BharatFarm Backend Intelligence</span>
+              <span>✓ Languages: Hindi · English · Bengali</span>
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem', minWidth: '220px' }}>
+            <a
+              href="tel:1800242728"
+              style={{
+                background: '#1E293B',
+                color: '#FFFFFF',
+                textDecoration: 'none',
+                padding: '0.75rem 1.25rem',
+                borderRadius: '12px',
+                fontWeight: 800,
+                fontSize: '0.9rem',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '0.5rem',
+                border: '1px solid #475569'
+              }}
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: '20px', color: '#10B981' }}>call</span>
+              Toll-Free: 1800-242-728
+            </a>
+
+            <button
+              onClick={() => setIsCallModalOpen(true)}
+              style={{
+                background: 'linear-gradient(135deg, #10B981 0%, #059669 100%)',
+                color: '#FFFFFF',
+                border: 'none',
+                padding: '0.65rem 1.15rem',
+                borderRadius: '12px',
+                fontWeight: 800,
+                fontSize: '0.86rem',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '0.5rem',
+                boxShadow: '0 4px 14px rgba(16, 185, 129, 0.4)'
+              }}
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>dialpad</span>
+              Start AI Call Demo
+            </button>
+          </div>
+        </div>
+
         {/* Realistic WhatsApp Smartphone Interface Modal */}
         <WhatsAppSimulatorModal
           isOpen={isSimulatorOpen}
           onClose={() => setIsSimulatorOpen(false)}
+        />
+
+        {/* Realistic AI Call Assistant Telephony Modal */}
+        <CallSimulatorModal
+          isOpen={isCallModalOpen}
+          onClose={() => setIsCallModalOpen(false)}
         />
 
       </div>

@@ -8,7 +8,7 @@ import climateRiskRoutes from './climateRisk.routes.js';
 import foodSecurityRoutes from './foodSecurity.routes.js';
 import smartMandiRoutes from './smartMandi.routes.js';
 import insuranceRoutes from './insurance.routes.js';
-import { whatsappRoutes } from '../modules/sahayak/index.js';
+import { whatsappRoutes, callRoutes } from '../modules/sahayak/index.js';
 
 const aggregateRouter = Router();
 
@@ -22,6 +22,7 @@ aggregateRouter.use('/food-security', foodSecurityRoutes);
 aggregateRouter.use('/smart-mandi', smartMandiRoutes);
 aggregateRouter.use('/insurance', insuranceRoutes);
 aggregateRouter.use('/sahayak/whatsapp', whatsappRoutes);
+aggregateRouter.use('/sahayak/call', callRoutes);
 
 export default aggregateRouter;
 
