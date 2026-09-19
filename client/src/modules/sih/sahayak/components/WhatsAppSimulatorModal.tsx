@@ -1,5 +1,58 @@
 import React, { useState, useRef, useEffect } from 'react';
 
+const waStyles = `
+  .wa-sim-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.82);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    padding: 0.5rem;
+  }
+  .wa-phone-bezel {
+    width: 100%;
+    max-width: 430px;
+    height: 94vh;
+    max-height: 850px;
+    background: #111B21;
+    border-radius: 42px;
+    box-shadow: 0 25px 70px -10px rgba(0,0,0,0.8), 0 0 0 10px #1E293B, 0 0 0 12px #0F172A;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
+  }
+  @media (max-width: 480px) {
+    .wa-phone-bezel {
+      border-radius: 24px;
+      height: 100dvh;
+      max-height: 100dvh;
+      box-shadow: none;
+    }
+    .wa-sim-overlay {
+      padding: 0;
+      align-items: flex-end;
+    }
+  }
+  @keyframes wa-typing-dots {
+    0%, 60%, 100% { transform: translateY(0); opacity: 0.5; }
+    30% { transform: translateY(-4px); opacity: 1; }
+  }
+  .wa-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #8696A0;
+    display: inline-block;
+    animation: wa-typing-dots 1.2s infinite;
+  }
+  .wa-dot:nth-child(2) { animation-delay: 0.2s; }
+  .wa-dot:nth-child(3) { animation-delay: 0.4s; }
+`;
+
 export interface WhatsAppMessageItem {
   id: string;
   sender: 'farmer' | 'sahayak';
@@ -253,34 +306,10 @@ export const WhatsAppSimulatorModal: React.FC<WhatsAppSimulatorModalProps> = ({ 
   };
 
   return (
-    <div style={{
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      backgroundColor: 'rgba(15, 23, 42, 0.82)',
-      backdropFilter: 'blur(8px)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      zIndex: 9999,
-      padding: '0.75rem'
-    }}>
+    <div className="wa-sim-overlay">
+      <style>{waStyles}</style>
       {/* Smartphone Outer Hardware Bezel */}
-      <div style={{
-        width: '100%',
-        maxWidth: '430px',
-        height: '94vh',
-        maxHeight: '850px',
-        background: '#111B21',
-        borderRadius: '42px',
-        boxShadow: '0 25px 70px -10px rgba(0, 0, 0, 0.8), 0 0 0 12px #1E293B, 0 0 0 14px #0F172A',
-        display: 'flex',
-        flexDirection: 'column',
-        overflow: 'hidden',
-        position: 'relative'
-      }}>
+      <div className="wa-phone-bezel">
 
         {/* Top Speaker, Camera Island & Status Bar */}
         <div style={{
@@ -664,12 +693,12 @@ export const WhatsAppSimulatorModal: React.FC<WhatsAppSimulatorModalProps> = ({ 
               fontSize: '0.8rem',
               display: 'flex',
               alignItems: 'center',
-              gap: '0.4rem'
+              gap: '0.5rem'
             }}>
-              <span className="material-symbols-outlined" style={{ fontSize: '16px', animation: 'spin 1.5s infinite linear' }}>
-                sync
-              </span>
-              <span>Sahayak is analyzing crop telemetry...</span>
+              <span className="wa-dot" />
+              <span className="wa-dot" />
+              <span className="wa-dot" />
+              <span style={{ marginLeft: '0.3rem', fontSize: '0.75rem' }}>Sahayak analyzing…</span>
             </div>
           )}
 

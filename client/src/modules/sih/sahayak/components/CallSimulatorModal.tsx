@@ -1,1164 +1,515 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from "react";
 
-interface CallSimulatorModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-}
+/* CSS injected via style tag */
+const CSS = `
+  @keyframes callRingPulse {
+    0%   { box-shadow: 0 0 0 0   rgba(16,185,129,.55); }
+    70%  { box-shadow: 0 0 0 22px rgba(16,185,129,0); }
+    100% { box-shadow: 0 0 0 0   rgba(16,185,129,0); }
+  }
+  @keyframes wave1 { 0%,100%{height:6px}  50%{height:22px} }
+  @keyframes wave2 { 0%,100%{height:10px} 50%{height:32px} }
+  @keyframes wave3 { 0%,100%{height:14px} 50%{height:26px} }
+  @keyframes wave4 { 0%,100%{height:8px}  50%{height:20px} }
+  @keyframes wave5 { 0%,100%{height:6px}  50%{height:28px} }
+  @keyframes micPulse {
+    0%,100%{transform:scale(1);box-shadow:0 0 0 0 rgba(245,158,11,.6)}
+    50%{transform:scale(1.08);box-shadow:0 0 0 14px rgba(245,158,11,0)}
+  }
+  @keyframes dtmfPress {
+    0%{transform:scale(1)} 40%{transform:scale(.91);background:rgba(16,185,129,.25)} 100%{transform:scale(1)}
+  }
+  @keyframes slideUp { from{opacity:0;transform:translateY(18px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes fadeIn  { from{opacity:0} to{opacity:1} }
+  @keyframes dialingDot {
+    0%,80%,100%{opacity:.2;transform:scale(.7)} 40%{opacity:1;transform:scale(1)}
+  }
+  .csc-overlay{
+    position:fixed;inset:0;
+    background:rgba(5,10,20,.82);
+    backdrop-filter:blur(10px);
+    display:flex;align-items:center;justify-content:center;
+    z-index:9999;padding:.75rem;
+  }
+  .csc-phone{
+    background:linear-gradient(160deg,#0D1B2A 0%,#0F172A 60%,#0D1B2A 100%);
+    border-radius:36px;
+    width:100%;max-width:400px;
+    height:92vh;max-height:820px;
+    display:flex;flex-direction:column;
+    box-shadow:0 30px 80px -12px rgba(0,0,0,.8),0 0 0 1.5px #1E293B;
+    overflow:hidden;position:relative;
+  }
+  @media(max-width:450px){
+    .csc-phone{border-radius:24px;height:100dvh;max-height:100dvh;}
+    .csc-overlay{padding:0;align-items:flex-end;}
+  }
+  .dtmf-btn{
+    background:rgba(30,41,59,.85);
+    border:1px solid rgba(51,65,85,.7);
+    border-radius:50%;
+    width:68px;height:68px;
+    display:flex;flex-direction:column;
+    align-items:center;justify-content:center;
+    cursor:pointer;color:#F8FAFC;
+    transition:background .1s,transform .1s;
+    user-select:none;
+    -webkit-tap-highlight-color:transparent;
+    position:relative;
+  }
+  .dtmf-btn:active,.dtmf-btn.pressed{
+    animation:dtmfPress .22s ease;
+    background:rgba(16,185,129,.18);
+    border-color:#10B981;
+  }
+  .dtmf-btn:disabled{opacity:.35;cursor:not-allowed;}
+  .dtmf-main{font-size:1.5rem;font-weight:700;line-height:1;}
+  .dtmf-sub{font-size:.52rem;color:#64748B;font-weight:700;letter-spacing:.06em;margin-top:1px;}
+  .dtmf-svc{font-size:.46rem;color:#34D399;font-weight:800;margin-top:1px;letter-spacing:.03em;}
+  .tx-bubble{
+    animation:slideUp .28s ease;
+    border-radius:16px;
+    padding:.65rem .9rem;
+    font-size:.83rem;
+    line-height:1.45;
+    word-break:break-word;
+    white-space:pre-wrap;
+    max-width:88%;
+  }
+  .tx-bubble.ai{
+    background:#1E293B;border:1px solid #334155;
+    align-self:flex-start;border-bottom-left-radius:4px;
+  }
+  .tx-bubble.farmer{
+    background:linear-gradient(135deg,#064E3B,#065F46);
+    border:1px solid rgba(52,211,153,.25);
+    align-self:flex-end;border-bottom-right-radius:4px;
+  }
+  .view-tab{
+    background:transparent;border:none;border-radius:20px;
+    padding:.3rem .85rem;font-size:.72rem;font-weight:700;
+    color:#94A3B8;cursor:pointer;transition:all .2s;
+  }
+  .view-tab.active{background:rgba(16,185,129,.18);color:#34D399;}
+  .speech-pill{
+    background:rgba(30,41,59,.8);border:1px solid #334155;
+    border-radius:20px;padding:.3rem .72rem;
+    font-size:.72rem;color:#CBD5E1;font-weight:600;
+    cursor:pointer;white-space:nowrap;transition:all .15s;flex-shrink:0;
+  }
+  .speech-pill:hover{background:rgba(16,185,129,.12);border-color:#10B981;color:#FFF;}
+  .speech-pill:disabled{opacity:.4;cursor:not-allowed;}
+  .wave-bar{width:4px;border-radius:3px;background:#10B981;}
+  .wave-bar:nth-child(1){animation:wave1 .9s  ease-in-out infinite;}
+  .wave-bar:nth-child(2){animation:wave2 1.1s ease-in-out infinite;}
+  .wave-bar:nth-child(3){animation:wave3 .8s  ease-in-out infinite;}
+  .wave-bar:nth-child(4){animation:wave4 1.2s ease-in-out infinite;}
+  .wave-bar:nth-child(5){animation:wave5 1.0s ease-in-out infinite;}
+  .dialing-dot{width:10px;height:10px;border-radius:50%;background:#34D399;display:inline-block;}
+  .dialing-dot:nth-child(1){animation:dialingDot 1.4s .0s infinite;}
+  .dialing-dot:nth-child(2){animation:dialingDot 1.4s .2s infinite;}
+  .dialing-dot:nth-child(3){animation:dialingDot 1.4s .4s infinite;}
+`;
 
-interface TranscriptItem {
-  speaker: 'ai' | 'farmer';
-  text: string;
-  dtmf?: string;
-  timestamp: string;
-}
+interface CallSimulatorModalProps { isOpen: boolean; onClose: () => void; }
+interface TxItem { speaker: "ai"|"farmer"; text: string; dtmf?: string; time: string; }
+interface MenuOpt { key: string; label: string; }
 
-interface MenuOption {
-  key: string;
-  label: string;
-}
+const KEYS = [
+  {num:"1",alpha:"",    svc:"Before Sow"},
+  {num:"2",alpha:"ABC", svc:"Climate"},
+  {num:"3",alpha:"DEF", svc:"Group Sell"},
+  {num:"4",alpha:"GHI", svc:"Insurance"},
+  {num:"5",alpha:"JKL", svc:"Mandi"},
+  {num:"6",alpha:"MNO", svc:"Basic Needs"},
+  {num:"7",alpha:"PQRS",svc:""},
+  {num:"8",alpha:"TUV", svc:"Repeat"},
+  {num:"9",alpha:"WXYZ",svc:"Menu"},
+  {num:"*",alpha:"",    svc:"Back"},
+  {num:"0",alpha:"+",   svc:"Help"},
+  {num:"#",alpha:"",    svc:"End"},
+];
 
-const FLOW_STEPS = [
-  { id: 'WELCOME_LANGUAGE', label: 'Language Selection', icon: 'translate' },
-  { id: 'MAIN_MENU', label: 'Main IVR Menu', icon: 'dialpad' },
-  { id: 'MODULE_ROUTED', label: 'BharatFarm Service', icon: 'agriculture' },
-  { id: 'AI_GUIDANCE', label: 'Step-by-Step AI Guidance', icon: 'support_agent' }
+const VOICE_PRESETS = [
+  {label:"??? Kal baarish?",   q:"Kal baarish hogi kya?"},
+  {label:"?? Mandi rate",      q:"Dhan ka aaj ka mandi rate kya hai?"},
+  {label:"??? Fasal bima",      q:"Fasal bima claim karna hai"},
+  {label:"?? Kaun si fasal?",  q:"Is baar kaunsa crop lagana sahi hai?"},
+  {label:"?? Group selling",   q:"Mujhe group mein fasal bechni hai"},
+  {label:"?? Leaf scan",       q:"Leaf scanner kaise use karein?"},
+  {label:"???? Bengali rain",  q:"???????? ?? ?????? ????"},
+  {label:"?? Spray timing",    q:"Fasal mein dawai kab spray karni hai?"},
 ];
 
 export const CallSimulatorModal: React.FC<CallSimulatorModalProps> = ({ isOpen, onClose }) => {
-  // Call States
-  const [callState, setCallState] = useState<'IDLE' | 'DIALING' | 'CONNECTED' | 'ENDED'>('IDLE');
-  const [callDuration, setCallDuration] = useState<number>(0);
-  const [sessionId, setSessionId] = useState<string>('');
-  const [currentStep, setCurrentStep] = useState<string>('WELCOME_LANGUAGE');
-  const [activeModule, setActiveModule] = useState<string>('');
-  const [language, setLanguage] = useState<'hi' | 'en' | 'bn'>('hi');
-  const [displayPrompt, setDisplayPrompt] = useState<string>('');
-  const [spokenText, setSpokenText] = useState<string>('');
-  const [optionsMenu, setOptionsMenu] = useState<MenuOption[]>([]);
-  const [transcript, setTranscript] = useState<TranscriptItem[]>([]);
-  const [isMuted, setIsMuted] = useState<boolean>(false);
-  const [isSpeakerOn, setIsSpeakerOn] = useState<boolean>(true);
-  const [isListening, setIsListening] = useState<boolean>(false);
-  const [speechTranscript, setSpeechTranscript] = useState<string>('');
-  const [speechSupported, setSpeechSupported] = useState<boolean>(false);
-  const [customQuery, setCustomQuery] = useState<string>('');
-  const [activeTab, setActiveTab] = useState<'phone' | 'flow' | 'transcript'>('phone');
+  const [callState,     setCallState]     = useState<"IDLE"|"DIALING"|"CONNECTED"|"ENDED">("IDLE");
+  const [callDuration,  setCallDuration]  = useState(0);
+  const [sessionId,     setSessionId]     = useState("");
+  const [currentStep,   setCurrentStep]   = useState("WELCOME_LANGUAGE");
+  const [language,      setLanguage]      = useState<"hi"|"en"|"bn">("hi");
+  const [displayPrompt, setDisplayPrompt] = useState("");
+  const [optionsMenu,   setOptionsMenu]   = useState<MenuOpt[]>([]);
+  const [transcript,    setTranscript]    = useState<TxItem[]>([]);
+  const [isMuted,       setIsMuted]       = useState(false);
+  const [isSpeakerOn,   setIsSpeakerOn]   = useState(true);
+  const [isListening,   setIsListening]   = useState(false);
+  const [speechSupported, setSpeechSupported] = useState(false);
+  const [customQuery,   setCustomQuery]   = useState("");
+  const [activeView,    setActiveView]    = useState<"call"|"transcript"|"quick">("call");
+  const [pressedKey,    setPressedKey]    = useState("");
+  const [aiSpeaking,    setAiSpeaking]    = useState(false);
 
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const timerRef       = useRef<any>(null);
   const recognitionRef = useRef<any>(null);
-  const transcriptEndRef = useRef<HTMLDivElement | null>(null);
+  const txEndRef       = useRef<HTMLDivElement|null>(null);
+  const inputRef       = useRef<HTMLInputElement|null>(null);
 
-  // Check Web Speech Recognition support
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-      if (SpeechRecognition) {
-        setSpeechSupported(true);
-        const recognition = new SpeechRecognition();
-        recognition.continuous = false;
-        recognition.interimResults = false;
-
-        recognition.onresult = (event: any) => {
-          const text = event.results[0][0].transcript;
-          setSpeechTranscript(text);
-          setIsListening(false);
-          sendSpeech(text);
-        };
-
-        recognition.onerror = () => {
-          setIsListening(false);
-        };
-
-        recognition.onend = () => {
-          setIsListening(false);
-        };
-
-        recognitionRef.current = recognition;
-      }
+    const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (SR) {
+      setSpeechSupported(true);
+      const r = new SR();
+      r.continuous = false; r.interimResults = false;
+      r.onresult = (e: any) => { setIsListening(false); sendSpeech(e.results[0][0].transcript); };
+      r.onerror = () => setIsListening(false);
+      r.onend   = () => setIsListening(false);
+      recognitionRef.current = r;
     }
   }, []);
 
-  // Call duration counter
   useEffect(() => {
-    if (callState === 'CONNECTED') {
-      timerRef.current = setInterval(() => {
-        setCallDuration((prev) => prev + 1);
-      }, 1000);
-    } else {
-      if (timerRef.current) clearInterval(timerRef.current);
-    }
-    return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
-    };
+    if (callState === "CONNECTED") {
+      timerRef.current = setInterval(() => setCallDuration(d => d+1), 1000);
+    } else { if (timerRef.current) clearInterval(timerRef.current); }
+    return () => { if (timerRef.current) clearInterval(timerRef.current); };
   }, [callState]);
 
-  // Scroll transcript
+  useEffect(() => { txEndRef.current?.scrollIntoView({ behavior:"smooth" }); }, [transcript]);
+
   useEffect(() => {
-    transcriptEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [transcript]);
+    if (isOpen && callState === "IDLE") startCall();
+    if (!isOpen) { window.speechSynthesis?.cancel(); setCallState("IDLE"); }
+  }, [isOpen]);
 
-  // Text to Speech playback
-  const speakText = (text: string, lang: 'hi' | 'en' | 'bn') => {
-    if (!isSpeakerOn || typeof window === 'undefined' || !window.speechSynthesis) return;
+  const fmt = (s: number) => `${String(Math.floor(s/60)).padStart(2,"0")}:${String(s%60).padStart(2,"0")}`;
+  const now  = () => new Date().toLocaleTimeString([], { hour:"2-digit", minute:"2-digit" });
 
+  const speak = (text: string, lang: "hi"|"en"|"bn") => {
+    if (!isSpeakerOn || isMuted || !window.speechSynthesis) return;
     window.speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(text);
-    if (lang === 'hi') utterance.lang = 'hi-IN';
-    else if (lang === 'bn') utterance.lang = 'bn-IN';
-    else utterance.lang = 'en-IN';
-    utterance.rate = 0.95; // Farmer friendly deliberate pace
-    window.speechSynthesis.speak(utterance);
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = lang === "hi" ? "hi-IN" : lang === "bn" ? "bn-IN" : "en-IN";
+    u.rate = 0.93;
+    setAiSpeaking(true);
+    u.onend = () => setAiSpeaking(false);
+    window.speechSynthesis.speak(u);
   };
 
-  // Start Call / Connect
-  const startCall = async () => {
-    const newSessionId = `call_${Date.now()}_${Math.random().toString(36).substring(7)}`;
-    setSessionId(newSessionId);
-    setCallState('DIALING');
-    setCallDuration(0);
-    setTranscript([]);
-
-    try {
-      const response = await fetch('/api/sahayak/call/incoming', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          sessionId: newSessionId,
-          callerPhone: '+91 98312 00001'
-        })
-      });
-
-      const resJson = await response.json();
-      if (resJson.success && resJson.data) {
-        setCallState('CONNECTED');
-        handleResponseData(resJson.data);
-      } else {
-        fallbackToOfflineDemo(newSessionId);
-      }
-    } catch (e) {
-      fallbackToOfflineDemo(newSessionId);
-    }
-  };
-
-  const fallbackToOfflineDemo = (sessId: string) => {
-    setCallState('CONNECTED');
-    const greeting = "Welcome to BharatFarm Sahayak Helpline. For Hindi, press 1. For English, press 2. For Bengali, press 3.";
-    setDisplayPrompt(greeting);
-    setSpokenText(greeting);
-    setCurrentStep('WELCOME_LANGUAGE');
-    setOptionsMenu([
-      { key: '1', label: 'हिन्दी (Hindi)' },
-      { key: '2', label: 'English' },
-      { key: '3', label: 'বাংলা (Bengali)' }
-    ]);
-    setTranscript([
-      { speaker: 'ai', text: greeting, timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }
-    ]);
-    speakText(greeting, 'en');
-  };
-
-  const handleResponseData = (data: any) => {
-    setCurrentStep(data.currentStep);
-    if (data.activeModule) setActiveModule(data.activeModule);
-    if (data.language) setLanguage(data.language);
-    setDisplayPrompt(data.displayPrompt);
-    setSpokenText(data.spokenText);
+  const handleResp = useCallback((data: any) => {
+    if (data.currentStep) setCurrentStep(data.currentStep);
+    if (data.language)    setLanguage(data.language);
+    const prompt = data.displayPrompt || data.spokenText || "";
+    setDisplayPrompt(prompt);
     setOptionsMenu(data.optionsMenu || []);
+    setTranscript(prev => [...prev, { speaker:"ai", text:prompt, time:now() }]);
+    speak(data.spokenText || prompt, data.language || language);
+    if (data.isCallEnded) endCall();
+  }, [language, isSpeakerOn, isMuted]);
 
-    setTranscript((prev) => [
-      ...prev,
-      {
-        speaker: 'ai',
-        text: data.displayPrompt || data.spokenText,
-        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-      }
-    ]);
-
-    speakText(data.spokenText, data.language || language);
-
-    if (data.isCallEnded) {
-      endCall();
-    }
+  const fallback = () => {
+    setCallState("CONNECTED");
+    const g = "Welcome to BharatFarm Sahayak. For Hindi press 1, English press 2, Bengali press 3.";
+    setDisplayPrompt(g); setCurrentStep("WELCOME_LANGUAGE");
+    setOptionsMenu([{key:"1",label:"??????"},{key:"2",label:"English"},{key:"3",label:"?????"}]);
+    setTranscript([{ speaker:"ai", text:g, time:now() }]);
+    speak(g, "en");
   };
 
-  // Send DTMF Digit
+  const startCall = async () => {
+    const sid = `call_${Date.now()}_${Math.random().toString(36).substring(7)}`;
+    setSessionId(sid); setCallState("DIALING"); setCallDuration(0); setTranscript([]);
+    try {
+      const r = await fetch("/api/sahayak/call/incoming", {
+        method:"POST", headers:{"Content-Type":"application/json"},
+        body: JSON.stringify({ sessionId:sid, callerPhone:"+91 98312 00001" })
+      });
+      const j = await r.json();
+      if (j.success && j.data) { setCallState("CONNECTED"); handleResp(j.data); } else fallback();
+    } catch { fallback(); }
+  };
+
   const sendDtmf = async (digit: string) => {
-    if (callState !== 'CONNECTED' || !sessionId) return;
-
-    setTranscript((prev) => [
-      ...prev,
-      {
-        speaker: 'farmer',
-        text: `[DTMF: Key ${digit}]`,
-        dtmf: digit,
-        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-      }
-    ]);
-
+    if (callState !== "CONNECTED" || !sessionId) return;
+    if (digit === "#") { endCall(); return; }
+    setPressedKey(digit); setTimeout(() => setPressedKey(""), 300);
+    setTranscript(prev => [...prev, { speaker:"farmer", text:`[Key ${digit} pressed]`, dtmf:digit, time:now() }]);
     try {
-      const response = await fetch('/api/sahayak/call/dtmf', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          sessionId,
-          digits: digit
-        })
+      const r = await fetch("/api/sahayak/call/dtmf", {
+        method:"POST", headers:{"Content-Type":"application/json"},
+        body: JSON.stringify({ sessionId, digits:digit })
       });
-      const resJson = await response.json();
-      if (resJson.success && resJson.data) {
-        handleResponseData(resJson.data);
-      }
-    } catch (e) {
-      console.error('DTMF call error', e);
-    }
+      const j = await r.json();
+      if (j.success && j.data) handleResp(j.data);
+    } catch(e) { console.error(e); }
   };
 
-  // Send Transcribed Speech or Natural Text
   const sendSpeech = async (text: string) => {
-    if (callState !== 'CONNECTED' || !sessionId || !text.trim()) return;
-
-    setTranscript((prev) => [
-      ...prev,
-      {
-        speaker: 'farmer',
-        text,
-        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-      }
-    ]);
-    setCustomQuery('');
-
+    if (callState !== "CONNECTED" || !sessionId || !text.trim()) return;
+    setTranscript(prev => [...prev, { speaker:"farmer", text, time:now() }]);
+    setCustomQuery("");
     try {
-      const response = await fetch('/api/sahayak/call/speech', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          sessionId,
-          speechText: text
-        })
+      const r = await fetch("/api/sahayak/call/speech", {
+        method:"POST", headers:{"Content-Type":"application/json"},
+        body: JSON.stringify({ sessionId, speechText:text })
       });
-      const resJson = await response.json();
-      if (resJson.success && resJson.data) {
-        handleResponseData(resJson.data);
-      }
-    } catch (e) {
-      console.error('Speech call error', e);
-    }
+      const j = await r.json();
+      if (j.success && j.data) handleResp(j.data);
+    } catch(e) { console.error(e); }
   };
 
-  // Toggle Microphone
-  const toggleListening = () => {
-    if (!speechSupported || !recognitionRef.current) {
-      alert('Browser Speech Recognition not supported in this browser. Please type spoken query in the text box below.');
-      return;
-    }
-
-    if (isListening) {
-      recognitionRef.current.stop();
-      setIsListening(false);
-    } else {
+  const toggleMic = () => {
+    if (!speechSupported || !recognitionRef.current) { inputRef.current?.focus(); return; }
+    if (isListening) { recognitionRef.current.stop(); setIsListening(false); }
+    else {
       try {
-        if (language === 'hi') recognitionRef.current.lang = 'hi-IN';
-        else if (language === 'bn') recognitionRef.current.lang = 'bn-IN';
-        else recognitionRef.current.lang = 'en-IN';
-
-        recognitionRef.current.start();
-        setIsListening(true);
-      } catch (err) {
-        setIsListening(false);
-      }
+        recognitionRef.current.lang = language === "hi" ? "hi-IN" : language === "bn" ? "bn-IN" : "en-IN";
+        recognitionRef.current.start(); setIsListening(true);
+      } catch { setIsListening(false); }
     }
   };
 
-  // End Call
   const endCall = async () => {
-    if (sessionId) {
-      try {
-        await fetch('/api/sahayak/call/terminate', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ sessionId })
-        });
-      } catch (e) {}
-    }
-    if (window.speechSynthesis) window.speechSynthesis.cancel();
-    setCallState('ENDED');
+    window.speechSynthesis?.cancel(); setAiSpeaking(false);
+    if (sessionId) { try { await fetch("/api/sahayak/call/terminate", { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({ sessionId }) }); } catch {} }
+    setCallState("ENDED");
     if (timerRef.current) clearInterval(timerRef.current);
   };
 
-  const formatDuration = (secs: number) => {
-    const mins = Math.floor(secs / 60);
-    const remainder = secs % 60;
-    return `${mins.toString().padStart(2, '0')}:${remainder.toString().padStart(2, '0')}`;
-  };
-
-  // Auto trigger start call when modal opens
-  useEffect(() => {
-    if (isOpen && callState === 'IDLE') {
-      startCall();
-    }
-    if (!isOpen) {
-      if (window.speechSynthesis) window.speechSynthesis.cancel();
-      setCallState('IDLE');
-    }
-  }, [isOpen]);
-
   if (!isOpen) return null;
 
-  // Active step index for flowchart
-  const getActiveFlowIndex = () => {
-    if (currentStep === 'WELCOME_LANGUAGE') return 0;
-    if (currentStep === 'MAIN_MENU') return 1;
-    if (currentStep.endsWith('_FLOW')) return 2;
-    return 3;
-  };
-
   return (
-    <div style={{
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      backgroundColor: 'rgba(15, 23, 42, 0.75)',
-      backdropFilter: 'blur(8px)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      zIndex: 9999,
-      padding: '1rem'
-    }}>
-      <div style={{
-        background: '#0F172A',
-        borderRadius: '32px',
-        width: '100%',
-        maxWidth: '920px',
-        maxHeight: '94vh',
-        display: 'flex',
-        flexDirection: 'column',
-        boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
-        border: '1px solid #334155',
-        overflow: 'hidden',
-        color: '#F8FAFC'
-      }}>
-        {/* Header Bar */}
-        <div style={{
-          padding: '1.1rem 1.75rem',
-          borderBottom: '1px solid #1E293B',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          background: 'linear-gradient(90deg, #0F172A 0%, #1E293B 100%)'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
-            <div style={{
-              width: '42px',
-              height: '42px',
-              borderRadius: '12px',
-              background: 'linear-gradient(135deg, #10B981 0%, #059669 100%)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)'
-            }}>
-              <span className="material-symbols-outlined" style={{ color: '#FFFFFF', fontSize: '24px' }}>call</span>
-            </div>
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-                <h3 style={{ fontSize: '1.15rem', fontWeight: 900, margin: 0, color: '#FFFFFF' }}>
-                  BharatFarm Sahayak AI Phone Line
-                </h3>
-                <span style={{
-                  fontSize: '0.72rem',
-                  padding: '0.2rem 0.6rem',
-                  borderRadius: '20px',
-                  background: callState === 'CONNECTED' ? 'rgba(16, 185, 129, 0.2)' : 'rgba(239, 68, 68, 0.2)',
-                  color: callState === 'CONNECTED' ? '#34D399' : '#F87171',
-                  border: `1px solid ${callState === 'CONNECTED' ? '#059669' : '#DC2626'}`,
-                  fontWeight: 800
-                }}>
-                  {callState === 'CONNECTED' ? '🟢 LIVE CALL' : callState === 'DIALING' ? '🟡 RINGING...' : '🔴 ENDED'}
-                </span>
-              </div>
-              <p style={{ fontSize: '0.78rem', color: '#94A3B8', margin: 0 }}>
-                Toll-Free Helpline 1800-BHARAT-FARM (1800-242-728) · Low-Literacy Voice Access Layer
-              </p>
-            </div>
-          </div>
+    <div className="csc-overlay">
+      <style>{CSS}</style>
+      <div className="csc-phone">
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-            {/* View Switcher Tabs */}
-            <div style={{ background: '#1E293B', borderRadius: '10px', padding: '0.25rem', display: 'flex', gap: '0.25rem' }}>
-              <button
-                onClick={() => setActiveTab('phone')}
-                style={{
-                  background: activeTab === 'phone' ? '#10B981' : 'transparent',
-                  color: '#FFFFFF',
-                  border: 'none',
-                  borderRadius: '6px',
-                  padding: '0.35rem 0.75rem',
-                  fontSize: '0.78rem',
-                  fontWeight: 700,
-                  cursor: 'pointer'
-                }}
-              >
-                Keypad & Call
-              </button>
-              <button
-                onClick={() => setActiveTab('flow')}
-                style={{
-                  background: activeTab === 'flow' ? '#10B981' : 'transparent',
-                  color: '#FFFFFF',
-                  border: 'none',
-                  borderRadius: '6px',
-                  padding: '0.35rem 0.75rem',
-                  fontSize: '0.78rem',
-                  fontWeight: 700,
-                  cursor: 'pointer'
-                }}
-              >
-                IVR Flow Architecture
-              </button>
-              <button
-                onClick={() => setActiveTab('transcript')}
-                style={{
-                  background: activeTab === 'transcript' ? '#10B981' : 'transparent',
-                  color: '#FFFFFF',
-                  border: 'none',
-                  borderRadius: '6px',
-                  padding: '0.35rem 0.75rem',
-                  fontSize: '0.78rem',
-                  fontWeight: 700,
-                  cursor: 'pointer'
-                }}
-              >
-                Call Transcript ({transcript.length})
-              </button>
-            </div>
-
-            <button
-              onClick={onClose}
-              style={{
-                background: 'transparent',
-                border: 'none',
-                color: '#94A3B8',
-                cursor: 'pointer',
-                padding: '0.4rem',
-                borderRadius: '8px',
-                display: 'flex',
-                alignItems: 'center'
-              }}
-            >
-              <span className="material-symbols-outlined" style={{ fontSize: '24px' }}>close</span>
-            </button>
+        {/* STATUS BAR */}
+        <div style={{padding:".6rem 1.2rem .35rem",display:"flex",justifyContent:"space-between",alignItems:"center",fontSize:".7rem",color:"#64748B",flexShrink:0}}>
+          <span style={{fontWeight:800}}>BharatFarm Sahayak</span>
+          <div style={{display:"flex",gap:".45rem",alignItems:"center"}}>
+            <span className="material-symbols-outlined" style={{fontSize:"13px"}}>signal_cellular_alt</span>
+            <span>5G</span>
+            <span className="material-symbols-outlined" style={{fontSize:"14px"}}>battery_full</span>
           </div>
         </div>
 
-        {/* Modal Body */}
-        <div style={{ flex: 1, overflowY: 'auto', padding: '1.25rem' }}>
-          
-          {/* Visual IVR Step Flowbar (Judges Architecture View) */}
-          <div style={{
-            background: '#1E293B',
-            borderRadius: '16px',
-            padding: '0.85rem 1.25rem',
-            marginBottom: '1.25rem',
-            border: '1px solid #334155',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            flexWrap: 'wrap',
-            gap: '0.75rem'
-          }}>
-            {FLOW_STEPS.map((step, idx) => {
-              const isActive = getActiveFlowIndex() === idx;
-              const isPast = getActiveFlowIndex() > idx;
-              return (
-                <React.Fragment key={step.id}>
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.5rem',
-                    opacity: isActive || isPast ? 1 : 0.4
-                  }}>
-                    <div style={{
-                      width: '28px',
-                      height: '28px',
-                      borderRadius: '50%',
-                      background: isActive ? '#10B981' : isPast ? '#059669' : '#475569',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontSize: '0.75rem',
-                      fontWeight: 900,
-                      color: '#FFFFFF'
-                    }}>
-                      {isPast ? '✓' : idx + 1}
-                    </div>
-                    <span style={{
-                      fontSize: '0.82rem',
-                      fontWeight: isActive ? 800 : 600,
-                      color: isActive ? '#34D399' : '#E2E8F0'
-                    }}>
-                      {step.label}
-                    </span>
-                  </div>
-                  {idx < FLOW_STEPS.length - 1 && (
-                    <span className="material-symbols-outlined" style={{ color: '#475569', fontSize: '18px' }}>
-                      arrow_forward
-                    </span>
-                  )}
-                </React.Fragment>
-              );
-            })}
+        {/* CALLER SECTION */}
+        <div style={{padding:".8rem 1.25rem .4rem",textAlign:"center",flexShrink:0}}>
+          <div style={{position:"relative",display:"inline-block",marginBottom:".5rem"}}>
+            <div style={{
+              width:80,height:80,borderRadius:"50%",
+              background:"linear-gradient(135deg,#10B981,#047857)",
+              display:"flex",alignItems:"center",justifyContent:"center",
+              margin:"0 auto",
+              animation: callState === "CONNECTED" ? "callRingPulse 2s infinite" : "none",
+              boxShadow:"0 8px 24px rgba(16,185,129,.35)",
+              border:"3px solid #34D399"
+            }}>
+              <span className="material-symbols-outlined" style={{color:"#FFF",fontSize:"36px"}}>support_agent</span>
+            </div>
+            {aiSpeaking && (
+              <div style={{position:"absolute",bottom:-8,left:"50%",transform:"translateX(-50%)",display:"flex",gap:3,alignItems:"flex-end",height:24}}>
+                <div className="wave-bar"/><div className="wave-bar"/><div className="wave-bar"/><div className="wave-bar"/><div className="wave-bar"/>
+              </div>
+            )}
           </div>
 
-          {activeTab === 'flow' ? (
-            /* ARCHITECTURE FLOW DIAGRAM VIEW */
-            <div style={{
-              background: '#1E293B',
-              borderRadius: '20px',
-              padding: '1.75rem',
-              border: '1px solid #334155'
-            }}>
-              <h4 style={{ fontSize: '1.1rem', fontWeight: 900, margin: '0 0 1rem 0', color: '#10B981' }}>
-                Telephony & IVR Voice Engine Architecture
-              </h4>
-              <p style={{ fontSize: '0.85rem', color: '#CBD5E1', lineHeight: 1.6, margin: '0 0 1.25rem 0' }}>
-                Sahayak functions as a telephone and digital access layer over BharatFarm's production intelligence.
-                Callers interact through dual modalities: <b>DTMF Keypad tones</b> and <b>Natural Spoken Audio</b>.
-              </p>
+          <h3 style={{fontSize:"1.2rem",fontWeight:900,color:"#FFFFFF",margin:"0 0 .15rem 0"}}>BharatFarm Sahayak AI</h3>
 
-              <div style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
-                gap: '1rem'
-              }}>
-                <div style={{ background: '#0F172A', padding: '1.25rem', borderRadius: '14px', border: '1px solid #334155' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#38BDF8', fontWeight: 800, marginBottom: '0.5rem' }}>
-                    <span className="material-symbols-outlined">dialpad</span>
-                    1. Telephony Channel
-                  </div>
-                  <p style={{ fontSize: '0.8rem', color: '#94A3B8', margin: 0 }}>
-                    Inbound PSTN/SIP call is received via <code>/api/sahayak/call/incoming</code>. Telephony adapter passes DTMF digits (RFC 2833) or audio stream.
-                  </p>
-                </div>
-
-                <div style={{ background: '#0F172A', padding: '1.25rem', borderRadius: '14px', border: '1px solid #334155' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#34D399', fontWeight: 800, marginBottom: '0.5rem' }}>
-                    <span className="material-symbols-outlined">psychology</span>
-                    2. Sahayak Core Router
-                  </div>
-                  <p style={{ fontSize: '0.8rem', color: '#94A3B8', margin: 0 }}>
-                    Maintains persistent caller session state, remembers farmer profile (crop, district, land size), and routes intent without repetitive questioning.
-                  </p>
-                </div>
-
-                <div style={{ background: '#0F172A', padding: '1.25rem', borderRadius: '14px', border: '1px solid #334155' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#FBBF24', fontWeight: 800, marginBottom: '0.5rem' }}>
-                    <span className="material-symbols-outlined">hub</span>
-                    3. Existing BharatFarm Modules
-                  </div>
-                  <p style={{ fontSize: '0.8rem', color: '#94A3B8', margin: 0 }}>
-                    Executes production services directly: <code>ClimateEngine</code>, <code>SmartMandiMatchingService</code>, and <code>ClaimStore</code>.
-                  </p>
-                </div>
-
-                <div style={{ background: '#0F172A', padding: '1.25rem', borderRadius: '14px', border: '1px solid #334155' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#EC4899', fontWeight: 800, marginBottom: '0.5rem' }}>
-                    <span className="material-symbols-outlined">record_voice_over</span>
-                    4. Voice & Speech Synthesis
-                  </div>
-                  <p style={{ fontSize: '0.8rem', color: '#94A3B8', margin: 0 }}>
-                    Responses are formatted in simple conversational Hindi, Bengali, or English, delivered step-by-step through slow, deliberate audio playback.
-                  </p>
-                </div>
-              </div>
-
-              {/* Module Mapping Table */}
-              <h5 style={{ fontSize: '0.95rem', fontWeight: 800, color: '#F1F5F9', marginTop: '1.5rem', marginBottom: '0.75rem' }}>
-                Keypad Menu Mapping (Zero Logic Duplication)
-              </h5>
-              <div style={{ background: '#0F172A', borderRadius: '12px', border: '1px solid #334155', overflow: 'hidden' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.82rem', textAlign: 'left' }}>
-                  <thead>
-                    <tr style={{ background: '#1E293B', color: '#94A3B8', borderBottom: '1px solid #334155' }}>
-                      <th style={{ padding: '0.65rem 1rem' }}>Key</th>
-                      <th style={{ padding: '0.65rem 1rem' }}>BharatFarm Module</th>
-                      <th style={{ padding: '0.65rem 1rem' }}>Backend Service Executed</th>
-                      <th style={{ padding: '0.65rem 1rem' }}>Spoken Intent Example</th>
-                    </tr>
-                  </thead>
-                  <tbody style={{ color: '#E2E8F0' }}>
-                    <tr style={{ borderBottom: '1px solid #1E293B' }}>
-                      <td style={{ padding: '0.65rem 1rem', fontWeight: 800, color: '#10B981' }}>1</td>
-                      <td style={{ padding: '0.65rem 1rem' }}>Before You Sow</td>
-                      <td style={{ padding: '0.65rem 1rem', color: '#94A3B8' }}>Price risk benchmark & pre-sowing check</td>
-                      <td style={{ padding: '0.65rem 1rem' }}>"Is baar kaunsa crop lagana sahi rahega?"</td>
-                    </tr>
-                    <tr style={{ borderBottom: '1px solid #1E293B' }}>
-                      <td style={{ padding: '0.65rem 1rem', fontWeight: 800, color: '#10B981' }}>2</td>
-                      <td style={{ padding: '0.65rem 1rem' }}>Climate Risk</td>
-                      <td style={{ padding: '0.65rem 1rem', color: '#94A3B8' }}>WeatherProvider & ClimateEngine.analyze</td>
-                      <td style={{ padding: '0.65rem 1rem' }}>"Kal baarish hogi kya?"</td>
-                    </tr>
-                    <tr style={{ borderBottom: '1px solid #1E293B' }}>
-                      <td style={{ padding: '0.65rem 1rem', fontWeight: 800, color: '#10B981' }}>3</td>
-                      <td style={{ padding: '0.65rem 1rem' }}>Aggregation</td>
-                      <td style={{ padding: '0.65rem 1rem', color: '#94A3B8' }}>SmartMandiMatchingService group pools</td>
-                      <td style={{ padding: '0.65rem 1rem' }}>"Mujhe group mein fasal bechni hai"</td>
-                    </tr>
-                    <tr style={{ borderBottom: '1px solid #1E293B' }}>
-                      <td style={{ padding: '0.65rem 1rem', fontWeight: 800, color: '#10B981' }}>4</td>
-                      <td style={{ padding: '0.65rem 1rem' }}>Crop Insurance</td>
-                      <td style={{ padding: '0.65rem 1rem', color: '#94A3B8' }}>ClaimStore & Satellite NDVI loss check</td>
-                      <td style={{ padding: '0.65rem 1rem' }}>"Fasal ka daawa verify karna hai"</td>
-                    </tr>
-                    <tr style={{ borderBottom: '1px solid #1E293B' }}>
-                      <td style={{ padding: '0.65rem 1rem', fontWeight: 800, color: '#10B981' }}>5</td>
-                      <td style={{ padding: '0.65rem 1rem' }}>Smart Mandi</td>
-                      <td style={{ padding: '0.65rem 1rem', color: '#94A3B8' }}>SmartMandiMatchingService.matchBuyer</td>
-                      <td style={{ padding: '0.65rem 1rem' }}>"Dhan bechna hai sabse achhi mandi batao"</td>
-                    </tr>
-                    <tr>
-                      <td style={{ padding: '0.65rem 1rem', fontWeight: 800, color: '#10B981' }}>6</td>
-                      <td style={{ padding: '0.65rem 1rem' }}>Basic Farmer Needs</td>
-                      <td style={{ padding: '0.65rem 1rem', color: '#94A3B8' }}>Leaf Scanner, Schemes, Roadmap Guide</td>
-                      <td style={{ padding: '0.65rem 1rem' }}>"Leaf scanner kaise use karein?"</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
+          {callState === "DIALING" && (
+            <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:6,color:"#34D399",fontSize:".78rem",fontWeight:700,marginBottom:".1rem"}}>
+              <span>Dialing</span>
+              <span className="dialing-dot"/><span className="dialing-dot"/><span className="dialing-dot"/>
             </div>
-          ) : activeTab === 'transcript' ? (
-            /* FULL TRANSCRIPT VIEW */
-            <div style={{
-              background: '#1E293B',
-              borderRadius: '20px',
-              padding: '1.5rem',
-              border: '1px solid #334155'
-            }}>
-              <h4 style={{ fontSize: '1.05rem', fontWeight: 800, margin: '0 0 1rem 0', color: '#FFFFFF' }}>
-                Complete Telephone Audio Transcript & Session History
-              </h4>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', maxHeight: '420px', overflowY: 'auto' }}>
-                {transcript.map((item, idx) => (
-                  <div
-                    key={idx}
-                    style={{
-                      background: item.speaker === 'ai' ? '#0F172A' : '#166534',
-                      padding: '0.85rem 1.15rem',
-                      borderRadius: '12px',
-                      border: '1px solid #334155',
-                      alignSelf: item.speaker === 'ai' ? 'flex-start' : 'flex-end',
-                      maxWidth: '85%'
-                    }}
-                  >
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', marginBottom: '0.35rem' }}>
-                      <span style={{ fontSize: '0.72rem', fontWeight: 800, color: item.speaker === 'ai' ? '#38BDF8' : '#86EFAC' }}>
-                        {item.speaker === 'ai' ? '🤖 Sahayak IVR Voice' : '👨‍🌾 Farmer'}
-                      </span>
-                      <span style={{ fontSize: '0.68rem', color: '#64748B' }}>{item.timestamp}</span>
-                    </div>
-                    <div style={{ fontSize: '0.86rem', color: '#F8FAFC', whiteSpace: 'pre-wrap', lineHeight: 1.5 }}>
-                      {item.text}
-                    </div>
-                  </div>
+          )}
+          {callState === "CONNECTED" && (
+            <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:".4rem"}}>
+              <span style={{width:7,height:7,borderRadius:"50%",background:"#34D399",display:"inline-block"}}/>
+              <span style={{color:"#34D399",fontSize:".78rem",fontWeight:700}}>Connected � {fmt(callDuration)}</span>
+            </div>
+          )}
+          {callState === "ENDED" && (
+            <span style={{color:"#F87171",fontSize:".78rem",fontWeight:700}}>Call Ended � {fmt(callDuration)}</span>
+          )}
+          <div style={{fontSize:".65rem",color:"#475569",marginTop:".2rem",fontWeight:600}}>1800-BHARAT-FARM � Toll-Free</div>
+        </div>
+
+        {/* AI VOICE PROMPT DISPLAY */}
+        <div style={{margin:"0 1rem .5rem",flexShrink:0}}>
+          <div style={{
+            background:"rgba(16,185,129,.07)",border:"1px solid rgba(16,185,129,.22)",
+            borderRadius:16,padding:".65rem .9rem",minHeight:56,
+            display:"flex",flexDirection:"column",gap:".25rem"
+          }}>
+            <div style={{display:"flex",alignItems:"center",gap:".35rem",marginBottom:".15rem"}}>
+              <span className="material-symbols-outlined" style={{fontSize:"13px",color:"#10B981"}}>volume_up</span>
+              <span style={{fontSize:".6rem",color:"#10B981",fontWeight:800,letterSpacing:".05em"}}>
+                AI VOICE � {language.toUpperCase()} � {currentStep.replace(/_/g," ")}
+              </span>
+              {aiSpeaking && (
+                <div style={{display:"flex",gap:2,alignItems:"flex-end",height:13,marginLeft:3}}>
+                  <div className="wave-bar" style={{height:6}}/><div className="wave-bar" style={{height:6}}/><div className="wave-bar" style={{height:6}}/>
+                </div>
+              )}
+            </div>
+            <p style={{fontSize:".82rem",color:"#E2E8F0",margin:0,lineHeight:1.4,fontStyle:"italic"}}>
+              &ldquo;{displayPrompt || "Connecting to BharatFarm Sahayak voice gateway�"}&rdquo;
+            </p>
+          </div>
+        </div>
+
+        {/* VIEW TABS */}
+        <div style={{display:"flex",gap:".25rem",padding:"0 1rem .3rem",justifyContent:"center",flexShrink:0}}>
+          {(["call","quick","transcript"] as const).map(v => (
+            <button key={v} className={`view-tab${activeView===v?" active":""}`} onClick={() => setActiveView(v)}>
+              {v==="call" ? "?? Keypad" : v==="quick" ? "??? Speak" : `?? Log (${transcript.length})`}
+            </button>
+          ))}
+        </div>
+
+        {/* SCROLLABLE BODY */}
+        <div style={{flex:1,overflowY:"auto",padding:"0 1rem",display:"flex",flexDirection:"column",gap:".65rem"}}>
+
+          {/* KEYPAD VIEW */}
+          {activeView === "call" && (<>
+            {optionsMenu.length > 0 && (
+              <div style={{display:"flex",flexWrap:"wrap",gap:".4rem",justifyContent:"center"}}>
+                {optionsMenu.map(opt => (
+                  <button key={opt.key} onClick={() => sendDtmf(opt.key)} disabled={callState !== "CONNECTED"}
+                    style={{background:"rgba(16,185,129,.12)",border:"1px solid rgba(16,185,129,.35)",
+                      borderRadius:20,padding:".28rem .75rem",fontSize:".72rem",color:"#34D399",fontWeight:700,cursor:"pointer"}}>
+                    <span style={{opacity:.7}}>#{opt.key}</span> {opt.label}
+                  </button>
                 ))}
               </div>
+            )}
+            <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:".85rem",justifyItems:"center",padding:".2rem 0"}}>
+              {KEYS.map(k => (
+                <button key={k.num} className={`dtmf-btn${pressedKey===k.num?" pressed":""}`}
+                  onClick={() => k.num==="#" ? endCall() : sendDtmf(k.num)}
+                  disabled={callState !== "CONNECTED"}>
+                  <span className="dtmf-main">{k.num}</span>
+                  {k.alpha && <span className="dtmf-sub">{k.alpha}</span>}
+                  {k.svc   && <span className="dtmf-svc">{k.svc}</span>}
+                </button>
+              ))}
             </div>
-          ) : (
-            /* PHONE CALL SIMULATOR VIEW (MAIN) */
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'minmax(320px, 390px) 1fr',
-              gap: '1.5rem',
-              alignItems: 'start'
-            }}>
-              
-              {/* LEFT: Realistic Smartphone Call Screen */}
-              <div style={{
-                background: 'linear-gradient(180deg, #1E293B 0%, #0F172A 100%)',
-                borderRadius: '28px',
-                border: '2px solid #334155',
-                padding: '1.5rem',
-                display: 'flex',
-                flexDirection: 'column',
-                boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.4)'
-              }}>
-                {/* Status bar */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: '#94A3B8', marginBottom: '1rem' }}>
-                  <span>BharatFarm Helpline</span>
-                  <span style={{ fontWeight: 800, color: '#34D399' }}>{formatDuration(callDuration)}</span>
-                </div>
+          </>)}
 
-                {/* Caller Profile Header */}
-                <div style={{ textAlign: 'center', margin: '0.5rem 0 1.25rem 0' }}>
-                  <div style={{
-                    width: '68px',
-                    height: '68px',
-                    borderRadius: '50%',
-                    background: 'linear-gradient(135deg, #10B981 0%, #047857 100%)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    margin: '0 auto 0.75rem auto',
-                    boxShadow: '0 8px 16px rgba(16, 185, 129, 0.35)',
-                    border: '3px solid #34D399'
-                  }}>
-                    <span className="material-symbols-outlined" style={{ color: '#FFFFFF', fontSize: '34px' }}>
-                      support_agent
-                    </span>
-                  </div>
-                  <h4 style={{ fontSize: '1.2rem', fontWeight: 900, margin: '0 0 0.25rem 0', color: '#FFFFFF' }}>
-                    BharatFarm Sahayak AI
-                  </h4>
-                  <p style={{ fontSize: '0.8rem', color: '#34D399', margin: 0, fontWeight: 700 }}>
-                    {callState === 'CONNECTED' ? 'Call in Progress...' : callState === 'DIALING' ? 'Dialing...' : 'Call Ended'}
-                  </p>
-                </div>
-
-                {/* Animated Speech / Voice Wave Indicator */}
-                <div style={{
-                  background: '#0F172A',
-                  borderRadius: '16px',
-                  padding: '1rem',
-                  border: '1px solid #1E293B',
-                  marginBottom: '1.25rem',
-                  minHeight: '85px',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  justifyContent: 'center'
-                }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.4rem' }}>
-                    <span className="material-symbols-outlined" style={{ fontSize: '16px', color: '#10B981' }}>
-                      volume_up
-                    </span>
-                    <span style={{ fontSize: '0.72rem', color: '#94A3B8', fontWeight: 700 }}>
-                      AI VOICE STREAM ({language.toUpperCase()})
-                    </span>
-                  </div>
-                  <p style={{
-                    fontSize: '0.82rem',
-                    color: '#E2E8F0',
-                    margin: 0,
-                    lineHeight: 1.4,
-                    display: '-webkit-box',
-                    WebkitLineClamp: 3,
-                    WebkitBoxOrient: 'vertical',
-                    overflow: 'hidden'
-                  }}>
-                    "{displayPrompt || 'Connecting to BharatFarm voice gateway...'}"
-                  </p>
-                </div>
-
-                {/* DTMF Keypad (1 - 9, *, 0, #) */}
-                <div style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(3, 1fr)',
-                  gap: '0.65rem',
-                  marginBottom: '1.25rem'
-                }}>
-                  {[
-                    { num: '1', sub: 'Before Sow' },
-                    { num: '2', sub: 'Climate' },
-                    { num: '3', sub: 'Aggregation' },
-                    { num: '4', sub: 'Insurance' },
-                    { num: '5', sub: 'Mandi' },
-                    { num: '6', sub: 'Basic Needs' },
-                    { num: '7', sub: 'Guidance' },
-                    { num: '8', sub: 'Repeat' },
-                    { num: '9', sub: 'Menu' },
-                    { num: '*', sub: 'Back' },
-                    { num: '0', sub: 'Help' },
-                    { num: '#', sub: 'End' }
-                  ].map((keyItem) => (
-                    <button
-                      key={keyItem.num}
-                      onClick={() => {
-                        if (keyItem.num === '#') endCall();
-                        else sendDtmf(keyItem.num);
-                      }}
-                      disabled={callState !== 'CONNECTED'}
-                      style={{
-                        background: '#1E293B',
-                        border: '1px solid #334155',
-                        borderRadius: '14px',
-                        padding: '0.65rem 0.25rem',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        cursor: callState === 'CONNECTED' ? 'pointer' : 'not-allowed',
-                        color: '#FFFFFF',
-                        transition: 'all 0.15s ease'
-                      }}
-                      onMouseDown={(e) => (e.currentTarget.style.background = '#334155')}
-                      onMouseUp={(e) => (e.currentTarget.style.background = '#1E293B')}
-                    >
-                      <span style={{ fontSize: '1.25rem', fontWeight: 900, lineHeight: 1 }}>{keyItem.num}</span>
-                      <span style={{ fontSize: '0.62rem', color: '#94A3B8', marginTop: '0.2rem', fontWeight: 600 }}>
-                        {keyItem.sub}
-                      </span>
-                    </button>
+          {/* SPEAK VIEW */}
+          {activeView === "quick" && (
+            <div style={{display:"flex",flexDirection:"column",gap:".85rem",animation:"fadeIn .2s ease"}}>
+              <div>
+                <p style={{fontSize:".68rem",color:"#64748B",fontWeight:700,margin:"0 0 .45rem 0",textTransform:"uppercase",letterSpacing:".06em"}}>Quick Voice Queries</p>
+                <div style={{display:"flex",flexWrap:"wrap",gap:".4rem"}}>
+                  {VOICE_PRESETS.map((vp,i) => (
+                    <button key={i} className="speech-pill" onClick={() => sendSpeech(vp.q)} disabled={callState !== "CONNECTED"}>{vp.label}</button>
                   ))}
                 </div>
-
-                {/* In-Call Controls (Mute, Speaker, Mic, End Call) */}
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-around',
-                  paddingTop: '0.75rem',
-                  borderTop: '1px solid #334155'
-                }}>
-                  <button
-                    onClick={() => setIsMuted(!isMuted)}
-                    title={isMuted ? 'Unmute Mic' : 'Mute Mic'}
-                    style={{
-                      width: '46px',
-                      height: '46px',
-                      borderRadius: '50%',
-                      background: isMuted ? '#EF4444' : '#334155',
-                      border: 'none',
-                      color: '#FFFFFF',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center'
-                    }}
-                  >
-                    <span className="material-symbols-outlined">{isMuted ? 'mic_off' : 'mic'}</span>
-                  </button>
-
-                  <button
-                    onClick={toggleListening}
-                    title="Speak to Sahayak"
-                    style={{
-                      width: '54px',
-                      height: '54px',
-                      borderRadius: '50%',
-                      background: isListening ? '#F59E0B' : '#10B981',
-                      border: 'none',
-                      color: '#FFFFFF',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      boxShadow: isListening ? '0 0 15px #F59E0B' : '0 4px 12px rgba(16, 185, 129, 0.4)'
-                    }}
-                  >
-                    <span className="material-symbols-outlined" style={{ fontSize: '28px' }}>
-                      {isListening ? 'hearing' : 'mic'}
-                    </span>
-                  </button>
-
-                  <button
-                    onClick={() => setIsSpeakerOn(!isSpeakerOn)}
-                    title={isSpeakerOn ? 'Mute AI Voice' : 'Enable AI Voice'}
-                    style={{
-                      width: '46px',
-                      height: '46px',
-                      borderRadius: '50%',
-                      background: isSpeakerOn ? '#10B981' : '#334155',
-                      border: 'none',
-                      color: '#FFFFFF',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center'
-                    }}
-                  >
-                    <span className="material-symbols-outlined">{isSpeakerOn ? 'volume_up' : 'volume_off'}</span>
-                  </button>
-
-                  {callState === 'CONNECTED' ? (
-                    <button
-                      onClick={endCall}
-                      title="Disconnect Call"
-                      style={{
-                        width: '46px',
-                        height: '46px',
-                        borderRadius: '50%',
-                        background: '#EF4444',
-                        border: 'none',
-                        color: '#FFFFFF',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        boxShadow: '0 4px 12px rgba(239, 68, 68, 0.4)'
-                      }}
-                    >
-                      <span className="material-symbols-outlined">call_end</span>
-                    </button>
-                  ) : (
-                    <button
-                      onClick={startCall}
-                      title="Redial Call"
-                      style={{
-                        width: '46px',
-                        height: '46px',
-                        borderRadius: '50%',
-                        background: '#10B981',
-                        border: 'none',
-                        color: '#FFFFFF',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        boxShadow: '0 4px 12px rgba(16, 185, 129, 0.4)'
-                      }}
-                    >
-                      <span className="material-symbols-outlined">call</span>
-                    </button>
-                  )}
-                </div>
-
-                {isListening && (
-                  <p style={{ textAlign: 'center', color: '#FBBF24', fontSize: '0.75rem', fontWeight: 700, margin: '0.6rem 0 0 0' }}>
-                    🎙️ Listening to farmer... (speak in {language.toUpperCase()})
-                  </p>
-                )}
               </div>
-
-              {/* RIGHT: Live Guidance, Active Menu Options & Spoken Query Input */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                
-                {/* Active Menu Options Cards (Clickable for easy testing) */}
-                <div style={{
-                  background: '#1E293B',
-                  borderRadius: '20px',
-                  padding: '1.25rem',
-                  border: '1px solid #334155'
-                }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
-                    <h5 style={{ fontSize: '0.92rem', fontWeight: 800, margin: 0, color: '#FFFFFF' }}>
-                      Keypad Menu Options (Click or Press Key)
-                    </h5>
-                    <span style={{ fontSize: '0.72rem', color: '#94A3B8' }}>
-                      Step: <b>{currentStep}</b>
-                    </span>
-                  </div>
-
-                  <div style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
-                    gap: '0.65rem'
-                  }}>
-                    {optionsMenu.length > 0 ? (
-                      optionsMenu.map((opt) => (
-                        <button
-                          key={opt.key}
-                          onClick={() => sendDtmf(opt.key)}
-                          style={{
-                            background: '#0F172A',
-                            border: '1px solid #334155',
-                            borderRadius: '12px',
-                            padding: '0.65rem 0.85rem',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '0.6rem',
-                            color: '#F8FAFC',
-                            cursor: 'pointer',
-                            textAlign: 'left'
-                          }}
-                        >
-                          <span style={{
-                            background: '#10B981',
-                            color: '#FFFFFF',
-                            width: '24px',
-                            height: '24px',
-                            borderRadius: '6px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            fontSize: '0.75rem',
-                            fontWeight: 900
-                          }}>
-                            {opt.key}
-                          </span>
-                          <span style={{ fontSize: '0.8rem', fontWeight: 700 }}>{opt.label}</span>
-                        </button>
-                      ))
-                    ) : (
-                      <div style={{ color: '#94A3B8', fontSize: '0.8rem', fontStyle: 'italic' }}>
-                        No keypad options at this step. Speak naturally or type below.
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* Natural Spoken Language Presets (Voice Intent Tests) */}
-                <div style={{
-                  background: '#1E293B',
-                  borderRadius: '20px',
-                  padding: '1.25rem',
-                  border: '1px solid #334155'
-                }}>
-                  <h5 style={{ fontSize: '0.92rem', fontWeight: 800, margin: '0 0 0.6rem 0', color: '#FFFFFF' }}>
-                    Quick Natural Voice Queries (Bypasses Keypad)
-                  </h5>
-                  <p style={{ fontSize: '0.78rem', color: '#94A3B8', margin: '0 0 0.75rem 0' }}>
-                    Low-literacy farmers can simply speak their problem in Hindi, Bengali or English:
-                  </p>
-
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
-                    {[
-                      { label: '🌦️ Kal baarish hogi kya?', query: 'Kal baarish hogi kya?' },
-                      { label: '🌾 Mandi dhan bhav', query: 'Kal dhan bechna hai, sabse achhi mandi kaunsi hai?' },
-                      { label: '🛡️ Fasal bima verify', query: 'Fasal ka daawa verify karna hai' },
-                      { label: '🌱 Kaunsi fasal lagayein?', query: 'Is baar kaunsa crop lagana sahi rahega?' },
-                      { label: '🤝 Group selling', query: 'Mujhe group mein fasal bechni hai' },
-                      { label: '📷 Leaf scanner guide', query: 'Leaf scanner kahan hai aur kaise use karein?' },
-                      { label: '💊 Spraying timing', query: 'Fasal mein dawai kab spray karni hai?' },
-                      { label: '🇧🇩 কাল কি বৃষ্টি হবে?', query: 'কাল কি বৃষ্টি হবে?' }
-                    ].map((item, i) => (
-                      <button
-                        key={i}
-                        onClick={() => sendSpeech(item.query)}
-                        disabled={callState !== 'CONNECTED'}
-                        style={{
-                          background: '#0F172A',
-                          border: '1px solid #334155',
-                          borderRadius: '20px',
-                          padding: '0.4rem 0.85rem',
-                          fontSize: '0.76rem',
-                          color: '#CBD5E1',
-                          fontWeight: 600,
-                          cursor: callState === 'CONNECTED' ? 'pointer' : 'not-allowed'
-                        }}
-                      >
-                        {item.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Natural Spoken Input Bar (Microphone or Typed) */}
-                <div style={{
-                  background: '#1E293B',
-                  borderRadius: '20px',
-                  padding: '0.85rem 1rem',
-                  border: '1px solid #334155',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.65rem'
-                }}>
-                  <input
-                    type="text"
-                    value={customQuery}
-                    onChange={(e) => setCustomQuery(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' && customQuery.trim()) {
-                        sendSpeech(customQuery);
-                      }
-                    }}
-                    placeholder={speechSupported ? "Type spoken query or press mic..." : "Type spoken farmer sentence here..."}
-                    style={{
-                      flex: 1,
-                      background: '#0F172A',
-                      border: '1px solid #334155',
-                      borderRadius: '12px',
-                      padding: '0.65rem 0.95rem',
-                      color: '#FFFFFF',
-                      fontSize: '0.84rem',
-                      outline: 'none'
-                    }}
-                  />
-
-                  <button
-                    onClick={toggleListening}
-                    title="Speak via browser microphone"
-                    style={{
-                      background: isListening ? '#F59E0B' : '#0F172A',
-                      border: '1px solid #334155',
-                      color: '#FFFFFF',
-                      borderRadius: '10px',
-                      width: '38px',
-                      height: '38px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      cursor: 'pointer'
-                    }}
-                  >
-                    <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>mic</span>
-                  </button>
-
-                  <button
-                    onClick={() => {
-                      if (customQuery.trim()) sendSpeech(customQuery);
-                    }}
-                    style={{
-                      background: '#10B981',
-                      border: 'none',
-                      color: '#FFFFFF',
-                      borderRadius: '10px',
-                      padding: '0.55rem 1rem',
-                      fontWeight: 800,
-                      fontSize: '0.82rem',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '0.35rem'
-                    }}
-                  >
-                    <span>Speak</span>
-                    <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>send</span>
-                  </button>
-                </div>
-
-                {/* Telephony Special Commands Quick Buttons */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.74rem', color: '#94A3B8' }}>
-                  <span style={{ fontWeight: 700 }}>Helpline Commands:</span>
-                  {[
-                    { label: 'Main Menu', cmd: 'main menu' },
-                    { label: 'Back', cmd: 'back' },
-                    { label: 'Repeat', cmd: 'repeat' },
-                    { label: 'Help', cmd: 'help' }
-                  ].map((c, i) => (
-                    <button
-                      key={i}
-                      onClick={() => sendSpeech(c.cmd)}
-                      style={{
-                        background: '#334155',
-                        border: 'none',
-                        borderRadius: '6px',
-                        padding: '0.2rem 0.55rem',
-                        color: '#E2E8F0',
-                        fontSize: '0.72rem',
-                        cursor: 'pointer'
-                      }}
-                    >
-                      "{c.label}"
-                    </button>
+              <div>
+                <p style={{fontSize:".68rem",color:"#64748B",fontWeight:700,margin:"0 0 .35rem 0",textTransform:"uppercase",letterSpacing:".06em"}}>Helpline Commands</p>
+                <div style={{display:"flex",flexWrap:"wrap",gap:".35rem"}}>
+                  {[["?? Main Menu","main menu"],["? Back","back"],["?? Repeat","repeat"],["? Help","help"]].map(([label,cmd],i)=>(
+                    <button key={i} className="speech-pill" onClick={() => sendSpeech(cmd)} disabled={callState !== "CONNECTED"}>{label}</button>
                   ))}
                 </div>
-
               </div>
+              {isListening && (
+                <div style={{background:"rgba(245,158,11,.1)",border:"1px solid rgba(245,158,11,.35)",borderRadius:12,padding:".6rem .9rem",display:"flex",alignItems:"center",gap:".5rem",animation:"fadeIn .2s"}}>
+                  <div style={{display:"flex",gap:3,alignItems:"flex-end",height:22}}>
+                    {[1,2,3,4,5].map(i=><div key={i} className="wave-bar" style={{background:"#F59E0B"}}/>)}
+                  </div>
+                  <span style={{color:"#FBBF24",fontSize:".8rem",fontWeight:700}}>
+                    Listening� speak in {language==="hi"?"??????":language==="bn"?"?????":"English"}
+                  </span>
+                </div>
+              )}
             </div>
           )}
 
+          {/* TRANSCRIPT VIEW */}
+          {activeView === "transcript" && (
+            <div style={{display:"flex",flexDirection:"column",gap:".55rem",animation:"fadeIn .2s ease"}}>
+              {transcript.length === 0 && (
+                <div style={{color:"#475569",fontSize:".82rem",textAlign:"center",padding:"2rem 0"}}>No messages yet.</div>
+              )}
+              {transcript.map((item,idx) => (
+                <div key={idx} style={{display:"flex",flexDirection:"column",alignItems:item.speaker==="ai"?"flex-start":"flex-end"}}>
+                  <span style={{fontSize:".62rem",color:"#475569",marginBottom:".12rem",fontWeight:600}}>
+                    {item.speaker==="ai"?"?? Sahayak":"????? Farmer"} � {item.time}
+                  </span>
+                  <div className={`tx-bubble ${item.speaker}`} style={{color:"#F8FAFC"}}>{item.text}</div>
+                </div>
+              ))}
+              <div ref={txEndRef}/>
+            </div>
+          )}
         </div>
 
-        {/* Footer info bar */}
-        <div style={{
-          padding: '0.75rem 1.75rem',
-          borderTop: '1px solid #1E293B',
-          background: '#0B1120',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          fontSize: '0.75rem',
-          color: '#94A3B8'
-        }}>
-          <div>
-            Session: <code style={{ color: '#38BDF8' }}>{sessionId || 'Not Connected'}</code> · Current Lang: <b style={{ color: '#10B981' }}>{language.toUpperCase()}</b>
+        {/* SPEAK INPUT BAR */}
+        {callState !== "ENDED" && (
+          <div style={{padding:".55rem 1rem .4rem",flexShrink:0,borderTop:"1px solid #1E293B"}}>
+            <div style={{display:"flex",alignItems:"center",gap:".4rem"}}>
+              <input
+                ref={inputRef}
+                type="text"
+                value={customQuery}
+                onChange={e => setCustomQuery(e.target.value)}
+                onKeyDown={e => { if(e.key==="Enter" && customQuery.trim()) sendSpeech(customQuery); }}
+                placeholder={callState==="CONNECTED"?"Type or speak your query�":"Connecting�"}
+                disabled={callState !== "CONNECTED"}
+                style={{flex:1,background:"rgba(30,41,59,.8)",border:"1px solid #334155",borderRadius:22,padding:".5rem .9rem",color:"#F8FAFC",fontSize:".82rem",outline:"none",opacity:callState==="CONNECTED"?1:.5}}
+              />
+              <button onClick={toggleMic} disabled={callState !== "CONNECTED"}
+                style={{width:40,height:40,borderRadius:"50%",border:"none",background:isListening?"#F59E0B":"rgba(16,185,129,.2)",color:"#FFF",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",animation:isListening?"micPulse 1s infinite":"none",flexShrink:0}}>
+                <span className="material-symbols-outlined" style={{fontSize:"19px",color:isListening?"#FFF":"#34D399"}}>{isListening?"hearing":"mic"}</span>
+              </button>
+              <button onClick={() => customQuery.trim() && sendSpeech(customQuery)} disabled={callState !== "CONNECTED" || !customQuery.trim()}
+                style={{width:40,height:40,borderRadius:"50%",border:"none",background:customQuery.trim()?"#10B981":"rgba(30,41,59,.8)",color:"#FFF",cursor:customQuery.trim()?"pointer":"default",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,transition:"background .2s"}}>
+                <span className="material-symbols-outlined" style={{fontSize:"18px"}}>send</span>
+              </button>
+            </div>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-            <span>Voice: Web Speech API Synthesis (Local Indian Accent)</span>
-            <span>Zero Business Logic Duplication: 100% BharatFarm APIs</span>
-          </div>
+        )}
+
+        {/* CALL CONTROLS */}
+        <div style={{padding:".65rem 1.5rem .85rem",display:"flex",alignItems:"center",justifyContent:"space-around",borderTop:"1px solid #1E293B",background:"rgba(5,10,20,.4)",flexShrink:0}}>
+          <button onClick={() => setIsMuted(m=>!m)} title={isMuted?"Unmute":"Mute"}
+            style={{width:50,height:50,borderRadius:"50%",border:"none",background:isMuted?"#EF4444":"rgba(30,41,59,.9)",color:"#FFF",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}>
+            <span className="material-symbols-outlined">{isMuted?"mic_off":"mic"}</span>
+          </button>
+
+          {callState === "CONNECTED" ? (
+            <button onClick={endCall} title="End Call"
+              style={{width:62,height:62,borderRadius:"50%",border:"none",background:"#DC2626",color:"#FFF",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",boxShadow:"0 6px 20px rgba(220,38,38,.5)"}}>
+              <span className="material-symbols-outlined" style={{fontSize:"28px"}}>call_end</span>
+            </button>
+          ) : (
+            <button onClick={startCall} title="Redial"
+              style={{width:62,height:62,borderRadius:"50%",border:"none",background:"#16A34A",color:"#FFF",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",boxShadow:"0 6px 20px rgba(22,163,74,.5)"}}>
+              <span className="material-symbols-outlined" style={{fontSize:"28px"}}>call</span>
+            </button>
+          )}
+
+          <button onClick={() => setIsSpeakerOn(s=>!s)} title="Toggle Speaker"
+            style={{width:50,height:50,borderRadius:"50%",border:"none",background:isSpeakerOn?"rgba(16,185,129,.2)":"rgba(30,41,59,.9)",color:"#FFF",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}>
+            <span className="material-symbols-outlined" style={{color:isSpeakerOn?"#34D399":"#94A3B8"}}>{isSpeakerOn?"volume_up":"volume_off"}</span>
+          </button>
+
+          <button onClick={onClose} title="Close"
+            style={{width:50,height:50,borderRadius:"50%",border:"none",background:"rgba(30,41,59,.9)",color:"#94A3B8",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}>
+            <span className="material-symbols-outlined">close</span>
+          </button>
         </div>
 
       </div>
