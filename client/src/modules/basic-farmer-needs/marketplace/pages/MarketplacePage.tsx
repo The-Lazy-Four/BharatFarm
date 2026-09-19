@@ -9,11 +9,13 @@ import { Spinner } from '@core/ui/Spinner';
 import { EmptyState } from '@core/ui/EmptyState';
 import { Button } from '@core/ui/Button';
 import { FEATURE_IMAGES } from '@core/constants/featureImages';
+import { useLanguage } from '../../../../context/LanguageContext';
 
 export const MarketplacePage: React.FC = () => {
   const { listings, isLoading, error } = useMarketplace();
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('all');
+  const { t } = useLanguage();
 
   const filtered = listings.filter(item => {
     const q = search.toLowerCase();
@@ -31,18 +33,18 @@ export const MarketplacePage: React.FC = () => {
       {/* Visual Agricultural Header Banner */}
       <div className="page-header-banner" style={{ padding: '0.85rem 1rem' }}>
         <div>
-          <span className="badge badge-primary" style={{ marginBottom: '0.2rem', fontSize: '0.65rem' }}>Direct Trade Ecosystem</span>
+          <span className="badge badge-primary" style={{ marginBottom: '0.2rem', fontSize: '0.65rem' }}>{t('marketplace.directTradeEcosystem')}</span>
           <h1 style={{ fontSize: '1.35rem', fontWeight: 800, color: '#FFFFFF', margin: 0 }}>
-            Marketplace — Direct Farmer Trade
+            {t('basicNeeds.marketplaceTitle')}
           </h1>
           <p style={{ color: 'rgba(255,255,255,0.85)', fontSize: '0.8rem', marginTop: '0.15rem' }}>
-            Trade crops, certified seeds, organic fertilizers, and farm equipment directly.
+            {t('moduleHome.topRatedInputs')}
           </p>
         </div>
 
         <Link to="/marketplace/new">
           <Button variant="primary" size="sm">
-            <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>add</span> List Produce
+            <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>add</span> {t('marketplace.listProduce')}
           </Button>
         </Link>
       </div>
@@ -57,9 +59,9 @@ export const MarketplacePage: React.FC = () => {
           <img src={FEATURE_IMAGES.marketplace.url} alt="Crops" className="card-feature-bg" />
           <div className="card-feature-overlay" />
           <div className="card-feature-content">
-            <span className="badge badge-primary" style={{ fontSize: '0.6rem', padding: '0.15rem 0.4rem' }}>Direct Produce</span>
-            <h4 className="text-embossed" style={{ fontSize: '0.9rem', fontWeight: 800, marginTop: '0.15rem' }}>Fresh Harvest Crops</h4>
-            <p style={{ fontSize: '0.68rem', color: '#FFFFFF', textShadow: '0 1px 3px rgba(0,0,0,0.85)' }}>Wheat, Paddy, Pulses & Produce</p>
+            <span className="badge badge-primary" style={{ fontSize: '0.6rem', padding: '0.15rem 0.4rem' }}>{t('marketplace.directProduceBadge')}</span>
+            <h4 className="text-embossed" style={{ fontSize: '0.9rem', fontWeight: 800, marginTop: '0.15rem' }}>{t('marketplace.freshHarvestCrops')}</h4>
+            <p style={{ fontSize: '0.68rem', color: '#FFFFFF', textShadow: '0 1px 3px rgba(0,0,0,0.85)' }}>{t('marketplace.freshHarvestDesc')}</p>
           </div>
         </div>
 
@@ -71,9 +73,9 @@ export const MarketplacePage: React.FC = () => {
           <img src={FEATURE_IMAGES.groupbuying.url} alt="Seeds & Inputs" className="card-feature-bg" />
           <div className="card-feature-overlay" />
           <div className="card-feature-content">
-            <span className="badge badge-success" style={{ fontSize: '0.6rem', padding: '0.15rem 0.4rem' }}>Certified Inputs</span>
-            <h4 className="text-embossed" style={{ fontSize: '0.9rem', fontWeight: 800, marginTop: '0.15rem' }}>Seeds & Fertilizers</h4>
-            <p style={{ fontSize: '0.68rem', color: '#FFFFFF', textShadow: '0 1px 3px rgba(0,0,0,0.85)' }}>Bio-pesticides & Hybrids</p>
+            <span className="badge badge-success" style={{ fontSize: '0.6rem', padding: '0.15rem 0.4rem' }}>{t('marketplace.certifiedInputsBadge')}</span>
+            <h4 className="text-embossed" style={{ fontSize: '0.9rem', fontWeight: 800, marginTop: '0.15rem' }}>{t('marketplace.seedsFertilizersTitle')}</h4>
+            <p style={{ fontSize: '0.68rem', color: '#FFFFFF', textShadow: '0 1px 3px rgba(0,0,0,0.85)' }}>{t('marketplace.seedsFertilizersDesc')}</p>
           </div>
         </div>
 
@@ -83,7 +85,7 @@ export const MarketplacePage: React.FC = () => {
       <div className="grid-dashboard" style={{ gap: '0.85rem' }}>
         {/* Main Product Catalog Section (Span 8) */}
         <div className="col-span-8" style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
-          <Card title="Active Produce & Input Listings" subtitle="Filter by crop category or search seller district." style={{ padding: '0.75rem' }}>
+          <Card title={t('marketplace.activeListingsTitle')} subtitle={t('marketplace.activeListingsSub')} style={{ padding: '0.75rem' }}>
             <SearchBar value={search} onChange={setSearch} />
             <FilterPanel selected={category} onSelect={setCategory} />
             {error && <p style={{ color: 'var(--danger)', fontSize: '0.8rem', marginTop: '0.5rem' }}>⚠️ {error}</p>}
@@ -92,7 +94,7 @@ export const MarketplacePage: React.FC = () => {
           {isLoading ? (
             <Spinner />
           ) : filtered.length === 0 ? (
-            <EmptyState message="No listings found. Try adjusting your search query or category filter." />
+            <EmptyState message={t('marketplace.noListingsFound')} />
           ) : (
             <ProductGrid products={filtered} />
           )}
@@ -100,7 +102,7 @@ export const MarketplacePage: React.FC = () => {
 
         {/* Right Sidebar: Live Mandi Benchmark Prices */}
         <div className="col-span-4" style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
-          <Card title="Live Mandi Benchmark Rates" subtitle="Governed MSP & Regional Spot Prices" style={{ padding: '0.75rem' }}>
+          <Card title={t('marketplace.benchmarkRatesTitle')} subtitle={t('marketplace.benchmarkRatesSub')} style={{ padding: '0.75rem' }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.45rem', marginTop: '0.35rem' }}>
               <div className="alert-success" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.5rem 0.65rem' }}>
                 <div>

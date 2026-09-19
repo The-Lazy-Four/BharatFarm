@@ -1,12 +1,14 @@
 import React from 'react';
 import { DailyForecast } from '../types/weather.types';
 import { Card } from '@core/ui/Card';
+import { useLanguage } from '../../../../context/LanguageContext';
 
 export const ForecastList: React.FC<{ daily: DailyForecast[] }> = ({ daily }) => {
+  const { t } = useLanguage();
   if (!daily || daily.length === 0) return null;
 
   return (
-    <Card title="📅 7-Day Precision Agronomic Forecast" subtitle="Daily temperature span, rainfall accumulation, and weather conditions.">
+    <Card title={t('weatherPage.sevenDayTitle')} subtitle={t('weatherPage.sevenDaySub')}>
       <div style={{ display: 'flex', gap: '0.75rem', overflowX: 'auto', padding: '0.5rem 0', scrollbarWidth: 'thin' }}>
         {daily.map((day, idx) => {
           const isToday = idx === 0;
@@ -40,7 +42,7 @@ export const ForecastList: React.FC<{ daily: DailyForecast[] }> = ({ daily }) =>
                     textTransform: 'uppercase'
                   }}
                 >
-                  TODAY
+                  {t('weatherPage.todayBadge')}
                 </span>
               )}
               <p style={{ fontWeight: 700, fontSize: '0.88rem', color: 'var(--text-primary)' }}>{day.dayLabel}</p>

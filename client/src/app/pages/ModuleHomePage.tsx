@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext.js';
+import { useLanguage } from '../../context/LanguageContext.js';
 import { useIsMobile } from '../../hooks/useIsMobile';
 import { MobileModuleHomePage } from '../../components/mobile/MobileModuleHomePage';
 import { PriceRiskService } from '../../modules/sih/price-risk/priceRisk.service.js';
@@ -20,6 +21,7 @@ export const ModuleHomePage: React.FC = () => {
   const isMobile = useIsMobile();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { language, setLanguage, t } = useLanguage();
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
 
   if (isMobile) {
@@ -37,54 +39,54 @@ export const ModuleHomePage: React.FC = () => {
   const sihInnovations: SihCard[] = [
     {
       id: 'price-risk',
-      title: 'Before You Sow',
-      subtitle: 'Price-Decrement Risk',
-      description: 'Pre-sowing market risk & price predictions',
+      title: t('sih.priceRiskNav'),
+      subtitle: t('sih.priceRiskSubtitle'),
+      description: t('sih.priceRiskDesc'),
       icon: 'psychology',
       path: '/sih/price-risk',
       image: 'https://images.unsplash.com/photo-1586771107445-d3ca888129ff?auto=format&fit=crop&w=600&q=80'
     },
     {
       id: 'climate-risk',
-      title: 'Climate Risk',
-      subtitle: 'Aware Procurement',
-      description: 'Weather insights & procurement planner',
+      title: t('sih.climateRiskNav'),
+      subtitle: t('sih.climateRiskSubtitle'),
+      description: t('sih.climateRiskDesc'),
       icon: 'partly_cloudy_day',
       path: '/sih/climate-risk',
       image: 'https://images.unsplash.com/photo-1534274988757-a28bf1a57c17?auto=format&fit=crop&w=600&q=80'
     },
     {
       id: 'aggregation',
-      title: 'Small-Farm Aggregation',
-      subtitle: 'Optimizer',
-      description: 'Group buying & collective selling',
+      title: t('sih.aggregationNav'),
+      subtitle: t('sih.aggregationSubtitle'),
+      description: t('sih.aggregationDesc'),
       icon: 'groups',
       path: '/sih/aggregation',
       image: 'https://images.unsplash.com/photo-1595974482597-4b8da8879bc5?auto=format&fit=crop&w=600&q=80'
     },
     {
       id: 'crop-insurance',
-      title: 'Crop Risk & Insurance',
-      subtitle: 'Verification',
-      description: 'Satellite NDVI claim verification',
+      title: t('sih.cropInsuranceNav'),
+      subtitle: t('sih.cropInsuranceSubtitle'),
+      description: t('sih.cropInsuranceDesc'),
       icon: 'verified_user',
       path: '/sih/crop-insurance',
       image: 'https://images.unsplash.com/photo-1625246333195-78d9c38ad449?auto=format&fit=crop&w=600&q=80'
     },
     {
       id: 'smart-mandi',
-      title: 'Smart Mandi',
-      subtitle: 'Intelligence',
-      description: 'Best mandi prices & market router',
+      title: t('sih.smartMandiNav'),
+      subtitle: t('sih.smartMandiSubtitle'),
+      description: t('sih.smartMandiDesc'),
       icon: 'bar_chart',
       path: '/sih/smart-mandi',
       image: 'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=600&q=80'
     },
     {
       id: 'sahayak',
-      title: 'Sahayak + WhatsApp',
-      subtitle: 'Assisted Access',
-      description: 'AI & human support in your language',
+      title: t('sih.sahayakNav'),
+      subtitle: t('sih.sahayakSubtitle'),
+      description: t('sih.sahayakDesc'),
       icon: 'chat',
       path: '/sih/sahayak',
       image: 'https://images.unsplash.com/photo-1592982537447-7440770cbfc9?auto=format&fit=crop&w=600&q=80'
@@ -128,9 +130,30 @@ export const ModuleHomePage: React.FC = () => {
 
         {/* Header Right Controls */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          {/* Language Selector Dropdown */}
+          <select
+            value={language}
+            onChange={(e) => setLanguage(e.target.value)}
+            title={t('common.languageSelect')}
+            style={{
+              background: '#F1F5F9',
+              color: '#0F172A',
+              border: '1px solid #CBD5E1',
+              borderRadius: '20px',
+              padding: '0.25rem 0.65rem',
+              fontSize: '0.8rem',
+              fontWeight: 700,
+              cursor: 'pointer',
+              outline: 'none'
+            }}
+          >
+            <option value="en">EN</option>
+            <option value="hi">हिंदी</option>
+            <option value="bn">বাংলা</option>
+          </select>
           <button
             onClick={() => setIsNotificationsOpen(true)}
-            title="Notifications"
+            title={t('common.notifications')}
             style={{
               background: '#F1F5F9',
               border: 'none',
@@ -161,7 +184,7 @@ export const ModuleHomePage: React.FC = () => {
           {/* User Avatar Circle */}
           <div
             onClick={() => navigate('/profile')}
-            title={`View Profile & Settings (${user?.fullName || 'Farmer'})`}
+            title={t('moduleHome.profileTitle', { name: user?.fullName || 'Farmer' })}
             style={{
               width: '38px',
               height: '38px',
@@ -212,7 +235,7 @@ export const ModuleHomePage: React.FC = () => {
             alignItems: 'center',
             gap: '0.5rem'
           }}>
-            Hello, Farmer! 👋
+            {t('home.helloFarmer')}
           </h1>
           <p style={{
             fontSize: '1rem',
@@ -221,7 +244,7 @@ export const ModuleHomePage: React.FC = () => {
             marginBottom: 0,
             fontWeight: 500
           }}>
-            Choose an SIH innovation feature or open your everyday farming dashboard below.
+            {t('home.heroSubtitle')}
           </p>
         </div>
 
@@ -255,10 +278,10 @@ export const ModuleHomePage: React.FC = () => {
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: '#166534', fontSize: '0.95rem', fontWeight: 800 }}>
                 <span className="material-symbols-outlined" style={{ fontSize: '18px', color: '#16A34A' }}>check_circle</span>
-                <span>Registered Farm: {reg.fieldName} ({reg.crop}, {reg.landSizeAcres} Acres) in {reg.district}, {reg.state}</span>
+                <span>{t('home.registeredFarm', { name: reg.fieldName, crop: reg.crop, acres: reg.landSizeAcres, district: reg.district, state: reg.state })}</span>
               </div>
               <div style={{ fontSize: '0.82rem', color: '#15803D', marginTop: '0.2rem', fontWeight: 500 }}>
-                Field Mapping — Walk the Farm (SIH Innovation #6)
+                {t('home.fieldMappingTag')}
               </div>
             </div>
           </div>
@@ -280,7 +303,7 @@ export const ModuleHomePage: React.FC = () => {
               boxShadow: '0 2px 8px rgba(22, 163, 74, 0.25)'
             }}
           >
-            <span>Update Registration</span>
+            <span>{t('home.updateRegistration')}</span>
             <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>arrow_forward</span>
           </button>
         </div>
@@ -296,11 +319,11 @@ export const ModuleHomePage: React.FC = () => {
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <span className="material-symbols-outlined" style={{ fontSize: '24px', color: '#16A34A' }}>eco</span>
               <h2 style={{ fontSize: '1.35rem', fontWeight: 900, color: '#0F172A', margin: 0 }}>
-                SIH Innovation Modules
+                {t('home.sihModulesTitle')}
               </h2>
             </div>
             <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#15803D', background: '#DCFCE7', padding: '0.3rem 0.75rem', borderRadius: '14px' }}>
-              6 Core Modules
+              {t('home.sihModulesCount')}
             </span>
           </div>
 
@@ -471,16 +494,16 @@ export const ModuleHomePage: React.FC = () => {
 
               <div>
                 <h2 style={{ fontSize: '1.6rem', fontWeight: 900, color: '#FFFFFF', margin: '0 0 0.35rem 0' }}>
-                  Basic Farmer Needs
+                  {t('home.basicFarmerNeedsTitle')}
                 </h2>
                 <p style={{ fontSize: '1rem', color: '#FCD34D', margin: 0, fontWeight: 700 }}>
-                  Everyday farming companion (Weather, Schemes, Scanner, Marketplace)
+                  {t('home.basicFarmerNeedsDesc')}
                 </p>
               </div>
             </div>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#FFFFFF', fontWeight: 800, fontSize: '1.1rem', zIndex: 2, paddingRight: '2rem' }}>
-              <span>Open Dashboard</span>
+              <span>{t('home.openDashboard')}</span>
               <span className="material-symbols-outlined" style={{ fontSize: '24px' }}>arrow_forward</span>
             </div>
           </div>

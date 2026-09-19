@@ -1,11 +1,25 @@
 import React from 'react';
 import { AssessmentHistoryItem } from '../types';
+import { useLanguage } from '../../../../context/LanguageContext';
 
 interface Props {
   history: AssessmentHistoryItem[];
 }
 
 export const HistoricalRiskSection: React.FC<Props> = ({ history }) => {
+  const { t } = useLanguage();
+
+  const formatRiskLevel = (lvl: string) => {
+    if (!lvl) return '';
+    const lower = lvl.toLowerCase().trim();
+    if (lower.includes('severe') || lower.includes('critical')) return t('risk.severe');
+    if (lower.includes('high')) return t('risk.high');
+    if (lower.includes('moderate') || lower.includes('elevated') || lower.includes('caution')) return t('risk.moderate');
+    if (lower.includes('low') || lower.includes('minimal')) return t('risk.low');
+    if (lower.includes('safe') || lower.includes('normal')) return t('risk.safe');
+    return t(`risk.${lower}` as any) || lvl;
+  };
+
   return (
     <div style={{
       background: '#FFFFFF',
@@ -19,13 +33,13 @@ export const HistoricalRiskSection: React.FC<Props> = ({ history }) => {
     }}>
       <div>
         <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#0284C7', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-          ASSESSMENT ARCHIVE
+          {t('climateComponents.assessmentArchive')}
         </span>
         <h3 style={{ fontSize: '1.3rem', fontWeight: 800, color: '#0F172A', margin: '0.2rem 0 0 0' }}>
-          Historical Climate & Flood Risk Assessment Log
+          {t('climateComponents.historicalAssessmentLog')}
         </h3>
         <p style={{ fontSize: '0.8rem', color: '#64748B', margin: '0.2rem 0 0 0' }}>
-          Track past weather evaluations to identify seasonal vulnerability patterns across fields.
+          {t('climateComponents.historicalAssessmentSub')}
         </p>
       </div>
 
@@ -38,12 +52,12 @@ export const HistoricalRiskSection: React.FC<Props> = ({ history }) => {
         }}>
           <thead>
             <tr style={{ background: '#F8FAFC', borderBottom: '2px solid #E2E8F0', color: '#475569' }}>
-              <th style={{ padding: '0.75rem', fontWeight: 800 }}>DATE</th>
-              <th style={{ padding: '0.75rem', fontWeight: 800 }}>LOCATION</th>
-              <th style={{ padding: '0.75rem', fontWeight: 800 }}>CROP</th>
-              <th style={{ padding: '0.75rem', fontWeight: 800 }}>CLIMATE RISK</th>
-              <th style={{ padding: '0.75rem', fontWeight: 800 }}>FLOOD RISK</th>
-              <th style={{ padding: '0.75rem', fontWeight: 800 }}>ACTION RECOMMENDATION</th>
+              <th style={{ padding: '0.75rem', fontWeight: 800 }}>{t('climateComponents.date')}</th>
+              <th style={{ padding: '0.75rem', fontWeight: 800 }}>{t('climateComponents.location')}</th>
+              <th style={{ padding: '0.75rem', fontWeight: 800 }}>{t('climateComponents.crop')}</th>
+              <th style={{ padding: '0.75rem', fontWeight: 800 }}>{t('climateComponents.climateRisk')}</th>
+              <th style={{ padding: '0.75rem', fontWeight: 800 }}>{t('climateComponents.floodRisk')}</th>
+              <th style={{ padding: '0.75rem', fontWeight: 800 }}>{t('climateComponents.actionRecommendation')}</th>
             </tr>
           </thead>
           <tbody>
@@ -61,7 +75,7 @@ export const HistoricalRiskSection: React.FC<Props> = ({ history }) => {
                     padding: '0.15rem 0.45rem',
                     borderRadius: '4px'
                   }}>
-                    {item.climateRisk}
+                    {formatRiskLevel(item.climateRisk)}
                   </span>
                 </td>
                 <td style={{ padding: '0.75rem' }}>
@@ -73,7 +87,7 @@ export const HistoricalRiskSection: React.FC<Props> = ({ history }) => {
                     padding: '0.15rem 0.45rem',
                     borderRadius: '4px'
                   }}>
-                    {item.floodRisk}
+                    {formatRiskLevel(item.floodRisk)}
                   </span>
                 </td>
                 <td style={{ padding: '0.75rem', color: '#1E293B', fontWeight: 600 }}>{item.recommendation}</td>

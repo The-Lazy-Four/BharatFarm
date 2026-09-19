@@ -4,4 +4,6 @@ export * from './types/user.js';
 export * from './types/common.js';
 export * from './types/cropRisk.js';
 export * from './types/smartMandi.js';
+export * from './types/insurance.js';
 export * from './constants/index.js';
+

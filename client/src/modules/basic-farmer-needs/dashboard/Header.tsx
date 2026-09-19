@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTheme } from '@core/context/ThemeContext';
 import { useAuth } from '@core/context/AuthContext';
 import { useDataSaver } from '@core/context/DataSaverContext';
+import { useLanguage } from '@core/context/LanguageContext';
 
 interface NotificationItem {
   id: string;
@@ -44,6 +45,7 @@ export const Header: React.FC = () => {
   const { theme, toggleTheme } = useTheme();
   const { profileImage, getUserInitials } = useAuth();
   const { dataSaverMode, toggleDataSaverMode } = useDataSaver();
+  const { language, setLanguage, t } = useLanguage();
   const navigate = useNavigate();
 
   const [isNotifOpen, setIsNotifOpen] = useState(false);
@@ -83,20 +85,42 @@ export const Header: React.FC = () => {
           />
           <div>
             <h1 style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--text-primary)', lineHeight: 1 }}>
-              BharatFarm
+              {t('header.title')}
             </h1>
             <span style={{ fontSize: '0.6rem', color: 'var(--emerald-primary)', fontWeight: 600 }}>
-              Smart Farmer AI
+              {t('header.tagline')}
             </span>
           </div>
         </div>
 
-        {/* Right Controls: Data Saver Toggle, Theme Toggle, Notifications, Profile */}
+        {/* Right Controls: Language Selector, Data Saver Toggle, Theme Toggle, Notifications, Profile */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          {/* Language Selector Dropdown */}
+          <select
+            value={language}
+            onChange={(e) => setLanguage(e.target.value)}
+            title={t('common.languageSelect')}
+            style={{
+              background: 'var(--surface-1)',
+              color: 'var(--text-primary)',
+              border: '1px solid var(--border-default)',
+              borderRadius: '20px',
+              padding: '0.25rem 0.5rem',
+              fontSize: '0.725rem',
+              fontWeight: 700,
+              cursor: 'pointer',
+              outline: 'none'
+            }}
+          >
+            <option value="en">EN</option>
+            <option value="hi">हिंदी</option>
+            <option value="bn">বাংলা</option>
+          </select>
+
           {/* Data Saver Mode Toggle */}
           <button
             onClick={toggleDataSaverMode}
-            title={dataSaverMode ? 'Data Saver Enabled (Click to disable)' : 'Enable Mobile Data Saver Mode'}
+            title={dataSaverMode ? t('header.saverOnTitle') : t('header.saverOffTitle')}
             style={{
               background: dataSaverMode ? 'var(--signal-lime)' : 'var(--surface-1)',
               color: dataSaverMode ? 'var(--text-on-lime)' : 'var(--text-secondary)',
@@ -115,13 +139,13 @@ export const Header: React.FC = () => {
             <span className="material-symbols-outlined" style={{ fontSize: '15px' }}>
               {dataSaverMode ? 'data_saver_on' : 'data_saver_off'}
             </span>
-            <span className="header-datasaver-text">{dataSaverMode ? 'Data Saver' : 'Saver Off'}</span>
+            <span className="header-datasaver-text">{dataSaverMode ? t('header.dataSaverLabel') : t('header.dataSaverOffLabel')}</span>
           </button>
 
           {/* Theme Toggle Button */}
           <button
             onClick={toggleTheme}
-            title={`Switch to ${theme === 'light' ? 'Dark' : 'Light'} Mode`}
+            title={theme === 'light' ? t('header.themeSwitchDark') : t('header.themeSwitchLight')}
             style={{
               background: 'var(--surface-1)',
               border: '1px solid var(--border-default)',

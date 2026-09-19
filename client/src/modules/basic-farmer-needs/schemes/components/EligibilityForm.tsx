@@ -3,6 +3,7 @@ import { Input } from '@core/ui/Input';
 import { Button } from '@core/ui/Button';
 import { EligibilityCheckInput } from '../types/schemes.types';
 import { INDIAN_STATES } from '../constants/schemes.constants';
+import { useLanguage } from '../../../../context/LanguageContext';
 
 /**
  * Adapted from the OLD project's 3-step scheme wizard (js/schemes.js:
@@ -15,6 +16,7 @@ export const EligibilityForm: React.FC<{ onSubmit: (input: EligibilityCheckInput
   onSubmit,
   isSubmitting
 }) => {
+  const { t } = useLanguage();
   const [landSizeAcres, setLandSizeAcres] = useState('');
   const [state, setState] = useState('');
   const [cropCategory, setCropCategory] = useState('');
@@ -26,11 +28,11 @@ export const EligibilityForm: React.FC<{ onSubmit: (input: EligibilityCheckInput
     const land = parseFloat(landSizeAcres);
 
     if (landSizeAcres === '' || Number.isNaN(land) || land < 0) {
-      setError('Please enter a valid land size (0 or more acres).');
+      setError(t('schemes.errLandSize'));
       return;
     }
     if (!state) {
-      setError('Please select your state.');
+      setError(t('schemes.errState'));
       return;
     }
 
@@ -46,16 +48,16 @@ export const EligibilityForm: React.FC<{ onSubmit: (input: EligibilityCheckInput
   return (
     <form style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }} onSubmit={handleSubmit}>
       <Input
-        label="Land Size (Acres)"
+        label={t('loan.landSizeLabel')}
         type="number"
         step="0.1"
-        placeholder="3.5 (enter 0 if landless / sharecropper)"
+        placeholder={t('schemes.landSizePlaceholder')}
         value={landSizeAcres}
         onChange={e => setLandSizeAcres(e.target.value)}
       />
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-        <label style={{ fontSize: '0.85rem', fontWeight: 500, color: 'var(--text-muted)' }}>State</label>
+        <label style={{ fontSize: '0.85rem', fontWeight: 500, color: 'var(--text-muted)' }}>{t('auth.state')}</label>
         <select
           value={state}
           onChange={e => setState(e.target.value)}
@@ -69,7 +71,7 @@ export const EligibilityForm: React.FC<{ onSubmit: (input: EligibilityCheckInput
           }}
         >
           <option value="" disabled>
-            Select State
+            {t('auth.selectState')}
           </option>
           {INDIAN_STATES.map(s => (
             <option key={s} value={s}>
@@ -80,16 +82,16 @@ export const EligibilityForm: React.FC<{ onSubmit: (input: EligibilityCheckInput
       </div>
 
       <Input
-        label="Primary Crop (optional)"
-        placeholder="e.g. Rice, Wheat, Vegetables"
+        label={t('schemes.primaryCropOptional')}
+        placeholder={t('schemes.cropPlaceholder')}
         value={cropCategory}
         onChange={e => setCropCategory(e.target.value)}
       />
 
       <Input
-        label="Annual Income in ₹ (optional, improves loan estimate)"
+        label={t('schemes.annualIncomeLabel')}
         type="number"
-        placeholder="180000"
+        placeholder={t('schemes.incomePlaceholder')}
         value={annualIncome}
         onChange={e => setAnnualIncome(e.target.value)}
       />
@@ -97,7 +99,7 @@ export const EligibilityForm: React.FC<{ onSubmit: (input: EligibilityCheckInput
       {error && <p style={{ color: 'var(--danger)', fontSize: '0.85rem' }}>{error}</p>}
 
       <Button type="submit" isLoading={isSubmitting}>
-        Verify Scheme Eligibility
+        {t('basicNeeds.verifyEligibility')}
       </Button>
     </form>
   );

@@ -3,6 +3,7 @@ import { Card } from '@core/ui/Card';
 import { Button } from '@core/ui/Button';
 import { Input } from '@core/ui/Input';
 import { FEATURE_IMAGES } from '@core/constants/featureImages';
+import { useLanguage } from '../../../context/LanguageContext';
 
 interface FarmRecord {
   id: string;
@@ -20,6 +21,7 @@ const MOCK_RECORDS: FarmRecord[] = [
 ];
 
 export const FarmRecordsPage: React.FC = () => {
+  const { t, formatDate, formatCurrency } = useLanguage();
   const [records, setRecords] = useState<FarmRecord[]>(() => {
     try {
       const saved = localStorage.getItem('bf_farm_records');

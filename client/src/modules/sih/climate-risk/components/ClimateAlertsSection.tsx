@@ -1,11 +1,14 @@
 import React from 'react';
 import { ClimateAlert } from '../types';
+import { useLanguage } from '../../../../context/LanguageContext';
 
 interface Props {
   alerts: ClimateAlert[];
 }
 
 export const ClimateAlertsSection: React.FC<Props> = ({ alerts }) => {
+  const { t } = useLanguage();
+
   return (
     <div style={{
       background: '#FFFFFF',
@@ -20,10 +23,10 @@ export const ClimateAlertsSection: React.FC<Props> = ({ alerts }) => {
     }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem' }}>
         <span style={{ fontSize: '0.72rem', fontWeight: 800, color: '#64748B', letterSpacing: '0.04em' }}>
-          ACTIVE ALERTS
+          {t('climateComponents.activeAlerts')}
         </span>
         <span style={{ fontSize: '0.66rem', color: '#dc2626', fontWeight: 800 }}>
-          {alerts.length} Active
+          {t('climateComponents.activeCount', { count: alerts.length })}
         </span>
       </div>
 

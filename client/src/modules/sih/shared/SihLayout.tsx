@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../context/AuthContext.js';
+import { useLanguage } from '../../../context/LanguageContext.js';
 import { useIsMobile } from '../../../hooks/useIsMobile';
 import { MobileSihLayout } from '../../../components/mobile/MobileSihLayout';
 import { NotificationDrawer } from '../../../components/notifications/NotificationDrawer';
@@ -21,6 +22,7 @@ export const SihLayout: React.FC<SihShellProps> = ({
   const isMobile = useIsMobile();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { language, setLanguage, t } = useLanguage();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
 
@@ -30,12 +32,12 @@ export const SihLayout: React.FC<SihShellProps> = ({
 
 
   const sihNavItems = [
-    { id: 'climate-risk', label: 'Climate Risk', icon: 'partly_cloudy_day', path: '/sih/climate-risk' },
-    { id: 'aggregation', label: 'Aggregation', icon: 'groups', path: '/sih/aggregation' },
-    { id: 'crop-insurance', label: 'Crop Insurance', icon: 'verified_user', path: '/sih/crop-insurance' },
-    { id: 'smart-mandi', label: 'Smart Mandi', icon: 'bar_chart', path: '/sih/smart-mandi' },
-    { id: 'sahayak', label: 'Sahayak', icon: 'eco', path: '/sih/sahayak' },
-    { id: 'price-risk', label: 'Before You Sow', icon: 'psychology', path: '/sih/price-risk' },
+    { id: 'climate-risk', label: t('sih.climateRiskNav'), icon: 'partly_cloudy_day', path: '/sih/climate-risk' },
+    { id: 'aggregation', label: t('sih.aggregationNav'), icon: 'groups', path: '/sih/aggregation' },
+    { id: 'crop-insurance', label: t('sih.cropInsuranceNav'), icon: 'verified_user', path: '/sih/crop-insurance' },
+    { id: 'smart-mandi', label: t('sih.smartMandiNav'), icon: 'bar_chart', path: '/sih/smart-mandi' },
+    { id: 'sahayak', label: t('sih.sahayakNav'), icon: 'eco', path: '/sih/sahayak' },
+    { id: 'price-risk', label: t('sih.priceRiskNav'), icon: 'psychology', path: '/sih/price-risk' },
   ];
 
   return (
@@ -76,6 +78,27 @@ export const SihLayout: React.FC<SihShellProps> = ({
 
         {/* User Controls */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
+          {/* Language Dropdown Selector */}
+          <select
+            value={language}
+            onChange={(e) => setLanguage(e.target.value)}
+            title={t('common.languageSelect')}
+            style={{
+              background: '#F1F5F9',
+              color: '#0F172A',
+              border: '1px solid #CBD5E1',
+              borderRadius: '20px',
+              padding: '0.25rem 0.6rem',
+              fontSize: '0.75rem',
+              fontWeight: 700,
+              cursor: 'pointer',
+              outline: 'none'
+            }}
+          >
+            <option value="en">EN</option>
+            <option value="hi">हिंदी</option>
+            <option value="bn">বাংলা</option>
+          </select>
           <button
             onClick={() => setIsNotificationsOpen(true)}
             title="Notifications"
@@ -166,7 +189,7 @@ export const SihLayout: React.FC<SihShellProps> = ({
             letterSpacing: '0.05em',
             padding: '0.4rem 0.75rem 0.6rem'
           }}>
-            SIH MODULES
+            {t('sih.sihModulesHeader')}
           </div>
 
           {sihNavItems.map((item) => {
@@ -218,7 +241,7 @@ export const SihLayout: React.FC<SihShellProps> = ({
               }}
             >
               <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>arrow_back</span>
-              <span>Back to Home</span>
+              <span>{t('common.backToHome')}</span>
             </button>
           </div>
         </aside>

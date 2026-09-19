@@ -1,17 +1,20 @@
 import React from 'react';
 import { ClimateAssessmentResult } from '../types';
+import { useLanguage } from '../../../../context/LanguageContext';
 
 interface Props {
   advisories: ClimateAssessmentResult['operationalAdvisories'];
 }
 
 export const OperationalAdvisoriesSection: React.FC<Props> = ({ advisories }) => {
+  const { t } = useLanguage();
+
   const items = [
-    { title: 'SPRAYING', icon: 'cleaning_services', data: advisories.spraying },
-    { title: 'IRRIGATION', icon: 'water_drop', data: advisories.irrigation },
-    { title: 'FERTILIZER', icon: 'eco', data: advisories.fertilizer },
-    { title: 'FIELD WORK', icon: 'agriculture', data: advisories.fieldWork },
-    { title: 'OUTDOOR DRYING', icon: 'wb_sunny', data: advisories.drying }
+    { title: t('climateComponents.spraying'), icon: 'cleaning_services', data: advisories.spraying },
+    { title: t('climateComponents.irrigation'), icon: 'water_drop', data: advisories.irrigation },
+    { title: t('climateComponents.fertilizer'), icon: 'eco', data: advisories.fertilizer },
+    { title: t('climateComponents.fieldWork'), icon: 'agriculture', data: advisories.fieldWork },
+    { title: t('climateComponents.outdoorDrying'), icon: 'wb_sunny', data: advisories.drying }
   ];
 
   const getStatusBadge = (status: string) => {
@@ -37,10 +40,10 @@ export const OperationalAdvisoriesSection: React.FC<Props> = ({ advisories }) =>
     }}>
       <div>
         <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#0284C7', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-          OPERATIONAL SUITABILITY
+          {t('climateComponents.operationalSuitability')}
         </span>
         <h3 style={{ fontSize: '1.3rem', fontWeight: 800, color: '#0F172A', margin: '0.2rem 0 0 0' }}>
-          Field Operations Weather Advisory Matrix
+          {t('climateComponents.operationalMatrix')}
         </h3>
       </div>
 

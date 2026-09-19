@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Card, Button, Badge } from '../../../core/ui';
 import { useAuth } from '../../../context/AuthContext';
 import { useDataSaver } from '../../../context/DataSaverContext';
+import { useLanguage } from '../../../context/LanguageContext';
 import { CentralAiApi } from '../../../services/centralAiApi';
 import { roadmapApi } from '../roadmap/api';
 import { CropRoadmapItem } from '../roadmap/types';
@@ -21,6 +22,7 @@ export const MasterDashboardPage: React.FC = () => {
   const isMobile = useIsMobile();
   const { user } = useAuth();
   const { dataSaverMode } = useDataSaver();
+  const { t } = useLanguage();
   const navigate = useNavigate();
 
   if (isMobile) {
@@ -42,7 +44,7 @@ export const MasterDashboardPage: React.FC = () => {
 
 
 
-  const [aiAdvice, setAiAdvice] = useState<string>('Analyzing local field telemetry and weather conditions...');
+  const [aiAdvice, setAiAdvice] = useState<string>(t('dashboard.analyzingTelemetry'));
   const [isAiGenerated, setIsAiGenerated] = useState<boolean>(false);
   const [isAdviceLoading, setIsAdviceLoading] = useState<boolean>(false);
   const [hasFetchedAdvice, setHasFetchedAdvice] = useState<boolean>(false);
@@ -66,47 +68,47 @@ export const MasterDashboardPage: React.FC = () => {
   const quickAccessServices = [
     {
       id: 'shayak',
-      title: 'Shayak AI',
-      category: 'AI ASSISTANT',
-      description: 'Voice & text farming companion',
+      title: t('moduleHome.askShayak'),
+      category: t('dashboard.categoryAiAssistant'),
+      description: t('dashboard.descShayak'),
       image: FEATURE_IMAGES.krishibot.url,
       fallbackImage: FEATURE_IMAGES.krishibot.fallbackUrl,
       alt: FEATURE_IMAGES.krishibot.alt,
       path: '/krishibot',
-      badge: '24/7 Voice'
+      badge: t('dashboard.badgeShayak')
     },
     {
       id: 'scanner',
-      title: 'Leaf Scanner',
-      category: 'VISION DIAGNOSTICS',
-      description: 'Instant AI crop disease check',
+      title: t('moduleHome.leafScanner'),
+      category: t('dashboard.categoryVisionDiagnostics'),
+      description: t('dashboard.descScanner'),
       image: FEATURE_IMAGES.scanner.url,
       fallbackImage: FEATURE_IMAGES.scanner.fallbackUrl,
       alt: FEATURE_IMAGES.scanner.alt,
       path: '/scanner',
-      badge: lastScan ? `${lastScan.cropName} Scanned` : 'AI Vision'
+      badge: lastScan ? t('dashboard.scannedCropBadge', { crop: lastScan.cropName }) : t('dashboard.badgeAiVision')
     },
     {
       id: 'marketplace',
-      title: 'Marketplace',
-      category: 'MANDI INPUTS',
-      description: 'Seeds, fertilizers & equipment',
+      title: t('moduleHome.marketplaceTitle'),
+      category: t('dashboard.categoryMandiInputs'),
+      description: t('dashboard.descMarketplace'),
       image: FEATURE_IMAGES.marketplace.url,
       fallbackImage: FEATURE_IMAGES.marketplace.fallbackUrl,
       alt: FEATURE_IMAGES.marketplace.alt,
       path: '/marketplace',
-      badge: 'Direct Prices'
+      badge: t('dashboard.badgeDirectPrices')
     },
     {
       id: 'roadmap',
-      title: 'Crop Roadmap',
-      category: 'FIELD TRACKER',
-      description: 'Stage-by-stage crop timeline',
+      title: t('moduleHome.activeRoadmap'),
+      category: t('dashboard.categoryFieldTracker'),
+      description: t('dashboard.descRoadmap'),
       image: FEATURE_IMAGES.roadmap.url,
       fallbackImage: FEATURE_IMAGES.roadmap.fallbackUrl,
       alt: FEATURE_IMAGES.roadmap.alt,
       path: '/roadmap',
-      badge: roadmap ? `${roadmap.crop} Stage` : 'Yield Plan'
+      badge: roadmap ? t('dashboard.stageBadge', { crop: roadmap.crop }) : t('dashboard.badgeYieldPlan')
     }
   ];
 
@@ -162,14 +164,14 @@ export const MasterDashboardPage: React.FC = () => {
       setIsAiGenerated(res.isAiGenerated);
       setHasFetchedAdvice(true);
     }).catch(() => {
-      setAiAdvice(`Weather conditions are stable in ${farmerDistrict}. Continue scheduled field irrigation for ${primaryCrop}.`);
+      setAiAdvice(t('dashboard.fallbackAdvice', { district: farmerDistrict, crop: primaryCrop }));
       setIsAiGenerated(false);
     }).finally(() => setIsAdviceLoading(false));
   };
 
   useEffect(() => {
     if (dataSaverMode) {
-      setAiAdvice('Data Saver active. Tap "Generate AI Advisory" to fetch contextual daily crop guidance.');
+      setAiAdvice(t('dashboard.dataSaverAdviceMsg'));
       setIsAiGenerated(false);
       return;
     }
@@ -190,8 +192,8 @@ export const MasterDashboardPage: React.FC = () => {
   priorities.push({
     id: 'p-climate',
     icon: 'partly_cloudy_day',
-    text: `Climate Risk Advisory: Check 7-day weather forecast & harvest advisory for ${farmerDistrict}.`,
-    actionText: 'Climate Planner',
+    text: t('dashboard.priorityClimateText', { district: farmerDistrict }),
+    actionText: t('dashboard.actionClimatePlanner'),
     actionUrl: '/sih/climate-risk',
     tag: 'weather'
   });
@@ -205,22 +207,20 @@ export const MasterDashboardPage: React.FC = () => {
       priorities.push({
         id: 'p-roadmap',
         icon: 'event_available',
-        text: `${roadmap.crop} (${todayTask.stage}): "${todayTask.title}" scheduled for today.`,
-        actionText: 'View Task',
+        text: t('dashboard.priorityRoadmapText', { crop: roadmap.crop, stage: todayTask.stage, title: todayTask.title }),
+        actionText: t('dashboard.actionViewTask'),
         actionUrl: '/roadmap',
         tag: 'roadmap'
       });
     }
   }
 
-
-
   if (schemes.length > 0) {
     priorities.push({
       id: 'p-scheme',
       icon: 'policy',
-      text: `Government Scheme available: "${schemes[0].title}" for ${farmerState} farmers.`,
-      actionText: 'Apply Now',
+      text: t('dashboard.prioritySchemeText', { title: schemes[0].title, state: farmerState }),
+      actionText: t('dashboard.actionApplyNow'),
       actionUrl: `/schemes/${schemes[0].id}`,
       tag: 'scheme'
     });
@@ -230,8 +230,8 @@ export const MasterDashboardPage: React.FC = () => {
     priorities.push({
       id: 'p-scan',
       icon: 'biotech',
-      text: `Last Scan (${lastScan.cropName}): ${lastScan.disease} detected (${lastScan.severity} risk).`,
-      actionText: 'Scan History',
+      text: t('dashboard.priorityScanText', { crop: lastScan.cropName, disease: lastScan.disease, severity: lastScan.severity }),
+      actionText: t('dashboard.actionScanHistory'),
       actionUrl: '/scanner',
       tag: 'scan'
     });
@@ -246,27 +246,27 @@ export const MasterDashboardPage: React.FC = () => {
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.35rem', flexWrap: 'wrap' }}>
               <span className="badge badge-primary" style={{ background: 'var(--signal-lime)', color: '#062c12', fontWeight: 800 }}>
-                FARM COMMAND CENTER
+                {t('moduleHome.farmerCommandCenter')}
               </span>
               {dataSaverMode && (
-                <span className="badge badge-warning" style={{ fontSize: '0.72rem' }}>⚡ Data Saver Active</span>
+                <span className="badge badge-warning" style={{ fontSize: '0.72rem' }}>{t('common.dataSaverActive')}</span>
               )}
             </div>
             <h1 style={{ fontSize: '1.6rem', fontWeight: 800, color: '#FFFFFF', letterSpacing: '-0.02em', margin: 0 }}>
-              Namaste, {user?.fullName || 'Farmer Partner'} 👋
+              {t('moduleHome.welcomeFarmer', { name: user?.fullName || t('dashboard.farmerPartner') })}
             </h1>
 
             {isProfileComplete ? (
               <p style={{ color: 'rgba(255, 255, 255, 0.9)', fontSize: '0.85rem', marginTop: '0.25rem', margin: 0 }}>
-                🌱 <strong>{primaryCrop}</strong> • 📍 {farmerDistrict}, {farmerState} • 📐 <strong>{landSize} Acres</strong>
+                🌱 <strong>{primaryCrop}</strong> • 📍 {farmerDistrict}, {farmerState} • 📐 <strong>{landSize} {t('common.acres')}</strong>
               </p>
             ) : (
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.35rem' }}>
                 <span style={{ fontSize: '0.82rem', color: '#fef08a', fontWeight: 600 }}>
-                  ⚠️ Profile incomplete: Add your crop details & land size
+                  {t('moduleHome.profileIncomplete')}
                 </span>
                 <Link to="/profile" style={{ fontSize: '0.78rem', color: '#FFFFFF', textDecoration: 'underline', fontWeight: 700 }}>
-                  Complete Profile →
+                  {t('moduleHome.completeProfile')}
                 </Link>
               </div>
             )}
@@ -275,12 +275,12 @@ export const MasterDashboardPage: React.FC = () => {
           <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
             <Link to="/scanner">
               <Button variant="primary" size="sm" style={{ background: '#22c55e', border: 'none' }}>
-                <span className="material-symbols-outlined" style={{ fontSize: '16px', marginRight: '4px' }}>biotech</span> Scan Leaf
+                <span className="material-symbols-outlined" style={{ fontSize: '16px', marginRight: '4px' }}>biotech</span> {t('moduleHome.leafScanner')}
               </Button>
             </Link>
             <Link to="/krishibot">
               <Button variant="outline" size="sm" style={{ borderColor: 'rgba(255,255,255,0.4)', color: '#fff' }}>
-                <span className="material-symbols-outlined" style={{ fontSize: '16px', marginRight: '4px' }}>smart_toy</span> Ask Shayak
+                <span className="material-symbols-outlined" style={{ fontSize: '16px', marginRight: '4px' }}>smart_toy</span> {t('moduleHome.askShayak')}
               </Button>
             </Link>
           </div>
@@ -292,14 +292,14 @@ export const MasterDashboardPage: React.FC = () => {
         <div className="image-section-header">
           <div>
             <h2 style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--text-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-              <span>🌾</span> Farmer Companion Services
+              <span>🌾</span> {t('moduleHome.servicesTitle')}
             </h2>
             <p style={{ fontSize: '0.76rem', color: 'var(--text-secondary)', margin: 0 }}>
-              Quick access to daily intelligent farming tools
+              {t('moduleHome.servicesSubtitle')}
             </p>
           </div>
           <Link to="/schemes" style={{ fontSize: '0.78rem', fontWeight: 750, color: 'var(--signal-lime)', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '2px', padding: '0.25rem 0.6rem', borderRadius: '6px', background: 'rgba(34, 197, 94, 0.10)', border: '1px solid var(--border-subtle)' }}>
-            Explore All <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>chevron_right</span>
+            {t('common.exploreAll')} <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>chevron_right</span>
           </Link>
         </div>
 
@@ -349,7 +349,7 @@ export const MasterDashboardPage: React.FC = () => {
                     </p>
                   </div>
 
-                  <div className="card-feature-action" aria-label={`Open ${service.title}`}>
+                  <div className="card-feature-action" aria-label={t('dashboard.openService', { title: service.title })}>
                     ➔
                   </div>
                 </div>
@@ -362,11 +362,11 @@ export const MasterDashboardPage: React.FC = () => {
       {/* 2. TODAY'S DAILY ACTION PRIORITIES & AI ADVISORY BANNER */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1rem' }}>
         {/* Left Column: Today's Priorities */}
-        <Card title="📌 Today's Priority Action Plan" subtitle="Data-driven field tasks & weather advisories for your farm.">
+        <Card title={t('moduleHome.todayPriorities')} subtitle={t('moduleHome.todayPrioritiesSub')}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem', marginTop: '0.5rem' }}>
             {priorities.length === 0 ? (
               <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>
-                ✅ All clear on your farm today! No emergency weather or task alerts.
+                {t('moduleHome.allClear')}
               </p>
             ) : (
               priorities.map((item, idx) => (
@@ -404,15 +404,15 @@ export const MasterDashboardPage: React.FC = () => {
 
         {/* Right Column: Central AI Advisory */}
         <Card
-          title="🧠 Agronomist Daily Advisory"
-          subtitle={`Customized for ${primaryCrop} in ${farmerDistrict}`}
+          title={t('moduleHome.agronomistAdvisory')}
+          subtitle={t('moduleHome.customizedFor', { crop: primaryCrop, district: farmerDistrict })}
           action={
             dataSaverMode ? (
               <Button onClick={fetchAiAdvisory} disabled={isAdviceLoading} size="sm" variant="outline">
-                {isAdviceLoading ? 'Generating...' : '⚡ Generate Advisory'}
+                {isAdviceLoading ? t('moduleHome.generating') : t('dashboard.generateAdvisoryBtn')}
               </Button>
             ) : (
-              isAiGenerated && <Badge variant="primary">AI Generated</Badge>
+              isAiGenerated && <Badge variant="primary">{t('dashboard.aiGeneratedBadge')}</Badge>
             )
           }
         >
@@ -432,7 +432,7 @@ export const MasterDashboardPage: React.FC = () => {
             {isAdviceLoading ? (
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-muted)' }}>
                 <span className="material-symbols-outlined spin">sync</span>
-                <span>Fetching agronomist advisory from Central AI Gateway...</span>
+                <span>{t('moduleHome.fetchingAdvisory')}</span>
               </div>
             ) : (
               aiAdvice
@@ -470,19 +470,19 @@ export const MasterDashboardPage: React.FC = () => {
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <h3 style={{ fontSize: '1.05rem', fontWeight: 800, color: 'var(--text-main)', margin: 0 }}>
-                Climate Risk Planner & Weather Intelligence Hub
+                {t('moduleHome.climateHubTitle')}
               </h3>
-              <Badge variant="primary">Authoritative Hub</Badge>
+              <Badge variant="primary">{t('moduleHome.climateHubBadge')}</Badge>
             </div>
             <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', margin: '0.2rem 0 0 0' }}>
-              Access 7-day forecast, hourly wind/rain trends, flood risk engine, crop exposure analysis & harvest advisors.
+              {t('moduleHome.climateHubDesc')}
             </p>
           </div>
         </div>
 
         <Link to="/sih/climate-risk" style={{ textDecoration: 'none' }}>
           <Button variant="primary" size="sm" style={{ background: '#0284C7', borderColor: '#0284C7' }}>
-            Open Climate Planner →
+            {t('moduleHome.openClimatePlanner')}
           </Button>
         </Link>
       </div>
@@ -492,18 +492,18 @@ export const MasterDashboardPage: React.FC = () => {
         
         {/* ROADMAP STATUS */}
         <Card
-          title="📅 Active Crop Roadmap"
-          subtitle={roadmap ? `${roadmap.crop} Lifecycle Tracker` : 'Plan your seasonal crop tasks'}
+          title={t('moduleHome.activeRoadmap')}
+          subtitle={roadmap ? t('moduleHome.lifecycleTracker', { crop: roadmap.crop }) : t('moduleHome.planTasks')}
           action={
             <Link to="/roadmap">
               <Button size="sm" variant={roadmap ? 'outline' : 'primary'}>
-                {roadmap ? 'Open Roadmap →' : '+ Create Roadmap'}
+                {roadmap ? t('moduleHome.openRoadmap') : t('moduleHome.createRoadmap')}
               </Button>
             </Link>
           }
         >
           {isRoadmapLoading ? (
-            <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>Checking crop roadmap...</p>
+            <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>{t('dashboard.checkingRoadmap')}</p>
           ) : roadmap ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem', marginTop: '0.25rem' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -511,14 +511,14 @@ export const MasterDashboardPage: React.FC = () => {
                   {roadmap.crop}
                 </span>
                 <Badge variant="primary">
-                  Stage: {roadmap.activities?.[Math.min((roadmap.completedDays?.length || 0), (roadmap.activities?.length || 1) - 1)]?.stage || 'Sowing'}
+                  {t('moduleHome.stageLabel', { stage: roadmap.activities?.[Math.min((roadmap.completedDays?.length || 0), (roadmap.activities?.length || 1) - 1)]?.stage || t('dashboard.sowing') })}
                 </Badge>
               </div>
 
               {/* Progress bar */}
               <div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.72rem', color: 'var(--text-muted)', marginBottom: '0.2rem' }}>
-                  <span>Progress</span>
+                  <span>{t('moduleHome.progressLabel')}</span>
                   <span>{Math.round(((roadmap.completedDays?.length || 0) / (roadmap.activities?.length || 1)) * 100)}%</span>
                 </div>
                 <div style={{ height: '6px', width: '100%', background: 'var(--bg-card-hover)', borderRadius: '3px', overflow: 'hidden' }}>
@@ -534,7 +534,7 @@ export const MasterDashboardPage: React.FC = () => {
 
               <div style={{ background: 'var(--bg-card-hover)', padding: '0.65rem', borderRadius: '6px', marginTop: '0.25rem' }}>
                 <span style={{ fontSize: '0.7rem', color: 'var(--primary)', fontWeight: 700, textTransform: 'uppercase' }}>
-                  TODAY'S SCHEDULED TASK
+                  {t('moduleHome.todayTaskLabel')}
                 </span>
                 <p style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-main)', marginTop: '0.15rem', margin: 0 }}>
                   {roadmap.activities?.[Math.min((roadmap.completedDays?.length || 0), (roadmap.activities?.length || 1) - 1)]?.title || 'Inspect field for moisture'}
@@ -544,10 +544,10 @@ export const MasterDashboardPage: React.FC = () => {
           ) : (
             <div style={{ padding: '1rem', textAlign: 'center', background: 'var(--bg-card-hover)', borderRadius: '6px' }}>
               <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', marginBottom: '0.75rem' }}>
-                No active roadmap found for {primaryCrop}. Create a stage-by-stage guide to boost yield.
+                {t('moduleHome.noActiveRoadmap', { crop: primaryCrop })}
               </p>
               <Link to="/roadmap">
-                <Button size="sm" variant="primary">Create Crop Roadmap</Button>
+                <Button size="sm" variant="primary">{t('moduleHome.createRoadmap')}</Button>
               </Link>
             </div>
           )}
@@ -555,26 +555,26 @@ export const MasterDashboardPage: React.FC = () => {
 
         {/* SCANNER RECENT DIAGNOSIS */}
         <Card
-          title="🔬 Recent Leaf Scan Diagnosis"
-          subtitle="AI vision health audit history"
+          title={t('moduleHome.recentDiagnosis')}
+          subtitle={t('moduleHome.healthAuditHistory')}
           action={
             <Link to="/scanner">
               <Button size="sm" variant="outline">
-                {lastScan ? 'Scan History →' : 'Scan Leaf'}
+                {lastScan ? t('dashboard.scanHistoryArrow') : t('dashboard.scanLeafBtn')}
               </Button>
             </Link>
           }
         >
           {isScanLoading ? (
-            <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>Loading scan history...</p>
+            <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>{t('dashboard.loadingScanHistory')}</p>
           ) : lastScan ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem', marginTop: '0.25rem' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <span style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-main)' }}>
-                  {lastScan.cropName} Sample
+                  {t('dashboard.sampleLabel', { crop: lastScan.cropName })}
                 </span>
                 <Badge variant={lastScan.severity === 'none' ? 'primary' : 'warning'}>
-                  {lastScan.severity === 'none' ? 'Healthy' : `${lastScan.severity.toUpperCase()} RISK`}
+                  {lastScan.severity === 'none' ? t('moduleHome.healthyStatus') : t('moduleHome.riskStatus', { severity: lastScan.severity.toUpperCase() })}
                 </Badge>
               </div>
 
@@ -583,14 +583,14 @@ export const MasterDashboardPage: React.FC = () => {
                   {lastScan.disease}
                 </p>
                 <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.2rem', margin: 0 }}>
-                  Confidence: {Math.round(lastScan.confidence * 100)}% • Scanned: {new Date(lastScan.scannedAt).toLocaleDateString()}
+                  {t('moduleHome.confidenceLabel', { confidence: Math.round(lastScan.confidence * 100) })} • {t('moduleHome.scannedOn', { date: new Date(lastScan.scannedAt).toLocaleDateString() })}
                 </p>
               </div>
 
               <div style={{ display: 'flex', gap: '0.5rem' }}>
                 <Link to="/scanner" style={{ flex: 1 }}>
                   <Button size="sm" variant="primary" style={{ width: '100%', fontSize: '0.78rem' }}>
-                    📷 New Leaf Scan
+                    {t('moduleHome.newLeafScan')}
                   </Button>
                 </Link>
               </div>
@@ -598,10 +598,10 @@ export const MasterDashboardPage: React.FC = () => {
           ) : (
             <div style={{ padding: '1rem', textAlign: 'center', background: 'var(--bg-card-hover)', borderRadius: '6px' }}>
               <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', marginBottom: '0.75rem' }}>
-                No crop leaf scans performed yet. Take a picture of your crop leaf for instant diagnosis.
+                {t('moduleHome.noScansYet')}
               </p>
               <Link to="/scanner">
-                <Button size="sm" variant="primary">Scan a Crop</Button>
+                <Button size="sm" variant="primary">{t('moduleHome.scanACrop')}</Button>
               </Link>
             </div>
           )}
@@ -613,16 +613,16 @@ export const MasterDashboardPage: React.FC = () => {
         
         {/* SCHEMES */}
         <Card
-          title="🏛️ Govt Subsidies & Schemes"
-          subtitle={`Filtered for ${farmerState} farmers`}
+          title={t('moduleHome.subsidiesTitle')}
+          subtitle={t('moduleHome.filteredForState', { state: farmerState })}
           action={
             <Link to="/schemes" style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--primary)' }}>
-              View All Schemes →
+              {t('moduleHome.viewAllSchemes')}
             </Link>
           }
         >
           {isSchemesLoading ? (
-            <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>Filtering relevant schemes...</p>
+            <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>{t('dashboard.filteringSchemes')}</p>
           ) : schemes.length > 0 ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginTop: '0.25rem' }}>
               {schemes.map(s => (
@@ -632,28 +632,28 @@ export const MasterDashboardPage: React.FC = () => {
                     <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>{s.department || s.category} • {s.state}</span>
                   </div>
                   <Link to={`/schemes/${s.id}`}>
-                    <Button size="sm" variant="outline" style={{ fontSize: '0.72rem', padding: '0.15rem 0.4rem' }}>Details</Button>
+                    <Button size="sm" variant="outline" style={{ fontSize: '0.72rem', padding: '0.15rem 0.4rem' }}>{t('common.details')}</Button>
                   </Link>
                 </div>
               ))}
             </div>
           ) : (
-            <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>No state schemes found.</p>
+            <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>{t('dashboard.noStateSchemes')}</p>
           )}
         </Card>
 
         {/* MARKETPLACE PREVIEW */}
         <Card
-          title="🛒 Farm Inputs Marketplace"
-          subtitle="Top rated seeds, fertilizers & machinery"
+          title={t('moduleHome.marketplaceTitle')}
+          subtitle={t('moduleHome.topRatedInputs')}
           action={
             <Link to="/marketplace" style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--primary)' }}>
-              Open Marketplace →
+              {t('moduleHome.openMarketplace')}
             </Link>
           }
         >
           {isProductsLoading ? (
-            <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>Loading marketplace products...</p>
+            <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>{t('dashboard.loadingProducts')}</p>
           ) : products.length > 0 ? (
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '0.5rem', marginTop: '0.25rem' }}>
               {products.map(p => (
@@ -665,7 +665,7 @@ export const MasterDashboardPage: React.FC = () => {
               ))}
             </div>
           ) : (
-            <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>No products listed.</p>
+            <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>{t('dashboard.noProducts')}</p>
           )}
         </Card>
       </div>
@@ -675,20 +675,20 @@ export const MasterDashboardPage: React.FC = () => {
 
         {/* SHAYAK QUICK ASSISTANT PROMPTS */}
         <Card
-          title="🤖 Ask Shayak AI Assistant"
-          subtitle="Tap a quick question to open instant voice & text assistant"
+          title={t('moduleHome.askShayakTitle')}
+          subtitle={t('moduleHome.askShayakSub')}
           action={
             <Link to="/krishibot" style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--primary)' }}>
-              Open Shayak Chat →
+              {t('moduleHome.openShayakChat')}
             </Link>
           }
         >
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.45rem', marginTop: '0.25rem' }}>
             {[
-              "What farming activities should I do on my field today?",
-              `Is heavy rain expected in ${farmerDistrict} this week?`,
-              "Which government fertilizer subsidy am I eligible for?",
-              "Are there any bulk seed group buy deals near me?"
+              t('moduleHome.quickPrompt1'),
+              t('moduleHome.quickPrompt2', { district: farmerDistrict }),
+              t('moduleHome.quickPrompt3'),
+              t('moduleHome.quickPrompt4')
             ].map((prompt, idx) => (
               <button
                 key={idx}

@@ -3,6 +3,7 @@ import { SihLayout } from '../../shared/SihLayout.js';
 import { SmartMandiService, MandiRoute } from '../smartMandi.service.js';
 import { fieldMappingService, FieldRecord } from '../../field-mapping/fieldMapping.service.js';
 import { useAuth } from '../../../../context/AuthContext.js';
+import { useLanguage } from '../../../../context/LanguageContext.js';
 import type {
   BuyerRequirement,
   FarmerSupply,
@@ -25,6 +26,7 @@ const POPULAR_CROPS = ['Potato', 'Tomato', 'Wheat', 'Paddy', 'Onion', 'Chilli', 
 
 export const SmartMandiPage: React.FC = () => {
   const { user } = useAuth();
+  const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState<ActiveTab>('buy');
 
   // ── BUYER STATE ──────────────────────────────────────────
@@ -322,7 +324,7 @@ export const SmartMandiPage: React.FC = () => {
   const unreadNotifCount = notifications.filter(n => !n.read).length;
 
   return (
-    <SihLayout activeModuleId="smart-mandi" moduleTitle="Smart Mandi" moduleIcon="bar_chart">
+    <SihLayout activeModuleId="smart-mandi" moduleTitle={t('sih.smartMandiTitle')} moduleIcon="bar_chart">
       <div style={{ maxWidth: '1100px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '1.5rem', paddingBottom: '3rem' }}>
 
         {/* ── HEADER & SEGMENTED TABS ─────────────────────────────── */}
@@ -332,10 +334,10 @@ export const SmartMandiPage: React.FC = () => {
               <span style={{ fontSize: '1.8rem' }}>📍</span>
               <div>
                 <h1 style={{ fontSize: '1.65rem', fontWeight: 900, color: '#0F172A', margin: 0, letterSpacing: '-0.02em' }}>
-                  Smart Mandi
+                  {t('sih.smartMandiTitle')}
                 </h1>
                 <p style={{ fontSize: '0.86rem', color: '#64748B', margin: '0.15rem 0 0' }}>
-                  Multi-Farmer Supply Pooling &amp; Smart Collection Logistics
+                  {t('sih.smartMandiDesc')}
                 </p>
               </div>
             </div>
@@ -368,7 +370,7 @@ export const SmartMandiPage: React.FC = () => {
               }}
             >
               <span>🛒</span>
-              <span>BUY</span>
+              <span>{t('aggregationPage.buyingPools')}</span>
             </button>
 
             <button
@@ -389,7 +391,7 @@ export const SmartMandiPage: React.FC = () => {
               }}
             >
               <span>🌾</span>
-              <span>SELL</span>
+              <span>{t('aggregationPage.sellingPools')}</span>
             </button>
 
             <button
@@ -409,7 +411,7 @@ export const SmartMandiPage: React.FC = () => {
               }}
             >
               <span>📊</span>
-              <span>Mandi Prices</span>
+              <span>{t('mobileHome.marketPrices')}</span>
             </button>
 
             <button
@@ -430,7 +432,7 @@ export const SmartMandiPage: React.FC = () => {
               }}
             >
               <span>🔔</span>
-              <span>Alerts</span>
+              <span>{t('common.notifications')}</span>
               {unreadNotifCount > 0 && (
                 <span style={{
                   background: '#EF4444',
@@ -495,10 +497,10 @@ export const SmartMandiPage: React.FC = () => {
                   <span style={{ background: '#34D399', color: '#064E3B', fontSize: '0.7rem', fontWeight: 900, padding: '0.2rem 0.5rem', borderRadius: '6px' }}>
                     SIH CORE INNOVATION
                   </span>
-                  <span style={{ fontWeight: 800, fontSize: '1rem' }}>Automatic Multi-Farmer Supply Pooling</span>
+                  <span style={{ fontWeight: 800, fontSize: '1rem' }}>{t('sih.aggregationTitle')}</span>
                 </div>
                 <div style={{ fontSize: '0.82rem', color: '#A7F3D0', marginTop: '0.25rem' }}>
-                  Post what you need. BharatFarm automatically aggregates nearby farmers into one consolidated procurement batch.
+                  {t('sih.aggregationDesc')}
                 </div>
               </div>
 
@@ -520,7 +522,7 @@ export const SmartMandiPage: React.FC = () => {
                   }}
                 >
                   <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>smart_toy</span>
-                  <span>AI Natural Language</span>
+                  <span>{t('mobileHome.speakToAi')}</span>
                 </button>
 
                 <button
@@ -541,7 +543,7 @@ export const SmartMandiPage: React.FC = () => {
                     boxShadow: '0 2px 8px rgba(0,0,0,0.2)'
                   }}
                 >
-                  <span>⚡ 1-Click SIH Demo (Haldia Potato)</span>
+                  <span>⚡ 1-Click Demo (Haldia Potato)</span>
                 </button>
               </div>
             </div>
@@ -557,7 +559,7 @@ export const SmartMandiPage: React.FC = () => {
               }}>
                 <div style={{ fontSize: '0.82rem', fontWeight: 800, color: '#1E40AF', marginBottom: '0.4rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                   <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>psychology</span>
-                  <span>Describe your requirement naturally (Gemini AI Parser):</span>
+                  <span>{t('sahayakPage.askQuestion')}:</span>
                 </div>
                 <div style={{ display: 'flex', gap: '0.5rem' }}>
                   <input
@@ -589,7 +591,7 @@ export const SmartMandiPage: React.FC = () => {
                       cursor: 'pointer'
                     }}
                   >
-                    {nlpLoading ? 'Extracting...' : 'Parse & Auto-Fill'}
+                    {nlpLoading ? t('common.loading') : t('common.submit')}
                   </button>
                 </div>
               </div>
@@ -604,7 +606,7 @@ export const SmartMandiPage: React.FC = () => {
               boxShadow: '0 4px 12px rgba(0,0,0,0.03)'
             }}>
               <h2 style={{ fontSize: '1.15rem', fontWeight: 900, color: '#0F172A', margin: '0 0 1rem' }}>
-                🛒 Post Procurement Requirement
+                🛒 {t('aggregationPage.buyingPools')}
               </h2>
 
               <form onSubmit={handleFindSupply}>
@@ -613,7 +615,7 @@ export const SmartMandiPage: React.FC = () => {
                   {/* Crop */}
                   <div>
                     <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, color: '#475569', marginBottom: '0.35rem' }}>
-                      CROP NEEDED
+                      {t('climateComponents.crop')}
                     </label>
                     <select
                       value={buyerCrop}
@@ -641,7 +643,7 @@ export const SmartMandiPage: React.FC = () => {
                   {/* Quantity */}
                   <div>
                     <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, color: '#475569', marginBottom: '0.35rem' }}>
-                      REQUIRED QUANTITY (KG)
+                      {t('ordersPage.quantity').toUpperCase()} (KG)
                     </label>
                     <input
                       type="number"
@@ -666,7 +668,7 @@ export const SmartMandiPage: React.FC = () => {
                   {/* Expected Price */}
                   <div>
                     <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, color: '#475569', marginBottom: '0.35rem' }}>
-                      EXPECTED PRICE (₹ / KG)
+                      {t('marketplace.priceLabel').toUpperCase()} (₹ / KG)
                     </label>
                     <input
                       type="number"
@@ -691,7 +693,7 @@ export const SmartMandiPage: React.FC = () => {
                   {/* Search Radius */}
                   <div>
                     <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, color: '#475569', marginBottom: '0.35rem' }}>
-                      SEARCH RADIUS
+                      {t('climateComponents.locationRiskTitle').toUpperCase()}
                     </label>
                     <select
                       value={buyerRadius}
@@ -706,10 +708,10 @@ export const SmartMandiPage: React.FC = () => {
                         outline: 'none'
                       }}
                     >
-                      <option value="2">2 km (Immediate vicinity)</option>
-                      <option value="5">5 km (Local block)</option>
-                      <option value="10">10 km (Sub-division)</option>
-                      <option value="20">20 km (Regional district)</option>
+                      <option value="2">2 km</option>
+                      <option value="5">5 km</option>
+                      <option value="10">10 km</option>
+                      <option value="20">20 km</option>
                     </select>
                   </div>
                 </div>
@@ -717,7 +719,7 @@ export const SmartMandiPage: React.FC = () => {
                 {/* Structured Location Row */}
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '0.75rem', marginBottom: '1rem' }}>
                   <div>
-                    <label style={{ fontSize: '0.74rem', color: '#64748B', fontWeight: 600 }}>District</label>
+                    <label style={{ fontSize: '0.74rem', color: '#64748B', fontWeight: 600 }}>{t('farmerRegistration.personalInfo')}</label>
                     <input
                       type="text"
                       value={buyerDistrict}
@@ -727,7 +729,7 @@ export const SmartMandiPage: React.FC = () => {
                     />
                   </div>
                   <div>
-                    <label style={{ fontSize: '0.74rem', color: '#64748B', fontWeight: 600 }}>Village / Locality</label>
+                    <label style={{ fontSize: '0.74rem', color: '#64748B', fontWeight: 600 }}>{t('marketplace.localityLabel')}</label>
                     <input
                       type="text"
                       value={buyerVillage}
@@ -737,7 +739,7 @@ export const SmartMandiPage: React.FC = () => {
                     />
                   </div>
                   <div>
-                    <label style={{ fontSize: '0.74rem', color: '#64748B', fontWeight: 600 }}>Post Office</label>
+                    <label style={{ fontSize: '0.74rem', color: '#64748B', fontWeight: 600 }}>P.O.</label>
                     <input
                       type="text"
                       value={buyerPostOffice}
@@ -747,7 +749,7 @@ export const SmartMandiPage: React.FC = () => {
                     />
                   </div>
                   <div>
-                    <label style={{ fontSize: '0.74rem', color: '#64748B', fontWeight: 600 }}>State</label>
+                    <label style={{ fontSize: '0.74rem', color: '#64748B', fontWeight: 600 }}>{t('basicNeeds.filterState')}</label>
                     <input
                       type="text"
                       value={buyerState}
@@ -778,7 +780,7 @@ export const SmartMandiPage: React.FC = () => {
                       }}
                     >
                       <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>my_location</span>
-                      <span>{buyerLat ? `GPS: ${buyerLat.toFixed(2)}, ${buyerLng?.toFixed(2)}` : 'Get GPS'}</span>
+                      <span>{buyerLat ? `GPS: ${buyerLat.toFixed(2)}, ${buyerLng?.toFixed(2)}` : 'GPS'}</span>
                     </button>
                   </div>
                 </div>
@@ -806,7 +808,7 @@ export const SmartMandiPage: React.FC = () => {
                     <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>
                       {isSearching ? 'sync' : 'hub'}
                     </span>
-                    <span>{isSearching ? 'Searching & Pooling...' : 'Find Nearby Supply & Build Pool'}</span>
+                    <span>{isSearching ? t('common.loading') : t('aggregationPage.joinPool')}</span>
                   </button>
                 </div>
               </form>

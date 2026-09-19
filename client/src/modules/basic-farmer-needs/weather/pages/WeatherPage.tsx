@@ -7,6 +7,7 @@ import { ForecastList } from '../components/ForecastList';
 import { FarmingRecommendation } from '../components/FarmingRecommendation';
 import { useWeatherContext } from '@core/context/WeatherContext';
 import { Spinner } from '@core/ui/Spinner';
+import { useLanguage } from '../../../../context/LanguageContext';
 
 export const WeatherPage: React.FC = () => {
   const {
@@ -21,6 +22,7 @@ export const WeatherPage: React.FC = () => {
     refreshWeather
   } = useWeatherContext();
 
+  const { t } = useLanguage();
   const [locationInput, setLocationInput] = useState('');
 
   const handleSearch = (e: React.FormEvent) => {
@@ -36,36 +38,36 @@ export const WeatherPage: React.FC = () => {
       <div className="page-header-banner">
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.35rem', flexWrap: 'wrap' }}>
-            <span className="badge badge-primary">Live Microclimate Telemetry</span>
+            <span className="badge badge-primary">{t('weatherPage.liveTelemetryBadge')}</span>
             <span className={`badge ${
               weather.source === 'LIVE' ? 'badge-success' :
               weather.source === 'CACHED' ? 'badge-primary' :
               weather.source === 'OFFLINE' ? 'badge-warning' : 'badge-secondary'
             }`}>
-              {weather.source === 'LIVE' && '🟢 LIVE OPEN-METEO'}
-              {weather.source === 'CACHED' && '⚡ CACHED TELEMETRY'}
-              {weather.source === 'OFFLINE' && '📡 OFFLINE TELEMETRY'}
-              {weather.source === 'MOCK' && '🧪 DEMO MOCK TELEMETRY'}
+              {weather.source === 'LIVE' && t('weatherPage.liveOpenMeteo')}
+              {weather.source === 'CACHED' && t('weatherPage.cachedTelemetry')}
+              {weather.source === 'OFFLINE' && t('weatherPage.offlineTelemetry')}
+              {weather.source === 'MOCK' && t('weatherPage.demoMockTelemetry')}
             </span>
           </div>
           <h1 style={{ fontSize: '1.75rem', fontWeight: 700, color: '#FFFFFF' }}>
-            Weather Intelligence — Field-Ready Decision Support
+            {t('weatherPage.weatherIntelTitle')}
           </h1>
           <p style={{ color: 'rgba(255,255,255,0.85)', fontSize: '0.9rem', marginTop: '0.2rem' }}>
-            Precision rainfall probability, humidity alerts, and crop activity advisories for {weather.location}.
+            {t('weatherPage.weatherIntelSub', { location: weather.location })}
           </p>
         </div>
 
         <form onSubmit={handleSearch} style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
           <div style={{ width: '220px' }}>
-            <Input placeholder="Search city or district..." value={locationInput} onChange={(e: any) => setLocationInput(e.target.value)} />
+            <Input placeholder={t('weatherPage.searchPlaceholder')} value={locationInput} onChange={(e: any) => setLocationInput(e.target.value)} />
           </div>
-          <Button type="submit" size="sm">Search</Button>
+          <Button type="submit" size="sm">{t('weatherPage.searchBtn')}</Button>
           <Button type="button" variant="secondary" size="sm" onClick={requestGpsLocation}>
-            <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>my_location</span> GPS Location
+            <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>my_location</span> {t('weatherPage.gpsLocationBtn')}
           </Button>
           <Button type="button" variant="outline" size="sm" onClick={refreshWeather} style={{ color: '#FFFFFF', borderColor: 'rgba(255,255,255,0.4)' }}>
-            <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>refresh</span> Refresh
+            <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>refresh</span> {t('weatherPage.refreshBtn')}
           </Button>
         </form>
       </div>
@@ -110,7 +112,7 @@ export const WeatherPage: React.FC = () => {
             </div>
 
             {/* Dynamic Weather-Calculated Activity Impact Guide Panel */}
-            <Card title="Activity Impact Guide" subtitle="Weather suitability breakdown calculated for scheduled farm tasks.">
+            <Card title={t('weatherPage.activityImpactTitle')} subtitle={t('weatherPage.activityImpactSub')}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginTop: '0.5rem' }}>
                 {farmActivities.map((act: any) => {
                   let alertClass = 'alert-success';
@@ -138,7 +140,7 @@ export const WeatherPage: React.FC = () => {
                       </p>
                       {act.recommendedTiming && (
                         <div style={{ fontSize: '0.7rem', color: 'var(--emerald-primary)', fontWeight: 700, marginTop: '0.3rem' }}>
-                          ⏱️ Timing: {act.recommendedTiming}
+                          {t('weatherPage.timing', { timing: act.recommendedTiming })}
                         </div>
                       )}
                     </div>

@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { SihLayout } from '../../shared/SihLayout';
+import { useLanguage } from '@core/context/LanguageContext';
 
 export const AggregationOptimizerPage: React.FC = () => {
+  const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState<'buy' | 'sell'>('sell');
 
   const pools = [
@@ -29,16 +31,16 @@ export const AggregationOptimizerPage: React.FC = () => {
   ];
 
   return (
-    <SihLayout activeModuleId="aggregation" moduleTitle="Aggregation" moduleIcon="groups">
+    <SihLayout activeModuleId="aggregation" moduleTitle={t('sihDashboard.aggregationTitle')} moduleIcon="groups">
       <div style={{ display: 'flex', flexDirection: 'column', gap: '1.75rem' }}>
         
         {/* Title */}
         <div>
           <h1 style={{ fontSize: '1.75rem', fontWeight: 900, color: '#0F172A', margin: 0 }}>
-            Small-Farm Aggregation
+            {t('aggregationPage.pageTitle')}
           </h1>
           <p style={{ fontSize: '0.95rem', color: '#64748B', marginTop: '0.35rem', margin: 0 }}>
-            Together we grow stronger.
+            {t('aggregationPage.pageSubtitle')}
           </p>
         </div>
 
@@ -65,7 +67,7 @@ export const AggregationOptimizerPage: React.FC = () => {
               boxShadow: activeTab === 'buy' ? '0 2px 4px rgba(0,0,0,0.05)' : 'none'
             }}
           >
-            Buy Together
+            {t('aggregationPage.buyingPools')}
           </button>
           <button
             onClick={() => setActiveTab('sell')}
@@ -81,13 +83,13 @@ export const AggregationOptimizerPage: React.FC = () => {
               boxShadow: activeTab === 'sell' ? '0 2px 4px rgba(0,0,0,0.05)' : 'none'
             }}
           >
-            Sell Together
+            {t('aggregationPage.sellingPools')}
           </button>
         </div>
 
         {/* Active Farmer Pools Header */}
         <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#0F172A', margin: 0 }}>
-          Active Farmer Pools
+          {t('sih.groupPoolsTitle')}
         </h2>
 
         {/* Pools List */}
@@ -125,7 +127,7 @@ export const AggregationOptimizerPage: React.FC = () => {
                     {pool.crop}
                   </h3>
                   <div style={{ fontSize: '0.85rem', color: '#64748B', marginTop: '0.2rem' }}>
-                    {pool.farmersCount} farmers joined
+                    {pool.farmersCount} {t('aggregationPage.totalFarmers').toLowerCase()}
                   </div>
                   <div style={{ fontSize: '1rem', fontWeight: 800, color: '#16A34A', marginTop: '0.25rem' }}>
                     {pool.price}
@@ -147,7 +149,7 @@ export const AggregationOptimizerPage: React.FC = () => {
                   boxShadow: '0 4px 12px rgba(22, 163, 74, 0.25)'
                 }}
               >
-                Join
+                {t('aggregationPage.joinPool')}
               </button>
             </div>
           ))}
@@ -157,3 +159,4 @@ export const AggregationOptimizerPage: React.FC = () => {
     </SihLayout>
   );
 };
+

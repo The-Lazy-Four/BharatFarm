@@ -1,11 +1,13 @@
 import React from 'react';
 import { ClimateAssessmentResult } from '../types';
+import { useLanguage } from '../../../../context/LanguageContext';
 
 interface Props {
   harvestAdvisory: ClimateAssessmentResult['harvestAdvisory'];
 }
 
 export const HarvestAdvisorySection: React.FC<Props> = ({ harvestAdvisory }) => {
+  const { t } = useLanguage();
   const isEarlyHarvest = harvestAdvisory.actionCode === 'CONSIDER EARLY HARVEST';
   const isProtect = harvestAdvisory.actionCode === 'PROTECT FIELD / IMPROVE DRAINAGE';
   const isDelay = harvestAdvisory.actionCode === 'DELAY HARVEST';
@@ -28,10 +30,10 @@ export const HarvestAdvisorySection: React.FC<Props> = ({ harvestAdvisory }) => 
     }}>
       <div>
         <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#D97706', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-          HARVEST & CUTTING DECISION ENGINE
+          {t('climateComponents.harvestDecisionEngine')}
         </span>
         <h3 style={{ fontSize: '1.3rem', fontWeight: 800, color: '#0F172A', margin: '0.2rem 0 0 0' }}>
-          Agricultural Cutting & Harvest Action Recommendation
+          {t('climateComponents.harvestActionRecommendation')}
         </h3>
       </div>
 
@@ -48,14 +50,14 @@ export const HarvestAdvisorySection: React.FC<Props> = ({ harvestAdvisory }) => 
         </div>
 
         <div style={{ fontSize: '0.88rem', color: 'rgba(255, 255, 255, 0.95)', lineHeight: 1.45, fontWeight: 500, background: 'rgba(0,0,0,0.15)', padding: '0.65rem 0.85rem', borderRadius: '8px' }}>
-          <strong>Reason:</strong> "{harvestAdvisory.primaryReason}"
+          <strong>{t('climateComponents.reason')}:</strong> "{harvestAdvisory.primaryReason}"
         </div>
       </div>
 
       {/* Action Checklist */}
       <div>
         <span style={{ fontSize: '0.78rem', fontWeight: 800, color: '#475569', display: 'block', marginBottom: '0.6rem', textTransform: 'uppercase' }}>
-          RECOMMENDED ACTION CHECKLIST
+          {t('climateComponents.recommendedActionChecklist')}
         </span>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>

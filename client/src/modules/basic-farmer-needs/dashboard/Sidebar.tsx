@@ -2,24 +2,28 @@ import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '@core/context/AuthContext';
 import { useTheme } from '@core/context/ThemeContext';
+import { useLanguage } from '@core/context/LanguageContext';
 
-const navItems = [
-  { path: '/sih', label: 'SIH Innovation Platform', icon: 'auto_awesome', badge: 'SIH 2026' },
-  { path: '/dashboard', label: 'Basic Farmer Needs Dashboard', icon: 'dashboard' },
-  { path: '/scanner', label: 'Leaf Scanner AI', icon: 'biotech' },
-  { path: '/crop-roadmap', label: 'Crop Roadmap', icon: 'route' },
-  { path: '/marketplace', label: 'Marketplace', icon: 'storefront' },
-  { path: '/records', label: 'Farm Log Records', icon: 'description' },
-  { path: '/schemes', label: 'Govt Schemes', icon: 'account_balance' },
-  { path: '/calculator', label: 'Farm Calculator', icon: 'calculate' },
-  { path: '/loan-eligibility', label: 'Loan Eligibility', icon: 'credit_card' },
-  { path: '/orders', label: 'Orders & Delivery', icon: 'local_shipping' },
-  { path: '/profile', label: 'Profile & Settings', icon: 'settings' }
-];
-
+/* Sidebar navigation for the authenticated app shell */
 export const Sidebar: React.FC = () => {
   const { user, profileImage, getUserInitials } = useAuth();
   const { theme, toggleTheme } = useTheme();
+  const { t } = useLanguage();
+
+  // Nav items use translation keys for labels
+  const navItems = [
+    { path: '/sih', label: t('sidebar.sihPlatform'), icon: 'auto_awesome', badge: t('sidebar.sihBadge') },
+    { path: '/dashboard', label: t('sidebar.basicDashboard'), icon: 'dashboard' },
+    { path: '/scanner', label: t('sidebar.leafScanner'), icon: 'biotech' },
+    { path: '/crop-roadmap', label: t('sidebar.cropRoadmap'), icon: 'route' },
+    { path: '/marketplace', label: t('sidebar.marketplace'), icon: 'storefront' },
+    { path: '/records', label: t('sidebar.farmLogRecords'), icon: 'description' },
+    { path: '/schemes', label: t('sidebar.govtSchemes'), icon: 'account_balance' },
+    { path: '/calculator', label: t('sidebar.farmCalculator'), icon: 'calculate' },
+    { path: '/loan-eligibility', label: t('sidebar.loanEligibility'), icon: 'credit_card' },
+    { path: '/orders', label: t('sidebar.ordersDelivery'), icon: 'local_shipping' },
+    { path: '/profile', label: t('sidebar.profileSettings'), icon: 'settings' }
+  ];
 
   return (
     <aside
@@ -45,7 +49,7 @@ export const Sidebar: React.FC = () => {
         />
         <div>
           <h1 style={{ fontSize: '1.15rem', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.02em', lineHeight: 1 }}>BharatFarm</h1>
-          <span style={{ fontSize: '0.65rem', color: 'var(--signal-lime)', fontWeight: 700, letterSpacing: '0.04em' }}>SIH MODULAR AGRI-TECH</span>
+          <span style={{ fontSize: '0.65rem', color: 'var(--signal-lime)', fontWeight: 700, letterSpacing: '0.04em' }}>{t('sidebar.sihModularAgriTech')}</span>
         </div>
       </div>
 
@@ -55,12 +59,12 @@ export const Sidebar: React.FC = () => {
           <React.Fragment key={item.path}>
             {idx === 0 && (
               <div style={{ fontSize: '0.65rem', fontWeight: 800, color: 'var(--signal-lime)', padding: '0.4rem 0.5rem 0.2rem 0.5rem', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
-                🚀 Innovation Launcher
+                {t('sidebar.innovationLauncher')}
               </div>
             )}
             {idx === 1 && (
               <div style={{ fontSize: '0.65rem', fontWeight: 800, color: 'var(--text-muted)', padding: '0.8rem 0.5rem 0.2rem 0.5rem', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
-                🌾 Platform & Utilities
+                {t('sidebar.platformUtilities')}
               </div>
             )}
             <NavLink
@@ -107,9 +111,9 @@ export const Sidebar: React.FC = () => {
             <span className="material-symbols-outlined" style={{ fontSize: '18px', color: 'var(--emerald-primary)' }}>
               {theme === 'light' ? 'light_mode' : 'dark_mode'}
             </span>
-            <span>{theme === 'light' ? 'Light Mode' : 'Dark Mode'}</span>
+            <span>{theme === 'light' ? t('sidebar.lightMode') : t('sidebar.darkMode')}</span>
           </div>
-          <span className="badge badge-secondary" style={{ fontSize: '0.65rem' }}>Switch</span>
+          <span className="badge badge-secondary" style={{ fontSize: '0.65rem' }}>{t('sidebar.switchTheme')}</span>
         </button>
 
         {/* User Profile Footer */}
@@ -150,7 +154,7 @@ export const Sidebar: React.FC = () => {
               {user?.fullName || 'Ramesh Patel'}
             </span>
             <span style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>
-              {user?.state || 'Punjab'} • Farmer
+              {user?.state || 'Punjab'} • {t('sidebar.farmer')}
             </span>
           </div>
         </NavLink>

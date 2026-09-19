@@ -1,22 +1,24 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { useLanguage } from '../../context/LanguageContext';
 import { MobileBottomNav } from './MobileBottomNav';
 
 export const MobileBasicFarmerHome: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { t } = useLanguage();
 
   const tools = [
-    { title: 'Weather', icon: 'partly_cloudy_day', path: '/sih/climate-risk', color: '#0284C7', bg: '#E0F2FE' },
-    { title: 'Crop Guide', icon: 'route', path: '/crop-roadmap', color: '#16A34A', bg: '#DCFCE7' },
-    { title: 'Market Prices', icon: 'storefront', path: '/marketplace', color: '#D97706', bg: '#FEF3C7' },
-    { title: 'Leaf Scanner', icon: 'biotech', path: '/scanner', color: '#059669', bg: '#D1FAE5' },
-    { title: 'Cost Calculator', icon: 'calculate', path: '/calculator', color: '#7C3AED', bg: '#EDE9FE' },
-    { title: 'My Farm', icon: 'description', path: '/records', color: '#DC2626', bg: '#FEE2E2' },
-    { title: 'Schemes', icon: 'account_balance', path: '/schemes', color: '#2563EB', bg: '#DBEAFE' },
-    { title: 'Community', icon: 'groups', path: '/sih/aggregation', color: '#059669', bg: '#D1FAE5' },
-    { title: 'Profile', icon: 'person', path: '/profile', color: '#4B5563', bg: '#F3F4F6' }
+    { title: t('mobileHome.weather'), icon: 'partly_cloudy_day', path: '/sih/climate-risk', color: '#0284C7', bg: '#E0F2FE' },
+    { title: t('mobileHome.cropGuide'), icon: 'route', path: '/crop-roadmap', color: '#16A34A', bg: '#DCFCE7' },
+    { title: t('mobileHome.marketPrices'), icon: 'storefront', path: '/marketplace', color: '#D97706', bg: '#FEF3C7' },
+    { title: t('mobileHome.leafScanner'), icon: 'biotech', path: '/scanner', color: '#059669', bg: '#D1FAE5' },
+    { title: t('mobileHome.costCalculator'), icon: 'calculate', path: '/calculator', color: '#7C3AED', bg: '#EDE9FE' },
+    { title: t('mobileHome.myFarm'), icon: 'description', path: '/records', color: '#DC2626', bg: '#FEE2E2' },
+    { title: t('mobileHome.schemes'), icon: 'account_balance', path: '/schemes', color: '#2563EB', bg: '#DBEAFE' },
+    { title: t('mobileHome.community'), icon: 'groups', path: '/sih/aggregation', color: '#059669', bg: '#D1FAE5' },
+    { title: t('mobileHome.profile'), icon: 'person', path: '/profile', color: '#4B5563', bg: '#F3F4F6' }
   ];
 
   return (
@@ -40,10 +42,10 @@ export const MobileBasicFarmerHome: React.FC = () => {
           boxShadow: '0 6px 16px rgba(22, 163, 74, 0.25)'
         }}>
           <h2 style={{ fontSize: '1.1rem', fontWeight: 900, margin: 0 }}>
-            Welcome Back!
+            {t('mobileHome.welcomeBack')}
           </h2>
           <p style={{ fontSize: '0.82rem', color: 'rgba(255,255,255,0.9)', marginTop: '0.25rem', margin: 0 }}>
-            Manage your farm, track progress, and grow smarter.
+            {t('mobileHome.welcomeMsg')}
           </p>
         </div>
 

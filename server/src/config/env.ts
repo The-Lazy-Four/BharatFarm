@@ -19,6 +19,7 @@ export const config = {
     serviceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY || ''
   },
   openRouterApiKey: process.env.OPENROUTER_API_KEY || process.env.AI_PROVIDER_API_KEY || '',
+  openRouterModel: process.env.OPENROUTER_MODEL || process.env.GEMINI_MODEL || 'google/gemini-2.5-flash',
   aiProviderApiKey: process.env.OPENROUTER_API_KEY || process.env.AI_PROVIDER_API_KEY || '',
   geminiModel: process.env.GEMINI_MODEL || 'google/gemini-2.5-flash',
   weatherApiKey: process.env.WEATHER_API_KEY || '',
@@ -31,3 +32,4 @@ export const config = {
     apiVersion: process.env.WHATSAPP_API_VERSION || 'v19.0'
   }
 };
+

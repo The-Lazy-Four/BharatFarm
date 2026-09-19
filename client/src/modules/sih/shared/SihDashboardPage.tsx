@@ -2,6 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../context/AuthContext.js';
 import { useTheme } from '../../../context/ThemeContext.js';
+import { useLanguage } from '../../../context/LanguageContext.js';
 
 interface SihInnovationCard {
   id: string;
@@ -18,67 +19,68 @@ export const SihDashboardPage: React.FC = () => {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
+  const { t } = useLanguage();
 
   const sihInnovations: SihInnovationCard[] = [
     {
       id: 'climate-risk',
-      title: 'Climate-Risk-Aware Procurement',
-      subtitle: 'Weather radar, spray advisories & harvest window planning',
+      title: t('sihDashboard.climateRiskTitle'),
+      subtitle: t('sihDashboard.climateRiskSubtitle'),
       icon: '🌦️',
       imageUrl: 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1000&q=85',
       path: '/sih/climate-risk',
-      badge: 'Climate & Risk',
-      actionText: 'Open Workspace'
+      badge: t('sihDashboard.climateRiskBadge'),
+      actionText: t('sihDashboard.openWorkspace')
     },
     {
       id: 'aggregation',
-      title: 'Small-Farm Aggregation',
-      subtitle: 'Group buying for inputs & collective produce selling pool',
+      title: t('sihDashboard.aggregationTitle'),
+      subtitle: t('sihDashboard.aggregationSubtitle'),
       icon: '🤝',
       imageUrl: 'https://images.unsplash.com/photo-1586771107445-d3ca888129ff?auto=format&fit=crop&w=1000&q=85',
       path: '/sih/aggregation',
-      badge: 'Group Power',
-      actionText: 'Open Workspace'
+      badge: t('sihDashboard.aggregationBadge'),
+      actionText: t('sihDashboard.openWorkspace')
     },
     {
       id: 'crop-risk-insurance',
-      title: 'Crop Risk & Insurance',
-      subtitle: 'Satellite damage audit & AI leaf scanner diagnostic',
+      title: t('sihDashboard.cropInsuranceTitle'),
+      subtitle: t('sihDashboard.cropInsuranceSubtitle'),
       icon: '🛰️',
       imageUrl: 'https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?auto=format&fit=crop&w=1000&q=85',
       path: '/sih/crop-insurance',
-      badge: 'Satellite Audit',
-      actionText: 'Open Workspace'
+      badge: t('sihDashboard.cropInsuranceBadge'),
+      actionText: t('sihDashboard.openWorkspace')
     },
     {
       id: 'smart-mandi',
-      title: 'Smart Mandi Intelligence',
-      subtitle: 'Live APMC mandi rates & shortest distance profit router',
+      title: t('sihDashboard.smartMandiTitle'),
+      subtitle: t('sihDashboard.smartMandiSubtitle'),
       icon: '📍',
       imageUrl: 'https://images.unsplash.com/photo-1610348725531-843dff563e2c?auto=format&fit=crop&w=1000&q=85',
       path: '/sih/smart-mandi',
-      badge: 'Mandi Freight',
-      actionText: 'Open Workspace'
+      badge: t('sihDashboard.smartMandiBadge'),
+      actionText: t('sihDashboard.openWorkspace')
     },
     {
       id: 'sahayak',
-      title: 'Sahayak & WhatsApp',
-      subtitle: '24/7 WhatsApp AI companion & local human Sahayak access',
+      title: t('sihDashboard.sahayakTitle'),
+      subtitle: t('sihDashboard.sahayakSubtitle'),
       icon: '💬',
       imageUrl: 'https://images.unsplash.com/photo-1595974482597-4b8da8879bc5?auto=format&fit=crop&w=1000&q=85',
       path: '/sih/sahayak',
-      badge: 'Voice & WA',
-      actionText: 'Open Workspace'
+      badge: t('sihDashboard.sahayakBadge'),
+      actionText: t('sihDashboard.openWorkspace')
     },
     {
       id: 'price-risk',
-      title: 'Before You Sow — Price Risk Advisor',
-      subtitle: 'AI supply-pressure early warning & local crop decision advisor',
+      title: t('sihDashboard.priceRiskTitle'),
+      subtitle: t('sihDashboard.priceRiskSubtitle'),
       icon: '🌾',
       imageUrl: 'https://images.unsplash.com/photo-1592982537447-7440770cbfc9?auto=format&fit=crop&w=1000&q=85',
       path: '/sih/price-risk',
-      badge: 'Price Risk AI',
-      actionText: 'Open Advisor'
+      badge: t('sihDashboard.priceRiskBadge'),
+      actionText: t('sihDashboard.openAdvisor')
     }
   ];
 
@@ -124,7 +126,7 @@ export const SihDashboardPage: React.FC = () => {
             }}
           >
             <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>arrow_back</span>
-            <span>Module Home</span>
+            <span>{t('sihDashboard.moduleHome')}</span>
           </button>
 
           <div style={{ width: '1px', height: '24px', background: 'var(--border-subtle, rgba(255,255,255,0.15))' }} />
@@ -144,10 +146,10 @@ export const SihDashboardPage: React.FC = () => {
             </div>
             <div>
               <h1 style={{ fontSize: '1.15rem', fontWeight: 900, color: 'var(--text-primary)', margin: 0, lineHeight: 1 }}>
-                SIH Innovation Platform
+                {t('sihDashboard.platformTitle')}
               </h1>
               <span style={{ fontSize: '0.68rem', color: 'var(--signal-lime, #16a34a)', fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase' }}>
-                Module Launcher Dashboard
+                {t('sihDashboard.launcherDashboard')}
               </span>
             </div>
           </div>
@@ -172,7 +174,7 @@ export const SihDashboardPage: React.FC = () => {
             }}
           >
             <span>👨‍🌾</span>
-            <span>Basic Needs</span>
+            <span>{t('sihDashboard.basicNeeds')}</span>
           </button>
 
           <button
@@ -194,7 +196,7 @@ export const SihDashboardPage: React.FC = () => {
             <span className="material-symbols-outlined" style={{ fontSize: '18px', color: 'var(--signal-lime)' }}>
               {theme === 'light' ? 'light_mode' : 'dark_mode'}
             </span>
-            <span>{theme === 'light' ? 'Light' : 'Dark'}</span>
+            <span>{theme === 'light' ? t('sihDashboard.light') : t('sihDashboard.dark')}</span>
           </button>
         </div>
       </header>
@@ -216,7 +218,7 @@ export const SihDashboardPage: React.FC = () => {
             display: 'inline-block',
             marginBottom: '0.5rem'
           }}>
-            Select SIH Innovation Workspace
+            {t('sihDashboard.selectWorkspace')}
           </span>
 
           <h2 style={{
@@ -227,7 +229,7 @@ export const SihDashboardPage: React.FC = () => {
             margin: 0,
             lineHeight: 1.15
           }}>
-            Innovation Launcher
+            {t('sihDashboard.launcherTitle')}
           </h2>
 
           <p style={{
@@ -237,7 +239,7 @@ export const SihDashboardPage: React.FC = () => {
             marginBottom: 0,
             fontWeight: 500
           }}>
-            Tap an innovation card below to enter its dedicated feature workspace.
+            {t('sihDashboard.launcherSubtitle')}
           </p>
         </div>
 

@@ -1,11 +1,13 @@
 import React from 'react';
 import { DailyForecastItem } from '../types';
+import { useLanguage } from '../../../../context/LanguageContext';
 
 interface Props {
   daily: DailyForecastItem[];
 }
 
 export const SevenDayForecastSection: React.FC<Props> = ({ daily }) => {
+  const { t } = useLanguage();
   return (
     <div style={{
       background: '#FFFFFF',
@@ -16,9 +18,9 @@ export const SevenDayForecastSection: React.FC<Props> = ({ daily }) => {
     }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.65rem' }}>
         <span style={{ fontSize: '0.72rem', fontWeight: 800, color: '#64748B', letterSpacing: '0.04em' }}>
-          7-DAY FORECAST
+          {t('sih.forecast7Day')}
         </span>
-        <span style={{ fontSize: '0.7rem', color: '#94a3b8' }}>Real Daily Values</span>
+        <span style={{ fontSize: '0.7rem', color: '#94a3b8' }}>{t('sih.realDailyValues')}</span>
       </div>
 
       <div style={{
@@ -36,6 +38,21 @@ export const SevenDayForecastSection: React.FC<Props> = ({ daily }) => {
             ? '⛅'
             : '☀️';
 
+          const getLocalizedDay = () => {
+            if (isToday) return t('weatherPage.todayBadge').toUpperCase();
+            try {
+              if (day.date) {
+                const d = new Date(day.date);
+                if (!isNaN(d.getTime())) {
+                  return d.toLocaleDateString(undefined, { weekday: 'short' }).toUpperCase();
+                }
+              }
+            } catch (e) {
+              // fallback
+            }
+            return day.dayName.slice(0, 3).toUpperCase();
+          };
+
           return (
             <div
               key={idx}
@@ -51,7 +68,7 @@ export const SevenDayForecastSection: React.FC<Props> = ({ daily }) => {
               }}
             >
               <span style={{ fontSize: '0.72rem', fontWeight: 800, color: isToday ? '#166534' : '#334155' }}>
-                {isToday ? 'TODAY' : day.dayName.slice(0, 3).toUpperCase()}
+                {getLocalizedDay()}
               </span>
               <span style={{ fontSize: '1.3rem', margin: '0.1rem 0' }}>{icon}</span>
               <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#0f172a' }}>

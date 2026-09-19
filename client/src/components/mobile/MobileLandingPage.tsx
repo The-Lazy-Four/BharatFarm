@@ -1,54 +1,55 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { InstallCTA } from '../pwa/InstallCTA.js';
-
-// High Quality Unsplash Agricultural Photography
-const SLIDES = [
-  {
-    id: 'farmer',
-    eyebrow: 'BHARATFARM',
-    title: 'Smarter Farming.\nBrighter Tomorrow.',
-    description: 'One unified platform to help farmers make better decisions with weather, market intelligence, crop safety, and community support.',
-    image: 'https://images.unsplash.com/photo-1500937386664-56d1dfef3854?auto=format&fit=crop&w=1080&q=85',
-    chips: ['🌾 Smart Agri', '👨‍🌾 Farmer First']
-  },
-  {
-    id: 'climate-crop',
-    eyebrow: 'INTELLIGENCE & RISK',
-    title: 'See Risk.\nAct Earlier.',
-    description: 'Real-time climate intelligence and crop health insights help you plan ahead and protect your harvest before adverse weather strikes.',
-    image: 'https://images.unsplash.com/photo-1592982537447-7440770cbfc9?auto=format&fit=crop&w=1080&q=85',
-    chips: ['🌦 Climate Risk', '🌱 Crop Health', '🛰 Satellite Data']
-  },
-  {
-    id: 'market-mandi',
-    eyebrow: 'MARKET ACCESS',
-    title: 'Find Better Markets.\nSell Smarter.',
-    description: 'Compare live mandi opportunities, discover better prices, and strengthen your selling power through group farmer aggregation.',
-    image: 'https://images.unsplash.com/photo-1595974482597-4b8da8879bc5?auto=format&fit=crop&w=1080&q=85',
-    chips: ['📊 Smart Mandi', '🤝 Aggregation', '💰 Best Value']
-  },
-  {
-    id: 'ecosystem',
-    eyebrow: 'BHARATFARM ECOSYSTEM',
-    title: 'Your Farm.\nYour Data. Your Decisions.',
-    description: 'From GIS field mapping and crop insurance to mandis, climate intelligence, and Sahayak AI — smart agriculture for every Indian farm.',
-    image: 'https://images.unsplash.com/photo-1625246333195-78d9c38ad449?auto=format&fit=crop&w=1080&q=85',
-    chips: ['🌦 Climate', '🤝 Aggregation', '📊 Mandi', '🤖 Sahayak', '📍 Field Mapping']
-  }
-];
-
-const FEATURE_CHIPS = [
-  { icon: '🌦', text: 'Climate Risk Intelligence Ready' },
-  { icon: '🛰', text: 'Crop Intelligence Satellite Ready' },
-  { icon: '📊', text: 'Smart Mandi Insights Ready' },
-  { icon: '🤝', text: 'Farmer Aggregation Network Ready' },
-  { icon: '💬', text: 'Sahayak AI Assistant Available' },
-  { icon: '📍', text: 'GIS Field Mapping System Ready' }
-];
+import { useLanguage } from '../../context/LanguageContext';
 
 export const MobileLandingPage: React.FC = () => {
   const navigate = useNavigate();
+  const { language, setLanguage, t } = useLanguage();
+
+  const slides = [
+    {
+      id: 'farmer',
+      eyebrow: 'BHARATFARM',
+      title: t('landing.slide1Title'),
+      description: t('landing.slide1Desc'),
+      image: 'https://images.unsplash.com/photo-1500937386664-56d1dfef3854?auto=format&fit=crop&w=1080&q=85',
+      chips: [t('landing.chipSmartAgri'), t('landing.chipFarmerFirst')]
+    },
+    {
+      id: 'climate-crop',
+      eyebrow: t('landing.slide2Eyebrow'),
+      title: t('landing.slide2Title'),
+      description: t('landing.slide2Desc'),
+      image: 'https://images.unsplash.com/photo-1592982537447-7440770cbfc9?auto=format&fit=crop&w=1080&q=85',
+      chips: [t('landing.chipClimateRisk'), t('landing.chipCropHealth'), t('landing.chipSatelliteData')]
+    },
+    {
+      id: 'market-mandi',
+      eyebrow: t('landing.slide3Eyebrow'),
+      title: t('landing.slide3Title'),
+      description: t('landing.slide3Desc'),
+      image: 'https://images.unsplash.com/photo-1595974482597-4b8da8879bc5?auto=format&fit=crop&w=1080&q=85',
+      chips: [t('landing.chipSmartMandi'), t('landing.chipAggregation'), t('landing.chipBestValue')]
+    },
+    {
+      id: 'ecosystem',
+      eyebrow: t('landing.slide4Eyebrow'),
+      title: t('landing.slide4Title'),
+      description: t('landing.slide4Desc'),
+      image: 'https://images.unsplash.com/photo-1625246333195-78d9c38ad449?auto=format&fit=crop&w=1080&q=85',
+      chips: [t('landing.chipClimateRisk'), t('landing.chipAggregation'), t('landing.chipSmartMandi'), t('landing.chipSahayak'), t('landing.chipFieldMapping')]
+    }
+  ];
+
+  const featureChips = [
+    { icon: '🌦', text: t('landing.featChip1') },
+    { icon: '🛰', text: t('landing.featChip2') },
+    { icon: '📊', text: t('landing.featChip3') },
+    { icon: '🤝', text: t('landing.featChip4') },
+    { icon: '💬', text: t('landing.featChip5') },
+    { icon: '📍', text: t('landing.featChip6') }
+  ];
 
   // Check if onboarding was previously completed
   const [showSplash, setShowSplash] = useState(true);
@@ -62,12 +63,12 @@ export const MobileLandingPage: React.FC = () => {
 
   // Preload Slide 1 & 2 Images
   useEffect(() => {
-    SLIDES.slice(0, 2).forEach(s => {
+    slides.slice(0, 2).forEach(s => {
       const img = new Image();
       img.src = s.image;
     });
 
-    const completed = localStorage.getItem('bharatfarm_onboarding_completed') === 'true';
+    const completed = localStorage.getItem('bharatfarm_onboarding_completed') === 'true' || localStorage.getItem('bf_mobile_onboarding_completed') === 'true';
     setHasCompletedOnboarding(completed);
   }, []);
 
@@ -76,7 +77,7 @@ export const MobileLandingPage: React.FC = () => {
     if (!showSplash) return;
 
     const chipInterval = setInterval(() => {
-      setCurrentChipIndex((prev) => (prev + 1) % FEATURE_CHIPS.length);
+      setCurrentChipIndex((prev) => (prev + 1) % featureChips.length);
     }, 450);
 
     // Transition out of Splash Screen after ~2.2 seconds
@@ -93,6 +94,7 @@ export const MobileLandingPage: React.FC = () => {
   // Complete Onboarding Action
   const handleFinishOnboarding = () => {
     localStorage.setItem('bharatfarm_onboarding_completed', 'true');
+    localStorage.setItem('bf_mobile_onboarding_completed', 'true');
     navigate('/login');
   };
 
@@ -112,7 +114,7 @@ export const MobileLandingPage: React.FC = () => {
 
     if (diff > threshold) {
       // Swipe Left -> Next Slide
-      if (activeSlide < SLIDES.length - 1) {
+      if (activeSlide < slides.length - 1) {
         setActiveSlide(prev => prev + 1);
       }
     } else if (diff < -threshold) {
@@ -128,7 +130,7 @@ export const MobileLandingPage: React.FC = () => {
 
   // ── 1. CINEMATIC SPLASH LOADER ───────────────────────────────────────────
   if (showSplash) {
-    const activeChip = FEATURE_CHIPS[currentChipIndex];
+    const activeChip = featureChips[currentChipIndex];
 
     return (
       <div style={{
@@ -192,7 +194,7 @@ export const MobileLandingPage: React.FC = () => {
           letterSpacing: '0.08em',
           textTransform: 'uppercase'
         }}>
-          Smart Agri · Brighter India
+          {t('landing.smartAgriTag')}
         </p>
 
         {/* Animated Feature Popup Notification Card */}
@@ -279,7 +281,7 @@ export const MobileLandingPage: React.FC = () => {
         boxSizing: 'border-box'
       }}>
         <img
-          src={SLIDES[3].image}
+          src={slides[3].image}
           alt="BharatFarm"
           style={{
             position: 'absolute',
@@ -296,20 +298,42 @@ export const MobileLandingPage: React.FC = () => {
           background: 'linear-gradient(180deg, rgba(4,18,8,0.4) 0%, rgba(4,18,8,0.92) 80%)'
         }} />
 
-        {/* Header Logo */}
+        {/* Header Logo & Language Selector */}
         <div style={{
           position: 'relative',
           zIndex: 2,
           padding: 'max(1.5rem, env(safe-area-inset-top)) 1.5rem 0',
           display: 'flex',
           alignItems: 'center',
-          gap: '0.75rem'
+          justifyContent: 'space-between'
         }}>
-          <img src="/logo.png" alt="BharatFarm" style={{ width: '44px', height: '44px', borderRadius: '12px' }} />
-          <div>
-            <h1 style={{ fontSize: '1.35rem', fontWeight: 900, margin: 0, lineHeight: 1.1 }}>BharatFarm</h1>
-            <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#4ADE80' }}>Smart Agri · Brighter India</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <img src="/logo.png" alt="BharatFarm" style={{ width: '44px', height: '44px', borderRadius: '12px' }} />
+            <div>
+              <h1 style={{ fontSize: '1.35rem', fontWeight: 900, margin: 0, lineHeight: 1.1 }}>BharatFarm</h1>
+              <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#4ADE80' }}>{t('landing.smartAgriTag')}</span>
+            </div>
           </div>
+
+          <select
+            value={language}
+            onChange={(e) => setLanguage(e.target.value)}
+            title={t('common.languageSelect')}
+            style={{
+              background: 'rgba(255,255,255,0.18)',
+              color: '#FFFFFF',
+              border: '1px solid rgba(255,255,255,0.3)',
+              borderRadius: '20px',
+              padding: '0.25rem 0.5rem',
+              fontSize: '0.75rem',
+              fontWeight: 700,
+              outline: 'none'
+            }}
+          >
+            <option value="en" style={{ background: '#0F172A', color: '#FFF' }}>EN</option>
+            <option value="hi" style={{ background: '#0F172A', color: '#FFF' }}>हिंदी</option>
+            <option value="bn" style={{ background: '#0F172A', color: '#FFF' }}>বাংলা</option>
+          </select>
         </div>
 
         {/* Main Welcome Card */}
@@ -320,10 +344,10 @@ export const MobileLandingPage: React.FC = () => {
           paddingBottom: 'max(2rem, env(safe-area-inset-bottom))'
         }}>
           <h2 style={{ fontSize: '1.8rem', fontWeight: 900, marginBottom: '0.5rem', lineHeight: 1.2 }}>
-            Welcome Back to BharatFarm
+            {t('landing.welcomeBackTitle')}
           </h2>
           <p style={{ fontSize: '0.92rem', color: '#CBD5E1', margin: '0 0 1.5rem 0', lineHeight: 1.5 }}>
-            Your unified intelligent platform for weather risk, smart mandis, and crop management.
+            {t('landing.welcomeBackDesc')}
           </p>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
@@ -346,7 +370,7 @@ export const MobileLandingPage: React.FC = () => {
                 gap: '0.5rem'
               }}
             >
-              <span>Sign In / Enter App</span>
+              <span>{t('common.login')}</span>
               <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>arrow_forward</span>
             </button>
 
@@ -367,7 +391,7 @@ export const MobileLandingPage: React.FC = () => {
   }
 
   // ── 3. FULLSCREEN 4-SLIDE ONBOARDING CAROUSEL ────────────────────────────
-  const currentSlide = SLIDES[activeSlide];
+  const currentSlide = slides[activeSlide];
 
   return (
     <div
@@ -389,7 +413,7 @@ export const MobileLandingPage: React.FC = () => {
       }}
     >
       {/* Background Photography with Crossfade & Gradient Overlay */}
-      {SLIDES.map((slide, idx) => (
+      {slides.map((slide, idx) => (
         <div
           key={slide.id}
           style={{
@@ -418,7 +442,7 @@ export const MobileLandingPage: React.FC = () => {
         </div>
       ))}
 
-      {/* Top Bar: Brand Logo + Skip Button */}
+      {/* Top Bar: Brand Logo + Language Select + Skip Button */}
       <div style={{
         position: 'relative',
         zIndex: 10,
@@ -442,26 +466,45 @@ export const MobileLandingPage: React.FC = () => {
             </span>
           </div>
         </div>
-
-        {/* Skip option (only on slides 1-3) */}
-        {activeSlide < SLIDES.length - 1 && (
-          <button
-            onClick={handleFinishOnboarding}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <select
+            value={language}
+            onChange={(e) => setLanguage(e.target.value as 'en' | 'hi' | 'bn')}
+            aria-label={t('common.languageSelect')}
             style={{
-              background: 'rgba(255,255,255,0.12)',
-              border: '1px solid rgba(255,255,255,0.2)',
-              backdropFilter: 'blur(8px)',
-              color: '#E2E8F0',
-              padding: '0.35rem 0.85rem',
-              borderRadius: '20px',
+              background: 'rgba(0, 0, 0, 0.4)',
+              color: '#ffffff',
+              border: '1px solid rgba(255, 255, 255, 0.25)',
+              borderRadius: '8px',
+              padding: '0.35rem 0.6rem',
+              fontSize: '0.85rem',
               fontWeight: 700,
-              fontSize: '0.8rem',
-              cursor: 'pointer'
+              cursor: 'pointer',
+              backdropFilter: 'blur(8px)'
             }}
           >
-            Skip
-          </button>
-        )}
+            <option value="en" style={{ background: '#1e293b', color: '#fff' }}>English</option>
+            <option value="hi" style={{ background: '#1e293b', color: '#fff' }}>हिन्दी</option>
+            <option value="bn" style={{ background: '#1e293b', color: '#fff' }}>বাংলা</option>
+          </select>
+          {activeSlide < slides.length - 1 && (
+            <button
+              onClick={handleFinishOnboarding}
+              style={{
+                background: 'rgba(255, 255, 255, 0.15)',
+                border: '1px solid rgba(255, 255, 255, 0.25)',
+                color: '#ffffff',
+                padding: '0.35rem 0.75rem',
+                borderRadius: '8px',
+                fontSize: '0.85rem',
+                fontWeight: 700,
+                cursor: 'pointer'
+              }}
+            >
+              {t('common.skip')}
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Bottom Content Area */}
@@ -532,7 +575,7 @@ export const MobileLandingPage: React.FC = () => {
 
         {/* Progress Indicators (Dots) */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', margin: '0.25rem 0' }}>
-          {SLIDES.map((_, idx) => (
+          {slides.map((_, idx) => (
             <button
               key={idx}
               onClick={() => setActiveSlide(idx)}
@@ -552,7 +595,7 @@ export const MobileLandingPage: React.FC = () => {
 
         {/* Action Buttons */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-          {activeSlide === SLIDES.length - 1 ? (
+          {activeSlide === slides.length - 1 ? (
             <button
               onClick={handleFinishOnboarding}
               style={{
@@ -573,7 +616,7 @@ export const MobileLandingPage: React.FC = () => {
                 transition: 'transform 0.15s ease'
               }}
             >
-              <span>Get Started</span>
+              <span>{t('landing.getStarted')}</span>
               <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>arrow_forward</span>
             </button>
           ) : (
@@ -596,7 +639,7 @@ export const MobileLandingPage: React.FC = () => {
                 gap: '0.5rem'
               }}
             >
-              <span>Next</span>
+              <span>{t('common.next')}</span>
               <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>arrow_forward</span>
             </button>
           )}

@@ -46,13 +46,13 @@ export interface ImageValidationResult {
 
 const SUPPORTED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 
-export const validateImageFile = (file: File): ImageValidationResult => {
+export const validateImageFile = (file: File, t?: (key: string, params?: Record<string, any>) => string): ImageValidationResult => {
   if (!SUPPORTED_TYPES.includes(file.type)) {
-    return { valid: false, error: 'Please choose a JPG, PNG, or WEBP image.' };
+    return { valid: false, error: t ? t('scanner.invalidFormat') : 'Please choose a JPG, PNG, or WEBP image.' };
   }
   if (file.size > SCANNER_CONSTANTS.MAX_FILE_SIZE) {
     const maxMb = SCANNER_CONSTANTS.MAX_FILE_SIZE / (1024 * 1024);
-    return { valid: false, error: `Image is too large. Max size is ${maxMb}MB.` };
+    return { valid: false, error: t ? t('scanner.imageTooLarge', { maxMb }) : `Image is too large. Max size is ${maxMb}MB.` };
   }
   return { valid: true };
 };

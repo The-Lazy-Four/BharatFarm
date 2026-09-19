@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext.js';
+import { useLanguage } from '../../context/LanguageContext.js';
 import { usePWA } from '../../context/PWAContext.js';
 import { MobileBottomNav } from './MobileBottomNav.js';
 import { PriceRiskService } from '../../modules/sih/price-risk/priceRisk.service.js';
@@ -44,6 +45,7 @@ const INITIAL_NOTIFS: NotificationItem[] = [
 export const MobileModuleHomePage: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { t } = useLanguage();
   const { subscribeToNotifications, pushSubscription } = usePWA();
 
   const [showNotifDrawer, setShowNotifDrawer] = useState(false);
@@ -103,9 +105,9 @@ export const MobileModuleHomePage: React.FC = () => {
   const cards = [
     {
       id: 'price-risk',
-      title: 'Before You Sow',
-      subtitle: 'Price-Decrement Risk',
-      description: 'Market risk & price predictions',
+      title: t('sih.priceRiskNav'),
+      subtitle: t('sih.priceRiskSubtitle'),
+      description: t('sih.priceRiskDesc'),
       icon: 'psychology',
       path: '/sih/price-risk',
       bg: '#ECFDF5',
@@ -114,9 +116,9 @@ export const MobileModuleHomePage: React.FC = () => {
     },
     {
       id: 'climate-risk',
-      title: 'Climate Risk',
-      subtitle: 'Aware Procurement',
-      description: 'Weather insights & procurement',
+      title: t('sih.climateRiskNav'),
+      subtitle: t('sih.climateRiskSubtitle'),
+      description: t('sih.climateRiskDesc'),
       icon: 'partly_cloudy_day',
       path: '/sih/climate-risk',
       bg: '#EFF6FF',
@@ -125,9 +127,9 @@ export const MobileModuleHomePage: React.FC = () => {
     },
     {
       id: 'aggregation',
-      title: 'Small-Farm Aggregation',
-      subtitle: 'Optimizer',
-      description: 'Group buying & selling together',
+      title: t('sih.aggregationNav'),
+      subtitle: t('sih.aggregationSubtitle'),
+      description: t('sih.aggregationDesc'),
       icon: 'groups',
       path: '/sih/aggregation',
       bg: '#F0FDF4',
@@ -136,9 +138,9 @@ export const MobileModuleHomePage: React.FC = () => {
     },
     {
       id: 'crop-insurance',
-      title: 'Crop Risk & Insurance',
-      subtitle: 'Verification',
-      description: 'Crop health & claim support',
+      title: t('sih.cropInsuranceNav'),
+      subtitle: t('sih.cropInsuranceSubtitle'),
+      description: t('sih.cropInsuranceDesc'),
       icon: 'verified_user',
       path: '/sih/crop-insurance',
       bg: '#FEFCE8',
@@ -147,9 +149,9 @@ export const MobileModuleHomePage: React.FC = () => {
     },
     {
       id: 'smart-mandi',
-      title: 'Smart Mandi',
-      subtitle: 'Intelligence',
-      description: 'Best mandi prices & markets',
+      title: t('sih.smartMandiNav'),
+      subtitle: t('sih.smartMandiSubtitle'),
+      description: t('sih.smartMandiDesc'),
       icon: 'bar_chart',
       path: '/sih/smart-mandi',
       bg: '#FFF7ED',
@@ -158,9 +160,9 @@ export const MobileModuleHomePage: React.FC = () => {
     },
     {
       id: 'sahayak',
-      title: 'Sahayak + WhatsApp',
-      subtitle: 'Assisted Access',
-      description: 'AI & human support in your language',
+      title: t('sih.sahayakNav'),
+      subtitle: t('sih.sahayakSubtitle'),
+      description: t('sih.sahayakDesc'),
       icon: 'chat',
       path: '/sih/sahayak',
       bg: '#F5F3FF',
@@ -169,9 +171,9 @@ export const MobileModuleHomePage: React.FC = () => {
     },
     {
       id: 'basic-needs',
-      title: 'Basic Farmer Needs',
-      subtitle: 'Everyday Tools',
-      description: 'Everyday farming tools & utilities',
+      title: t('home.basicFarmerNeedsTitle'),
+      subtitle: t('home.everydayTools'),
+      description: t('home.everydayToolsDesc'),
       icon: 'agriculture',
       path: '/dashboard',
       bg: '#FEF9C3',
@@ -205,10 +207,10 @@ export const MobileModuleHomePage: React.FC = () => {
       }}>
         <div>
           <h1 style={{ fontSize: '1.4rem', fontWeight: 900, color: '#0F172A', margin: 0 }}>
-            Hello, {farmerName}! 👋
+            {t('home.welcomeUser', { name: farmerName })}
           </h1>
           <p style={{ fontSize: '0.85rem', color: '#64748B', margin: '0.15rem 0 0 0', fontWeight: 500 }}>
-            SIH Innovations & Farming Tools
+            {t('home.sihInnovationsHeader')}
           </p>
         </div>
 
@@ -217,7 +219,7 @@ export const MobileModuleHomePage: React.FC = () => {
           {/* Notification Tab Button (Left of Profile) */}
           <button
             onClick={() => setShowNotifDrawer(true)}
-            title="Notifications & Alerts"
+            title={t('common.notifications')}
             style={{
               width: '42px',
               height: '42px',
@@ -253,7 +255,7 @@ export const MobileModuleHomePage: React.FC = () => {
           {/* User Profile Avatar */}
           <button
             onClick={() => navigate('/profile')}
-            title="Profile & Settings"
+            title={t('moduleHome.profileTitle', { name: farmerName })}
             style={{
               width: '42px',
               height: '42px',
@@ -306,7 +308,7 @@ export const MobileModuleHomePage: React.FC = () => {
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <span className="material-symbols-outlined" style={{ color: '#16A34A', fontSize: '24px' }}>notifications</span>
                 <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#0F172A', margin: 0 }}>
-                  Agriculture Notifications
+                  {t('notifications.agriNotifs')}
                 </h3>
               </div>
               <button
@@ -326,7 +328,7 @@ export const MobileModuleHomePage: React.FC = () => {
             }}>
               <div style={{ fontSize: '0.8rem', fontWeight: 800, color: '#166534', marginBottom: '0.4rem', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
                 <span className="material-symbols-outlined" style={{ fontSize: '18px', color: '#16A34A' }}>send</span>
-                <span>Send Test Push Notification (SIH Demo):</span>
+                <span>{t('notifications.sendTestPush')}</span>
               </div>
 
               {!pushSubscription && (
@@ -345,7 +347,7 @@ export const MobileModuleHomePage: React.FC = () => {
                     marginBottom: '0.5rem'
                   }}
                 >
-                  Enable PWA Android Push Notifications
+                  {t('notifications.enablePwaPush')}
                 </button>
               )}
 
@@ -437,10 +439,10 @@ export const MobileModuleHomePage: React.FC = () => {
             </span>
             <div>
               <div style={{ color: '#166534', fontSize: '0.82rem', fontWeight: 800, lineHeight: 1.2 }}>
-                Registered Farm: {reg.fieldName} ({reg.crop}, {reg.landSizeAcres} Acres) in {reg.district}, {reg.state}
+                {t('home.registeredFarm', { name: reg.fieldName, crop: reg.crop, acres: reg.landSizeAcres, district: reg.district, state: reg.state })}
               </div>
               <div style={{ fontSize: '0.72rem', color: '#15803D', fontWeight: 600, marginTop: '0.15rem' }}>
-                Field Mapping — Walk the Farm
+                {t('home.fieldMappingShort')}
               </div>
             </div>
           </div>
@@ -462,7 +464,7 @@ export const MobileModuleHomePage: React.FC = () => {
               flexShrink: 0
             }}
           >
-            Update Registration
+            {t('home.updateRegistration')}
           </button>
         </div>
 

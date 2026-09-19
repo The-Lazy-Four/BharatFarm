@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
 import { SihLayout } from '../../shared/SihLayout';
+import { useLanguage } from '@core/context/LanguageContext';
 
+/* Sahayak AI voice/text companion page with human advisor directory */
 export const SahayakPage: React.FC = () => {
+  const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState<'ai' | 'human'>('ai');
   const [messages, setMessages] = useState<Array<{ sender: 'user' | 'ai'; text: string }>>([
-    { sender: 'ai', text: 'Namaste! How can I help you today with your farming needs?' }
+    { sender: 'ai', text: t('sahayakPage.aiGreeting') }
   ]);
   const [inputText, setInputText] = useState('');
 
@@ -19,10 +22,18 @@ export const SahayakPage: React.FC = () => {
     setTimeout(() => {
       setMessages([
         ...updated,
-        { sender: 'ai', text: 'I recommend checking local mandi rates or scanning your leaf for disease diagnostic.' }
+        { sender: 'ai', text: t('sahayakPage.aiRecommendation') }
       ]);
     }, 600);
   };
+
+  // Quick action buttons with translated labels
+  const quickActions = [
+    { icon: 'help_outline', text: t('sahayakPage.askQuestion'), prompt: t('sahayakPage.askQuestionPrompt') },
+    { icon: 'mic', text: t('sahayakPage.voiceSupport'), prompt: t('sahayakPage.voicePrompt') },
+    { icon: 'photo_camera', text: t('sahayakPage.sendPhoto'), prompt: t('sahayakPage.photoPrompt') },
+    { icon: 'support_agent', text: t('sahayakPage.talkToHuman'), prompt: t('sahayakPage.humanPrompt') }
+  ];
 
   return (
     <SihLayout activeModuleId="sahayak" moduleTitle="Sahayak" moduleIcon="eco">
@@ -31,10 +42,10 @@ export const SahayakPage: React.FC = () => {
         {/* Title */}
         <div>
           <h1 style={{ fontSize: '1.75rem', fontWeight: 900, color: '#0F172A', margin: 0 }}>
-            Sahayak
+            {t('sahayakPage.title')}
           </h1>
           <p style={{ fontSize: '0.95rem', color: '#64748B', marginTop: '0.35rem', margin: 0 }}>
-            Your Farming Companion
+            {t('sahayakPage.subtitle')}
           </p>
         </div>
 
@@ -61,7 +72,7 @@ export const SahayakPage: React.FC = () => {
               boxShadow: activeTab === 'ai' ? '0 2px 4px rgba(0,0,0,0.05)' : 'none'
             }}
           >
-            AI Assistant
+            {t('sahayakPage.aiAssistant')}
           </button>
           <button
             onClick={() => setActiveTab('human')}
@@ -77,7 +88,7 @@ export const SahayakPage: React.FC = () => {
               boxShadow: activeTab === 'human' ? '0 2px 4px rgba(0,0,0,0.05)' : 'none'
             }}
           >
-            Human Sahayak
+            {t('sahayakPage.humanSahayak')}
           </button>
         </div>
 
@@ -93,7 +104,7 @@ export const SahayakPage: React.FC = () => {
               boxShadow: '0 4px 12px rgba(0,0,0,0.03)'
             }}>
               <h3 style={{ fontSize: '1rem', fontWeight: 800, color: '#0F172A', margin: '0 0 1rem 0' }}>
-                How can I help you today?
+                {t('sahayakPage.howCanIHelp')}
               </h3>
 
               <div style={{
@@ -101,12 +112,7 @@ export const SahayakPage: React.FC = () => {
                 gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
                 gap: '0.85rem'
               }}>
-                {[
-                  { icon: 'help_outline', text: 'Ask a Question', prompt: 'How do I boost Wheat crop yield?' },
-                  { icon: 'mic', text: 'Voice Support', prompt: 'Listening... (Speak now)' },
-                  { icon: 'photo_camera', text: 'Send a Photo', prompt: 'Opening Leaf Camera Diagnosis...' },
-                  { icon: 'support_agent', text: 'Talk to Human Sahayak', prompt: 'Connecting to local village Sahayak representative...' }
-                ].map((qa, idx) => (
+                {quickActions.map((qa, idx) => (
                   <button
                     key={idx}
                     onClick={() => handleSendMessage(qa.prompt)}
@@ -184,7 +190,7 @@ export const SahayakPage: React.FC = () => {
                   value={inputText}
                   onChange={(e) => setInputText(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
-                  placeholder="Type your message..."
+                  placeholder={t('sahayakPage.typeMessage')}
                   style={{
                     flex: 1,
                     padding: '0.75rem 1rem',
@@ -197,8 +203,8 @@ export const SahayakPage: React.FC = () => {
                 />
 
                 <button
-                  onClick={() => alert('Microphone recording activated...')}
-                  title="Voice Input"
+                  onClick={() => alert(t('sahayakPage.micActivated'))}
+                  title={t('sahayakPage.voiceInput')}
                   style={{
                     background: '#F1F5F9',
                     border: 'none',
@@ -217,7 +223,7 @@ export const SahayakPage: React.FC = () => {
 
                 <button
                   onClick={() => handleSendMessage()}
-                  title="Send Message"
+                  title={t('sahayakPage.sendMessage')}
                   style={{
                     background: '#16A34A',
                     border: 'none',
@@ -248,7 +254,7 @@ export const SahayakPage: React.FC = () => {
             boxShadow: '0 4px 12px rgba(0,0,0,0.03)'
           }}>
             <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#0F172A', margin: '0 0 1rem 0' }}>
-              Local Human Sahayaks Near You
+              {t('sahayakPage.localSahayaks')}
             </h3>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
@@ -271,7 +277,7 @@ export const SahayakPage: React.FC = () => {
                   </div>
 
                   <button
-                    onClick={() => alert(`Calling ${s.name} at ${s.phone}`)}
+                    onClick={() => alert(t('sahayakPage.callingSahayak', { name: s.name, phone: s.phone }))}
                     style={{
                       background: '#16A34A',
                       color: '#FFFFFF',
@@ -283,7 +289,7 @@ export const SahayakPage: React.FC = () => {
                       cursor: 'pointer'
                     }}
                   >
-                    Call Sahayak
+                    {t('sahayakPage.callSahayak')}
                   </button>
                 </div>
               ))}

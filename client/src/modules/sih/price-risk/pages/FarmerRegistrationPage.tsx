@@ -1,7 +1,8 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../../context/AuthContext.js';
 import { PriceRiskService, AVAILABLE_CROPS } from '../priceRisk.service.js';
+import { useLanguage } from '@core/context/LanguageContext';
 
 type Step = 1 | 2 | 3;
 
@@ -26,6 +27,7 @@ const INDIAN_STATES = [
 export const FarmerRegistrationPage: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { t } = useLanguage();
 
   const [step, setStep] = useState<Step>(1);
   const [selectedCrop, setSelectedCrop] = useState('');
@@ -97,7 +99,7 @@ export const FarmerRegistrationPage: React.FC = () => {
     navigate('/sih/price-risk');
   };
 
-  const stepLabels = ['Select Crop', 'Walk Farm', 'Registered'];
+  const stepLabels = [t('beforeYouSow.cropSelection'), t('fieldMapping.headerBadge'), t('cropInsurance.verified')];
 
   return (
     <div style={{
@@ -118,11 +120,11 @@ export const FarmerRegistrationPage: React.FC = () => {
           >
             ← SIH
           </button>
-          <span style={{ fontSize: '0.8rem', color: '#6b7280', fontWeight: 600 }}>My Fields (0)</span>
+          <span style={{ fontSize: '0.8rem', color: '#6b7280', fontWeight: 600 }}>{t('fieldMapping.savedFields')} (0)</span>
         </div>
-        <h1 style={{ fontSize: '1.5rem', fontWeight: 900, color: '#0f172a', margin: 0 }}>Field Mapping</h1>
+        <h1 style={{ fontSize: '1.5rem', fontWeight: 900, color: '#0f172a', margin: 0 }}>{t('fieldMapping.pageTitle')}</h1>
         <p style={{ fontSize: '0.85rem', color: '#6b7280', margin: '0.2rem 0 0', fontWeight: 500 }}>
-          Walk the Farm · SIH Innovation Module
+          {t('fieldMapping.walkInstructions')}
         </p>
       </div>
 
@@ -171,21 +173,21 @@ export const FarmerRegistrationPage: React.FC = () => {
                 <span style={{ fontSize: '1.4rem' }}>🗺️</span>
               </div>
               <div>
-                <h2 style={{ fontSize: '1.3rem', fontWeight: 900, color: '#0f172a', margin: 0 }}>Register New Field</h2>
-                <p style={{ fontSize: '0.82rem', color: '#64748b', margin: 0 }}>Step 1: Choose crop and name your field</p>
+                <h2 style={{ fontSize: '1.3rem', fontWeight: 900, color: '#0f172a', margin: 0 }}>{t('fieldMapping.saveField')}</h2>
+                <p style={{ fontSize: '0.82rem', color: '#64748b', margin: 0 }}>{t('beforeYouSow.selectCrop')}</p>
               </div>
             </div>
 
             {/* Field Name */}
             <div style={{ marginBottom: '1.25rem' }}>
               <label style={{ fontSize: '0.85rem', fontWeight: 700, color: '#374151', display: 'block', marginBottom: '0.4rem' }}>
-                Field Label / Name
+                {t('fieldMapping.fieldName')}
               </label>
               <input
                 type="text"
                 value={fieldName}
                 onChange={e => setFieldName(e.target.value)}
-                placeholder={selectedCrop ? `My ${selectedCrop} Field` : 'e.g., North Paddy Field'}
+                placeholder={selectedCrop ? `My ${selectedCrop} Field` : t('fieldMapping.fieldNamePlaceholder')}
                 style={{
                   width: '100%', padding: '0.75rem 1rem', borderRadius: '12px',
                   border: '1.5px solid #e2e8f0', fontSize: '0.95rem', boxSizing: 'border-box',
@@ -198,7 +200,7 @@ export const FarmerRegistrationPage: React.FC = () => {
             {/* Select Crop */}
             <div style={{ marginBottom: '1.5rem' }}>
               <label style={{ fontSize: '0.85rem', fontWeight: 700, color: '#374151', display: 'block', marginBottom: '0.6rem' }}>
-                Select Crop
+                {t('beforeYouSow.cropSelection')}
               </label>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.6rem' }}>
                 {POPULAR_CROPS.map(crop => (
@@ -241,7 +243,7 @@ export const FarmerRegistrationPage: React.FC = () => {
                 transition: 'all 0.2s'
               }}
             >
-              Continue → Walk the Farm 🚶
+              {t('common.next')} →
             </button>
           </div>
         )}

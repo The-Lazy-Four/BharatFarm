@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext.js';
+import { useLanguage } from '../../context/LanguageContext.js';
 import { useIsMobile } from '../../hooks/useIsMobile';
 import { MobileAuthPage } from '../../components/mobile/MobileAuthPage';
 
@@ -13,6 +14,7 @@ const INDIAN_STATES = [
 export const RegisterPage: React.FC = () => {
   const isMobile = useIsMobile();
   const { register } = useAuth();
+  const { language, setLanguage, t } = useLanguage();
   const navigate = useNavigate();
 
   if (isMobile) {
@@ -40,17 +42,17 @@ export const RegisterPage: React.FC = () => {
     const trimmedEmail = email.trim();
 
     if (!trimmedName) {
-      setErrorMsg('Please enter your full name.');
+      setErrorMsg(t('auth.fullName'));
       return;
     }
 
     if (!trimmedEmail || !trimmedEmail.includes('@') || !trimmedEmail.includes('.')) {
-      setErrorMsg('Enter a valid email address.');
+      setErrorMsg(t('auth.invalidCredentials'));
       return;
     }
 
     if (!password || password.length < 6) {
-      setErrorMsg('Password must be at least 6 characters long.');
+      setErrorMsg(t('auth.createPassword'));
       return;
     }
 
@@ -71,13 +73,13 @@ export const RegisterPage: React.FC = () => {
       } else {
         const code = res.error?.code;
         if (code === 'DUPLICATE_EMAIL') {
-          setErrorMsg('An account with this email address already exists. Please log in.');
+          setErrorMsg(t('auth.alreadyRegistered'));
         } else {
-          setErrorMsg(res.error?.message || 'Unable to register account. Please check your connection and try again.');
+          setErrorMsg(res.error?.message || t('common.error'));
         }
       }
     } catch {
-      setErrorMsg('Unable to connect right now. Check your internet connection.');
+      setErrorMsg(t('common.error'));
     } finally {
       setIsLoading(false);
     }
@@ -95,8 +97,8 @@ export const RegisterPage: React.FC = () => {
       position: 'relative'
     }}>
 
-      {/* Top Header Logo */}
-      <header style={{ padding: '1.5rem 2rem', display: 'flex', justifyContent: 'center' }}>
+      {/* Top Header Logo & Language Dropdown */}
+      <header style={{ padding: '1.5rem 2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', textDecoration: 'none' }}>
           <img
             src="/logo.png"
@@ -105,6 +107,29 @@ export const RegisterPage: React.FC = () => {
           />
           <span style={{ fontSize: '1.5rem', fontWeight: 900, color: '#1E293B', letterSpacing: '-0.02em' }}>BharatFarm</span>
         </Link>
+
+        {/* Language Selector Dropdown */}
+        <select
+          value={language}
+          onChange={(e) => setLanguage(e.target.value)}
+          title={t('common.languageSelect')}
+          style={{
+            background: '#FFFFFF',
+            color: '#0F172A',
+            border: '1px solid #CBD5E1',
+            borderRadius: '20px',
+            padding: '0.35rem 0.75rem',
+            fontSize: '0.8rem',
+            fontWeight: 700,
+            cursor: 'pointer',
+            outline: 'none',
+            boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
+          }}
+        >
+          <option value="en">English (en-IN)</option>
+          <option value="hi">हिंदी (Hindi)</option>
+          <option value="bn">বাংলা (Bengali)</option>
+        </select>
       </header>
 
       {/* Main Centered Register Box */}
@@ -125,10 +150,10 @@ export const RegisterPage: React.FC = () => {
 
           <div style={{ textAlign: 'center', marginBottom: '1.75rem' }}>
             <h1 style={{ fontSize: '1.75rem', fontWeight: 900, color: '#0F172A', margin: 0 }}>
-              Create New Account
+              {t('auth.registerTitle')}
             </h1>
             <p style={{ fontSize: '0.9rem', color: '#64748B', marginTop: '0.35rem', marginBottom: 0 }}>
-              Join BharatFarm smart agriculture platform
+              {t('auth.registerSubtitle')}
             </p>
           </div>
 
@@ -156,12 +181,12 @@ export const RegisterPage: React.FC = () => {
 
             {/* Full Name */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-              <label style={{ fontSize: '0.85rem', fontWeight: 700, color: '#334155' }}>Full Name *</label>
+              <label style={{ fontSize: '0.85rem', fontWeight: 700, color: '#334155' }}>{t('auth.fullName')} *</label>
               <input
                 type="text"
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
-                placeholder="Ramesh Patel"
+                placeholder={t('auth.fullNamePlaceholder')}
                 disabled={isLoading}
                 required
                 style={{
@@ -179,7 +204,7 @@ export const RegisterPage: React.FC = () => {
             {/* Email & Phone */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '1rem' }}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-                <label style={{ fontSize: '0.85rem', fontWeight: 700, color: '#334155' }}>Email Address *</label>
+                <label style={{ fontSize: '0.85rem', fontWeight: 700, color: '#334155' }}>{t('auth.email')} *</label>
                 <input
                   type="email"
                   value={email}
@@ -200,12 +225,12 @@ export const RegisterPage: React.FC = () => {
               </div>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-                <label style={{ fontSize: '0.85rem', fontWeight: 700, color: '#334155' }}>Phone Number</label>
+                <label style={{ fontSize: '0.85rem', fontWeight: 700, color: '#334155' }}>{t('auth.phoneNumber')}</label>
                 <input
                   type="tel"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
-                  placeholder="9831200001"
+                  placeholder={t('auth.phonePlaceholder')}
                   disabled={isLoading}
                   style={{
                     padding: '0.75rem 1rem',
@@ -222,13 +247,13 @@ export const RegisterPage: React.FC = () => {
 
             {/* Password Input */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-              <label style={{ fontSize: '0.85rem', fontWeight: 700, color: '#334155' }}>Password *</label>
+              <label style={{ fontSize: '0.85rem', fontWeight: 700, color: '#334155' }}>{t('auth.password')} *</label>
               <div style={{ position: 'relative' }}>
                 <input
                   type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Min 6 characters"
+                  placeholder={t('auth.passwordPlaceholder')}
                   disabled={isLoading}
                   required
                   style={{
@@ -268,7 +293,7 @@ export const RegisterPage: React.FC = () => {
             {/* State & District */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '1rem' }}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-                <label style={{ fontSize: '0.85rem', fontWeight: 700, color: '#334155' }}>State</label>
+                <label style={{ fontSize: '0.85rem', fontWeight: 700, color: '#334155' }}>{t('auth.state')}</label>
                 <select
                   value={state}
                   onChange={(e) => setState(e.target.value)}
@@ -290,12 +315,12 @@ export const RegisterPage: React.FC = () => {
               </div>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-                <label style={{ fontSize: '0.85rem', fontWeight: 700, color: '#334155' }}>District</label>
+                <label style={{ fontSize: '0.85rem', fontWeight: 700, color: '#334155' }}>{t('auth.district')}</label>
                 <input
                   type="text"
                   value={district}
                   onChange={(e) => setDistrict(e.target.value)}
-                  placeholder="Ludhiana"
+                  placeholder={t('auth.district')}
                   disabled={isLoading}
                   style={{
                     padding: '0.75rem 1rem',
@@ -328,7 +353,7 @@ export const RegisterPage: React.FC = () => {
                 marginTop: '0.5rem'
               }}
             >
-              {isLoading ? 'Creating Account...' : 'Register Account'}
+              {isLoading ? t('common.loading') : t('auth.registerNow')}
             </button>
           </form>
 
@@ -341,9 +366,9 @@ export const RegisterPage: React.FC = () => {
             fontSize: '0.9rem',
             color: '#64748B'
           }}>
-            Already have an account?{' '}
+            {t('auth.alreadyRegistered')}{' '}
             <Link to="/login" style={{ color: '#16A34A', fontWeight: 700, textDecoration: 'none' }}>
-              Login here
+              {t('auth.signInHere')}
             </Link>
           </div>
         </div>
@@ -358,7 +383,7 @@ export const RegisterPage: React.FC = () => {
         borderTop: '1px solid #E2E8F0'
       }}>
         <div style={{ fontSize: '0.85rem', color: '#16A34A', fontWeight: 800, letterSpacing: '0.05em' }}>
-          Grow • Learn • Prosper
+          {t('auth.tagline')}
         </div>
       </footer>
     </div>

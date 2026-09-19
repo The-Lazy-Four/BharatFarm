@@ -1,6 +1,7 @@
 import React from 'react';
 import { ChatMessage } from '../types/krishiBot.types';
 import { speakText } from '../utils/krishiBot.utils';
+import { useLanguage } from '@core/context/LanguageContext';
 
 export const MessageBubble: React.FC<{ message: ChatMessage; language: string }> = ({ message, language }) => {
   const isBot = message.sender === 'bot';

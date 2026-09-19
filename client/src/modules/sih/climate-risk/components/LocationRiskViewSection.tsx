@@ -1,5 +1,6 @@
 import React from 'react';
 import { ClimateAssessmentResult } from '../types';
+import { useLanguage } from '../../../../context/LanguageContext';
 
 interface Props {
   location: string;
@@ -9,7 +10,13 @@ interface Props {
 }
 
 export const LocationRiskViewSection: React.FC<Props> = ({ location, latitude, longitude, assessment }) => {
+  const { t } = useLanguage();
   const isSevere = assessment.overallRiskLevel === 'SEVERE' || assessment.overallRiskLevel === 'HIGH';
+
+  const formatRiskLevel = (lvl: string) => {
+    const key = lvl.toLowerCase();
+    return t(`risk.${key}` as any) || lvl;
+  };
 
   return (
     <div style={{
@@ -25,7 +32,7 @@ export const LocationRiskViewSection: React.FC<Props> = ({ location, latitude, l
     }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem' }}>
         <span style={{ fontSize: '0.72rem', fontWeight: 800, color: '#64748B', letterSpacing: '0.04em' }}>
-          FIELD LOCATION
+          {t('climateComponents.location')}
         </span>
         <span style={{
           background: isSevere ? '#fee2e2' : '#dcfce7',
@@ -35,7 +42,7 @@ export const LocationRiskViewSection: React.FC<Props> = ({ location, latitude, l
           padding: '0.1rem 0.4rem',
           borderRadius: '4px'
         }}>
-          {assessment.overallRiskLevel} Exposure
+          {formatRiskLevel(assessment.overallRiskLevel)}
         </span>
       </div>
 
@@ -63,9 +70,10 @@ export const LocationRiskViewSection: React.FC<Props> = ({ location, latitude, l
         color: '#475569',
         padding: '0.3rem 0.2rem 0'
       }}>
-        <span>Crop: <strong>{assessment.cropRisk.cropName}</strong></span>
-        <span>Stage: <strong>{assessment.cropRisk.cropStage}</strong></span>
+        <span>{t('climateComponents.crop')}: <strong>{assessment.cropRisk.cropName}</strong></span>
+        <span>{t('sih.selectStage')} <strong>{assessment.cropRisk.cropStage}</strong></span>
       </div>
     </div>
   );
 };
+
