@@ -291,6 +291,109 @@ export const SahayakPage: React.FC = () => {
           </div>
         )}
 
+        {/* WhatsApp Access Layer Section */}
+        <div style={{
+          background: 'linear-gradient(135deg, #064E3B 0%, #065F46 100%)',
+          borderRadius: '20px',
+          padding: '1.5rem',
+          color: '#FFFFFF',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: '1.25rem',
+          boxShadow: '0 10px 25px -5px rgba(6, 78, 59, 0.25)'
+        }}>
+          <div style={{ maxWidth: '640px' }}>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', background: 'rgba(255,255,255,0.15)', padding: '0.25rem 0.75rem', borderRadius: '20px', fontSize: '0.78rem', fontWeight: 800, marginBottom: '0.6rem' }}>
+              <span className="material-symbols-outlined" style={{ fontSize: '16px', color: '#34D399' }}>chat</span>
+              WhatsApp Cloud Access Channel
+            </div>
+            <h3 style={{ fontSize: '1.25rem', fontWeight: 900, margin: '0 0 0.4rem 0' }}>
+              Access BharatFarm Through WhatsApp
+            </h3>
+            <p style={{ fontSize: '0.88rem', color: '#D1FAE5', margin: 0, lineHeight: 1.5 }}>
+              Connect your WhatsApp number to Sahayak for 24/7 agricultural intelligence:
+            </p>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', marginTop: '0.75rem', fontSize: '0.82rem', fontWeight: 700, color: '#A7F3D0' }}>
+              <span>✓ Weather & Flood Alerts</span>
+              <span>✓ Live Smart Mandi Prices</span>
+              <span>✓ Leaf Photo Disease Diagnostic</span>
+              <span>✓ Multi-lingual (Hindi/Bengali/English)</span>
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem', minWidth: '220px' }}>
+            <a
+              href="https://wa.me/919876543210?text=Namaste%20Sahayak"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                background: '#25D366',
+                color: '#FFFFFF',
+                textDecoration: 'none',
+                padding: '0.75rem 1.25rem',
+                borderRadius: '12px',
+                fontWeight: 800,
+                fontSize: '0.9rem',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '0.5rem',
+                boxShadow: '0 4px 12px rgba(37, 211, 102, 0.35)'
+              }}
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>sms</span>
+              Connect WhatsApp
+            </a>
+
+            <button
+              onClick={() => {
+                const sampleQueries = [
+                  'Kal baarish hogi kya?',
+                  'Aaj mere paas wali mandi mein dhan ka kya rate hai?',
+                  'PM Kisan ke liye apply kaise karu',
+                  'meri fasal mein daag hai'
+                ];
+                const selected = prompt('SIH Demo Mode — Enter WhatsApp message to simulate through Sahayak pipeline:\n\n' + sampleQueries.map((q, i) => `${i + 1}. ${q}`).join('\n'), sampleQueries[0]);
+                if (!selected) return;
+
+                fetch('/api/sahayak/whatsapp/demo', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ phone: 'demo-user', message: selected })
+                })
+                  .then(r => r.json())
+                  .then(res => {
+                    if (res.success && res.data) {
+                      alert(`[WhatsApp Response Formatter]\nIntent: ${res.data.intent} (Lang: ${res.data.detectedLanguage})\n\n${res.data.reply}`);
+                    } else {
+                      alert('Demo simulation failed: ' + (res.error?.message || 'Server error'));
+                    }
+                  })
+                  .catch(e => alert('Network error: ' + e.message));
+              }}
+              style={{
+                background: 'rgba(255,255,255,0.12)',
+                color: '#FFFFFF',
+                border: '1px solid rgba(255,255,255,0.25)',
+                padding: '0.6rem 1.1rem',
+                borderRadius: '12px',
+                fontWeight: 700,
+                fontSize: '0.82rem',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '0.4rem'
+              }}
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>play_circle</span>
+              Simulate WhatsApp (Demo Mode)
+            </button>
+          </div>
+        </div>
+
       </div>
     </SihLayout>
   );
