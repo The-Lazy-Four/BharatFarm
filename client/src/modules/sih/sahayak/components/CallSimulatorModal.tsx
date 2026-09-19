@@ -1,25 +1,37 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
+import {
+  selectVoice,
+  speakFarmerSpeech,
+  getIndianLocale,
+  SupportedLangShort,
+  VoiceSelectionResult
+} from "../utils/voiceUtils";
+import {
+  SAHAYAK_GREETINGS,
+  SAHAYAK_KNOWLEDGE_MODULES,
+  matchSahayakDemoIntent
+} from "../utils/sahayakDemoKnowledge";
 
 /* CSS injected via style tag */
 const CSS = `
   @keyframes callRingPulse {
-    0%   { box-shadow: 0 0 0 0   rgba(16,185,129,.55); }
-    70%  { box-shadow: 0 0 0 22px rgba(16,185,129,0); }
+    0%   { box-shadow: 0 0 0 0   rgba(16,185,129,.6); }
+    70%  { box-shadow: 0 0 0 24px rgba(16,185,129,0); }
     100% { box-shadow: 0 0 0 0   rgba(16,185,129,0); }
   }
-  @keyframes wave1 { 0%,100%{height:6px}  50%{height:22px} }
-  @keyframes wave2 { 0%,100%{height:10px} 50%{height:32px} }
-  @keyframes wave3 { 0%,100%{height:14px} 50%{height:26px} }
-  @keyframes wave4 { 0%,100%{height:8px}  50%{height:20px} }
-  @keyframes wave5 { 0%,100%{height:6px}  50%{height:28px} }
+  @keyframes wave1 { 0%,100%{height:6px}  50%{height:26px} }
+  @keyframes wave2 { 0%,100%{height:12px} 50%{height:36px} }
+  @keyframes wave3 { 0%,100%{height:16px} 50%{height:28px} }
+  @keyframes wave4 { 0%,100%{height:10px} 50%{height:22px} }
+  @keyframes wave5 { 0%,100%{height:8px}  50%{height:32px} }
   @keyframes micPulse {
-    0%,100%{transform:scale(1);box-shadow:0 0 0 0 rgba(245,158,11,.6)}
-    50%{transform:scale(1.08);box-shadow:0 0 0 14px rgba(245,158,11,0)}
+    0%,100%{transform:scale(1);box-shadow:0 0 0 0 rgba(239,68,68,.7)}
+    50%{transform:scale(1.06);box-shadow:0 0 0 16px rgba(239,68,68,0)}
   }
   @keyframes dtmfPress {
     0%{transform:scale(1)} 40%{transform:scale(.91);background:rgba(16,185,129,.25)} 100%{transform:scale(1)}
   }
-  @keyframes slideUp { from{opacity:0;transform:translateY(18px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes slideUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
   @keyframes fadeIn  { from{opacity:0} to{opacity:1} }
   @keyframes dialingDot {
     0%,80%,100%{opacity:.2;transform:scale(.7)} 40%{opacity:1;transform:scale(1)}
@@ -34,21 +46,21 @@ const CSS = `
   .csc-phone{
     background:linear-gradient(160deg,#0D1B2A 0%,#0F172A 60%,#0D1B2A 100%);
     border-radius:36px;
-    width:100%;max-width:400px;
-    height:92vh;max-height:820px;
+    width:100%;max-width:420px;
+    height:94vh;max-height:860px;
     display:flex;flex-direction:column;
     box-shadow:0 30px 80px -12px rgba(0,0,0,.8),0 0 0 1.5px #1E293B;
     overflow:hidden;position:relative;
   }
   @media(max-width:450px){
-    .csc-phone{border-radius:24px;height:100dvh;max-height:100dvh;}
+    .csc-phone{border-radius:20px;height:100dvh;max-height:100dvh;}
     .csc-overlay{padding:0;align-items:flex-end;}
   }
   .dtmf-btn{
     background:rgba(30,41,59,.85);
     border:1px solid rgba(51,65,85,.7);
     border-radius:50%;
-    width:68px;height:68px;
+    width:64px;height:64px;
     display:flex;flex-direction:column;
     align-items:center;justify-content:center;
     cursor:pointer;color:#F8FAFC;
@@ -63,14 +75,14 @@ const CSS = `
     border-color:#10B981;
   }
   .dtmf-btn:disabled{opacity:.35;cursor:not-allowed;}
-  .dtmf-main{font-size:1.5rem;font-weight:700;line-height:1;}
-  .dtmf-sub{font-size:.52rem;color:#64748B;font-weight:700;letter-spacing:.06em;margin-top:1px;}
-  .dtmf-svc{font-size:.46rem;color:#34D399;font-weight:800;margin-top:1px;letter-spacing:.03em;}
+  .dtmf-main{font-size:1.4rem;font-weight:700;line-height:1;}
+  .dtmf-sub{font-size:.5rem;color:#64748B;font-weight:700;letter-spacing:.06em;margin-top:1px;}
+  .dtmf-svc{font-size:.44rem;color:#34D399;font-weight:800;margin-top:1px;letter-spacing:.02em;}
   .tx-bubble{
-    animation:slideUp .28s ease;
+    animation:slideUp .24s ease;
     border-radius:16px;
-    padding:.65rem .9rem;
-    font-size:.83rem;
+    padding:.65rem .85rem;
+    font-size:.82rem;
     line-height:1.45;
     word-break:break-word;
     white-space:pre-wrap;
@@ -85,15 +97,20 @@ const CSS = `
     border:1px solid rgba(52,211,153,.25);
     align-self:flex-end;border-bottom-right-radius:4px;
   }
+  .tx-bubble.interim{
+    background:rgba(180,83,9,.2);border:1px dashed #F59E0B;
+    color:#FDE68A;align-self:flex-end;border-bottom-right-radius:4px;
+    font-style:italic;
+  }
   .view-tab{
     background:transparent;border:none;border-radius:20px;
-    padding:.3rem .85rem;font-size:.72rem;font-weight:700;
+    padding:.35rem .85rem;font-size:.74rem;font-weight:700;
     color:#94A3B8;cursor:pointer;transition:all .2s;
   }
   .view-tab.active{background:rgba(16,185,129,.18);color:#34D399;}
   .speech-pill{
     background:rgba(30,41,59,.8);border:1px solid #334155;
-    border-radius:20px;padding:.3rem .72rem;
+    border-radius:20px;padding:.32rem .75rem;
     font-size:.72rem;color:#CBD5E1;font-weight:600;
     cursor:pointer;white-space:nowrap;transition:all .15s;flex-shrink:0;
   }
@@ -111,176 +128,366 @@ const CSS = `
   .dialing-dot:nth-child(3){animation:dialingDot 1.4s .4s infinite;}
 `;
 
-interface CallSimulatorModalProps { isOpen: boolean; onClose: () => void; }
-interface TxItem { speaker: "ai"|"farmer"; text: string; dtmf?: string; time: string; }
-interface MenuOpt { key: string; label: string; }
+interface CallSimulatorModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+interface TxItem {
+  speaker: "ai" | "farmer";
+  text: string;
+  dtmf?: string;
+  time: string;
+  detectedIntent?: string;
+}
+
+interface MenuOpt {
+  key: string;
+  label: string;
+}
 
 const KEYS = [
-  {num:"1",alpha:"",    svc:"Before Sow"},
-  {num:"2",alpha:"ABC", svc:"Climate"},
-  {num:"3",alpha:"DEF", svc:"Group Sell"},
-  {num:"4",alpha:"GHI", svc:"Insurance"},
-  {num:"5",alpha:"JKL", svc:"Mandi"},
-  {num:"6",alpha:"MNO", svc:"Basic Needs"},
-  {num:"7",alpha:"PQRS",svc:""},
-  {num:"8",alpha:"TUV", svc:"Repeat"},
-  {num:"9",alpha:"WXYZ",svc:"Menu"},
-  {num:"*",alpha:"",    svc:"Back"},
-  {num:"0",alpha:"+",   svc:"Help"},
-  {num:"#",alpha:"",    svc:"End"},
+  { num: "1", alpha: "",     svc: "Before Sow" },
+  { num: "2", alpha: "ABC",  svc: "Climate" },
+  { num: "3", alpha: "DEF",  svc: "Group Sell" },
+  { num: "4", alpha: "GHI",  svc: "Insurance" },
+  { num: "5", alpha: "JKL",  svc: "Mandi" },
+  { num: "6", alpha: "MNO",  svc: "Basic Needs" },
+  { num: "7", alpha: "PQRS", svc: "" },
+  { num: "8", alpha: "TUV",  svc: "Repeat" },
+  { num: "9", alpha: "WXYZ", svc: "Menu" },
+  { num: "*", alpha: "",     svc: "Back" },
+  { num: "0", alpha: "+",    svc: "Help" },
+  { num: "#", alpha: "",     svc: "End" },
 ];
 
-const VOICE_PRESETS = [
-  {label:"??? Kal baarish?",   q:"Kal baarish hogi kya?"},
-  {label:"?? Mandi rate",      q:"Dhan ka aaj ka mandi rate kya hai?"},
-  {label:"??? Fasal bima",      q:"Fasal bima claim karna hai"},
-  {label:"?? Kaun si fasal?",  q:"Is baar kaunsa crop lagana sahi hai?"},
-  {label:"?? Group selling",   q:"Mujhe group mein fasal bechni hai"},
-  {label:"?? Leaf scan",       q:"Leaf scanner kaise use karein?"},
-  {label:"???? Bengali rain",  q:"???????? ?? ?????? ????"},
-  {label:"?? Spray timing",    q:"Fasal mein dawai kab spray karni hai?"},
+const SCENARIOS = [
+  { label: "🌦️ Kal baarish?", q: "Kal baarish hogi kya?", lang: "hi", tag: "Climate" },
+  { label: "🌾 Mandi rate", q: "Mere paas wali mandi mein dhan ka kya rate hai?", lang: "hi", tag: "Mandi" },
+  { label: "🌱 Kaun si fasal?", q: "Is baar kaunsa crop lagana sahi rahega?", lang: "hi", tag: "Before Sow" },
+  { label: "🛡️ Fasal bima", q: "Insurance claim kaise verify hota hai?", lang: "hi", tag: "Insurance" },
+  { label: "🤝 Group sell", q: "Mujhe group mein fasal bechni hai", lang: "hi", tag: "Aggregation" },
+  { label: "📸 Leaf scan", q: "Leaf scanner kaise use karu?", lang: "hi", tag: "Basic Needs" },
+  { label: "🌧️ বৃষ্টি হবে?", q: "আগামীকাল কি বৃষ্টি হবে?", lang: "bn", tag: "Climate" },
+  { label: "🌾 ধানের দাম", q: "আজ ধানের মান্ডি দর কত?", lang: "bn", tag: "Mandi" },
+  { label: "🌽 Best crop", q: "What should I sow this season?", lang: "en", tag: "Before Sow" },
+  { label: "⚡ Mandi price", q: "What is the nearest mandi for paddy?", lang: "en", tag: "Mandi" }
 ];
 
 export const CallSimulatorModal: React.FC<CallSimulatorModalProps> = ({ isOpen, onClose }) => {
-  const [callState,     setCallState]     = useState<"IDLE"|"DIALING"|"CONNECTED"|"ENDED">("IDLE");
-  const [callDuration,  setCallDuration]  = useState(0);
-  const [sessionId,     setSessionId]     = useState("");
-  const [currentStep,   setCurrentStep]   = useState("WELCOME_LANGUAGE");
-  const [language,      setLanguage]      = useState<"hi"|"en"|"bn">("hi");
+  const [callState, setCallState] = useState<"IDLE" | "DIALING" | "CONNECTED" | "ENDED">("IDLE");
+  const [callDuration, setCallDuration] = useState(0);
+  const [sessionId, setSessionId] = useState("");
+  const [currentStep, setCurrentStep] = useState("WELCOME_LANGUAGE");
+  const [language, setLanguage] = useState<SupportedLangShort>("hi");
   const [displayPrompt, setDisplayPrompt] = useState("");
-  const [optionsMenu,   setOptionsMenu]   = useState<MenuOpt[]>([]);
-  const [transcript,    setTranscript]    = useState<TxItem[]>([]);
-  const [isMuted,       setIsMuted]       = useState(false);
-  const [isSpeakerOn,   setIsSpeakerOn]   = useState(true);
-  const [isListening,   setIsListening]   = useState(false);
+  const [optionsMenu, setOptionsMenu] = useState<MenuOpt[]>([]);
+  const [transcript, setTranscript] = useState<TxItem[]>([]);
+  const [isMuted, setIsMuted] = useState(false);
+  const [isSpeakerOn, setIsSpeakerOn] = useState(true);
+  const [isListening, setIsListening] = useState(false);
+  const [interimText, setInterimText] = useState("");
   const [speechSupported, setSpeechSupported] = useState(false);
-  const [customQuery,   setCustomQuery]   = useState("");
-  const [activeView,    setActiveView]    = useState<"call"|"transcript"|"quick">("call");
-  const [pressedKey,    setPressedKey]    = useState("");
-  const [aiSpeaking,    setAiSpeaking]    = useState(false);
+  const [customQuery, setCustomQuery] = useState("");
+  const [activeView, setActiveView] = useState<"call" | "transcript" | "quick">("call");
+  const [pressedKey, setPressedKey] = useState("");
+  const [aiSpeaking, setAiSpeaking] = useState(false);
+  const [detectedIntent, setDetectedIntent] = useState<string | null>(null);
+  const [voiceInfo, setVoiceInfo] = useState<VoiceSelectionResult | null>(null);
+  const [sttError, setSttError] = useState<string | null>(null);
 
-  const timerRef       = useRef<any>(null);
+  const timerRef = useRef<any>(null);
   const recognitionRef = useRef<any>(null);
-  const txEndRef       = useRef<HTMLDivElement|null>(null);
-  const inputRef       = useRef<HTMLInputElement|null>(null);
+  const txEndRef = useRef<HTMLDivElement | null>(null);
+  const inputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (SR) {
       setSpeechSupported(true);
       const r = new SR();
-      r.continuous = false; r.interimResults = false;
-      r.onresult = (e: any) => { setIsListening(false); sendSpeech(e.results[0][0].transcript); };
-      r.onerror = () => setIsListening(false);
-      r.onend   = () => setIsListening(false);
+      r.continuous = false;
+      r.interimResults = true;
+
+      r.onstart = () => {
+        setIsListening(true);
+        setInterimText("");
+        setSttError(null);
+      };
+
+      r.onresult = (e: any) => {
+        let interim = "";
+        let final = "";
+        for (let i = e.resultIndex; i < e.results.length; ++i) {
+          if (e.results[i].isFinal) final += e.results[i][0].transcript;
+          else interim += e.results[i][0].transcript;
+        }
+        if (interim) setInterimText(interim);
+        if (final) {
+          setInterimText("");
+          setIsListening(false);
+          sendSpeech(final.trim());
+        }
+      };
+
+      r.onerror = (err: any) => {
+        setIsListening(false);
+        setInterimText("");
+        if (err.error === 'not-allowed') setSttError("Microphone access denied. Please allow microphone in browser.");
+        else if (err.error === 'no-speech') setSttError("No speech detected. Tap Speak to try again.");
+        else setSttError(`Speech recognition error (${err.error}). You can type below.`);
+      };
+
+      r.onend = () => setIsListening(false);
       recognitionRef.current = r;
     }
-  }, []);
+
+    if (typeof window !== 'undefined' && window.speechSynthesis) {
+      const updateVoice = () => {
+        const sel = selectVoice(language);
+        setVoiceInfo(sel);
+      };
+      updateVoice();
+      window.speechSynthesis.onvoiceschanged = updateVoice;
+    }
+  }, [language]);
 
   useEffect(() => {
     if (callState === "CONNECTED") {
-      timerRef.current = setInterval(() => setCallDuration(d => d+1), 1000);
-    } else { if (timerRef.current) clearInterval(timerRef.current); }
-    return () => { if (timerRef.current) clearInterval(timerRef.current); };
+      timerRef.current = setInterval(() => setCallDuration(d => d + 1), 1000);
+    } else {
+      if (timerRef.current) clearInterval(timerRef.current);
+    }
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
   }, [callState]);
 
-  useEffect(() => { txEndRef.current?.scrollIntoView({ behavior:"smooth" }); }, [transcript]);
+  useEffect(() => {
+    txEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [transcript, interimText]);
 
   useEffect(() => {
     if (isOpen && callState === "IDLE") startCall();
-    if (!isOpen) { window.speechSynthesis?.cancel(); setCallState("IDLE"); }
+    if (!isOpen) {
+      window.speechSynthesis?.cancel();
+      if (recognitionRef.current) {
+        try { recognitionRef.current.stop(); } catch {}
+      }
+      setCallState("IDLE");
+    }
   }, [isOpen]);
 
-  const fmt = (s: number) => `${String(Math.floor(s/60)).padStart(2,"0")}:${String(s%60).padStart(2,"0")}`;
-  const now  = () => new Date().toLocaleTimeString([], { hour:"2-digit", minute:"2-digit" });
+  const fmt = (s: number) => `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
+  const now = () => new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 
-  const speak = (text: string, lang: "hi"|"en"|"bn") => {
-    if (!isSpeakerOn || isMuted || !window.speechSynthesis) return;
-    window.speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(text);
-    u.lang = lang === "hi" ? "hi-IN" : lang === "bn" ? "bn-IN" : "en-IN";
-    u.rate = 0.93;
+  const speak = useCallback((text: string, lang: SupportedLangShort) => {
+    if (!isSpeakerOn || isMuted || typeof window === 'undefined' || !window.speechSynthesis) return;
     setAiSpeaking(true);
-    u.onend = () => setAiSpeaking(false);
-    window.speechSynthesis.speak(u);
-  };
+    const sel = selectVoice(lang);
+    setVoiceInfo(sel);
+
+    speakFarmerSpeech(text, lang, {
+      onStart: () => setAiSpeaking(true),
+      onEnd: () => setAiSpeaking(false),
+      onError: () => setAiSpeaking(false)
+    });
+  }, [isSpeakerOn, isMuted]);
 
   const handleResp = useCallback((data: any) => {
     if (data.currentStep) setCurrentStep(data.currentStep);
-    if (data.language)    setLanguage(data.language);
+    let newLang: SupportedLangShort = language;
+    if (data.language) {
+      const l = data.language.substring(0, 2);
+      if (l === "hi" || l === "en" || l === "bn") {
+        newLang = l as SupportedLangShort;
+        setLanguage(newLang);
+      }
+    }
+    if (data.activeModule) setDetectedIntent(data.activeModule);
     const prompt = data.displayPrompt || data.spokenText || "";
     setDisplayPrompt(prompt);
     setOptionsMenu(data.optionsMenu || []);
-    setTranscript(prev => [...prev, { speaker:"ai", text:prompt, time:now() }]);
-    speak(data.spokenText || prompt, data.language || language);
-    if (data.isCallEnded) endCall();
-  }, [language, isSpeakerOn, isMuted]);
 
-  const fallback = () => {
+    setTranscript(prev => [
+      ...prev,
+      { speaker: "ai", text: prompt, time: now(), detectedIntent: data.activeModule || undefined }
+    ]);
+
+    speak(data.spokenText || prompt, newLang);
+    if (data.isCallEnded) endCall();
+  }, [language, speak]);
+
+  const fallbackWelcome = () => {
     setCallState("CONNECTED");
-    const g = "Welcome to BharatFarm Sahayak. For Hindi press 1, English press 2, Bengali press 3.";
-    setDisplayPrompt(g); setCurrentStep("WELCOME_LANGUAGE");
-    setOptionsMenu([{key:"1",label:"??????"},{key:"2",label:"English"},{key:"3",label:"?????"}]);
-    setTranscript([{ speaker:"ai", text:g, time:now() }]);
-    speak(g, "en");
+    const welcome = SAHAYAK_GREETINGS.INITIAL_IVR;
+    setDisplayPrompt(welcome.display);
+    setCurrentStep("WELCOME_LANGUAGE");
+    setOptionsMenu([
+      { key: "1", label: "1 → हिंदी (Hindi)" },
+      { key: "2", label: "2 → English" },
+      { key: "3", label: "3 → বাংলা (Bengali)" }
+    ]);
+    setTranscript([{ speaker: "ai", text: welcome.display, time: now() }]);
+    speak(welcome.spoken, "hi");
   };
 
   const startCall = async () => {
     const sid = `call_${Date.now()}_${Math.random().toString(36).substring(7)}`;
-    setSessionId(sid); setCallState("DIALING"); setCallDuration(0); setTranscript([]);
+    setSessionId(sid);
+    setCallState("DIALING");
+    setCallDuration(0);
+    setTranscript([]);
+    setDetectedIntent(null);
+    setSttError(null);
+
     try {
       const r = await fetch("/api/sahayak/call/incoming", {
-        method:"POST", headers:{"Content-Type":"application/json"},
-        body: JSON.stringify({ sessionId:sid, callerPhone:"+91 98312 00001" })
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sessionId: sid, callerPhone: "+91 98312 00001" })
       });
       const j = await r.json();
-      if (j.success && j.data) { setCallState("CONNECTED"); handleResp(j.data); } else fallback();
-    } catch { fallback(); }
+      if (j.success && j.data) {
+        setCallState("CONNECTED");
+        handleResp(j.data);
+      } else {
+        fallbackWelcome();
+      }
+    } catch {
+      fallbackWelcome();
+    }
   };
 
   const sendDtmf = async (digit: string) => {
     if (callState !== "CONNECTED" || !sessionId) return;
-    if (digit === "#") { endCall(); return; }
-    setPressedKey(digit); setTimeout(() => setPressedKey(""), 300);
-    setTranscript(prev => [...prev, { speaker:"farmer", text:`[Key ${digit} pressed]`, dtmf:digit, time:now() }]);
+    if (digit === "#") {
+      endCall();
+      return;
+    }
+    setPressedKey(digit);
+    setTimeout(() => setPressedKey(""), 300);
+
+    if (currentStep === "WELCOME_LANGUAGE") {
+      let selected: SupportedLangShort = "hi";
+      if (digit === "1") selected = "hi";
+      else if (digit === "2") selected = "en";
+      else if (digit === "3") selected = "bn";
+      setLanguage(selected);
+    }
+
+    setTranscript(prev => [
+      ...prev,
+      { speaker: "farmer", text: `[Key ${digit} pressed]`, dtmf: digit, time: now() }
+    ]);
+
     try {
       const r = await fetch("/api/sahayak/call/dtmf", {
-        method:"POST", headers:{"Content-Type":"application/json"},
-        body: JSON.stringify({ sessionId, digits:digit })
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sessionId, digits: digit })
       });
       const j = await r.json();
       if (j.success && j.data) handleResp(j.data);
-    } catch(e) { console.error(e); }
+    } catch (e) {
+      console.error("DTMF error:", e);
+    }
   };
 
   const sendSpeech = async (text: string) => {
     if (callState !== "CONNECTED" || !sessionId || !text.trim()) return;
-    setTranscript(prev => [...prev, { speaker:"farmer", text, time:now() }]);
+
+    const match = matchSahayakDemoIntent(text);
+    if (match.isLanguageSwitch) {
+      const newL = match.targetLang || (language === 'hi' ? 'en' : 'hi');
+      setLanguage(newL);
+      const prompt = SAHAYAK_GREETINGS.WELCOME_AFTER_LANG[newL];
+      setTranscript(prev => [
+        ...prev,
+        { speaker: "farmer", text, time: now() },
+        { speaker: "ai", text: prompt.display, time: now() }
+      ]);
+      speak(prompt.spoken, newL);
+      return;
+    }
+
+    if (match.moduleCode) setDetectedIntent(match.moduleCode);
+    setTranscript(prev => [...prev, { speaker: "farmer", text, time: now() }]);
     setCustomQuery("");
+
     try {
       const r = await fetch("/api/sahayak/call/speech", {
-        method:"POST", headers:{"Content-Type":"application/json"},
-        body: JSON.stringify({ sessionId, speechText:text })
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sessionId, speechText: text, language })
       });
       const j = await r.json();
-      if (j.success && j.data) handleResp(j.data);
-    } catch(e) { console.error(e); }
+      if (j.success && j.data) {
+        handleResp(j.data);
+      } else if (match.moduleCode && SAHAYAK_KNOWLEDGE_MODULES[match.moduleCode]) {
+        const mod = SAHAYAK_KNOWLEDGE_MODULES[match.moduleCode];
+        const answer = mod.sampleAnswer[language] || mod.sampleAnswer.hi;
+        setTranscript(prev => [...prev, { speaker: "ai", text: answer, time: now(), detectedIntent: match.moduleCode }]);
+        speak(answer, language);
+      }
+    } catch (e) {
+      if (match.moduleCode && SAHAYAK_KNOWLEDGE_MODULES[match.moduleCode]) {
+        const mod = SAHAYAK_KNOWLEDGE_MODULES[match.moduleCode];
+        const answer = mod.sampleAnswer[language] || mod.sampleAnswer.hi;
+        setTranscript(prev => [...prev, { speaker: "ai", text: answer, time: now(), detectedIntent: match.moduleCode }]);
+        speak(answer, language);
+      }
+    }
   };
 
   const toggleMic = () => {
-    if (!speechSupported || !recognitionRef.current) { inputRef.current?.focus(); return; }
-    if (isListening) { recognitionRef.current.stop(); setIsListening(false); }
-    else {
+    if (!speechSupported || !recognitionRef.current) {
+      inputRef.current?.focus();
+      return;
+    }
+    if (isListening) {
+      try { recognitionRef.current.stop(); } catch {}
+      setIsListening(false);
+      setInterimText("");
+    } else {
+      if (aiSpeaking && window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+        setAiSpeaking(false);
+      }
       try {
-        recognitionRef.current.lang = language === "hi" ? "hi-IN" : language === "bn" ? "bn-IN" : "en-IN";
-        recognitionRef.current.start(); setIsListening(true);
-      } catch { setIsListening(false); }
+        recognitionRef.current.lang = getIndianLocale(language);
+        recognitionRef.current.start();
+        setIsListening(true);
+        setSttError(null);
+      } catch (err) {
+        setIsListening(false);
+      }
+    }
+  };
+
+  const stopAiSpeech = () => {
+    if (window.speechSynthesis) {
+      window.speechSynthesis.cancel();
+      setAiSpeaking(false);
     }
   };
 
   const endCall = async () => {
-    window.speechSynthesis?.cancel(); setAiSpeaking(false);
-    if (sessionId) { try { await fetch("/api/sahayak/call/terminate", { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({ sessionId }) }); } catch {} }
+    window.speechSynthesis?.cancel();
+    setAiSpeaking(false);
+    if (recognitionRef.current) {
+      try { recognitionRef.current.stop(); } catch {}
+    }
+    setIsListening(false);
+    if (sessionId) {
+      try {
+        await fetch("/api/sahayak/call/terminate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ sessionId })
+        });
+      } catch {}
+    }
     setCallState("ENDED");
     if (timerRef.current) clearInterval(timerRef.current);
   };
@@ -293,223 +500,355 @@ export const CallSimulatorModal: React.FC<CallSimulatorModalProps> = ({ isOpen, 
       <div className="csc-phone">
 
         {/* STATUS BAR */}
-        <div style={{padding:".6rem 1.2rem .35rem",display:"flex",justifyContent:"space-between",alignItems:"center",fontSize:".7rem",color:"#64748B",flexShrink:0}}>
-          <span style={{fontWeight:800}}>BharatFarm Sahayak</span>
-          <div style={{display:"flex",gap:".45rem",alignItems:"center"}}>
-            <span className="material-symbols-outlined" style={{fontSize:"13px"}}>signal_cellular_alt</span>
+        <div style={{ padding: ".6rem 1.2rem .35rem", display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: ".7rem", color: "#64748B", flexShrink: 0 }}>
+          <span style={{ fontWeight: 800 }}>BharatFarm Sahayak AI</span>
+          <div style={{ display: "flex", gap: ".45rem", alignItems: "center" }}>
+            <span className="material-symbols-outlined" style={{ fontSize: "13px" }}>signal_cellular_alt</span>
             <span>5G</span>
-            <span className="material-symbols-outlined" style={{fontSize:"14px"}}>battery_full</span>
+            <span className="material-symbols-outlined" style={{ fontSize: "14px", marginLeft: "4px" }}>battery_full</span>
           </div>
         </div>
 
-        {/* CALLER SECTION */}
-        <div style={{padding:".8rem 1.25rem .4rem",textAlign:"center",flexShrink:0}}>
-          <div style={{position:"relative",display:"inline-block",marginBottom:".5rem"}}>
-            <div style={{
-              width:80,height:80,borderRadius:"50%",
-              background:"linear-gradient(135deg,#10B981,#047857)",
-              display:"flex",alignItems:"center",justifyContent:"center",
-              margin:"0 auto",
-              animation: callState === "CONNECTED" ? "callRingPulse 2s infinite" : "none",
-              boxShadow:"0 8px 24px rgba(16,185,129,.35)",
-              border:"3px solid #34D399"
-            }}>
-              <span className="material-symbols-outlined" style={{color:"#FFF",fontSize:"36px"}}>support_agent</span>
+        {/* CALL HEADER */}
+        <div style={{ textAlign: "center", padding: ".4rem 1rem .3rem", flexShrink: 0 }}>
+          <div style={{ position: "relative", width: "62px", height: "62px", margin: "0 auto .45rem" }}>
+            <div
+              style={{
+                width: "100%", height: "100%", borderRadius: "50%",
+                background: callState === "CONNECTED"
+                  ? (aiSpeaking ? "linear-gradient(135deg,#059669,#10B981)" : isListening ? "linear-gradient(135deg,#D97706,#F59E0B)" : "linear-gradient(135deg,#0F766E,#14B8A6)")
+                  : "#1E293B",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                animation: callState === "CONNECTED" ? "callRingPulse 2.4s ease-out infinite" : undefined,
+                border: "2px solid rgba(52,211,153,.35)"
+              }}
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: "30px", color: "#F8FAFC" }}>
+                {isListening ? "mic" : aiSpeaking ? "record_voice_over" : "support_agent"}
+              </span>
             </div>
             {aiSpeaking && (
-              <div style={{position:"absolute",bottom:-8,left:"50%",transform:"translateX(-50%)",display:"flex",gap:3,alignItems:"flex-end",height:24}}>
-                <div className="wave-bar"/><div className="wave-bar"/><div className="wave-bar"/><div className="wave-bar"/><div className="wave-bar"/>
+              <div style={{
+                position: "absolute", bottom: "-4px", left: "50%", transform: "translateX(-50%)",
+                background: "#065F46", border: "1px solid #10B981", borderRadius: "10px",
+                padding: "1px 5px", display: "flex", gap: "2px", alignItems: "center"
+              }}>
+                <div className="wave-bar" style={{ width: "2px" }} />
+                <div className="wave-bar" style={{ width: "2px" }} />
+                <div className="wave-bar" style={{ width: "2px" }} />
               </div>
             )}
           </div>
 
-          <h3 style={{fontSize:"1.2rem",fontWeight:900,color:"#FFFFFF",margin:"0 0 .15rem 0"}}>BharatFarm Sahayak AI</h3>
+          <div style={{ fontWeight: 800, fontSize: "1.05rem", color: "#F8FAFC", letterSpacing: "-.02em" }}>
+            Kisan Helpline (1800-BHARAT)
+          </div>
 
-          {callState === "DIALING" && (
-            <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:6,color:"#34D399",fontSize:".78rem",fontWeight:700,marginBottom:".1rem"}}>
-              <span>Dialing</span>
-              <span className="dialing-dot"/><span className="dialing-dot"/><span className="dialing-dot"/>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: ".45rem", marginTop: ".15rem" }}>
+            {callState === "CONNECTED" && (
+              <>
+                <span style={{ width: "7px", height: "7px", borderRadius: "50%", background: "#10B981" }} />
+                <span style={{ fontSize: ".76rem", color: "#34D399", fontWeight: 700 }}>
+                  {aiSpeaking ? "AI Speaking..." : isListening ? "Listening..." : "Connected"} · {fmt(callDuration)}
+                </span>
+                <span style={{ fontSize: ".65rem", background: "rgba(51,65,85,.7)", color: "#CBD5E1", padding: "1px 6px", borderRadius: "8px", fontWeight: 700 }}>
+                  {language === "hi" ? "हिंदी (hi-IN)" : language === "bn" ? "বাংলা (bn-IN)" : "English (en-IN)"}
+                </span>
+              </>
+            )}
+            {callState === "DIALING" && (
+              <span style={{ fontSize: ".78rem", color: "#94A3B8" }}>
+                Connecting to AI Assistant<span className="dialing-dot" style={{ margin: "0 2px" }} />
+              </span>
+            )}
+            {callState === "ENDED" && (
+              <span style={{ fontSize: ".78rem", color: "#EF4444", fontWeight: 700 }}>Call Ended · {fmt(callDuration)}</span>
+            )}
+          </div>
+
+          {voiceInfo && callState === "CONNECTED" && (
+            <div style={{ fontSize: ".6rem", color: "#64748B", marginTop: "2px" }}>
+              Voice: <span style={{ color: voiceInfo.isIndianVoice ? "#34D399" : "#94A3B8" }}>{voiceInfo.voiceName}</span>
             </div>
           )}
-          {callState === "CONNECTED" && (
-            <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:".4rem"}}>
-              <span style={{width:7,height:7,borderRadius:"50%",background:"#34D399",display:"inline-block"}}/>
-              <span style={{color:"#34D399",fontSize:".78rem",fontWeight:700}}>Connected � {fmt(callDuration)}</span>
-            </div>
-          )}
-          {callState === "ENDED" && (
-            <span style={{color:"#F87171",fontSize:".78rem",fontWeight:700}}>Call Ended � {fmt(callDuration)}</span>
-          )}
-          <div style={{fontSize:".65rem",color:"#475569",marginTop:".2rem",fontWeight:600}}>1800-BHARAT-FARM � Toll-Free</div>
         </div>
 
-        {/* AI VOICE PROMPT DISPLAY */}
-        <div style={{margin:"0 1rem .5rem",flexShrink:0}}>
-          <div style={{
-            background:"rgba(16,185,129,.07)",border:"1px solid rgba(16,185,129,.22)",
-            borderRadius:16,padding:".65rem .9rem",minHeight:56,
-            display:"flex",flexDirection:"column",gap:".25rem"
-          }}>
-            <div style={{display:"flex",alignItems:"center",gap:".35rem",marginBottom:".15rem"}}>
-              <span className="material-symbols-outlined" style={{fontSize:"13px",color:"#10B981"}}>volume_up</span>
-              <span style={{fontSize:".6rem",color:"#10B981",fontWeight:800,letterSpacing:".05em"}}>
-                AI VOICE � {language.toUpperCase()} � {currentStep.replace(/_/g," ")}
-              </span>
-              {aiSpeaking && (
-                <div style={{display:"flex",gap:2,alignItems:"flex-end",height:13,marginLeft:3}}>
-                  <div className="wave-bar" style={{height:6}}/><div className="wave-bar" style={{height:6}}/><div className="wave-bar" style={{height:6}}/>
+        {/* NAVIGATION TABS */}
+        <div style={{ display: "flex", justifyContent: "center", gap: ".2rem", padding: ".2rem 1rem", borderBottom: "1px solid rgba(51,65,85,.5)", flexShrink: 0 }}>
+          <button className={`view-tab ${activeView === "call" ? "active" : ""}`} onClick={() => setActiveView("call")}>
+            📞 Keypad & Prompt
+          </button>
+          <button className={`view-tab ${activeView === "quick" ? "active" : ""}`} onClick={() => setActiveView("quick")}>
+            🌾 SIH Scenarios
+          </button>
+          <button className={`view-tab ${activeView === "transcript" ? "active" : ""}`} onClick={() => setActiveView("transcript")}>
+            📜 Transcript ({transcript.length})
+          </button>
+        </div>
+
+        {/* MIDDLE CONTENT */}
+        <div style={{ flex: 1, overflowY: "auto", padding: ".65rem .85rem", display: "flex", flexDirection: "column", gap: ".55rem" }}>
+          {activeView === "call" && (
+            <>
+              <div style={{ background: "rgba(30,41,59,.7)", border: "1px solid rgba(51,65,85,.7)", borderRadius: "16px", padding: ".65rem .85rem", flexShrink: 0 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: ".3rem" }}>
+                  <span style={{ fontSize: ".68rem", color: "#34D399", fontWeight: 800, display: "flex", alignItems: "center", gap: "4px" }}>
+                    <span className="material-symbols-outlined" style={{ fontSize: "12px" }}>smart_toy</span>
+                    SAHAYAK ASSISTANT
+                  </span>
+                  {aiSpeaking && (
+                    <button
+                      onClick={stopAiSpeech}
+                      style={{ background: "rgba(239,68,68,.2)", border: "1px solid #EF4444", color: "#FCA5A5", fontSize: ".62rem", padding: "1px 6px", borderRadius: "10px", cursor: "pointer", fontWeight: 700 }}
+                    >
+                      Mute Audio
+                    </button>
+                  )}
+                </div>
+                <div style={{ fontSize: ".82rem", color: "#F1F5F9", lineHeight: 1.4, whiteSpace: "pre-wrap" }}>
+                  {displayPrompt || "Dialing BharatFarm Sahayak..."}
+                </div>
+                {detectedIntent && (
+                  <div style={{ marginTop: ".45rem", display: "inline-block", background: "rgba(16,185,129,.15)", border: "1px solid rgba(16,185,129,.3)", borderRadius: "8px", padding: "2px 7px", fontSize: ".62rem", color: "#34D399", fontWeight: 700 }}>
+                    Active Module: {detectedIntent}
+                  </div>
+                )}
+              </div>
+
+              {optionsMenu.length > 0 && (
+                <div style={{ display: "flex", flexWrap: "wrap", gap: ".35rem" }}>
+                  {optionsMenu.map(opt => (
+                    <button
+                      key={opt.key}
+                      onClick={() => sendDtmf(opt.key)}
+                      style={{
+                        background: "rgba(15,23,42,.8)", border: "1px solid rgba(51,65,85,.8)",
+                        borderRadius: "12px", padding: ".3rem .6rem", color: "#E2E8F0",
+                        fontSize: ".73rem", fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: ".3rem"
+                      }}
+                    >
+                      <span style={{ background: "#10B981", color: "#064E3B", borderRadius: "6px", padding: "1px 5px", fontSize: ".65rem", fontWeight: 800 }}>
+                        {opt.key}
+                      </span>
+                      {opt.label.replace(/^[0-9]\s*→\s*/, "")}
+                    </button>
+                  ))}
                 </div>
               )}
-            </div>
-            <p style={{fontSize:".82rem",color:"#E2E8F0",margin:0,lineHeight:1.4,fontStyle:"italic"}}>
-              &ldquo;{displayPrompt || "Connecting to BharatFarm Sahayak voice gateway�"}&rdquo;
-            </p>
-          </div>
-        </div>
 
-        {/* VIEW TABS */}
-        <div style={{display:"flex",gap:".25rem",padding:"0 1rem .3rem",justifyContent:"center",flexShrink:0}}>
-          {(["call","quick","transcript"] as const).map(v => (
-            <button key={v} className={`view-tab${activeView===v?" active":""}`} onClick={() => setActiveView(v)}>
-              {v==="call" ? "?? Keypad" : v==="quick" ? "??? Speak" : `?? Log (${transcript.length})`}
-            </button>
-          ))}
-        </div>
-
-        {/* SCROLLABLE BODY */}
-        <div style={{flex:1,overflowY:"auto",padding:"0 1rem",display:"flex",flexDirection:"column",gap:".65rem"}}>
-
-          {/* KEYPAD VIEW */}
-          {activeView === "call" && (<>
-            {optionsMenu.length > 0 && (
-              <div style={{display:"flex",flexWrap:"wrap",gap:".4rem",justifyContent:"center"}}>
-                {optionsMenu.map(opt => (
-                  <button key={opt.key} onClick={() => sendDtmf(opt.key)} disabled={callState !== "CONNECTED"}
-                    style={{background:"rgba(16,185,129,.12)",border:"1px solid rgba(16,185,129,.35)",
-                      borderRadius:20,padding:".28rem .75rem",fontSize:".72rem",color:"#34D399",fontWeight:700,cursor:"pointer"}}>
-                    <span style={{opacity:.7}}>#{opt.key}</span> {opt.label}
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: ".5rem", justifyItems: "center", margin: "auto 0 .2rem" }}>
+                {KEYS.map(k => (
+                  <button
+                    key={k.num}
+                    className={`dtmf-btn ${pressedKey === k.num ? "pressed" : ""}`}
+                    disabled={callState !== "CONNECTED"}
+                    onClick={() => sendDtmf(k.num)}
+                  >
+                    <span className="dtmf-main">{k.num}</span>
+                    {k.alpha && <span className="dtmf-sub">{k.alpha}</span>}
+                    {k.svc && <span className="dtmf-svc">{k.svc}</span>}
                   </button>
                 ))}
               </div>
-            )}
-            <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:".85rem",justifyItems:"center",padding:".2rem 0"}}>
-              {KEYS.map(k => (
-                <button key={k.num} className={`dtmf-btn${pressedKey===k.num?" pressed":""}`}
-                  onClick={() => k.num==="#" ? endCall() : sendDtmf(k.num)}
-                  disabled={callState !== "CONNECTED"}>
-                  <span className="dtmf-main">{k.num}</span>
-                  {k.alpha && <span className="dtmf-sub">{k.alpha}</span>}
-                  {k.svc   && <span className="dtmf-svc">{k.svc}</span>}
-                </button>
-              ))}
-            </div>
-          </>)}
+            </>
+          )}
 
-          {/* SPEAK VIEW */}
           {activeView === "quick" && (
-            <div style={{display:"flex",flexDirection:"column",gap:".85rem",animation:"fadeIn .2s ease"}}>
-              <div>
-                <p style={{fontSize:".68rem",color:"#64748B",fontWeight:700,margin:"0 0 .45rem 0",textTransform:"uppercase",letterSpacing:".06em"}}>Quick Voice Queries</p>
-                <div style={{display:"flex",flexWrap:"wrap",gap:".4rem"}}>
-                  {VOICE_PRESETS.map((vp,i) => (
-                    <button key={i} className="speech-pill" onClick={() => sendSpeech(vp.q)} disabled={callState !== "CONNECTED"}>{vp.label}</button>
-                  ))}
-                </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: ".5rem" }}>
+              <div style={{ fontSize: ".75rem", color: "#94A3B8" }}>
+                Tap any pre-tested SIH scenario query to speak immediately:
               </div>
-              <div>
-                <p style={{fontSize:".68rem",color:"#64748B",fontWeight:700,margin:"0 0 .35rem 0",textTransform:"uppercase",letterSpacing:".06em"}}>Helpline Commands</p>
-                <div style={{display:"flex",flexWrap:"wrap",gap:".35rem"}}>
-                  {[["?? Main Menu","main menu"],["? Back","back"],["?? Repeat","repeat"],["? Help","help"]].map(([label,cmd],i)=>(
-                    <button key={i} className="speech-pill" onClick={() => sendSpeech(cmd)} disabled={callState !== "CONNECTED"}>{label}</button>
-                  ))}
-                </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: ".4rem" }}>
+                {SCENARIOS.map((sc, i) => (
+                  <button
+                    key={i}
+                    onClick={() => {
+                      sendSpeech(sc.q);
+                      setActiveView("call");
+                    }}
+                    disabled={callState !== "CONNECTED"}
+                    style={{
+                      background: "rgba(30,41,59,.7)", border: "1px solid rgba(51,65,85,.7)",
+                      borderRadius: "12px", padding: ".55rem .75rem", display: "flex",
+                      justifyContent: "space-between", alignItems: "center", textAlign: "left", cursor: "pointer"
+                    }}
+                  >
+                    <div>
+                      <div style={{ fontSize: ".8rem", color: "#F8FAFC", fontWeight: 600 }}>{sc.label}</div>
+                      <div style={{ fontSize: ".7rem", color: "#94A3B8", marginTop: "2px" }}>"{sc.q}"</div>
+                    </div>
+                    <span style={{ fontSize: ".62rem", background: "rgba(16,185,129,.15)", color: "#34D399", padding: "2px 6px", borderRadius: "6px", fontWeight: 700 }}>
+                      {sc.tag}
+                    </span>
+                  </button>
+                ))}
               </div>
-              {isListening && (
-                <div style={{background:"rgba(245,158,11,.1)",border:"1px solid rgba(245,158,11,.35)",borderRadius:12,padding:".6rem .9rem",display:"flex",alignItems:"center",gap:".5rem",animation:"fadeIn .2s"}}>
-                  <div style={{display:"flex",gap:3,alignItems:"flex-end",height:22}}>
-                    {[1,2,3,4,5].map(i=><div key={i} className="wave-bar" style={{background:"#F59E0B"}}/>)}
-                  </div>
-                  <span style={{color:"#FBBF24",fontSize:".8rem",fontWeight:700}}>
-                    Listening� speak in {language==="hi"?"??????":language==="bn"?"?????":"English"}
-                  </span>
-                </div>
-              )}
             </div>
           )}
 
-          {/* TRANSCRIPT VIEW */}
           {activeView === "transcript" && (
-            <div style={{display:"flex",flexDirection:"column",gap:".55rem",animation:"fadeIn .2s ease"}}>
-              {transcript.length === 0 && (
-                <div style={{color:"#475569",fontSize:".82rem",textAlign:"center",padding:"2rem 0"}}>No messages yet.</div>
-              )}
-              {transcript.map((item,idx) => (
-                <div key={idx} style={{display:"flex",flexDirection:"column",alignItems:item.speaker==="ai"?"flex-start":"flex-end"}}>
-                  <span style={{fontSize:".62rem",color:"#475569",marginBottom:".12rem",fontWeight:600}}>
-                    {item.speaker==="ai"?"?? Sahayak":"????? Farmer"} � {item.time}
-                  </span>
-                  <div className={`tx-bubble ${item.speaker}`} style={{color:"#F8FAFC"}}>{item.text}</div>
+            <div style={{ display: "flex", flexDirection: "column", gap: ".55rem" }}>
+              {transcript.map((item, idx) => (
+                <div key={idx} className={`tx-bubble ${item.speaker}`}>
+                  <div style={{ fontSize: ".65rem", color: item.speaker === "ai" ? "#34D399" : "#6EE7B7", fontWeight: 800, marginBottom: "2px", display: "flex", justifyContent: "space-between" }}>
+                    <span>{item.speaker === "ai" ? "🤖 SAHAYAK AI" : "🧑‍🌾 FARMER"}</span>
+                    <span>{item.time}</span>
+                  </div>
+                  <div>{item.text}</div>
+                  {item.detectedIntent && (
+                    <div style={{ fontSize: ".62rem", color: "#FDE68A", marginTop: "4px" }}>
+                      Detected: {item.detectedIntent}
+                    </div>
+                  )}
                 </div>
               ))}
-              <div ref={txEndRef}/>
+              {interimText && (
+                <div className="tx-bubble interim">
+                  <div style={{ fontSize: ".65rem", color: "#F59E0B", fontWeight: 800, marginBottom: "2px" }}>
+                    🎙️ Listening...
+                  </div>
+                  <div>"{interimText}"</div>
+                </div>
+              )}
+              <div ref={txEndRef} />
             </div>
           )}
         </div>
 
-        {/* SPEAK INPUT BAR */}
-        {callState !== "ENDED" && (
-          <div style={{padding:".55rem 1rem .4rem",flexShrink:0,borderTop:"1px solid #1E293B"}}>
-            <div style={{display:"flex",alignItems:"center",gap:".4rem"}}>
-              <input
-                ref={inputRef}
-                type="text"
-                value={customQuery}
-                onChange={e => setCustomQuery(e.target.value)}
-                onKeyDown={e => { if(e.key==="Enter" && customQuery.trim()) sendSpeech(customQuery); }}
-                placeholder={callState==="CONNECTED"?"Type or speak your query�":"Connecting�"}
-                disabled={callState !== "CONNECTED"}
-                style={{flex:1,background:"rgba(30,41,59,.8)",border:"1px solid #334155",borderRadius:22,padding:".5rem .9rem",color:"#F8FAFC",fontSize:".82rem",outline:"none",opacity:callState==="CONNECTED"?1:.5}}
-              />
-              <button onClick={toggleMic} disabled={callState !== "CONNECTED"}
-                style={{width:40,height:40,borderRadius:"50%",border:"none",background:isListening?"#F59E0B":"rgba(16,185,129,.2)",color:"#FFF",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",animation:isListening?"micPulse 1s infinite":"none",flexShrink:0}}>
-                <span className="material-symbols-outlined" style={{fontSize:"19px",color:isListening?"#FFF":"#34D399"}}>{isListening?"hearing":"mic"}</span>
-              </button>
-              <button onClick={() => customQuery.trim() && sendSpeech(customQuery)} disabled={callState !== "CONNECTED" || !customQuery.trim()}
-                style={{width:40,height:40,borderRadius:"50%",border:"none",background:customQuery.trim()?"#10B981":"rgba(30,41,59,.8)",color:"#FFF",cursor:customQuery.trim()?"pointer":"default",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,transition:"background .2s"}}>
-                <span className="material-symbols-outlined" style={{fontSize:"18px"}}>send</span>
-              </button>
+        {/* INTERIM LISTENING BAR */}
+        {isListening && (
+          <div style={{ background: "rgba(239,68,68,.18)", borderTop: "1px solid rgba(239,68,68,.35)", padding: ".4rem .85rem", display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: ".5rem" }}>
+              <span className="material-symbols-outlined" style={{ color: "#EF4444", fontSize: "16px", animation: "micPulse 1.2s infinite" }}>
+                mic
+              </span>
+              <span style={{ fontSize: ".72rem", color: "#FCA5A5", fontWeight: 700 }}>
+                {interimText ? `"${interimText}"` : "Listening to your voice..."}
+              </span>
             </div>
+            <button
+              onClick={() => {
+                try { recognitionRef.current?.stop(); } catch {}
+                setIsListening(false);
+              }}
+              style={{ background: "#EF4444", color: "#FFF", border: "none", borderRadius: "10px", padding: "2px 8px", fontSize: ".65rem", fontWeight: 800, cursor: "pointer" }}
+            >
+              Stop
+            </button>
           </div>
         )}
 
-        {/* CALL CONTROLS */}
-        <div style={{padding:".65rem 1.5rem .85rem",display:"flex",alignItems:"center",justifyContent:"space-around",borderTop:"1px solid #1E293B",background:"rgba(5,10,20,.4)",flexShrink:0}}>
-          <button onClick={() => setIsMuted(m=>!m)} title={isMuted?"Unmute":"Mute"}
-            style={{width:50,height:50,borderRadius:"50%",border:"none",background:isMuted?"#EF4444":"rgba(30,41,59,.9)",color:"#FFF",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}>
-            <span className="material-symbols-outlined">{isMuted?"mic_off":"mic"}</span>
-          </button>
+        {sttError && (
+          <div style={{ background: "rgba(220,38,38,.2)", color: "#FCA5A5", fontSize: ".68rem", padding: ".3rem .8rem", textAlign: "center", borderTop: "1px solid rgba(239,68,68,.3)", flexShrink: 0 }}>
+            {sttError}
+          </div>
+        )}
 
-          {callState === "CONNECTED" ? (
-            <button onClick={endCall} title="End Call"
-              style={{width:62,height:62,borderRadius:"50%",border:"none",background:"#DC2626",color:"#FFF",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",boxShadow:"0 6px 20px rgba(220,38,38,.5)"}}>
-              <span className="material-symbols-outlined" style={{fontSize:"28px"}}>call_end</span>
+        {/* BOTTOM CONTROLS */}
+        <div style={{ padding: ".65rem .85rem .9rem", background: "rgba(10,15,28,.95)", borderTop: "1px solid rgba(51,65,85,.6)", display: "flex", flexDirection: "column", gap: ".5rem", flexShrink: 0 }}>
+          <div style={{ display: "flex", gap: ".4rem", alignItems: "center" }}>
+            <input
+              ref={inputRef}
+              type="text"
+              placeholder={language === "hi" ? "Boliye ya type kijiye..." : language === "bn" ? "বলুন বা টাইপ করুন..." : "Speak or type your question..."}
+              value={customQuery}
+              onChange={e => setCustomQuery(e.target.value)}
+              onKeyDown={e => {
+                if (e.key === "Enter" && customQuery.trim()) sendSpeech(customQuery);
+              }}
+              disabled={callState !== "CONNECTED"}
+              style={{
+                flex: 1, background: "rgba(30,41,59,.8)", border: "1px solid #334155", borderRadius: "20px",
+                padding: ".4rem .85rem", color: "#F8FAFC", fontSize: ".75rem", outline: "none"
+              }}
+            />
+            {customQuery.trim() && (
+              <button
+                onClick={() => sendSpeech(customQuery)}
+                style={{
+                  background: "#10B981", border: "none", borderRadius: "50%", width: "32px", height: "32px",
+                  display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "#064E3B", flexShrink: 0
+                }}
+              >
+                <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>send</span>
+              </button>
+            )}
+          </div>
+
+          <div style={{ display: "flex", justifyContent: "space-around", alignItems: "center" }}>
+            <button
+              onClick={() => setIsMuted(m => !m)}
+              style={{
+                background: isMuted ? "rgba(239,68,68,.2)" : "rgba(30,41,59,.8)",
+                border: `1px solid ${isMuted ? "#EF4444" : "#334155"}`,
+                borderRadius: "50%", width: "46px", height: "46px",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                color: isMuted ? "#EF4444" : "#94A3B8", cursor: "pointer"
+              }}
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: "20px" }}>
+                {isMuted ? "mic_off" : "mic"}
+              </span>
             </button>
-          ) : (
-            <button onClick={startCall} title="Redial"
-              style={{width:62,height:62,borderRadius:"50%",border:"none",background:"#16A34A",color:"#FFF",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",boxShadow:"0 6px 20px rgba(22,163,74,.5)"}}>
-              <span className="material-symbols-outlined" style={{fontSize:"28px"}}>call</span>
+
+            <button
+              onClick={toggleMic}
+              disabled={callState !== "CONNECTED"}
+              style={{
+                background: isListening ? "linear-gradient(135deg,#DC2626,#EF4444)" : "linear-gradient(135deg,#059669,#10B981)",
+                border: "none", borderRadius: "50%", width: "56px", height: "56px",
+                display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+                color: "#FFF", cursor: "pointer",
+                boxShadow: isListening ? "0 0 20px rgba(239,68,68,.6)" : "0 4px 15px rgba(16,185,129,.4)",
+                animation: isListening ? "micPulse 1.4s infinite" : undefined
+              }}
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: "24px" }}>
+                {isListening ? "hearing" : "mic"}
+              </span>
+              <span style={{ fontSize: ".5rem", fontWeight: 800, marginTop: "1px" }}>
+                {isListening ? "LISTENING" : "SPEAK"}
+              </span>
             </button>
-          )}
 
-          <button onClick={() => setIsSpeakerOn(s=>!s)} title="Toggle Speaker"
-            style={{width:50,height:50,borderRadius:"50%",border:"none",background:isSpeakerOn?"rgba(16,185,129,.2)":"rgba(30,41,59,.9)",color:"#FFF",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}>
-            <span className="material-symbols-outlined" style={{color:isSpeakerOn?"#34D399":"#94A3B8"}}>{isSpeakerOn?"volume_up":"volume_off"}</span>
-          </button>
+            {callState === "CONNECTED" ? (
+              <button
+                onClick={endCall}
+                style={{
+                  background: "linear-gradient(135deg,#B91C1C,#DC2626)", border: "none", borderRadius: "50%",
+                  width: "48px", height: "48px", display: "flex", alignItems: "center", justifyContent: "center",
+                  color: "#FFF", cursor: "pointer", boxShadow: "0 4px 12px rgba(220,38,38,.5)"
+                }}
+              >
+                <span className="material-symbols-outlined" style={{ fontSize: "22px" }}>call_end</span>
+              </button>
+            ) : (
+              <button
+                onClick={startCall}
+                style={{
+                  background: "linear-gradient(135deg,#059669,#10B981)", border: "none", borderRadius: "50%",
+                  width: "48px", height: "48px", display: "flex", alignItems: "center", justifyContent: "center",
+                  color: "#FFF", cursor: "pointer"
+                }}
+              >
+                <span className="material-symbols-outlined" style={{ fontSize: "22px" }}>call</span>
+              </button>
+            )}
 
-          <button onClick={onClose} title="Close"
-            style={{width:50,height:50,borderRadius:"50%",border:"none",background:"rgba(30,41,59,.9)",color:"#94A3B8",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}>
-            <span className="material-symbols-outlined">close</span>
-          </button>
+            <button
+              onClick={() => {
+                endCall();
+                onClose();
+              }}
+              style={{
+                background: "rgba(30,41,59,.8)", border: "1px solid #334155", borderRadius: "50%",
+                width: "46px", height: "46px", display: "flex", alignItems: "center", justifyContent: "center",
+                color: "#94A3B8", cursor: "pointer"
+              }}
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: "20px" }}>close</span>
+            </button>
+          </div>
         </div>
 
       </div>
