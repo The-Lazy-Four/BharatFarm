@@ -977,7 +977,7 @@ export const SmartMandiPage: React.FC = () => {
                     }}
                   >
                     <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>route</span>
-                    <span>View Smart Collection Plan</span>
+                    <span>{t('smartMandiPage.smartCollectionPlanTitle')}</span>
                   </button>
                 </div>
               </div>
@@ -1011,10 +1011,10 @@ export const SmartMandiPage: React.FC = () => {
                       <span style={{ fontSize: '1.6rem' }}>🚚</span>
                       <div>
                         <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 900, color: '#0F172A' }}>
-                          Smart Collection Plan
+                          {t('smartMandiPage.smartCollectionPlanTitle')}
                         </h3>
                         <div style={{ fontSize: '0.8rem', color: '#64748B' }}>
-                          Optimized multi-stop pickup loop for {activeCollectionPlan.totalQuantityKg} kg
+                          {t('smartMandiPage.smartCollectionPlanSub', { qty: activeCollectionPlan.totalQuantityKg })}
                         </div>
                       </div>
                     </div>
@@ -1035,7 +1035,7 @@ export const SmartMandiPage: React.FC = () => {
                     marginBottom: '1.25rem'
                   }}>
                     <div style={{ fontSize: '0.78rem', fontWeight: 800, color: '#475569', textTransform: 'uppercase', marginBottom: '0.85rem' }}>
-                      Ordered Collection Route (Greedy Shortest Path):
+                      {t('smartMandiPage.orderedRouteTitle')}
                     </div>
 
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
@@ -1046,9 +1046,9 @@ export const SmartMandiPage: React.FC = () => {
                         </div>
                         <div>
                           <div style={{ fontWeight: 800, color: '#0F172A', fontSize: '0.88rem' }}>
-                            Start: Buyer Receiving Center ({activeCollectionPlan.buyerLocation.village}, {activeCollectionPlan.buyerLocation.district})
+                            {t('smartMandiPage.startBuyerCenter', { village: activeCollectionPlan.buyerLocation.village, district: activeCollectionPlan.buyerLocation.district })}
                           </div>
-                          <div style={{ fontSize: '0.72rem', color: '#64748B' }}>Dispatch vehicle</div>
+                          <div style={{ fontSize: '0.72rem', color: '#64748B' }}>{t('smartMandiPage.dispatchVehicle')}</div>
                         </div>
                       </div>
 
@@ -1060,10 +1060,10 @@ export const SmartMandiPage: React.FC = () => {
                           </div>
                           <div style={{ flex: 1 }}>
                             <div style={{ fontWeight: 800, color: '#0F172A', fontSize: '0.88rem' }}>
-                              Stop {stop.stopNumber}: {stop.farmerName} (+{stop.quantityKg} kg)
+                              {t('smartMandiPage.stopLabel', { stop: stop.stopNumber, name: stop.farmerName, qty: stop.quantityKg })}
                             </div>
                             <div style={{ fontSize: '0.72rem', color: '#64748B' }}>
-                              📍 {stop.location.village} · Leg: {stop.distanceFromPrevKm} km (Cumul: {stop.cumulativeDistanceKm} km)
+                              {t('smartMandiPage.stopDetail', { village: stop.location.village, leg: stop.distanceFromPrevKm, cumul: stop.cumulativeDistanceKm })}
                             </div>
                           </div>
                         </div>
@@ -1076,10 +1076,10 @@ export const SmartMandiPage: React.FC = () => {
                         </div>
                         <div>
                           <div style={{ fontWeight: 800, color: '#0F172A', fontSize: '0.88rem' }}>
-                            End: Return to Buyer Center (Total: {activeCollectionPlan.totalQuantityKg} kg Collected)
+                            {t('smartMandiPage.endBuyerCenter', { qty: activeCollectionPlan.totalQuantityKg })}
                           </div>
                           <div style={{ fontSize: '0.72rem', color: '#16A34A', fontWeight: 700 }}>
-                            Total loop: {activeCollectionPlan.totalRouteDistanceKm} km
+                            {t('smartMandiPage.totalLoop', { dist: activeCollectionPlan.totalRouteDistanceKm })}
                           </div>
                         </div>
                       </div>
@@ -1094,28 +1094,28 @@ export const SmartMandiPage: React.FC = () => {
                     marginBottom: '1.25rem'
                   }}>
                     <div style={{ background: '#F1F5F9', padding: '0.75rem', borderRadius: '10px' }}>
-                      <div style={{ fontSize: '0.72rem', color: '#64748B' }}>Consolidated Loop</div>
+                      <div style={{ fontSize: '0.72rem', color: '#64748B' }}>{t('smartMandiPage.consolidatedLoop')}</div>
                       <div style={{ fontSize: '1.2rem', fontWeight: 900, color: '#0F172A' }}>
                         {activeCollectionPlan.totalRouteDistanceKm} km
                       </div>
                     </div>
 
                     <div style={{ background: '#F1F5F9', padding: '0.75rem', borderRadius: '10px' }}>
-                      <div style={{ fontSize: '0.72rem', color: '#64748B' }}>Separate Trips Dist.</div>
+                      <div style={{ fontSize: '0.72rem', color: '#64748B' }}>{t('smartMandiPage.separateTripsDist')}</div>
                       <div style={{ fontSize: '1.2rem', fontWeight: 900, color: '#64748B' }}>
                         {activeCollectionPlan.separateTripsDistanceKm} km
                       </div>
                     </div>
 
                     <div style={{ background: '#F1F5F9', padding: '0.75rem', borderRadius: '10px' }}>
-                      <div style={{ fontSize: '0.72rem', color: '#64748B' }}>Est. Transport Cost</div>
+                      <div style={{ fontSize: '0.72rem', color: '#64748B' }}>{t('smartMandiPage.estTransportCost')}</div>
                       <div style={{ fontSize: '1.2rem', fontWeight: 900, color: '#0F172A' }}>
                         ₹{activeCollectionPlan.estimatedTransportCost || 'N/A'}
                       </div>
                     </div>
 
                     <div style={{ background: '#DCFCE7', padding: '0.75rem', borderRadius: '10px' }}>
-                      <div style={{ fontSize: '0.72rem', color: '#15803D', fontWeight: 700 }}>Potential Saving</div>
+                      <div style={{ fontSize: '0.72rem', color: '#15803D', fontWeight: 700 }}>{t('smartMandiPage.potentialSaving')}</div>
                       <div style={{ fontSize: '1.2rem', fontWeight: 900, color: '#15803D' }}>
                         ₹{activeCollectionPlan.potentialTransportSaving || 'N/A'}
                       </div>
@@ -1123,7 +1123,7 @@ export const SmartMandiPage: React.FC = () => {
                   </div>
 
                   <div style={{ fontSize: '0.8rem', color: '#64748B', fontStyle: 'italic', marginBottom: '1.25rem' }}>
-                    💡 <strong>Efficiency Note:</strong> {activeCollectionPlan.efficiencyNote}
+                    💡 <strong>{t('smartMandiPage.efficiencyNote')}</strong> {activeCollectionPlan.efficiencyNote}
                   </div>
 
                   <button
@@ -1143,7 +1143,7 @@ export const SmartMandiPage: React.FC = () => {
                       cursor: 'pointer'
                     }}
                   >
-                    Confirm &amp; Proceed with Consolidated Route ✓
+                    {t('smartMandiPage.confirmProceed')}
                   </button>
                 </div>
               </div>
@@ -1173,12 +1173,12 @@ export const SmartMandiPage: React.FC = () => {
               <div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                   <span style={{ background: '#93C5FD', color: '#1E3A8A', fontSize: '0.7rem', fontWeight: 900, padding: '0.2rem 0.5rem', borderRadius: '6px' }}>
-                    FARMER REVERSE MATCH
+                    {t('smartMandiPage.reverseMatchBadge')}
                   </span>
-                  <span style={{ fontWeight: 800, fontSize: '1rem' }}>Smart Mandi — Sell Available Produce</span>
+                  <span style={{ fontWeight: 800, fontSize: '1rem' }}>{t('smartMandiPage.reverseMatchTitle')}</span>
                 </div>
                 <div style={{ fontSize: '0.82rem', color: '#DBEAFE', marginTop: '0.25rem' }}>
-                  Tell BharatFarm what harvestable stock you have. We automatically search and connect nearby buyers needing your crop.
+                  {t('smartMandiPage.reverseMatchDesc')}
                 </div>
               </div>
 
@@ -1199,7 +1199,7 @@ export const SmartMandiPage: React.FC = () => {
                         cursor: 'pointer'
                       }}
                     >
-                      Import {f.field_name} ({f.crop_name})
+                      {t('smartMandiPage.importField', { name: f.field_name, crop: f.crop_name })}
                     </button>
                   ))}
                 </div>
@@ -1229,7 +1229,7 @@ export const SmartMandiPage: React.FC = () => {
               boxShadow: '0 4px 12px rgba(0,0,0,0.03)'
             }}>
               <h2 style={{ fontSize: '1.15rem', fontWeight: 900, color: '#0F172A', margin: '0 0 1rem' }}>
-                🌾 Make Your Crop Available
+                🌾 {t('smartMandiPage.makeCropAvailable')}
               </h2>
 
               <form onSubmit={handlePostSupply}>
@@ -1238,7 +1238,7 @@ export const SmartMandiPage: React.FC = () => {
                   {/* Crop */}
                   <div>
                     <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, color: '#475569', marginBottom: '0.35rem' }}>
-                      CROP TYPE
+                      {t('smartMandiPage.cropType')}
                     </label>
                     <select
                       value={farmerCrop}
@@ -1266,7 +1266,7 @@ export const SmartMandiPage: React.FC = () => {
                   {/* Available Qty */}
                   <div>
                     <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, color: '#475569', marginBottom: '0.35rem' }}>
-                      AVAILABLE HARVESTABLE QUANTITY (KG)
+                      {t('smartMandiPage.availableQtyKg')}
                     </label>
                     <input
                       type="number"
@@ -1291,7 +1291,7 @@ export const SmartMandiPage: React.FC = () => {
                   {/* Expected Price */}
                   <div>
                     <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, color: '#475569', marginBottom: '0.35rem' }}>
-                      YOUR EXPECTED PRICE (₹ / KG)
+                      {t('smartMandiPage.expectedPriceKg')}
                     </label>
                     <input
                       type="number"
@@ -1316,7 +1316,7 @@ export const SmartMandiPage: React.FC = () => {
                   {/* Ready date */}
                   <div>
                     <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, color: '#475569', marginBottom: '0.35rem' }}>
-                      AVAILABILITY DATE
+                      {t('smartMandiPage.availabilityDate')}
                     </label>
                     <input
                       type="date"
@@ -1339,7 +1339,7 @@ export const SmartMandiPage: React.FC = () => {
                 {/* Structured Location */}
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '0.75rem', marginBottom: '1rem' }}>
                   <div>
-                    <label style={{ fontSize: '0.74rem', color: '#64748B', fontWeight: 600 }}>District</label>
+                    <label style={{ fontSize: '0.74rem', color: '#64748B', fontWeight: 600 }}>{t('smartMandiPage.district')}</label>
                     <input
                       type="text"
                       value={farmerDistrict}
@@ -1349,7 +1349,7 @@ export const SmartMandiPage: React.FC = () => {
                     />
                   </div>
                   <div>
-                    <label style={{ fontSize: '0.74rem', color: '#64748B', fontWeight: 600 }}>Village / Locality</label>
+                    <label style={{ fontSize: '0.74rem', color: '#64748B', fontWeight: 600 }}>{t('smartMandiPage.villageLocality')}</label>
                     <input
                       type="text"
                       value={farmerVillage}
@@ -1359,7 +1359,7 @@ export const SmartMandiPage: React.FC = () => {
                     />
                   </div>
                   <div>
-                    <label style={{ fontSize: '0.74rem', color: '#64748B', fontWeight: 600 }}>Post Office</label>
+                    <label style={{ fontSize: '0.74rem', color: '#64748B', fontWeight: 600 }}>{t('smartMandiPage.postOffice')}</label>
                     <input
                       type="text"
                       value={farmerPostOffice}
@@ -1369,7 +1369,7 @@ export const SmartMandiPage: React.FC = () => {
                     />
                   </div>
                   <div>
-                    <label style={{ fontSize: '0.74rem', color: '#64748B', fontWeight: 600 }}>State</label>
+                    <label style={{ fontSize: '0.74rem', color: '#64748B', fontWeight: 600 }}>{t('smartMandiPage.state')}</label>
                     <input
                       type="text"
                       value={farmerState}
@@ -1400,7 +1400,7 @@ export const SmartMandiPage: React.FC = () => {
                       }}
                     >
                       <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>my_location</span>
-                      <span>{farmerLat ? `GPS: ${farmerLat.toFixed(2)}, ${farmerLng?.toFixed(2)}` : 'Get GPS'}</span>
+                      <span>{farmerLat ? `${t('smartMandiPage.gpsCaptured')}: ${farmerLat.toFixed(2)}, ${farmerLng?.toFixed(2)}` : t('smartMandiPage.getGps')}</span>
                     </button>
                   </div>
                 </div>
@@ -1425,7 +1425,7 @@ export const SmartMandiPage: React.FC = () => {
                     }}
                   >
                     <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>upload</span>
-                    <span>{isSubmittingSupply ? 'Registering...' : 'Make Available & Match Buyers'}</span>
+                    <span>{isSubmittingSupply ? t('smartMandiPage.registering') : t('smartMandiPage.makeAvailableButton')}</span>
                   </button>
                 </div>
               </form>
@@ -1441,10 +1441,10 @@ export const SmartMandiPage: React.FC = () => {
                 boxShadow: '0 4px 12px rgba(0,0,0,0.03)'
               }}>
                 <h3 style={{ fontSize: '1.15rem', fontWeight: 900, color: '#0F172A', margin: '0 0 0.5rem' }}>
-                  🔔 Incoming Buyer Match Requests
+                  🔔 {t('smartMandiPage.incomingMatches')}
                 </h3>
                 <p style={{ fontSize: '0.84rem', color: '#64748B', margin: '0 0 1rem' }}>
-                  Review nearby commercial buyers matched to your crop supply:
+                  {t('smartMandiPage.incomingMatchesSub')}
                 </p>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
@@ -1467,18 +1467,26 @@ export const SmartMandiPage: React.FC = () => {
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                           <span style={{ fontSize: '1.2rem' }}>📦</span>
                           <span style={{ fontWeight: 800, color: '#0F172A', fontSize: '0.95rem' }}>
-                            {activeRequirement?.buyerName || 'Commercial Buyer'} requested {alloc.allocatedQuantityKg} kg {activePool.crop}
+                            {t('smartMandiPage.buyerRequested', {
+                              buyer: activeRequirement?.buyerName || 'Commercial Buyer',
+                              qty: alloc.allocatedQuantityKg,
+                              crop: activePool.crop
+                            })}
                           </span>
                         </div>
                         <div style={{ fontSize: '0.8rem', color: '#64748B', marginTop: '0.2rem' }}>
-                          📍 {alloc.distanceKm} km from you · Buyer Offer: ₹{activeRequirement?.expectedPricePerKg || 25}/kg · Total: ₹{(alloc.allocatedQuantityKg * (activeRequirement?.expectedPricePerKg || 25)).toLocaleString()}
+                          {t('smartMandiPage.distanceOffer', {
+                            dist: alloc.distanceKm,
+                            price: activeRequirement?.expectedPricePerKg || 25,
+                            total: (alloc.allocatedQuantityKg * (activeRequirement?.expectedPricePerKg || 25)).toLocaleString()
+                          })}
                         </div>
                       </div>
 
                       <div style={{ display: 'flex', gap: '0.5rem' }}>
                         {alloc.farmerStatus === 'ACCEPTED' ? (
                           <span style={{ background: '#DCFCE7', color: '#15803D', padding: '0.4rem 0.8rem', borderRadius: '8px', fontSize: '0.8rem', fontWeight: 800 }}>
-                            ✓ Confirmed Accepted
+                            {t('smartMandiPage.confirmedAccepted')}
                           </span>
                         ) : (
                           <>
@@ -1495,7 +1503,7 @@ export const SmartMandiPage: React.FC = () => {
                                 cursor: 'pointer'
                               }}
                             >
-                              Accept Order ✓
+                              {t('smartMandiPage.acceptOrder')}
                             </button>
                             <button
                               onClick={() => handleAllocationResponse(activePool.id, alloc.farmerSupplyId, 'DECLINE')}
@@ -1510,7 +1518,7 @@ export const SmartMandiPage: React.FC = () => {
                                 cursor: 'pointer'
                               }}
                             >
-                              Decline
+                              {t('smartMandiPage.decline')}
                             </button>
                           </>
                         )}
@@ -1530,10 +1538,10 @@ export const SmartMandiPage: React.FC = () => {
               boxShadow: '0 4px 12px rgba(0,0,0,0.03)'
             }}>
               <h3 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#0F172A', margin: '0 0 0.85rem' }}>
-                📋 Your Active Supply Listings
+                📋 {t('smartMandiPage.activeSupplyListings')}
               </h3>
               {mySupplies.length === 0 ? (
-                <div style={{ color: '#94A3B8', fontSize: '0.85rem' }}>No supplies posted yet.</div>
+                <div style={{ color: '#94A3B8', fontSize: '0.85rem' }}>{t('smartMandiPage.noSuppliesYet')}</div>
               ) : (
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '0.75rem' }}>
                   {mySupplies.map(s => (
@@ -1543,7 +1551,7 @@ export const SmartMandiPage: React.FC = () => {
                           {CROP_ICONS[s.crop] || '🌱'} {s.crop}
                         </span>
                         <span style={{ fontSize: '0.72rem', background: '#DCFCE7', color: '#15803D', padding: '0.15rem 0.5rem', borderRadius: '6px', fontWeight: 700 }}>
-                          {s.status}
+                          {s.status === 'AVAILABLE' ? t('smartMandiPage.available') : s.status}
                         </span>
                       </div>
                       <div style={{ fontSize: '1.2rem', fontWeight: 900, color: '#16A34A', margin: '0.35rem 0 0.15rem' }}>
@@ -1576,7 +1584,7 @@ export const SmartMandiPage: React.FC = () => {
               gap: '1.25rem'
             }}>
               <div>
-                <label style={{ fontSize: '0.85rem', fontWeight: 700, color: '#475569' }}>Select Crop:</label>
+                <label style={{ fontSize: '0.85rem', fontWeight: 700, color: '#475569' }}>{t('smartMandiPage.selectCropLabel')}</label>
                 <select
                   value={buyerCrop}
                   onChange={e => setBuyerCrop(e.target.value)}
@@ -1601,7 +1609,7 @@ export const SmartMandiPage: React.FC = () => {
               </div>
 
               <div>
-                <label style={{ fontSize: '0.85rem', fontWeight: 700, color: '#475569' }}>Your Location:</label>
+                <label style={{ fontSize: '0.85rem', fontWeight: 700, color: '#475569' }}>{t('smartMandiPage.yourLocationLabel')}</label>
                 <input
                   type="text"
                   value={buyerDistrict}
@@ -1625,7 +1633,7 @@ export const SmartMandiPage: React.FC = () => {
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#0F172A', margin: 0 }}>
-                Top Mandi Options (Net Return = Mandi Price - Freight Cost)
+                {t('smartMandiPage.topMandiOptions')}
               </h2>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
@@ -1652,15 +1660,15 @@ export const SmartMandiPage: React.FC = () => {
                         </h3>
                         {mandi.isOptimalChoice && (
                           <span style={{ background: '#DCFCE7', color: '#15803D', padding: '0.25rem 0.65rem', borderRadius: '12px', fontSize: '0.75rem', fontWeight: 800 }}>
-                            Best Net Return
+                            {t('smartMandiPage.bestNetReturn')}
                           </span>
                         )}
                       </div>
 
                       <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', color: '#64748B', fontSize: '0.85rem', marginTop: '0.35rem' }}>
                         <span>📍 {mandi.distanceKm} km ({mandi.transitTimeMinutes} min)</span>
-                        <span>🚚 Freight: -₹{mandi.transportCostPerQtl}/qtl</span>
-                        <span>📈 Trend: {mandi.trend}</span>
+                        <span>🚚 {t('smartMandiPage.freight')}: -₹{mandi.transportCostPerQtl}/qtl</span>
+                        <span>📈 {t('smartMandiPage.trend')}: {mandi.trend}</span>
                       </div>
                     </div>
 
@@ -1669,7 +1677,7 @@ export const SmartMandiPage: React.FC = () => {
                         ₹{mandi.netReturnPerQtl}/q
                       </div>
                       <span style={{ fontSize: '0.75rem', color: '#94A3B8', fontWeight: 600 }}>
-                        Gross: ₹{mandi.grossPricePerQtl}
+                        {t('smartMandiPage.gross')}: ₹{mandi.grossPricePerQtl}
                       </span>
                     </div>
                   </div>
