@@ -225,29 +225,29 @@ export const CropInsuranceVerificationPage: React.FC = () => {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '1rem' }}>
             <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#0F172A', margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <span className="material-symbols-outlined" style={{ color: '#2563EB' }}>satellite_alt</span>
-              Satellite Evidence & Field Boundary
+              {t('cropInsurance.satEvidenceTitle')}
             </h3>
             <span style={{ fontSize: '0.8rem', fontWeight: 700, background: '#F1F5F9', color: '#475569', padding: '0.35rem 0.75rem', borderRadius: '8px' }}>
-              Telemetry: {satEvidence?.satelliteId || 'SENTINEL-2B / ISRO-EOS-04'}
+              {t('cropInsurance.telemetryLabel')}: {satEvidence?.satelliteId || 'SENTINEL-2B / ISRO-EOS-04'}
             </span>
           </div>
 
           {/* Farm metadata pills */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '0.75rem', marginBottom: '1.25rem' }}>
             <div style={{ background: '#F8FAFC', padding: '0.75rem 1rem', borderRadius: '12px', border: '1px solid #E2E8F0' }}>
-              <div style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 700 }}>REGISTERED FARM ID</div>
+              <div style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 700 }}>{t('cropInsurance.registeredFarmId')}</div>
               <div style={{ fontSize: '0.95rem', fontWeight: 800, color: '#0F172A', marginTop: '0.15rem' }}>FARM-402</div>
             </div>
             <div style={{ background: '#F8FAFC', padding: '0.75rem 1rem', borderRadius: '12px', border: '1px solid #E2E8F0' }}>
-              <div style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 700 }}>CROP & TOTAL AREA</div>
+              <div style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 700 }}>{t('cropInsurance.cropTotalArea')}</div>
               <div style={{ fontSize: '0.95rem', fontWeight: 800, color: '#0F172A', marginTop: '0.15rem' }}>Paddy (5.2 Acres)</div>
             </div>
             <div style={{ background: '#F8FAFC', padding: '0.75rem 1rem', borderRadius: '12px', border: '1px solid #E2E8F0' }}>
-              <div style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 700 }}>REPORTED DISASTER</div>
+              <div style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 700 }}>{t('cropInsurance.reportedDisaster')}</div>
               <div style={{ fontSize: '0.95rem', fontWeight: 800, color: '#DC2626', marginTop: '0.15rem' }}>Flood (12 Sep 2026)</div>
             </div>
             <div style={{ background: '#F8FAFC', padding: '0.75rem 1rem', borderRadius: '12px', border: '1px solid #E2E8F0' }}>
-              <div style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 700 }}>FARMER REPORTED LOSS</div>
+              <div style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 700 }}>{t('cropInsurance.farmerReportedLoss')}</div>
               <div style={{ fontSize: '0.95rem', fontWeight: 800, color: '#0F172A', marginTop: '0.15rem' }}>72% (3.7 Acres)</div>
             </div>
           </div>
@@ -256,15 +256,15 @@ export const CropInsuranceVerificationPage: React.FC = () => {
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', fontSize: '0.8rem', fontWeight: 700, background: '#F8FAFC', padding: '0.75rem 1rem', borderRadius: '12px', border: '1px solid #E2E8F0' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', color: '#15803D' }}>
               <span style={{ width: '12px', height: '12px', borderRadius: '50%', background: '#22C55E', border: '2px solid #15803D' }}></span>
-              Registered Farm Boundary (GREEN)
+              {t('cropInsurance.legendRegisteredBoundary')}
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', color: '#B91C1C' }}>
               <span style={{ width: '12px', height: '12px', borderRadius: '50%', background: '#EF4444', border: '2px solid #B91C1C' }}></span>
-              AI-Indicated Affected Area (RED / 68%)
+              {t('cropInsurance.legendAffectedArea')}
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', color: '#B45309' }}>
               <span style={{ width: '12px', height: '12px', borderRadius: '50%', background: '#F59E0B', border: '2px solid #B45309' }}></span>
-              Unaffected / Lower Indication (LIGHT)
+              {t('cropInsurance.legendUnaffectedArea')}
             </div>
           </div>
         </div>
@@ -279,45 +279,45 @@ export const CropInsuranceVerificationPage: React.FC = () => {
         }}>
           <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#0F172A', margin: '0 0 1rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <span className="material-symbols-outlined" style={{ color: '#0284C7' }}>compare</span>
-            Historical Satellite Observations Comparison
+            {t('cropInsurance.historicalObsTitle')}
           </h3>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1.25rem' }}>
             {/* Before Observation */}
             <div style={{ border: '1px solid #CBD5E1', borderRadius: '16px', overflow: 'hidden', background: '#F8FAFC' }}>
               <div style={{ background: '#1E293B', color: '#FFFFFF', padding: '0.6rem 1rem', fontSize: '0.85rem', fontWeight: 800, display: 'flex', justifyContent: 'space-between' }}>
-                <span>BEFORE EVENT (05 Sep 2026)</span>
-                <span style={{ color: '#86EFAC' }}>NDVI: 0.74</span>
+                <span>{t('cropInsurance.beforeEvent')} (05 Sep 2026)</span>
+                <span style={{ color: '#86EFAC' }}>{t('cropInsurance.ndviScore')}: 0.74</span>
               </div>
               <div style={{ height: '140px', position: 'relative' }}>
                 <img src="https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=600&q=80" alt="Pre-disaster satellite view" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                 <div style={{ position: 'absolute', top: '8px', right: '8px', background: 'rgba(22, 163, 74, 0.9)', color: '#FFFFFF', fontSize: '0.7rem', fontWeight: 800, padding: '0.2rem 0.5rem', borderRadius: '6px' }}>
-                  HEALTHY CANOPY
+                  {t('cropInsurance.healthyCanopy')}
                 </div>
               </div>
               <div style={{ padding: '0.9rem', fontSize: '0.82rem', color: '#334155' }}>
-                <strong>Condition:</strong> Dense healthy crop vegetation<br />
-                <strong>Waterlogging:</strong> None detected<br />
-                <strong>Telemetry:</strong> Sentinel-2B Pass #142
+                <strong>{t('cropInsurance.conditionLabel')}:</strong> {t('cropInsurance.beforeConditionText')}<br />
+                <strong>{t('cropInsurance.waterloggingLabel')}:</strong> {t('cropInsurance.beforeWaterloggingText')}<br />
+                <strong>{t('cropInsurance.telemetrySubLabel')}:</strong> Sentinel-2B Pass #142
               </div>
             </div>
 
             {/* After Observation */}
             <div style={{ border: '1px solid #FCA5A5', borderRadius: '16px', overflow: 'hidden', background: '#FEF2F2' }}>
               <div style={{ background: '#991B1B', color: '#FFFFFF', padding: '0.6rem 1rem', fontSize: '0.85rem', fontWeight: 800, display: 'flex', justifyContent: 'space-between' }}>
-                <span>AFTER EVENT (14 Sep 2026)</span>
-                <span style={{ color: '#FCA5A5' }}>NDVI: 0.28</span>
+                <span>{t('cropInsurance.afterEvent')} (14 Sep 2026)</span>
+                <span style={{ color: '#FCA5A5' }}>{t('cropInsurance.ndviScore')}: 0.28</span>
               </div>
               <div style={{ height: '140px', position: 'relative' }}>
                 <img src="https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=600&q=80" alt="Post-disaster satellite view" style={{ width: '100%', height: '100%', objectFit: 'cover', filter: 'sepia(40%) hue-rotate(180deg) saturate(140%)' }} />
                 <div style={{ position: 'absolute', top: '8px', right: '8px', background: 'rgba(220, 38, 38, 0.9)', color: '#FFFFFF', fontSize: '0.7rem', fontWeight: 800, padding: '0.2rem 0.5rem', borderRadius: '6px' }}>
-                  SEVERE DECLINE
+                  {t('cropInsurance.severeDecline')}
                 </div>
               </div>
               <div style={{ padding: '0.9rem', fontSize: '0.82rem', color: '#7F1D1D' }}>
-                <strong>Condition:</strong> Significant crop submergence & inundation<br />
-                <strong>Waterlogging:</strong> Visible on 68% of plot<br />
-                <strong>Telemetry:</strong> Sentinel-2B Pass #145
+                <strong>{t('cropInsurance.conditionLabel')}:</strong> {t('cropInsurance.afterConditionText')}<br />
+                <strong>{t('cropInsurance.waterloggingLabel')}:</strong> {t('cropInsurance.afterWaterloggingText')}<br />
+                <strong>{t('cropInsurance.telemetrySubLabel')}:</strong> Sentinel-2B Pass #145
               </div>
             </div>
           </div>
@@ -356,7 +356,7 @@ export const CropInsuranceVerificationPage: React.FC = () => {
                 {t('cropInsurance.ndviScore')}
               </div>
               <div style={{ fontSize: '1.5rem', fontWeight: 900, color: '#0F172A', marginTop: '0.2rem' }}>
-                NDVI: {satEvidence?.ndviScore || '0.72'}
+                {t('cropInsurance.ndviScore')}: {satEvidence?.ndviScore || '0.72'}
               </div>
             </div>
           </div>
@@ -364,11 +364,11 @@ export const CropInsuranceVerificationPage: React.FC = () => {
           {/* Workflow Step Timeline */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.5rem', marginTop: '1.25rem', paddingTop: '1rem', borderTop: '1px solid #F1F5F9', overflowX: 'auto' }}>
             {[
-              { label: '1. Claim Submitted', done: true },
-              { label: '2. Satellite Evidence', done: true },
-              { label: '3. AI Assessment', done: !!aiAssessment },
-              { label: '4. Govt Review', done: currentStatus === 'under_government_verification' || currentStatus === 'approved' || currentStatus === 'rejected' },
-              { label: '5. Verification Final', done: currentStatus === 'approved' || currentStatus === 'rejected' }
+              { label: t('cropInsurance.stepClaimSubmitted'), done: true },
+              { label: t('cropInsurance.stepSatEvidence'), done: true },
+              { label: t('cropInsurance.stepAiAssessment'), done: !!aiAssessment },
+              { label: t('cropInsurance.stepGovtReview'), done: currentStatus === 'under_government_verification' || currentStatus === 'approved' || currentStatus === 'rejected' },
+              { label: t('cropInsurance.stepVerificationFinal'), done: currentStatus === 'approved' || currentStatus === 'rejected' }
             ].map((step, idx) => (
               <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.78rem', fontWeight: 700, color: step.done ? '#16A34A' : '#94A3B8', whiteSpace: 'nowrap' }}>
                 <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>{step.done ? 'check_circle' : 'radio_button_unchecked'}</span>
@@ -389,51 +389,51 @@ export const CropInsuranceVerificationPage: React.FC = () => {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
             <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#0F172A', margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <span className="material-symbols-outlined" style={{ color: '#7C3AED' }}>auto_awesome</span>
-              AI-Assisted Satellite Assessment (OpenRouter Gemini Vision)
+              {t('cropInsurance.aiAssessmentTitle')}
             </h3>
             <span style={{ fontSize: '0.75rem', fontWeight: 800, background: '#F3E8FF', color: '#6B21A8', padding: '0.3rem 0.65rem', borderRadius: '6px' }}>
-              POWERED BY GEMINI VISION
+              {t('cropInsurance.poweredByGemini')}
             </span>
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '0.85rem', marginBottom: '1.25rem' }}>
             <div style={{ background: '#F8FAFC', padding: '0.8rem 1rem', borderRadius: '12px', border: '1px solid #E2E8F0' }}>
-              <div style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 700 }}>DAMAGE DETECTED</div>
+              <div style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 700 }}>{t('cropInsurance.damageDetected')}</div>
               <div style={{ fontSize: '1.1rem', fontWeight: 900, color: aiAssessment?.damageDetected ? '#DC2626' : '#16A34A', marginTop: '0.15rem' }}>
-                {aiAssessment ? (aiAssessment.damageDetected ? 'YES' : 'NO') : 'YES'}
+                {aiAssessment ? (aiAssessment.damageDetected ? t('cropInsurance.yes') : t('cropInsurance.no')) : t('cropInsurance.yes')}
               </div>
             </div>
 
             <div style={{ background: '#F8FAFC', padding: '0.8rem 1rem', borderRadius: '12px', border: '1px solid #E2E8F0' }}>
-              <div style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 700 }}>DAMAGE TYPE</div>
+              <div style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 700 }}>{t('cropInsurance.damageType')}</div>
               <div style={{ fontSize: '1rem', fontWeight: 800, color: '#0F172A', marginTop: '0.15rem', textTransform: 'capitalize' }}>
                 {aiAssessment?.damageType?.replace(/_/g, ' ') || 'Flood / Waterlogging'}
               </div>
             </div>
 
             <div style={{ background: '#F8FAFC', padding: '0.8rem 1rem', borderRadius: '12px', border: '1px solid #E2E8F0' }}>
-              <div style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 700 }}>ESTIMATED AFFECTED AREA</div>
+              <div style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 700 }}>{t('cropInsurance.estimatedAffectedArea')}</div>
               <div style={{ fontSize: '1.1rem', fontWeight: 900, color: '#B45309', marginTop: '0.15rem' }}>
                 {aiAssessment?.affectedPercentage || 68}% (3.5 Acres)
               </div>
             </div>
 
             <div style={{ background: '#F8FAFC', padding: '0.8rem 1rem', borderRadius: '12px', border: '1px solid #E2E8F0' }}>
-              <div style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 700 }}>VEGETATION CONDITION</div>
+              <div style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 700 }}>{t('cropInsurance.vegetationCondition')}</div>
               <div style={{ fontSize: '0.95rem', fontWeight: 800, color: '#0F172A', marginTop: '0.15rem', textTransform: 'capitalize' }}>
                 {aiAssessment?.vegetationCondition?.replace(/_/g, ' ') || 'Significant Decline'}
               </div>
             </div>
 
             <div style={{ background: '#F8FAFC', padding: '0.8rem 1rem', borderRadius: '12px', border: '1px solid #E2E8F0' }}>
-              <div style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 700 }}>EVENT CONSISTENCY</div>
+              <div style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 700 }}>{t('cropInsurance.eventConsistency')}</div>
               <div style={{ fontSize: '0.95rem', fontWeight: 800, color: '#2563EB', marginTop: '0.15rem', textTransform: 'capitalize' }}>
                 {aiAssessment?.eventConsistency?.replace(/_/g, ' ') || 'Potentially Consistent'}
               </div>
             </div>
 
             <div style={{ background: '#F8FAFC', padding: '0.8rem 1rem', borderRadius: '12px', border: '1px solid #E2E8F0' }}>
-              <div style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 700 }}>AI CONFIDENCE</div>
+              <div style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 700 }}>{t('cropInsurance.aiConfidence')}</div>
               <div style={{ fontSize: '0.95rem', fontWeight: 800, color: '#0F172A', marginTop: '0.15rem', textTransform: 'uppercase' }}>
                 {aiAssessment?.confidence || 'Moderate'}
               </div>
@@ -442,11 +442,11 @@ export const CropInsuranceVerificationPage: React.FC = () => {
 
           {/* Summary Box */}
           <div style={{ background: '#F5F3FF', border: '1px solid #DDD6FE', padding: '1rem 1.25rem', borderRadius: '12px', color: '#4C1D95', fontSize: '0.88rem', lineHeight: '1.5' }}>
-            <strong>AI Summary:</strong> {aiAssessment?.summary || "Satellite evidence indicates visible waterlogging and crop vegetation decline within portions of registered farm consistent with reported flood event."}
+            <strong>{t('cropInsurance.aiSummary')}:</strong> {aiAssessment?.summary || "Satellite evidence indicates visible waterlogging and crop vegetation decline within portions of registered farm consistent with reported flood event."}
           </div>
 
           <div style={{ fontSize: '0.75rem', color: '#64748B', marginTop: '0.75rem', fontStyle: 'italic' }}>
-            Disclaimer: AI analysis provides supporting evidence. Final insurance verification is performed by the authorized government authority.
+            {t('cropInsurance.aiDisclaimer')}
           </div>
         </div>
 
@@ -461,37 +461,37 @@ export const CropInsuranceVerificationPage: React.FC = () => {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
             <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#0F172A', margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <span className="material-symbols-outlined" style={{ color: '#D97706' }}>payments</span>
-              Market-Linked Economic Loss Estimation
+              {t('cropInsurance.economicLossTitle')}
             </h3>
             <span style={{ fontSize: '0.75rem', fontWeight: 800, background: '#FEF3C7', color: '#92400E', padding: '0.3rem 0.65rem', borderRadius: '6px' }}>
-              PRELIMINARY ESTIMATE
+              {t('cropInsurance.preliminaryEstimate')}
             </span>
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '0.85rem', marginBottom: '1rem' }}>
             <div style={{ background: '#FEFCE8', padding: '0.8rem 1rem', borderRadius: '12px', border: '1px solid #FEF08A' }}>
-              <div style={{ fontSize: '0.75rem', color: '#854D0E', fontWeight: 700 }}>CROP & FARM AREA</div>
+              <div style={{ fontSize: '0.75rem', color: '#854D0E', fontWeight: 700 }}>{t('cropInsurance.cropFarmArea')}</div>
               <div style={{ fontSize: '0.95rem', fontWeight: 800, color: '#0F172A', marginTop: '0.15rem' }}>
                 {economicLoss?.crop || 'Paddy'} (5.2 Acres)
               </div>
             </div>
 
             <div style={{ background: '#FEFCE8', padding: '0.8rem 1rem', borderRadius: '12px', border: '1px solid #FEF08A' }}>
-              <div style={{ fontSize: '0.75rem', color: '#854D0E', fontWeight: 700 }}>MANDI MARKET PRICE</div>
+              <div style={{ fontSize: '0.75rem', color: '#854D0E', fontWeight: 700 }}>{t('cropInsurance.mandiMarketPrice')}</div>
               <div style={{ fontSize: '0.95rem', fontWeight: 800, color: '#0F172A', marginTop: '0.15rem' }}>
                 ₹{economicLoss?.marketPrice || 2400} / quintal
               </div>
             </div>
 
             <div style={{ background: '#FEFCE8', padding: '0.8rem 1rem', borderRadius: '12px', border: '1px solid #FEF08A' }}>
-              <div style={{ fontSize: '0.75rem', color: '#854D0E', fontWeight: 700 }}>ESTIMATED PRODUCTION</div>
+              <div style={{ fontSize: '0.75rem', color: '#854D0E', fontWeight: 700 }}>{t('cropInsurance.estimatedProduction')}</div>
               <div style={{ fontSize: '0.95rem', fontWeight: 800, color: '#0F172A', marginTop: '0.15rem' }}>
                 {economicLoss?.estimatedProduction || 30} quintals
               </div>
             </div>
 
             <div style={{ background: '#FEFCE8', padding: '0.8rem 1rem', borderRadius: '12px', border: '1px solid #FEF08A' }}>
-              <div style={{ fontSize: '0.75rem', color: '#854D0E', fontWeight: 700 }}>ESTIMATED LOST PRODUCTION</div>
+              <div style={{ fontSize: '0.75rem', color: '#854D0E', fontWeight: 700 }}>{t('cropInsurance.estimatedLostProduction')}</div>
               <div style={{ fontSize: '0.95rem', fontWeight: 800, color: '#DC2626', marginTop: '0.15rem' }}>
                 {economicLoss?.estimatedLostProduction || 20.4} quintals
               </div>
@@ -500,15 +500,15 @@ export const CropInsuranceVerificationPage: React.FC = () => {
 
           <div style={{ background: '#FFFBEB', border: '1px solid #FDE68A', padding: '1rem 1.25rem', borderRadius: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
             <div>
-              <div style={{ fontSize: '0.8rem', fontWeight: 800, color: '#B45309' }}>PRELIMINARY ESTIMATED ECONOMIC LOSS</div>
-              <div style={{ fontSize: '0.78rem', color: '#92400E', marginTop: '0.1rem' }}>Farm Area × Damage % × Yield Benchmark × Market Price</div>
+              <div style={{ fontSize: '0.8rem', fontWeight: 800, color: '#B45309' }}>{t('cropInsurance.preliminaryEconomicLossTitle')}</div>
+              <div style={{ fontSize: '0.78rem', color: '#92400E', marginTop: '0.1rem' }}>{t('cropInsurance.economicLossFormula')}</div>
             </div>
             <div style={{ fontSize: '1.6rem', fontWeight: 900, color: '#B45309' }}>
               ₹{(economicLoss?.estimatedEconomicLoss || 48960).toLocaleString('en-IN')}
             </div>
           </div>
           <div style={{ fontSize: '0.75rem', color: '#92400E', marginTop: '0.5rem', fontStyle: 'italic' }}>
-            Note: This figure is a preliminary loss estimate and does not represent a legally guaranteed insurance payout.
+            {t('cropInsurance.economicLossNote')}
           </div>
         </div>
 
@@ -523,17 +523,17 @@ export const CropInsuranceVerificationPage: React.FC = () => {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.5rem' }}>
             <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#0F172A', margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <span className="material-symbols-outlined" style={{ color: '#16A34A' }}>gavel</span>
-              Government Authority Verification Review
+              {t('cropInsurance.govtReviewTitle')}
             </h3>
             {govtDecision?.status && govtDecision.status !== 'pending' && (
               <span style={{ fontSize: '0.8rem', fontWeight: 800, background: govtDecision.status === 'approved' ? '#DCFCE7' : '#FEE2E2', color: govtDecision.status === 'approved' ? '#15803D' : '#991B1B', padding: '0.35rem 0.75rem', borderRadius: '8px' }}>
-                DECISION RECORDED: {govtDecision.status.toUpperCase()} ({govtDecision.officerId})
+                {t('cropInsurance.decisionRecorded')}: {govtDecision.status.toUpperCase()} ({govtDecision.officerId})
               </span>
             )}
           </div>
 
           <p style={{ fontSize: '0.88rem', color: '#475569', margin: '0 0 1rem 0' }}>
-            Authorized government officers review satellite evidence, NDVI comparison, and AI damage analysis to issue the final PMFBY verification decision.
+            {t('cropInsurance.govtReviewDesc')}
           </p>
 
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.85rem' }}>
@@ -556,7 +556,7 @@ export const CropInsuranceVerificationPage: React.FC = () => {
               }}
             >
               <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>task_alt</span>
-              APPROVE CLAIM
+              {t('cropInsurance.approveClaim')}
             </button>
 
             <button
@@ -578,7 +578,7 @@ export const CropInsuranceVerificationPage: React.FC = () => {
               }}
             >
               <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>find_in_page</span>
-              REQUEST ADDITIONAL VERIFICATION
+              {t('cropInsurance.requestAddlVerification')}
             </button>
 
             <button
@@ -600,7 +600,7 @@ export const CropInsuranceVerificationPage: React.FC = () => {
               }}
             >
               <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>cancel</span>
-              REJECT CLAIM
+              {t('cropInsurance.rejectClaim')}
             </button>
           </div>
         </div>
@@ -633,7 +633,7 @@ export const CropInsuranceVerificationPage: React.FC = () => {
             <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>
               {loading ? 'sync' : 'description'}
             </span>
-            <span>{loading ? 'Processing AI...' : t('cropInsurance.submitClaim')}</span>
+            <span>{loading ? t('cropInsurance.processingAi') : t('cropInsurance.submitClaim')}</span>
           </button>
 
           <button
@@ -687,31 +687,31 @@ export const CropInsuranceVerificationPage: React.FC = () => {
           }}>
             <div style={{ background: '#FFFFFF', borderRadius: '20px', padding: '1.75rem', maxWidth: '500px', width: '100%', boxShadow: '0 20px 40px rgba(0,0,0,0.2)' }}>
               <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#0F172A', margin: '0 0 0.75rem 0' }}>
-                Confirm Decision: {pendingDecisionType.toUpperCase().replace(/_/g, ' ')}
+                {t('cropInsurance.confirmDecision')}: {pendingDecisionType.toUpperCase().replace(/_/g, ' ')}
               </h3>
               <p style={{ fontSize: '0.88rem', color: '#64748B', margin: '0 0 1rem 0' }}>
-                Provide verification remarks for Claim ID <strong>{activeClaimId}</strong>:
+                {t('cropInsurance.provideRemarks')} <strong>{activeClaimId}</strong>:
               </p>
               <textarea
                 value={decisionRemarks}
                 onChange={(e) => setDecisionRemarks(e.target.value)}
                 rows={4}
                 style={{ width: '100%', borderRadius: '10px', border: '1px solid #CBD5E1', padding: '0.75rem', fontSize: '0.9rem', marginBottom: '1.25rem', fontFamily: 'inherit' }}
-                placeholder="Enter verification remarks..."
+                placeholder={t('cropInsurance.enterRemarksPlaceholder')}
               />
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem' }}>
                 <button
                   onClick={() => setDecisionModalOpen(false)}
                   style={{ background: '#F1F5F9', color: '#475569', border: 'none', borderRadius: '10px', padding: '0.65rem 1.1rem', fontWeight: 700, cursor: 'pointer' }}
                 >
-                  Cancel
+                  {t('cropInsurance.cancel')}
                 </button>
                 <button
                   onClick={handleConfirmDecision}
                   disabled={loading}
                   style={{ background: pendingDecisionType === 'approved' ? '#16A34A' : (pendingDecisionType === 'rejected' ? '#DC2626' : '#D97706'), color: '#FFFFFF', border: 'none', borderRadius: '10px', padding: '0.65rem 1.25rem', fontWeight: 800, cursor: 'pointer' }}
                 >
-                  {loading ? 'Submitting...' : 'Submit Decision'}
+                  {loading ? t('cropInsurance.submitting') : t('cropInsurance.submitDecision')}
                 </button>
               </div>
             </div>
@@ -727,7 +727,7 @@ export const CropInsuranceVerificationPage: React.FC = () => {
             <div style={{ background: '#FFFFFF', borderRadius: '20px', padding: '1.75rem', maxWidth: '640px', width: '100%', maxHeight: '85vh', overflowY: 'auto', boxShadow: '0 20px 40px rgba(0,0,0,0.2)' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
                 <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#0F172A', margin: 0 }}>
-                  Verification Dossier - {activeClaimId}
+                  {t('cropInsurance.dossierTitle')} - {activeClaimId}
                 </h2>
                 <button onClick={() => setReportModalOpen(false)} style={{ border: 'none', background: 'transparent', cursor: 'pointer', color: '#64748B' }}>
                   <span className="material-symbols-outlined">close</span>
@@ -737,7 +737,7 @@ export const CropInsuranceVerificationPage: React.FC = () => {
               {claimData ? (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', fontSize: '0.9rem', color: '#334155' }}>
                   <div style={{ background: '#F8FAFC', padding: '1rem', borderRadius: '12px', border: '1px solid #E2E8F0' }}>
-                    <div style={{ fontWeight: 700, color: '#0F172A', marginBottom: '0.4rem' }}>1. Registered Farm & Claim Summary</div>
+                    <div style={{ fontWeight: 700, color: '#0F172A', marginBottom: '0.4rem' }}>{t('cropInsurance.dossierSection1')}</div>
                     <div><strong>Claim ID:</strong> {activeClaimId}</div>
                     <div><strong>Farm ID:</strong> {claimData.farmId || 'FARM-402'}</div>
                     <div><strong>Crop:</strong> Paddy (5.2 Acres)</div>
@@ -747,22 +747,22 @@ export const CropInsuranceVerificationPage: React.FC = () => {
 
                   {aiAssessment && (
                     <div style={{ background: '#F5F3FF', padding: '1rem', borderRadius: '12px', border: '1px solid #DDD6FE' }}>
-                      <div style={{ fontWeight: 700, color: '#5B21B6', marginBottom: '0.4rem' }}>2. OpenRouter Gemini Vision AI Assessment</div>
-                      <div><strong>Damage Detected:</strong> {aiAssessment.damageDetected ? 'YES' : 'NO'}</div>
-                      <div><strong>Damage Type:</strong> {aiAssessment.damageType}</div>
+                      <div style={{ fontWeight: 700, color: '#5B21B6', marginBottom: '0.4rem' }}>{t('cropInsurance.dossierSection2')}</div>
+                      <div><strong>{t('cropInsurance.damageDetected')}:</strong> {aiAssessment.damageDetected ? t('cropInsurance.yes') : t('cropInsurance.no')}</div>
+                      <div><strong>{t('cropInsurance.damageType')}:</strong> {aiAssessment.damageType}</div>
                       <div><strong>Severity:</strong> <span style={{ fontWeight: 700, textTransform: 'uppercase' }}>{aiAssessment.severity}</span></div>
-                      <div><strong>Estimated Affected Area:</strong> {aiAssessment.affectedPercentage}% (3.5 Acres)</div>
-                      <div><strong>AI Summary:</strong> {aiAssessment.summary}</div>
+                      <div><strong>{t('cropInsurance.estimatedAffectedArea')}:</strong> {aiAssessment.affectedPercentage}% (3.5 Acres)</div>
+                      <div><strong>{t('cropInsurance.aiSummary')}:</strong> {aiAssessment.summary}</div>
                       <div style={{ fontSize: '0.8rem', color: '#6B21A8', marginTop: '0.4rem' }}><em>Limitations: {aiAssessment.limitations}</em></div>
                     </div>
                   )}
 
                   {economicLoss && (
                     <div style={{ background: '#FEFCE8', padding: '1rem', borderRadius: '12px', border: '1px solid #FEF08A' }}>
-                      <div style={{ fontWeight: 700, color: '#854D0E', marginBottom: '0.4rem' }}>3. Market Price Economic Loss Estimation</div>
-                      <div><strong>Mandi Market Price:</strong> ₹{economicLoss.marketPrice} / quintal</div>
-                      <div><strong>Estimated Lost Production:</strong> {economicLoss.estimatedLostProduction} quintals</div>
-                      <div><strong>Preliminary Economic Loss:</strong> <span style={{ fontSize: '1.15rem', fontWeight: 800, color: '#B45309' }}>₹{economicLoss.estimatedEconomicLoss?.toLocaleString('en-IN')}</span></div>
+                      <div style={{ fontWeight: 700, color: '#854D0E', marginBottom: '0.4rem' }}>3. {t('cropInsurance.economicLossTitle')}</div>
+                      <div><strong>{t('cropInsurance.mandiMarketPrice')}:</strong> ₹{economicLoss.marketPrice} / quintal</div>
+                      <div><strong>{t('cropInsurance.estimatedLostProduction')}:</strong> {economicLoss.estimatedLostProduction} quintals</div>
+                      <div><strong>{t('cropInsurance.preliminaryEconomicLossTitle')}:</strong> <span style={{ fontSize: '1.15rem', fontWeight: 800, color: '#B45309' }}>₹{economicLoss.estimatedEconomicLoss?.toLocaleString('en-IN')}</span></div>
                     </div>
                   )}
 
