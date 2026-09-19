@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { SihLayout } from '../../shared/SihLayout';
 import { useLanguage } from '@core/context/LanguageContext';
+import { WhatsAppSimulatorModal } from '../components/WhatsAppSimulatorModal';
 
 /* Sahayak AI voice/text companion page with human advisor directory */
 export const SahayakPage: React.FC = () => {
   const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState<'ai' | 'human'>('ai');
+  const [isSimulatorOpen, setIsSimulatorOpen] = useState(false);
   const [messages, setMessages] = useState<Array<{ sender: 'user' | 'ai'; text: string }>>([
     { sender: 'ai', text: t('sahayakPage.aiGreeting') }
   ]);
@@ -354,51 +356,34 @@ export const SahayakPage: React.FC = () => {
             </a>
 
             <button
-              onClick={() => {
-                const sampleQueries = [
-                  'Kal baarish hogi kya?',
-                  'Aaj mere paas wali mandi mein dhan ka kya rate hai?',
-                  'PM Kisan ke liye apply kaise karu',
-                  'meri fasal mein daag hai'
-                ];
-                const selected = prompt('SIH Demo Mode — Enter WhatsApp message to simulate through Sahayak pipeline:\n\n' + sampleQueries.map((q, i) => `${i + 1}. ${q}`).join('\n'), sampleQueries[0]);
-                if (!selected) return;
-
-                fetch('/api/sahayak/whatsapp/demo', {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({ phone: 'demo-user', message: selected })
-                })
-                  .then(r => r.json())
-                  .then(res => {
-                    if (res.success && res.data) {
-                      alert(`[WhatsApp Response Formatter]\nIntent: ${res.data.intent} (Lang: ${res.data.detectedLanguage})\n\n${res.data.reply}`);
-                    } else {
-                      alert('Demo simulation failed: ' + (res.error?.message || 'Server error'));
-                    }
-                  })
-                  .catch(e => alert('Network error: ' + e.message));
-              }}
+              onClick={() => setIsSimulatorOpen(true)}
               style={{
-                background: 'rgba(255,255,255,0.12)',
+                background: '#25D366',
                 color: '#FFFFFF',
-                border: '1px solid rgba(255,255,255,0.25)',
-                padding: '0.6rem 1.1rem',
+                border: 'none',
+                padding: '0.65rem 1.15rem',
                 borderRadius: '12px',
-                fontWeight: 700,
-                fontSize: '0.82rem',
+                fontWeight: 800,
+                fontSize: '0.84rem',
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: '0.4rem'
+                gap: '0.5rem',
+                boxShadow: '0 4px 14px rgba(37, 211, 102, 0.4)'
               }}
             >
-              <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>play_circle</span>
-              Simulate WhatsApp (Demo Mode)
+              <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>smartphone</span>
+              Launch WhatsApp Demo UI
             </button>
           </div>
         </div>
+
+        {/* Realistic WhatsApp Smartphone Interface Modal */}
+        <WhatsAppSimulatorModal
+          isOpen={isSimulatorOpen}
+          onClose={() => setIsSimulatorOpen(false)}
+        />
 
       </div>
     </SihLayout>
