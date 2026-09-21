@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
+import { MorphingSquareLoader } from '../common/MorphingSquareLoader';
 
 interface MobileAuthPageProps {
   mode: 'login' | 'register';
@@ -241,10 +242,19 @@ export const MobileAuthPage: React.FC<MobileAuthPageProps> = ({ mode }) => {
                 fontSize: '1rem',
                 cursor: isLoading ? 'wait' : 'pointer',
                 boxShadow: '0 4px 14px rgba(22, 163, 74, 0.3)',
-                marginTop: '0.25rem'
+                marginTop: '0.25rem',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
               }}
             >
-              {isLoading ? t('common.loading') : mode === 'login' ? t('auth.login') : t('common.register')}
+              {isLoading ? (
+                <MorphingSquareLoader size={20} color="#FFFFFF" text={t('common.loading')} />
+              ) : mode === 'login' ? (
+                t('auth.login')
+              ) : (
+                t('common.register')
+              )}
             </button>
           </form>
 

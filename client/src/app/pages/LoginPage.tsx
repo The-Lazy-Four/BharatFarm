@@ -4,6 +4,7 @@ import { useAuth } from '../../context/AuthContext.js';
 import { useLanguage } from '../../context/LanguageContext.js';
 import { useIsMobile } from '../../hooks/useIsMobile';
 import { MobileAuthPage } from '../../components/mobile/MobileAuthPage';
+import { MorphingSquareLoader } from '../../components/common/MorphingSquareLoader';
 
 export const LoginPage: React.FC = () => {
   const isMobile = useIsMobile();
@@ -279,10 +280,19 @@ export const LoginPage: React.FC = () => {
                 fontSize: '1rem',
                 cursor: isLoading ? 'not-allowed' : 'pointer',
                 boxShadow: '0 4px 14px rgba(22, 163, 74, 0.3)',
-                marginTop: '0.5rem'
+                marginTop: '0.5rem',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                minHeight: '48px'
               }}
             >
-              {isLoading ? t('common.loading') : t('auth.login')}
+              {isLoading ? (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+                  <MorphingSquareLoader size={18} color="#FFFFFF" />
+                  <span>{t('common.loading')}...</span>
+                </div>
+              ) : t('auth.login')}
             </button>
           </form>
 
