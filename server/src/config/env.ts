@@ -24,6 +24,10 @@ export const config = {
   geminiModel: process.env.GEMINI_MODEL || 'google/gemini-2.5-flash',
   weatherApiKey: process.env.WEATHER_API_KEY || '',
   useMockData: process.env.USE_MOCK_DATA === 'true',
+  jwt: {
+    secret: process.env.JWT_SECRET || 'bharatfarm_jwt_secret_key_2026_super_secure',
+    expiresIn: process.env.JWT_EXPIRES_IN || '7d'
+  },
   whatsapp: {
     accessToken: process.env.WHATSAPP_ACCESS_TOKEN || '',
     phoneNumberId: process.env.WHATSAPP_PHONE_NUMBER_ID || '',

@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { ApiResponse } from '../utils/apiResponse.js';
 import { config } from '../config/env.js';
 import { getSupabaseClient } from '../config/supabase.js';
+import { verifyJwtToken } from '../utils/jwt.js';
 
 export interface AuthenticatedUser {
   id: string;
@@ -22,16 +23,34 @@ export interface AuthenticatedRequest extends Request {
 }
 
 /**
- * Express middleware to authenticate requests using Supabase JWT Access Tokens.
- * Reads `Authorization: Bearer <token>` and verifies identity with Supabase.
- * In MOCK MODE (`USE_MOCK_DATA=true`), falls back to mock user context.
+ * Express middleware to authenticate requests using JWT Access Tokens or Supabase Tokens.
+ * Reads `Authorization: Bearer <token>` and verifies identity.
+ * In MOCK MODE (`USE_MOCK_DATA=true`), falls back to mock user context if no token.
  */
 export const authenticateToken = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
   const authHeader = req.headers.authorization;
+  const token = authHeader?.startsWith('Bearer ') ? authHeader.split(' ')[1] : null;
+
+  // 1. Try verifying with local JWT secret first
+  if (token) {
+    const jwtUser = verifyJwtToken(token);
+    if (jwtUser) {
+      req.user = {
+        id: jwtUser.id,
+        email: jwtUser.email,
+        role: jwtUser.role || 'farmer',
+        fullName: jwtUser.fullName,
+        phone: jwtUser.phone,
+        state: jwtUser.state,
+        district: jwtUser.district
+      };
+      return next();
+    }
+  }
 
   // MOCK MODE FALLBACK
   if (config.useMockData) {
-    if (!authHeader) {
+    if (!token && !authHeader) {
       req.user = {
         id: 'mock-user-123',
         email: 'farmer@bharatfarm.org',
@@ -46,10 +65,10 @@ export const authenticateToken = async (req: AuthenticatedRequest, res: Response
       };
       return next();
     }
-    const token = authHeader.split(' ')[1];
     if (!token) {
       return ApiResponse.error(res, 'Authentication token missing', 'UNAUTHORIZED', 401);
     }
+    // Token present but not valid custom JWT in mock mode
     req.user = {
       id: 'mock-user-123',
       email: 'farmer@bharatfarm.org',
@@ -66,13 +85,8 @@ export const authenticateToken = async (req: AuthenticatedRequest, res: Response
   }
 
   // REAL SUPABASE AUTHENTICATION
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return ApiResponse.error(res, 'Authorization header missing or invalid format', 'UNAUTHORIZED', 401);
-  }
-
-  const token = authHeader.split(' ')[1];
   if (!token) {
-    return ApiResponse.error(res, 'Authentication token missing', 'UNAUTHORIZED', 401);
+    return ApiResponse.error(res, 'Authorization header missing or invalid format', 'UNAUTHORIZED', 401);
   }
 
   const supabase = getSupabaseClient();

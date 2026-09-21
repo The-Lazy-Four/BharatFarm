@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { ApiResponse } from '../utils/apiResponse.js';
 import { config } from '../config/env.js';
 import { getSupabaseClient, getSupabaseAdminClient } from '../config/supabase.js';
+import { signJwtToken, verifyJwtToken } from '../utils/jwt.js';
 
 const router = Router();
 
@@ -22,16 +23,19 @@ router.post('/register', async (req, res) => {
 
   // MOCK MODE FALLBACK
   if (config.useMockData) {
+    const mockUser = {
+      id: `user-${Date.now()}`,
+      email,
+      role,
+      fullName,
+      phone,
+      state,
+      district
+    };
+    const token = signJwtToken(mockUser);
     return ApiResponse.success(res, {
-      token: 'mock-jwt-token-12345',
-      user: {
-        id: 'mock-user-new',
-        email,
-        role,
-        fullName,
-        phone,
-        state
-      }
+      token,
+      user: mockUser
     }, 'Registration successful (Mock Mode)');
   }
 
@@ -126,18 +130,21 @@ router.post('/register', async (req, res) => {
       );
     }
 
-    const session = authData.session;
+    const userObj = {
+      id: userId,
+      email: profile.email,
+      role: profile.role,
+      fullName: profile.full_name,
+      phone: profile.phone || undefined,
+      state: profile.state || undefined
+    };
+
+    const token = signJwtToken(userObj);
+
     return ApiResponse.success(res, {
-      token: session?.access_token || '',
-      refreshToken: session?.refresh_token || '',
-      user: {
-        id: userId,
-        email: profile.email,
-        role: profile.role,
-        fullName: profile.full_name,
-        phone: profile.phone || undefined,
-        state: profile.state || undefined
-      }
+      token,
+      refreshToken: authData.session?.refresh_token || '',
+      user: userObj
     }, 'Registration successful');
   } catch (err: any) {
     return ApiResponse.error(res, err?.message || 'Unexpected server error during registration', 'SERVER_ERROR', 500);
@@ -157,15 +164,17 @@ router.post('/login', async (req, res) => {
 
   // MOCK MODE FALLBACK
   if (config.useMockData) {
+    const mockUser = {
+      id: 'mock-user-123',
+      fullName: 'Ramesh Patel',
+      email,
+      role: 'farmer',
+      state: 'Punjab'
+    };
+    const token = signJwtToken(mockUser);
     return ApiResponse.success(res, {
-      token: 'mock-jwt-token-12345',
-      user: {
-        id: 'mock-user-123',
-        fullName: 'Ramesh Patel',
-        email,
-        role: 'farmer',
-        state: 'Punjab'
-      }
+      token,
+      user: mockUser
     }, 'Login successful (Mock Mode)');
   }
 
@@ -210,8 +219,10 @@ router.post('/login', async (req, res) => {
       state: profile?.state || undefined
     };
 
+    const token = signJwtToken(userObj);
+
     return ApiResponse.success(res, {
-      token: authData.session.access_token,
+      token,
       refreshToken: authData.session.refresh_token,
       user: userObj
     }, 'Login successful');
@@ -231,6 +242,22 @@ router.get('/me', async (req, res) => {
   }
 
   const token = authHeader.split(' ')[1];
+
+  // 1. Verify custom JWT token first
+  const jwtUser = verifyJwtToken(token);
+  if (jwtUser) {
+    return ApiResponse.success(res, {
+      user: {
+        id: jwtUser.id,
+        email: jwtUser.email,
+        role: jwtUser.role || 'farmer',
+        fullName: jwtUser.fullName || '',
+        phone: jwtUser.phone,
+        state: jwtUser.state,
+        district: jwtUser.district
+      }
+    });
+  }
 
   if (config.useMockData) {
     return ApiResponse.success(res, {
