@@ -45,7 +45,7 @@ const INITIAL_NOTIFS: NotificationItem[] = [
 export const MobileModuleHomePage: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { t } = useLanguage();
+  const { language, setLanguage, t } = useLanguage();
   const { subscribeToNotifications, pushSubscription } = usePWA();
 
   const [showNotifDrawer, setShowNotifDrawer] = useState(false);
@@ -214,8 +214,31 @@ export const MobileModuleHomePage: React.FC = () => {
           </p>
         </div>
 
-        {/* Action Controls: Notification Bell Tab (Left of Profile) + Profile Avatar */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+        {/* Action Controls: Language Select + Notification Bell + Profile Avatar */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          {/* Multilingual Language Dropdown */}
+          <select
+            value={language}
+            onChange={(e) => setLanguage(e.target.value)}
+            title={t('common.languageSelect')}
+            style={{
+              background: '#F1F5F9',
+              color: '#0F172A',
+              border: '1px solid #CBD5E1',
+              borderRadius: '20px',
+              padding: '0.25rem 0.55rem',
+              fontSize: '0.75rem',
+              fontWeight: 700,
+              cursor: 'pointer',
+              outline: 'none',
+              height: '38px'
+            }}
+          >
+            <option value="en">EN</option>
+            <option value="hi">हिंदी</option>
+            <option value="bn">বাংলা</option>
+          </select>
+
           {/* Notification Tab Button (Left of Profile) */}
           <button
             onClick={() => setShowNotifDrawer(true)}

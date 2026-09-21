@@ -7,7 +7,7 @@ import { MobileBottomNav } from './MobileBottomNav';
 export const MobileBasicFarmerHome: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { t } = useLanguage();
+  const { language, setLanguage, t } = useLanguage();
 
   const tools = [
     { title: t('mobileHome.weather'), icon: 'partly_cloudy_day', path: '/sih/climate-risk', color: '#0284C7', bg: '#E0F2FE' },
@@ -31,6 +31,47 @@ export const MobileBasicFarmerHome: React.FC = () => {
       boxSizing: 'border-box',
       overflowX: 'hidden'
     }}>
+      {/* Top Bar Header */}
+      <header style={{
+        padding: '0.85rem 1rem',
+        background: '#FFFFFF',
+        borderBottom: '1px solid #E2E8F0',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        position: 'sticky',
+        top: 0,
+        zIndex: 50
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+          <img src="/logo.png" alt="BharatFarm" style={{ width: '32px', height: '32px', borderRadius: '8px', objectFit: 'contain' }} />
+          <h1 style={{ fontSize: '1.25rem', fontWeight: 900, color: '#0F172A', margin: 0 }}>
+            {t('common.appName')}
+          </h1>
+        </div>
+
+        <select
+          value={language}
+          onChange={(e) => setLanguage(e.target.value)}
+          title={t('common.languageSelect')}
+          style={{
+            background: '#F1F5F9',
+            color: '#0F172A',
+            border: '1px solid #CBD5E1',
+            borderRadius: '20px',
+            padding: '0.25rem 0.5rem',
+            fontSize: '0.75rem',
+            fontWeight: 700,
+            cursor: 'pointer',
+            outline: 'none'
+          }}
+        >
+          <option value="en">EN</option>
+          <option value="hi">हिंदी</option>
+          <option value="bn">বাংলা</option>
+        </select>
+      </header>
+
       {/* Main Grid for Tools */}
       <main style={{ padding: '0.85rem 0.75rem' }}>
         <div style={{
