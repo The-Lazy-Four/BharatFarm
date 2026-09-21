@@ -177,13 +177,13 @@ export const CropInsuranceVerificationPage: React.FC = () => {
           </p>
         </div>
 
-        {/* Hero Satellite / Farm Image Panel */}
+        {/* Hero Satellite / Farm Image Panel (Compact Hero) */}
         <div style={{
           position: 'relative',
-          borderRadius: '20px',
+          borderRadius: '14px',
           overflow: 'hidden',
-          height: '260px',
-          boxShadow: '0 8px 24px rgba(0,0,0,0.08)',
+          height: '110px',
+          boxShadow: '0 4px 14px rgba(0,0,0,0.08)',
           border: '1px solid #E2E8F0'
         }}>
           <img
@@ -194,21 +194,22 @@ export const CropInsuranceVerificationPage: React.FC = () => {
           <div style={{
             position: 'absolute',
             inset: 0,
-            background: 'linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.55) 100%)'
+            background: 'linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.65) 100%)'
           }} />
           <div style={{
             position: 'absolute',
-            bottom: '1.25rem',
-            left: '1.5rem',
+            bottom: '0.6rem',
+            left: '0.85rem',
+            right: '0.85rem',
             color: '#FFFFFF'
           }}>
-            <span style={{ fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#86EFAC' }}>
+            <span style={{ fontSize: '0.65rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.04em', color: '#86EFAC' }}>
               {t('cropInsurance.headerBadge').toUpperCase()}
             </span>
-            <h3 style={{ fontSize: '1.25rem', fontWeight: 800, margin: '0.2rem 0 0 0' }}>
+            <h3 style={{ fontSize: '0.95rem', fontWeight: 800, margin: '0.05rem 0 0 0', lineHeight: 1.2 }}>
               {t('cropInsurance.fieldId')} #402 - Sector B (FARM-402)
             </h3>
-            <div style={{ fontSize: '0.8rem', opacity: 0.9, marginTop: '0.2rem' }}>
+            <div style={{ fontSize: '0.72rem', opacity: 0.9, marginTop: '0.05rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
               Purba Medinipur, West Bengal • Paddy Field (5.2 Acres)
             </div>
           </div>
@@ -217,54 +218,54 @@ export const CropInsuranceVerificationPage: React.FC = () => {
         {/* 1. SATELLITE EVIDENCE & FIELD BOUNDARY SECTION */}
         <div style={{
           background: '#FFFFFF',
-          borderRadius: '20px',
-          padding: '1.5rem 1.75rem',
+          borderRadius: '16px',
+          padding: '1rem',
           border: '1px solid #E2E8F0',
           boxShadow: '0 4px 12px rgba(0,0,0,0.03)'
         }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '1rem' }}>
-            <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#0F172A', margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <span className="material-symbols-outlined" style={{ color: '#2563EB' }}>satellite_alt</span>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.35rem', marginBottom: '0.65rem' }}>
+            <h3 style={{ fontSize: '1rem', fontWeight: 800, color: '#0F172A', margin: 0, display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+              <span className="material-symbols-outlined" style={{ color: '#2563EB', fontSize: '20px' }}>satellite_alt</span>
               {t('cropInsurance.satEvidenceTitle')}
             </h3>
-            <span style={{ fontSize: '0.8rem', fontWeight: 700, background: '#F1F5F9', color: '#475569', padding: '0.35rem 0.75rem', borderRadius: '8px' }}>
-              {t('cropInsurance.telemetryLabel')}: {satEvidence?.satelliteId || 'SENTINEL-2B / ISRO-EOS-04'}
+            <span style={{ fontSize: '0.68rem', fontWeight: 700, background: '#F1F5F9', color: '#475569', padding: '0.2rem 0.5rem', borderRadius: '6px' }}>
+              {satEvidence?.satelliteId || 'SENTINEL-2B / ISRO-EOS-04'}
             </span>
           </div>
 
-          {/* Farm metadata pills */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '0.75rem', marginBottom: '1.25rem' }}>
-            <div style={{ background: '#F8FAFC', padding: '0.75rem 1rem', borderRadius: '12px', border: '1px solid #E2E8F0' }}>
-              <div style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 700 }}>{t('cropInsurance.registeredFarmId')}</div>
-              <div style={{ fontSize: '0.95rem', fontWeight: 800, color: '#0F172A', marginTop: '0.15rem' }}>FARM-402</div>
+          {/* Farm metadata pills (Compact 2x2 grid) */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.4rem', marginBottom: '0.65rem' }}>
+            <div style={{ background: '#F8FAFC', padding: '0.4rem 0.55rem', borderRadius: '8px', border: '1px solid #E2E8F0' }}>
+              <div style={{ fontSize: '0.65rem', color: '#64748B', fontWeight: 700, textTransform: 'uppercase' }}>{t('cropInsurance.registeredFarmId')}</div>
+              <div style={{ fontSize: '0.82rem', fontWeight: 800, color: '#0F172A', marginTop: '0.05rem' }}>FARM-402</div>
             </div>
-            <div style={{ background: '#F8FAFC', padding: '0.75rem 1rem', borderRadius: '12px', border: '1px solid #E2E8F0' }}>
-              <div style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 700 }}>{t('cropInsurance.cropTotalArea')}</div>
-              <div style={{ fontSize: '0.95rem', fontWeight: 800, color: '#0F172A', marginTop: '0.15rem' }}>Paddy (5.2 Acres)</div>
+            <div style={{ background: '#F8FAFC', padding: '0.4rem 0.55rem', borderRadius: '8px', border: '1px solid #E2E8F0' }}>
+              <div style={{ fontSize: '0.65rem', color: '#64748B', fontWeight: 700, textTransform: 'uppercase' }}>{t('cropInsurance.cropTotalArea')}</div>
+              <div style={{ fontSize: '0.82rem', fontWeight: 800, color: '#0F172A', marginTop: '0.05rem' }}>Paddy (5.2 Acres)</div>
             </div>
-            <div style={{ background: '#F8FAFC', padding: '0.75rem 1rem', borderRadius: '12px', border: '1px solid #E2E8F0' }}>
-              <div style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 700 }}>{t('cropInsurance.reportedDisaster')}</div>
-              <div style={{ fontSize: '0.95rem', fontWeight: 800, color: '#DC2626', marginTop: '0.15rem' }}>Flood (12 Sep 2026)</div>
+            <div style={{ background: '#F8FAFC', padding: '0.4rem 0.55rem', borderRadius: '8px', border: '1px solid #E2E8F0' }}>
+              <div style={{ fontSize: '0.65rem', color: '#64748B', fontWeight: 700, textTransform: 'uppercase' }}>{t('cropInsurance.reportedDisaster')}</div>
+              <div style={{ fontSize: '0.82rem', fontWeight: 800, color: '#DC2626', marginTop: '0.05rem' }}>Flood (12 Sep)</div>
             </div>
-            <div style={{ background: '#F8FAFC', padding: '0.75rem 1rem', borderRadius: '12px', border: '1px solid #E2E8F0' }}>
-              <div style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 700 }}>{t('cropInsurance.farmerReportedLoss')}</div>
-              <div style={{ fontSize: '0.95rem', fontWeight: 800, color: '#0F172A', marginTop: '0.15rem' }}>72% (3.7 Acres)</div>
+            <div style={{ background: '#F8FAFC', padding: '0.4rem 0.55rem', borderRadius: '8px', border: '1px solid #E2E8F0' }}>
+              <div style={{ fontSize: '0.65rem', color: '#64748B', fontWeight: 700, textTransform: 'uppercase' }}>{t('cropInsurance.farmerReportedLoss')}</div>
+              <div style={{ fontSize: '0.82rem', fontWeight: 800, color: '#0F172A', marginTop: '0.05rem' }}>72% (3.7 Acres)</div>
             </div>
           </div>
 
-          {/* Boundary Legend */}
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', fontSize: '0.8rem', fontWeight: 700, background: '#F8FAFC', padding: '0.75rem 1rem', borderRadius: '12px', border: '1px solid #E2E8F0' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', color: '#15803D' }}>
-              <span style={{ width: '12px', height: '12px', borderRadius: '50%', background: '#22C55E', border: '2px solid #15803D' }}></span>
-              {t('cropInsurance.legendRegisteredBoundary')}
+          {/* Boundary Legend (Single compact horizontal row) */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.25rem', fontSize: '0.68rem', fontWeight: 700, background: '#F8FAFC', padding: '0.4rem 0.6rem', borderRadius: '8px', border: '1px solid #E2E8F0', overflowX: 'auto' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', color: '#15803D', whiteSpace: 'nowrap' }}>
+              <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#22C55E', border: '1px solid #15803D' }}></span>
+              <span>Boundary</span>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', color: '#B91C1C' }}>
-              <span style={{ width: '12px', height: '12px', borderRadius: '50%', background: '#EF4444', border: '2px solid #B91C1C' }}></span>
-              {t('cropInsurance.legendAffectedArea')}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', color: '#B91C1C', whiteSpace: 'nowrap' }}>
+              <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#EF4444', border: '1px solid #B91C1C' }}></span>
+              <span>Affected (68%)</span>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', color: '#B45309' }}>
-              <span style={{ width: '12px', height: '12px', borderRadius: '50%', background: '#F59E0B', border: '2px solid #B45309' }}></span>
-              {t('cropInsurance.legendUnaffectedArea')}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', color: '#B45309', whiteSpace: 'nowrap' }}>
+              <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#F59E0B', border: '1px solid #B45309' }}></span>
+              <span>Unaffected</span>
             </div>
           </div>
         </div>
@@ -272,52 +273,52 @@ export const CropInsuranceVerificationPage: React.FC = () => {
         {/* 2. BEFORE / AFTER SATELLITE COMPARISON SECTION */}
         <div style={{
           background: '#FFFFFF',
-          borderRadius: '20px',
-          padding: '1.5rem 1.75rem',
+          borderRadius: '16px',
+          padding: '1rem',
           border: '1px solid #E2E8F0',
           boxShadow: '0 4px 12px rgba(0,0,0,0.03)'
         }}>
-          <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#0F172A', margin: '0 0 1rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <span className="material-symbols-outlined" style={{ color: '#0284C7' }}>compare</span>
+          <h3 style={{ fontSize: '1rem', fontWeight: 800, color: '#0F172A', margin: '0 0 0.75rem 0', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+            <span className="material-symbols-outlined" style={{ color: '#0284C7', fontSize: '20px' }}>compare</span>
             {t('cropInsurance.historicalObsTitle')}
           </h3>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1.25rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
             {/* Before Observation */}
-            <div style={{ border: '1px solid #CBD5E1', borderRadius: '16px', overflow: 'hidden', background: '#F8FAFC' }}>
-              <div style={{ background: '#1E293B', color: '#FFFFFF', padding: '0.6rem 1rem', fontSize: '0.85rem', fontWeight: 800, display: 'flex', justifyContent: 'space-between' }}>
-                <span>{t('cropInsurance.beforeEvent')} (05 Sep 2026)</span>
-                <span style={{ color: '#86EFAC' }}>{t('cropInsurance.ndviScore')}: 0.74</span>
+            <div style={{ border: '1px solid #CBD5E1', borderRadius: '12px', overflow: 'hidden', background: '#F8FAFC' }}>
+              <div style={{ background: '#1E293B', color: '#FFFFFF', padding: '0.4rem 0.5rem', fontSize: '0.72rem', fontWeight: 800, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap' }}>
+                <span>{t('cropInsurance.beforeEvent')} (05 Sep)</span>
+                <span style={{ color: '#86EFAC' }}>0.74</span>
               </div>
-              <div style={{ height: '140px', position: 'relative' }}>
+              <div style={{ height: '80px', position: 'relative' }}>
                 <img src="https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=600&q=80" alt="Pre-disaster satellite view" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                <div style={{ position: 'absolute', top: '8px', right: '8px', background: 'rgba(22, 163, 74, 0.9)', color: '#FFFFFF', fontSize: '0.7rem', fontWeight: 800, padding: '0.2rem 0.5rem', borderRadius: '6px' }}>
+                <div style={{ position: 'absolute', top: '4px', right: '4px', background: 'rgba(22, 163, 74, 0.9)', color: '#FFFFFF', fontSize: '0.62rem', fontWeight: 800, padding: '0.15rem 0.35rem', borderRadius: '4px' }}>
                   {t('cropInsurance.healthyCanopy')}
                 </div>
               </div>
-              <div style={{ padding: '0.9rem', fontSize: '0.82rem', color: '#334155' }}>
-                <strong>{t('cropInsurance.conditionLabel')}:</strong> {t('cropInsurance.beforeConditionText')}<br />
-                <strong>{t('cropInsurance.waterloggingLabel')}:</strong> {t('cropInsurance.beforeWaterloggingText')}<br />
-                <strong>{t('cropInsurance.telemetrySubLabel')}:</strong> Sentinel-2B Pass #142
+              <div style={{ padding: '0.5rem', fontSize: '0.72rem', color: '#334155', lineHeight: '1.3' }}>
+                <div><strong>{t('cropInsurance.conditionLabel')}:</strong> {t('cropInsurance.beforeConditionText')}</div>
+                <div><strong>{t('cropInsurance.waterloggingLabel')}:</strong> {t('cropInsurance.beforeWaterloggingText')}</div>
+                <div><strong>{t('cropInsurance.telemetrySubLabel')}:</strong> Sentinel-2B #142</div>
               </div>
             </div>
 
             {/* After Observation */}
-            <div style={{ border: '1px solid #FCA5A5', borderRadius: '16px', overflow: 'hidden', background: '#FEF2F2' }}>
-              <div style={{ background: '#991B1B', color: '#FFFFFF', padding: '0.6rem 1rem', fontSize: '0.85rem', fontWeight: 800, display: 'flex', justifyContent: 'space-between' }}>
-                <span>{t('cropInsurance.afterEvent')} (14 Sep 2026)</span>
-                <span style={{ color: '#FCA5A5' }}>{t('cropInsurance.ndviScore')}: 0.28</span>
+            <div style={{ border: '1px solid #FCA5A5', borderRadius: '12px', overflow: 'hidden', background: '#FEF2F2' }}>
+              <div style={{ background: '#991B1B', color: '#FFFFFF', padding: '0.4rem 0.5rem', fontSize: '0.72rem', fontWeight: 800, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap' }}>
+                <span>{t('cropInsurance.afterEvent')} (14 Sep)</span>
+                <span style={{ color: '#FCA5A5' }}>0.28</span>
               </div>
-              <div style={{ height: '140px', position: 'relative' }}>
+              <div style={{ height: '80px', position: 'relative' }}>
                 <img src="https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=600&q=80" alt="Post-disaster satellite view" style={{ width: '100%', height: '100%', objectFit: 'cover', filter: 'sepia(40%) hue-rotate(180deg) saturate(140%)' }} />
-                <div style={{ position: 'absolute', top: '8px', right: '8px', background: 'rgba(220, 38, 38, 0.9)', color: '#FFFFFF', fontSize: '0.7rem', fontWeight: 800, padding: '0.2rem 0.5rem', borderRadius: '6px' }}>
+                <div style={{ position: 'absolute', top: '4px', right: '4px', background: 'rgba(220, 38, 38, 0.9)', color: '#FFFFFF', fontSize: '0.62rem', fontWeight: 800, padding: '0.15rem 0.35rem', borderRadius: '4px' }}>
                   {t('cropInsurance.severeDecline')}
                 </div>
               </div>
-              <div style={{ padding: '0.9rem', fontSize: '0.82rem', color: '#7F1D1D' }}>
-                <strong>{t('cropInsurance.conditionLabel')}:</strong> {t('cropInsurance.afterConditionText')}<br />
-                <strong>{t('cropInsurance.waterloggingLabel')}:</strong> {t('cropInsurance.afterWaterloggingText')}<br />
-                <strong>{t('cropInsurance.telemetrySubLabel')}:</strong> Sentinel-2B Pass #145
+              <div style={{ padding: '0.5rem', fontSize: '0.72rem', color: '#7F1D1D', lineHeight: '1.3' }}>
+                <div><strong>{t('cropInsurance.conditionLabel')}:</strong> {t('cropInsurance.afterConditionText')}</div>
+                <div><strong>{t('cropInsurance.waterloggingLabel')}:</strong> {t('cropInsurance.afterWaterloggingText')}</div>
+                <div><strong>{t('cropInsurance.telemetrySubLabel')}:</strong> Sentinel-2B #145</div>
               </div>
             </div>
           </div>
@@ -381,134 +382,127 @@ export const CropInsuranceVerificationPage: React.FC = () => {
         {/* 4. AI-ASSISTED SATELLITE ASSESSMENT CARD */}
         <div style={{
           background: '#FFFFFF',
-          borderRadius: '20px',
-          padding: '1.5rem 1.75rem',
+          borderRadius: '16px',
+          padding: '1rem',
           border: '1px solid #E2E8F0',
           boxShadow: '0 4px 12px rgba(0,0,0,0.03)'
         }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-            <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#0F172A', margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <span className="material-symbols-outlined" style={{ color: '#7C3AED' }}>auto_awesome</span>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.65rem' }}>
+            <h3 style={{ fontSize: '1rem', fontWeight: 800, color: '#0F172A', margin: 0, display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+              <span className="material-symbols-outlined" style={{ color: '#7C3AED', fontSize: '20px' }}>auto_awesome</span>
               {t('cropInsurance.aiAssessmentTitle')}
             </h3>
-            <span style={{ fontSize: '0.75rem', fontWeight: 800, background: '#F3E8FF', color: '#6B21A8', padding: '0.3rem 0.65rem', borderRadius: '6px' }}>
+            <span style={{ fontSize: '0.68rem', fontWeight: 800, background: '#F3E8FF', color: '#6B21A8', padding: '0.2rem 0.5rem', borderRadius: '6px' }}>
               {t('cropInsurance.poweredByGemini')}
             </span>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '0.85rem', marginBottom: '1.25rem' }}>
-            <div style={{ background: '#F8FAFC', padding: '0.8rem 1rem', borderRadius: '12px', border: '1px solid #E2E8F0' }}>
-              <div style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 700 }}>{t('cropInsurance.damageDetected')}</div>
-              <div style={{ fontSize: '1.1rem', fontWeight: 900, color: aiAssessment?.damageDetected ? '#DC2626' : '#16A34A', marginTop: '0.15rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.4rem', marginBottom: '0.65rem' }}>
+            <div style={{ background: '#F8FAFC', padding: '0.45rem 0.6rem', borderRadius: '8px', border: '1px solid #E2E8F0' }}>
+              <div style={{ fontSize: '0.65rem', color: '#64748B', fontWeight: 700, textTransform: 'uppercase' }}>{t('cropInsurance.damageDetected')}</div>
+              <div style={{ fontSize: '0.92rem', fontWeight: 900, color: aiAssessment?.damageDetected ? '#DC2626' : '#16A34A', marginTop: '0.05rem' }}>
                 {aiAssessment ? (aiAssessment.damageDetected ? t('cropInsurance.yes') : t('cropInsurance.no')) : t('cropInsurance.yes')}
               </div>
             </div>
 
-            <div style={{ background: '#F8FAFC', padding: '0.8rem 1rem', borderRadius: '12px', border: '1px solid #E2E8F0' }}>
-              <div style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 700 }}>{t('cropInsurance.damageType')}</div>
-              <div style={{ fontSize: '1rem', fontWeight: 800, color: '#0F172A', marginTop: '0.15rem', textTransform: 'capitalize' }}>
-                {aiAssessment?.damageType?.replace(/_/g, ' ') || 'Flood / Waterlogging'}
+            <div style={{ background: '#F8FAFC', padding: '0.45rem 0.6rem', borderRadius: '8px', border: '1px solid #E2E8F0' }}>
+              <div style={{ fontSize: '0.65rem', color: '#64748B', fontWeight: 700, textTransform: 'uppercase' }}>{t('cropInsurance.damageType')}</div>
+              <div style={{ fontSize: '0.82rem', fontWeight: 800, color: '#0F172A', marginTop: '0.05rem', textTransform: 'capitalize' }}>
+                {aiAssessment?.damageType?.replace(/_/g, ' ') || 'Flood Waterlogging'}
               </div>
             </div>
 
-            <div style={{ background: '#F8FAFC', padding: '0.8rem 1rem', borderRadius: '12px', border: '1px solid #E2E8F0' }}>
-              <div style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 700 }}>{t('cropInsurance.estimatedAffectedArea')}</div>
-              <div style={{ fontSize: '1.1rem', fontWeight: 900, color: '#B45309', marginTop: '0.15rem' }}>
+            <div style={{ background: '#F8FAFC', padding: '0.45rem 0.6rem', borderRadius: '8px', border: '1px solid #E2E8F0' }}>
+              <div style={{ fontSize: '0.65rem', color: '#64748B', fontWeight: 700, textTransform: 'uppercase' }}>{t('cropInsurance.estimatedAffectedArea')}</div>
+              <div style={{ fontSize: '0.92rem', fontWeight: 900, color: '#B45309', marginTop: '0.05rem' }}>
                 {aiAssessment?.affectedPercentage || 68}% (3.5 Acres)
               </div>
             </div>
 
-            <div style={{ background: '#F8FAFC', padding: '0.8rem 1rem', borderRadius: '12px', border: '1px solid #E2E8F0' }}>
-              <div style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 700 }}>{t('cropInsurance.vegetationCondition')}</div>
-              <div style={{ fontSize: '0.95rem', fontWeight: 800, color: '#0F172A', marginTop: '0.15rem', textTransform: 'capitalize' }}>
+            <div style={{ background: '#F8FAFC', padding: '0.45rem 0.6rem', borderRadius: '8px', border: '1px solid #E2E8F0' }}>
+              <div style={{ fontSize: '0.65rem', color: '#64748B', fontWeight: 700, textTransform: 'uppercase' }}>{t('cropInsurance.vegetationCondition')}</div>
+              <div style={{ fontSize: '0.82rem', fontWeight: 800, color: '#0F172A', marginTop: '0.05rem', textTransform: 'capitalize' }}>
                 {aiAssessment?.vegetationCondition?.replace(/_/g, ' ') || 'Significant Decline'}
               </div>
             </div>
 
-            <div style={{ background: '#F8FAFC', padding: '0.8rem 1rem', borderRadius: '12px', border: '1px solid #E2E8F0' }}>
-              <div style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 700 }}>{t('cropInsurance.eventConsistency')}</div>
-              <div style={{ fontSize: '0.95rem', fontWeight: 800, color: '#2563EB', marginTop: '0.15rem', textTransform: 'capitalize' }}>
+            <div style={{ background: '#F8FAFC', padding: '0.45rem 0.6rem', borderRadius: '8px', border: '1px solid #E2E8F0' }}>
+              <div style={{ fontSize: '0.65rem', color: '#64748B', fontWeight: 700, textTransform: 'uppercase' }}>{t('cropInsurance.eventConsistency')}</div>
+              <div style={{ fontSize: '0.82rem', fontWeight: 800, color: '#2563EB', marginTop: '0.05rem', textTransform: 'capitalize' }}>
                 {aiAssessment?.eventConsistency?.replace(/_/g, ' ') || 'Potentially Consistent'}
               </div>
             </div>
 
-            <div style={{ background: '#F8FAFC', padding: '0.8rem 1rem', borderRadius: '12px', border: '1px solid #E2E8F0' }}>
-              <div style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 700 }}>{t('cropInsurance.aiConfidence')}</div>
-              <div style={{ fontSize: '0.95rem', fontWeight: 800, color: '#0F172A', marginTop: '0.15rem', textTransform: 'uppercase' }}>
+            <div style={{ background: '#F8FAFC', padding: '0.45rem 0.6rem', borderRadius: '8px', border: '1px solid #E2E8F0' }}>
+              <div style={{ fontSize: '0.65rem', color: '#64748B', fontWeight: 700, textTransform: 'uppercase' }}>{t('cropInsurance.aiConfidence')}</div>
+              <div style={{ fontSize: '0.82rem', fontWeight: 800, color: '#0F172A', marginTop: '0.05rem', textTransform: 'uppercase' }}>
                 {aiAssessment?.confidence || 'Moderate'}
               </div>
             </div>
           </div>
 
           {/* Summary Box */}
-          <div style={{ background: '#F5F3FF', border: '1px solid #DDD6FE', padding: '1rem 1.25rem', borderRadius: '12px', color: '#4C1D95', fontSize: '0.88rem', lineHeight: '1.5' }}>
+          <div style={{ background: '#F5F3FF', border: '1px solid #DDD6FE', padding: '0.65rem 0.85rem', borderRadius: '8px', color: '#4C1D95', fontSize: '0.78rem', lineHeight: '1.4' }}>
             <strong>{t('cropInsurance.aiSummary')}:</strong> {aiAssessment?.summary || "Satellite evidence indicates visible waterlogging and crop vegetation decline within portions of registered farm consistent with reported flood event."}
-          </div>
-
-          <div style={{ fontSize: '0.75rem', color: '#64748B', marginTop: '0.75rem', fontStyle: 'italic' }}>
-            {t('cropInsurance.aiDisclaimer')}
           </div>
         </div>
 
         {/* 5. MARKET PRICE + ECONOMIC LOSS CARD */}
         <div style={{
           background: '#FFFFFF',
-          borderRadius: '20px',
-          padding: '1.5rem 1.75rem',
+          borderRadius: '16px',
+          padding: '1rem',
           border: '1px solid #E2E8F0',
           boxShadow: '0 4px 12px rgba(0,0,0,0.03)'
         }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-            <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#0F172A', margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <span className="material-symbols-outlined" style={{ color: '#D97706' }}>payments</span>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.65rem' }}>
+            <h3 style={{ fontSize: '1rem', fontWeight: 800, color: '#0F172A', margin: 0, display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+              <span className="material-symbols-outlined" style={{ color: '#D97706', fontSize: '20px' }}>payments</span>
               {t('cropInsurance.economicLossTitle')}
             </h3>
-            <span style={{ fontSize: '0.75rem', fontWeight: 800, background: '#FEF3C7', color: '#92400E', padding: '0.3rem 0.65rem', borderRadius: '6px' }}>
+            <span style={{ fontSize: '0.68rem', fontWeight: 800, background: '#FEF3C7', color: '#92400E', padding: '0.2rem 0.5rem', borderRadius: '6px' }}>
               {t('cropInsurance.preliminaryEstimate')}
             </span>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '0.85rem', marginBottom: '1rem' }}>
-            <div style={{ background: '#FEFCE8', padding: '0.8rem 1rem', borderRadius: '12px', border: '1px solid #FEF08A' }}>
-              <div style={{ fontSize: '0.75rem', color: '#854D0E', fontWeight: 700 }}>{t('cropInsurance.cropFarmArea')}</div>
-              <div style={{ fontSize: '0.95rem', fontWeight: 800, color: '#0F172A', marginTop: '0.15rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.4rem', marginBottom: '0.65rem' }}>
+            <div style={{ background: '#FEFCE8', padding: '0.45rem 0.6rem', borderRadius: '8px', border: '1px solid #FEF08A' }}>
+              <div style={{ fontSize: '0.65rem', color: '#854D0E', fontWeight: 700, textTransform: 'uppercase' }}>{t('cropInsurance.cropFarmArea')}</div>
+              <div style={{ fontSize: '0.82rem', fontWeight: 800, color: '#0F172A', marginTop: '0.05rem' }}>
                 {economicLoss?.crop || 'Paddy'} (5.2 Acres)
               </div>
             </div>
 
-            <div style={{ background: '#FEFCE8', padding: '0.8rem 1rem', borderRadius: '12px', border: '1px solid #FEF08A' }}>
-              <div style={{ fontSize: '0.75rem', color: '#854D0E', fontWeight: 700 }}>{t('cropInsurance.mandiMarketPrice')}</div>
-              <div style={{ fontSize: '0.95rem', fontWeight: 800, color: '#0F172A', marginTop: '0.15rem' }}>
+            <div style={{ background: '#FEFCE8', padding: '0.45rem 0.6rem', borderRadius: '8px', border: '1px solid #FEF08A' }}>
+              <div style={{ fontSize: '0.65rem', color: '#854D0E', fontWeight: 700, textTransform: 'uppercase' }}>{t('cropInsurance.mandiMarketPrice')}</div>
+              <div style={{ fontSize: '0.82rem', fontWeight: 800, color: '#0F172A', marginTop: '0.05rem' }}>
                 ₹{economicLoss?.marketPrice || 2400} / quintal
               </div>
             </div>
 
-            <div style={{ background: '#FEFCE8', padding: '0.8rem 1rem', borderRadius: '12px', border: '1px solid #FEF08A' }}>
-              <div style={{ fontSize: '0.75rem', color: '#854D0E', fontWeight: 700 }}>{t('cropInsurance.estimatedProduction')}</div>
-              <div style={{ fontSize: '0.95rem', fontWeight: 800, color: '#0F172A', marginTop: '0.15rem' }}>
+            <div style={{ background: '#FEFCE8', padding: '0.45rem 0.6rem', borderRadius: '8px', border: '1px solid #FEF08A' }}>
+              <div style={{ fontSize: '0.65rem', color: '#854D0E', fontWeight: 700, textTransform: 'uppercase' }}>{t('cropInsurance.estimatedProduction')}</div>
+              <div style={{ fontSize: '0.82rem', fontWeight: 800, color: '#0F172A', marginTop: '0.05rem' }}>
                 {economicLoss?.estimatedProduction || 30} quintals
               </div>
             </div>
 
-            <div style={{ background: '#FEFCE8', padding: '0.8rem 1rem', borderRadius: '12px', border: '1px solid #FEF08A' }}>
-              <div style={{ fontSize: '0.75rem', color: '#854D0E', fontWeight: 700 }}>{t('cropInsurance.estimatedLostProduction')}</div>
-              <div style={{ fontSize: '0.95rem', fontWeight: 800, color: '#DC2626', marginTop: '0.15rem' }}>
+            <div style={{ background: '#FEFCE8', padding: '0.45rem 0.6rem', borderRadius: '8px', border: '1px solid #FEF08A' }}>
+              <div style={{ fontSize: '0.65rem', color: '#854D0E', fontWeight: 700, textTransform: 'uppercase' }}>{t('cropInsurance.estimatedLostProduction')}</div>
+              <div style={{ fontSize: '0.82rem', fontWeight: 800, color: '#DC2626', marginTop: '0.05rem' }}>
                 {economicLoss?.estimatedLostProduction || 20.4} quintals
               </div>
             </div>
           </div>
 
-          <div style={{ background: '#FFFBEB', border: '1px solid #FDE68A', padding: '1rem 1.25rem', borderRadius: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
+          <div style={{ background: '#FFFBEB', border: '1px solid #FDE68A', padding: '0.65rem 0.85rem', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.35rem' }}>
             <div>
-              <div style={{ fontSize: '0.8rem', fontWeight: 800, color: '#B45309' }}>{t('cropInsurance.preliminaryEconomicLossTitle')}</div>
-              <div style={{ fontSize: '0.78rem', color: '#92400E', marginTop: '0.1rem' }}>{t('cropInsurance.economicLossFormula')}</div>
+              <div style={{ fontSize: '0.74rem', fontWeight: 800, color: '#B45309' }}>{t('cropInsurance.preliminaryEconomicLossTitle')}</div>
+              <div style={{ fontSize: '0.68rem', color: '#92400E', marginTop: '0.05rem' }}>{t('cropInsurance.economicLossFormula')}</div>
             </div>
-            <div style={{ fontSize: '1.6rem', fontWeight: 900, color: '#B45309' }}>
+            <div style={{ fontSize: '1.35rem', fontWeight: 900, color: '#B45309', flexShrink: 0 }}>
               ₹{(economicLoss?.estimatedEconomicLoss || 48960).toLocaleString('en-IN')}
             </div>
-          </div>
-          <div style={{ fontSize: '0.75rem', color: '#92400E', marginTop: '0.5rem', fontStyle: 'italic' }}>
-            {t('cropInsurance.economicLossNote')}
           </div>
         </div>
 
