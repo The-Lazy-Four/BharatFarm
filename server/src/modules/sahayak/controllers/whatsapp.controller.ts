@@ -4,7 +4,7 @@ import { logger } from '../../../utils/logger.js';
 import { ApiResponse } from '../../../utils/apiResponse.js';
 import { WhatsAppClientService } from '../services/whatsappClient.service.js';
 import { WhatsAppUserService } from '../services/whatsappUser.service.js';
-import { SahayakCoreService } from '../services/sahayakCore.service.js';
+import { WhatsAppStateMachineService } from '../services/whatsappStateMachine.service.js';
 import { MetaWebhookPayload, DemoWhatsAppRequest, DemoWhatsAppResponse } from '../types/whatsapp.types.js';
 
 export class WhatsAppController {
@@ -89,7 +89,7 @@ export class WhatsAppController {
 
           logger.info(`[WhatsAppController] Inbound message from ${fromPhone} (type: ${msg.type}, id: ${messageId})`);
 
-          // Process in background
+          // Process in background using state machine
           this.processInboundMessage(msg, fromPhone, senderName).catch(err => {
             logger.error(`[WhatsAppController] Error processing message ${messageId}:`, err);
           });
@@ -107,30 +107,36 @@ export class WhatsAppController {
     senderName: string
   ): Promise<void> {
     const user = await WhatsAppUserService.getOrCreateUser(phone, senderName);
-    let imageBase64: string | undefined;
 
-    // If message is image, download from Meta
-    if (msg.type === 'image' && msg.image?.id) {
-      const media = await WhatsAppClientService.downloadMediaAsBase64(msg.image.id);
-      if (media) {
-        imageBase64 = media.base64;
+    const buttonReplyId = msg.interactive?.button_reply?.id;
+    const listReplyId = msg.interactive?.list_reply?.id;
+    const incomingAction = buttonReplyId || listReplyId;
+    const incomingText = msg.text?.body || msg.interactive?.button_reply?.title || msg.interactive?.list_reply?.title;
+
+    const stepResult = await WhatsAppStateMachineService.handleEvent(user, {
+      text: incomingText,
+      action: incomingAction
+    });
+
+    // Send reply via Meta WhatsApp Cloud API with interactive buttons or list if available
+    if (stepResult.buttons && stepResult.buttons.length > 0) {
+      if (stepResult.interactiveType === 'list') {
+        await WhatsAppClientService.sendInteractiveList(
+          phone,
+          stepResult.text,
+          stepResult.listTitle || 'Menu',
+          stepResult.buttons
+        );
+      } else {
+        await WhatsAppClientService.sendInteractiveButtons(
+          phone,
+          stepResult.text,
+          stepResult.buttons
+        );
       }
+    } else {
+      await WhatsAppClientService.sendTextMessage(phone, stepResult.text);
     }
-
-    const input = {
-      text: msg.text?.body || msg.interactive?.button_reply?.title || msg.interactive?.list_reply?.title,
-      imageBase64,
-      location: msg.location ? {
-        latitude: msg.location.latitude,
-        longitude: msg.location.longitude,
-        name: msg.location.name || msg.location.address
-      } : undefined
-    };
-
-    const output = await SahayakCoreService.handleIncomingMessage(user, input);
-
-    // Send reply via Meta WhatsApp Cloud API
-    await WhatsAppClientService.sendTextMessage(phone, output.replyText);
   }
 
   /**
@@ -145,53 +151,54 @@ export class WhatsAppController {
 
       const user = await WhatsAppUserService.getOrCreateUser(phone, 'SIH Demo Farmer');
 
+      // Check if action is RESTART / RESET
+      if (body.action === 'RESET' || body.action === 'RESTART') {
+        WhatsAppUserService.resetSession(user.id);
+      }
+
       if (body.language) {
         await WhatsAppUserService.updateLanguage(user.id, body.language);
         user.language = body.language;
       }
 
-      if (body.location) {
-        await WhatsAppUserService.updateLocation(
-          user.id,
-          body.location.latitude,
-          body.location.longitude,
-          body.location.name
-        );
-        user.locationLat = body.location.latitude;
-        user.locationLng = body.location.longitude;
-        user.locationName = body.location.name;
-      }
-
       const input = {
         text: body.message,
-        imageBase64: body.imageBase64,
-        audioBase64: body.audioBase64,
-        location: body.location
+        action: body.action,
+        payload: body.payload
       };
 
-      const result = await SahayakCoreService.handleIncomingMessage(user, input);
+      const stepResult = await WhatsAppStateMachineService.handleEvent(user, input);
+      const session = WhatsAppUserService.getSession(user.id);
       const executionTimeMs = Date.now() - startTime;
 
       const responsePayload: DemoWhatsAppResponse = {
         success: true,
-        intent: result.intent,
-        detectedLanguage: result.detectedLanguage,
+        state: session.state,
+        intent: session.lastIntent || 'HELP',
+        detectedLanguage: session.language,
         farmer: {
-          phoneNumber: user.phoneNumber,
-          isLinked: Boolean(user.farmerId),
-          farmerName: user.name || 'Demo Farmer',
-          location: user.locationName || 'Haldia, West Bengal'
+          phoneNumber: session.phoneNumber || user.phoneNumber,
+          isLinked: session.accountStatus === 'CONNECTED',
+          farmerName: session.farmerProfile?.name || user.name || 'Farmer',
+          location: session.farmerProfile?.location || user.locationName || 'Nashik, Maharashtra',
+          land: session.farmerProfile?.land,
+          primaryCrop: session.farmerProfile?.crop
         },
-        reply: result.replyText,
-        suggestedQuickReplies: result.quickReplies,
+        reply: stepResult.text,
+        interactiveType: stepResult.interactiveType,
+        listTitle: stepResult.listTitle,
+        buttons: stepResult.buttons,
+        suggestedQuickReplies: stepResult.quickReplies,
         executionTimeMs,
         metadata: {
           isDemoMode: true,
-          metaCloudApiConfigured: WhatsAppClientService.isConfigured()
+          metaCloudApiConfigured: WhatsAppClientService.isConfigured(),
+          accountStatus: session.accountStatus,
+          historyDepth: session.navigationHistory?.length || 1
         }
       };
 
-      ApiResponse.success(res, responsePayload, 'Sahayak WhatsApp pipeline processed successfully');
+      ApiResponse.success(res, responsePayload, 'Sahayak WhatsApp state machine processed successfully');
     } catch (err: any) {
       logger.error('[WhatsAppController] Demo mode error:', err);
       ApiResponse.error(res, 'Failed to process WhatsApp demo request', err.message);

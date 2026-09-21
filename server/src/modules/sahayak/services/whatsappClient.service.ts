@@ -134,6 +134,69 @@ export class WhatsAppClientService {
   }
 
   /**
+   * Send WhatsApp List Message (up to 10 rows, ideal for 6-service menu)
+   */
+  static async sendInteractiveList(
+    to: string,
+    bodyText: string,
+    buttonTitle: string,
+    rows: Array<{ id: string; title: string; description?: string }>
+  ): Promise<{ success: boolean; messageId?: string }> {
+    if (!this.isConfigured()) {
+      logger.info(`[WhatsAppClient] Meta credentials not configured. Interactive list logged for ${to}`);
+      return { success: true, messageId: `mock-wa-list-${Date.now()}` };
+    }
+
+    const cleanPhone = to.replace(/[^0-9]/g, '');
+    const url = `${this.baseUrl}/${this.phoneNumberId}/messages`;
+
+    try {
+      const payload = {
+        messaging_product: 'whatsapp',
+        recipient_type: 'individual',
+        to: cleanPhone,
+        type: 'interactive',
+        interactive: {
+          type: 'list',
+          body: { text: bodyText },
+          action: {
+            button: buttonTitle.slice(0, 20),
+            sections: [
+              {
+                title: 'Available Options',
+                rows: rows.slice(0, 10).map(r => ({
+                  id: r.id,
+                  title: r.title.slice(0, 24),
+                  description: r.description ? r.description.slice(0, 72) : undefined
+                }))
+              }
+            ]
+          }
+        }
+      };
+
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${this.token}`
+        },
+        body: JSON.stringify(payload)
+      });
+
+      if (!res.ok) {
+        return this.sendTextMessage(to, `${bodyText}\n\n${rows.map((r, i) => `${i + 1}. ${r.title}`).join('\n')}`);
+      }
+
+      const data: any = await res.json();
+      return { success: true, messageId: data?.messages?.[0]?.id };
+    } catch (err: any) {
+      logger.error(`[WhatsAppClient] Exception in sendInteractiveList:`, err.message);
+      return this.sendTextMessage(to, bodyText);
+    }
+  }
+
+  /**
    * Fetch media information and securely download binary media from Meta Cloud API
    */
   static async downloadMediaAsBase64(mediaId: string): Promise<{ base64: string; mimeType: string } | null> {

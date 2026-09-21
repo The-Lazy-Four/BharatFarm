@@ -1,5 +1,7 @@
 export type WhatsAppMessageType = 'text' | 'image' | 'audio' | 'voice' | 'location' | 'interactive' | 'unknown';
 
+export type SupportedWhatsAppLanguage = 'hi' | 'en' | 'bn';
+
 export type SahayakIntent =
   | 'CLIMATE_RISK'
   | 'SMART_MANDI'
@@ -11,6 +13,49 @@ export type SahayakIntent =
   | 'LINK_ACCOUNT'
   | 'HELP'
   | 'UNKNOWN';
+
+export type SahayakStateMachineState =
+  | 'START'
+  | 'LANGUAGE_SELECTION'
+  | 'ACCOUNT_SELECTION'
+  | 'ACCOUNT_LINK_PHONE'
+  | 'ACCOUNT_VERIFYING'
+  | 'ACCOUNT_CONNECTED'
+  | 'ACCOUNT_NOT_CONNECTED'
+  | 'MAIN_MENU'
+  | 'SERVICE_SELECTION'
+  | 'SERVICE_PROCESSING'
+  | 'SERVICE_RESULT'
+  | 'END_SESSION';
+
+export type SahayakServiceCategory =
+  | 'PRICE_RISK'
+  | 'CLIMATE_RISK'
+  | 'AGGREGATION'
+  | 'CROP_INSURANCE'
+  | 'SMART_MANDI'
+  | 'BASIC_FARMER_NEEDS';
+
+export interface WhatsAppSessionState {
+  whatsappUserId: string;
+  state: SahayakStateMachineState;
+  language: SupportedWhatsAppLanguage;
+  accountStatus: 'UNKNOWN' | 'CONNECTED' | 'GUEST' | 'FAILED';
+  farmerId?: string | null;
+  phoneNumber?: string;
+  farmerProfile?: {
+    name: string;
+    location: string;
+    crop?: string;
+    land?: string;
+    season?: string;
+  };
+  service?: SahayakServiceCategory;
+  serviceStep?: string;
+  navigationHistory: SahayakStateMachineState[];
+  lastActiveAt: string;
+  metadata?: Record<string, any>;
+}
 
 export interface WhatsAppUserRecord {
   id: string;
@@ -38,14 +83,11 @@ export interface WhatsAppMessageRecord {
   createdAt: string;
 }
 
-export interface SahayakSessionContext {
-  whatsappUserId: string;
+export interface SahayakSessionContext extends WhatsAppSessionState {
   lastIntent?: SahayakIntent;
-  lastActiveAt: string;
   pendingAction?: string;
   currentCrop?: string;
   preferredMandi?: string;
-  metadata?: Record<string, any>;
 }
 
 // Meta Webhook Inbound Payload Types
@@ -125,7 +167,10 @@ export interface OutgoingWhatsAppMessage {
 }
 
 export interface DemoWhatsAppRequest {
-  phone: string;
+  phone?: string;
+  sessionId?: string;
+  action?: string;
+  payload?: any;
   message?: string;
   imageBase64?: string;
   audioBase64?: string;
@@ -139,15 +184,21 @@ export interface DemoWhatsAppRequest {
 
 export interface DemoWhatsAppResponse {
   success: boolean;
+  state: SahayakStateMachineState;
   intent: SahayakIntent;
-  detectedLanguage: string;
+  detectedLanguage: SupportedWhatsAppLanguage;
   farmer: {
     phoneNumber: string;
     isLinked: boolean;
     farmerName?: string;
     location?: string;
+    land?: string;
+    primaryCrop?: string;
   };
   reply: string;
+  interactiveType?: 'button' | 'list';
+  listTitle?: string;
+  buttons?: Array<{ id: string; title: string }>;
   suggestedQuickReplies?: string[];
   executionTimeMs: number;
   metadata?: Record<string, any>;

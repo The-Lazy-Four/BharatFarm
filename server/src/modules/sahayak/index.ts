@@ -5,6 +5,7 @@ export * from './services/responseFormatter.service.js';
 export * from './services/cropScanner.service.js';
 export * from './services/speechToText.service.js';
 export * from './services/whatsappUser.service.js';
+export * from './services/whatsappStateMachine.service.js';
 export * from './services/sahayakCore.service.js';
 export * from './controllers/whatsapp.controller.js';
 export * from './types/call.types.js';

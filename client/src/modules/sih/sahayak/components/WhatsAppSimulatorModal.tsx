@@ -1,33 +1,47 @@
 import React, { useState, useRef, useEffect } from 'react';
 
 const waStyles = `
+  @keyframes waFadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes waTypingDots {
+    0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+    30% { transform: translateY(-4px); opacity: 1; }
+  }
+  @keyframes waBtnPress {
+    0% { transform: scale(1); }
+    50% { transform: scale(0.97); }
+    100% { transform: scale(1); }
+  }
   .wa-sim-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(15, 23, 42, 0.82);
+    background: rgba(11, 20, 26, 0.85);
     backdrop-filter: blur(8px);
     display: flex;
     align-items: center;
     justify-content: center;
     z-index: 9999;
-    padding: 0.5rem;
+    padding: 0.75rem;
   }
   .wa-phone-bezel {
     width: 100%;
-    max-width: 430px;
-    height: 94vh;
-    max-height: 850px;
-    background: #111B21;
-    border-radius: 42px;
-    box-shadow: 0 25px 70px -10px rgba(0,0,0,0.8), 0 0 0 10px #1E293B, 0 0 0 12px #0F172A;
+    max-width: 400px;
+    height: 92vh;
+    max-height: 840px;
+    background: #0B141A;
+    border-radius: 40px;
+    box-shadow: 0 25px 70px -10px rgba(0,0,0,0.85), 0 0 0 8px #1E293B, 0 0 0 10px #0F172A;
     display: flex;
     flex-direction: column;
     overflow: hidden;
     position: relative;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   }
-  @media (max-width: 480px) {
+  @media (max-width: 450px) {
     .wa-phone-bezel {
-      border-radius: 24px;
+      border-radius: 20px;
       height: 100dvh;
       max-height: 100dvh;
       box-shadow: none;
@@ -37,17 +51,48 @@ const waStyles = `
       align-items: flex-end;
     }
   }
-  @keyframes wa-typing-dots {
-    0%, 60%, 100% { transform: translateY(0); opacity: 0.5; }
-    30% { transform: translateY(-4px); opacity: 1; }
+  .wa-chat-wallpaper {
+    background-color: #0B141A;
+    background-image: 
+      radial-gradient(circle at 18% 25%, rgba(32, 44, 51, 0.6) 0%, transparent 22%),
+      radial-gradient(circle at 82% 65%, rgba(32, 44, 51, 0.5) 0%, transparent 26%),
+      repeating-linear-gradient(45deg, rgba(255,255,255,0.015) 0px, rgba(255,255,255,0.015) 1px, transparent 1px, transparent 16px);
+  }
+  .wa-msg-anim {
+    animation: waFadeIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+  .wa-interactive-btn {
+    background: #202C33;
+    color: #00A884;
+    border: 1px solid #2A3942;
+    border-radius: 8px;
+    padding: 0.6rem 0.85rem;
+    font-size: 0.85rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    width: 100%;
+    text-align: center;
+  }
+  .wa-interactive-btn:hover {
+    background: #263843;
+    color: #25D366;
+    border-color: #00A884;
+  }
+  .wa-interactive-btn:active {
+    animation: waBtnPress 0.15s ease;
   }
   .wa-dot {
-    width: 7px;
-    height: 7px;
+    width: 6px;
+    height: 6px;
     border-radius: 50%;
     background: #8696A0;
     display: inline-block;
-    animation: wa-typing-dots 1.2s infinite;
+    animation: waTypingDots 1.2s infinite;
   }
   .wa-dot:nth-child(2) { animation-delay: 0.2s; }
   .wa-dot:nth-child(3) { animation-delay: 0.4s; }
@@ -56,13 +101,11 @@ const waStyles = `
 export interface WhatsAppMessageItem {
   id: string;
   sender: 'farmer' | 'sahayak';
-  text?: string;
+  text: string;
   time: string;
-  image?: string;
-  intent?: string;
-  quickReplies?: string[];
-  isLocation?: boolean;
-  audioDuration?: string;
+  interactiveType?: 'button' | 'list';
+  listTitle?: string;
+  buttons?: Array<{ id: string; title: string }>;
   status?: 'sent' | 'delivered' | 'read';
 }
 
@@ -71,145 +114,151 @@ interface WhatsAppSimulatorModalProps {
   onClose: () => void;
 }
 
-const PRESET_CATEGORIES = [
-  {
-    category: 'Popular Inquiries',
-    items: [
-      { label: '🌦️ Rain Tomorrow?', text: 'Kal baarish hogi kya?' },
-      { label: '🌾 Live Paddy Rate', text: 'Aaj mere paas wali mandi mein dhan ka kya rate hai?' },
-      { label: '🥔 Potato Price', text: 'Haldia mandi mein aaloo ka kya bhav hai?' },
-      { label: '🦠 Leaf Disease', text: 'meri fasal mein daag hai' },
-      { label: '🏛️ PM Kisan Scheme', text: 'PM Kisan ke liye apply kaise karu' },
-      { label: '🇧🇩 Bengali Weather', text: 'আগামীকাল কি বৃষ্টি হবে?' }
-    ]
-  },
-  {
-    category: 'Smart Mandi & Selling',
-    items: [
-      { label: '📦 Sell 500kg Wheat', text: 'Mujhe 500 kg gehun bechna hai' },
-      { label: '🤝 Supply Aggregation Pool', text: 'Smart mandi pool mein kaise jude?' },
-      { label: '🚚 Transport Cost', text: 'Mandi le jaane ka transport kharcha kitna hoga?' }
-    ]
-  },
-  {
-    category: 'Advisory & Crop Care',
-    items: [
-      { label: '🧪 Fertilizer Dosage', text: 'Dhan ki fasal mein urea kab aur kitna dale?' },
-      { label: '🛡️ PMFBY Insurance', text: 'Pradhan Mantri Fasal Bima Yojana ka claim kaise kare?' },
-      { label: '🚜 Soil Moisture', text: 'Mitti ki nami aur sinchai ki salah do' }
-    ]
-  }
-];
-
-const SAMPLE_LEAF_IMAGES = [
-  {
-    name: 'Tomato Blight Leaf',
-    url: 'https://images.unsplash.com/photo-1592417817098-8f3d6ef23504?auto=format&fit=crop&w=400&q=80',
-    caption: 'Sample photo: Tomato Early Blight with yellow halos'
-  },
-  {
-    name: 'Paddy Brown Spot',
-    url: 'https://images.unsplash.com/photo-1574943320219-553eb213f72d?auto=format&fit=crop&w=400&q=80',
-    caption: 'Sample photo: Rice Paddy leaf with brown fungal spots'
-  }
-];
-
 export const WhatsAppSimulatorModal: React.FC<WhatsAppSimulatorModalProps> = ({ isOpen, onClose }) => {
-  const [messages, setMessages] = useState<WhatsAppMessageItem[]>([
-    {
-      id: 'msg-0',
-      sender: 'sahayak',
-      time: '10:00 AM',
-      text: '🙏 *Namaste! Welcome to BharatFarm Sahayak WhatsApp Service.*\n\nI am your 24/7 AI agricultural companion. You can ask me directly here:\n• 🌦️ *Weather & Rain alerts* ("Kal baarish hogi kya?")\n• 🌾 *Real-time Mandi rates* ("Aaj dhan ka rate kya hai?")\n• 🔬 *Leaf disease diagnosis* (Send a leaf photo or describe symptoms)\n• 🏛️ *Government schemes & subsidies* ("PM Kisan ke baare mein batao")\n\nTap the *Attachment (+)* icon to send sample leaf photos, *Location (📍)* to share GPS pins, or tap any quick question below!',
-      status: 'read'
-    }
-  ]);
-
+  const [messages, setMessages] = useState<WhatsAppMessageItem[]>([]);
   const [inputVal, setInputVal] = useState('');
   const [isTyping, setIsTyping] = useState(false);
-  const [selectedLanguage, setSelectedLanguage] = useState<'auto' | 'hi' | 'bn' | 'en'>('auto');
-  const [isRecordingVoice, setIsRecordingVoice] = useState(false);
-  const [recordingSeconds, setRecordingSeconds] = useState(0);
-  const [isAttachmentMenuOpen, setIsAttachmentMenuOpen] = useState(false);
+  const [sessionState, setSessionState] = useState<string>('START');
+  const [selectedLanguage, setSelectedLanguage] = useState<'hi' | 'en' | 'bn'>('hi');
+  const [farmerProfile, setFarmerProfile] = useState<{
+    name?: string;
+    location?: string;
+    crop?: string;
+    land?: string;
+    isLinked?: boolean;
+  }>({});
   const [isInfoDrawerOpen, setIsInfoDrawerOpen] = useState(false);
-  const [activeCategoryTab, setActiveCategoryTab] = useState(0);
 
   const chatBottomRef = useRef<HTMLDivElement>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const voiceTimerRef = useRef<any>(null);
+  const sessionIdRef = useRef<string>(`sim-farmer-${Date.now()}`);
 
+  // Auto scroll to bottom on message updates
   useEffect(() => {
     if (isOpen) {
       chatBottomRef.current?.scrollIntoView({ behavior: 'smooth' });
     }
   }, [messages, isOpen, isTyping]);
 
+  // When modal opens, if empty, trigger first message (Farmer sends "HI")
   useEffect(() => {
-    if (isRecordingVoice) {
-      voiceTimerRef.current = setInterval(() => {
-        setRecordingSeconds(s => s + 1);
-      }, 1000);
-    } else {
-      clearInterval(voiceTimerRef.current);
-      setRecordingSeconds(0);
+    if (isOpen && messages.length === 0) {
+      startAutomationWorkflow();
     }
-    return () => clearInterval(voiceTimerRef.current);
-  }, [isRecordingVoice]);
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
-  const handleSend = async (
-    messageToSend?: string,
-    imageBase64?: string,
-    isLocationPin?: boolean,
-    isVoiceNote?: boolean
-  ) => {
-    const text = messageToSend || inputVal;
-    if (!text.trim() && !imageBase64 && !isLocationPin && !isVoiceNote) return;
+  /**
+   * Reset / Restart Demo
+   */
+  const handleRestartDemo = async () => {
+    sessionIdRef.current = `sim-farmer-${Date.now()}`;
+    setMessages([]);
+    setFarmerProfile({});
+    setSessionState('START');
+    setIsTyping(true);
 
-    const now = new Date();
-    const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-
-    let displayText = text.trim();
-    if (isLocationPin) {
-      displayText = '📍 Live GPS Location: Haldia APMC Cluster (22.0667° N, 88.0667° E)';
-    } else if (isVoiceNote) {
-      displayText = '🎤 Voice Note (0:04) — "Mandi mein dhan ka kya bhav chal raha hai?"';
-    } else if (imageBase64 && !displayText) {
-      displayText = '📷 Sent Crop Leaf Photo for Pathology Diagnostic';
+    try {
+      await fetch('/api/sahayak/whatsapp/demo', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          phone: sessionIdRef.current,
+          action: 'RESET'
+        })
+      });
+    } catch {
+      // ignore
     }
 
+    startAutomationWorkflow();
+  };
+
+  /**
+   * Initial automation start: Farmer sends "HI" -> Bot sends trilingual welcome + language buttons
+   */
+  const startAutomationWorkflow = async () => {
+    const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    
+    // Farmer message: "HI"
+    const farmerMsg: WhatsAppMessageItem = {
+      id: `usr-init-${Date.now()}`,
+      sender: 'farmer',
+      text: 'HI',
+      time: timeStr,
+      status: 'read'
+    };
+    setMessages([farmerMsg]);
+    setIsTyping(true);
+
+    try {
+      const res = await fetch('/api/sahayak/whatsapp/demo', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          phone: sessionIdRef.current,
+          message: 'HI'
+        })
+      });
+
+      const json = await res.json();
+      if (json.success && json.data) {
+        const botMsg: WhatsAppMessageItem = {
+          id: `bot-${Date.now()}`,
+          sender: 'sahayak',
+          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          text: json.data.reply,
+          interactiveType: json.data.interactiveType || 'button',
+          buttons: json.data.buttons || [],
+          status: 'read'
+        };
+        setMessages(prev => [...prev, botMsg]);
+        setSessionState(json.data.state || 'LANGUAGE_SELECTION');
+        if (json.data.farmer) setFarmerProfile(json.data.farmer);
+      }
+    } catch (err: any) {
+      setMessages(prev => [
+        ...prev,
+        {
+          id: `err-${Date.now()}`,
+          sender: 'sahayak',
+          time: timeStr,
+          text: `⚠️ Network error communicating with Sahayak: ${err.message}`
+        }
+      ]);
+    } finally {
+      setIsTyping(false);
+    }
+  };
+
+  /**
+   * Dispatch action or user text to backend state machine
+   */
+  const handleUserAction = async (actionId?: string, buttonTitle?: string, freeText?: string) => {
+    const text = freeText || buttonTitle || inputVal;
+    if (!text.trim() && !actionId) return;
+
+    const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+    // Display user message bubble for the tapped button or typed text
     const userMsg: WhatsAppMessageItem = {
       id: `usr-${Date.now()}`,
       sender: 'farmer',
-      text: displayText,
+      text: buttonTitle || text,
       time: timeStr,
-      image: imageBase64,
-      isLocation: isLocationPin,
       status: 'read'
     };
 
     setMessages(prev => [...prev, userMsg]);
-    if (!messageToSend) setInputVal('');
-    setIsAttachmentMenuOpen(false);
+    if (freeText || !buttonTitle) setInputVal('');
     setIsTyping(true);
 
     try {
       const payload: any = {
-        phone: 'demo-user-sih',
-        language: selectedLanguage !== 'auto' ? selectedLanguage : undefined
+        phone: sessionIdRef.current,
+        action: actionId,
+        message: text
       };
-
-      if (isLocationPin) {
-        payload.location = { latitude: 22.0667, longitude: 88.0667, name: 'Haldia, Purba Medinipur' };
-      } else if (imageBase64) {
-        payload.imageBase64 = imageBase64;
-      } else if (isVoiceNote) {
-        payload.audioBase64 = 'mock_voice_audio_base64_stream';
-        payload.message = 'Aaj mere paas wali mandi mein dhan ka kya rate hai?';
-      } else {
-        payload.message = text;
-      }
 
       const res = await fetch('/api/sahayak/whatsapp/demo', {
         method: 'POST',
@@ -218,28 +267,21 @@ export const WhatsAppSimulatorModal: React.FC<WhatsAppSimulatorModalProps> = ({ 
       });
 
       const json = await res.json();
-
       if (json.success && json.data) {
         const botMsg: WhatsAppMessageItem = {
           id: `bot-${Date.now()}`,
           sender: 'sahayak',
           time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
           text: json.data.reply,
-          intent: json.data.intent,
-          quickReplies: json.data.suggestedQuickReplies,
+          interactiveType: json.data.interactiveType,
+          listTitle: json.data.listTitle,
+          buttons: json.data.buttons || [],
           status: 'read'
         };
         setMessages(prev => [...prev, botMsg]);
-      } else {
-        setMessages(prev => [
-          ...prev,
-          {
-            id: `err-${Date.now()}`,
-            sender: 'sahayak',
-            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-            text: '⚠️ *Sahayak System Notice*\nSorry, could not process that request right now. Please try again in a moment.'
-          }
-        ]);
+        setSessionState(json.data.state);
+        if (json.data.detectedLanguage) setSelectedLanguage(json.data.detectedLanguage);
+        if (json.data.farmer) setFarmerProfile(json.data.farmer);
       }
     } catch (err: any) {
       setMessages(prev => [
@@ -247,46 +289,13 @@ export const WhatsAppSimulatorModal: React.FC<WhatsAppSimulatorModalProps> = ({ 
         {
           id: `err-${Date.now()}`,
           sender: 'sahayak',
-          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-          text: `⚠️ *Network Error*: ${err.message || 'Failed to reach Sahayak API'}`
+          time: timeStr,
+          text: `⚠️ Error processing request: ${err.message}`
         }
       ]);
     } finally {
       setIsTyping(false);
     }
-  };
-
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = () => {
-      const base64 = reader.result as string;
-      handleSend(undefined, base64, false);
-    };
-    reader.readAsDataURL(file);
-  };
-
-  const handleSendSampleLeaf = async (imageUrl: string) => {
-    setIsAttachmentMenuOpen(false);
-    try {
-      const resp = await fetch(imageUrl);
-      const blob = await resp.blob();
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const base64 = reader.result as string;
-        handleSend('Diagnose this leaf photo', base64, false);
-      };
-      reader.readAsDataURL(blob);
-    } catch {
-      handleSend('meri fasal mein daag hai', undefined, false);
-    }
-  };
-
-  const finishVoiceRecording = () => {
-    setIsRecordingVoice(false);
-    handleSend(undefined, undefined, false, true);
   };
 
   const renderFormattedText = (rawText: string = '') => {
@@ -308,52 +317,44 @@ export const WhatsAppSimulatorModal: React.FC<WhatsAppSimulatorModalProps> = ({ 
   return (
     <div className="wa-sim-overlay">
       <style>{waStyles}</style>
-      {/* Smartphone Outer Hardware Bezel */}
+
+      {/* Modern Smartphone Outer Hardware Frame */}
       <div className="wa-phone-bezel">
 
-        {/* Top Speaker, Camera Island & Status Bar */}
+        {/* Top Hardware Notch / Speaker & Status Bar */}
         <div style={{
           height: '28px',
           background: '#0B141A',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          padding: '0 1.2rem',
+          padding: '0 1.25rem',
           position: 'relative',
           zIndex: 20
         }}>
-          {/* Time */}
           <span style={{ fontSize: '11px', color: '#E2E8F0', fontWeight: 800 }}>
             {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
           </span>
 
-          {/* Speaker capsule */}
+          {/* Speaker Pill */}
           <div style={{
             position: 'absolute',
             left: '50%',
             transform: 'translateX(-50%)',
-            width: '64px',
-            height: '4.5px',
+            width: '60px',
+            height: '4px',
             background: '#334155',
             borderRadius: '4px'
           }} />
 
-          {/* Status indicators */}
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.4rem',
-            fontSize: '11px',
-            color: '#94A3B8',
-            fontWeight: 700
-          }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '11px', color: '#94A3B8', fontWeight: 700 }}>
             <span className="material-symbols-outlined" style={{ fontSize: '13px' }}>signal_cellular_alt</span>
-            <span>5G</span>
+            <span>Jio 5G</span>
             <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>battery_full</span>
           </div>
         </div>
 
-        {/* WhatsApp Top Header Bar */}
+        {/* WhatsApp Mobile Top Header */}
         <div style={{
           background: '#202C33',
           padding: '0.65rem 0.9rem',
@@ -380,15 +381,15 @@ export const WhatsAppSimulatorModal: React.FC<WhatsAppSimulatorModalProps> = ({ 
               <span className="material-symbols-outlined" style={{ fontSize: '22px' }}>arrow_back</span>
             </button>
 
-            {/* Profile Avatar with Verified Badge & Clickable Info Drawer */}
+            {/* Profile Avatar with Verified Badge */}
             <div
               onClick={() => setIsInfoDrawerOpen(prev => !prev)}
               style={{ position: 'relative', cursor: 'pointer' }}
-              title="View Business Profile"
+              title="View BharatFarm Verified Account Info"
             >
               <div style={{
-                width: '40px',
-                height: '40px',
+                width: '38px',
+                height: '38px',
                 borderRadius: '50%',
                 background: 'linear-gradient(135deg, #16A34A 0%, #15803D 100%)',
                 display: 'flex',
@@ -396,7 +397,7 @@ export const WhatsAppSimulatorModal: React.FC<WhatsAppSimulatorModalProps> = ({ 
                 justifyContent: 'center',
                 color: '#FFFFFF',
                 fontWeight: 900,
-                fontSize: '1.2rem',
+                fontSize: '1.1rem',
                 border: '1.5px solid #25D366'
               }}>
                 🌾
@@ -407,7 +408,7 @@ export const WhatsAppSimulatorModal: React.FC<WhatsAppSimulatorModalProps> = ({ 
                   position: 'absolute',
                   bottom: '-2px',
                   right: '-2px',
-                  fontSize: '15px',
+                  fontSize: '14px',
                   color: '#25D366',
                   background: '#202C33',
                   borderRadius: '50%'
@@ -417,40 +418,45 @@ export const WhatsAppSimulatorModal: React.FC<WhatsAppSimulatorModalProps> = ({ 
               </span>
             </div>
 
-            {/* Title & Status */}
-            <div
-              onClick={() => setIsInfoDrawerOpen(prev => !prev)}
-              style={{ cursor: 'pointer' }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                <span style={{ color: '#E9EDEF', fontWeight: 700, fontSize: '0.98rem' }}>
+            {/* Title & Online Presence */}
+            <div onClick={() => setIsInfoDrawerOpen(prev => !prev)} style={{ cursor: 'pointer' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                <span style={{ fontSize: '0.92rem', fontWeight: 800, color: '#E9EDEF' }}>
                   BharatFarm Sahayak
                 </span>
               </div>
-              <span style={{ color: '#25D366', fontSize: '0.74rem', fontWeight: 600 }}>
-                {isTyping ? 'typing...' : 'Official WhatsApp Business Account'}
-              </span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#25D366' }} />
+                <span style={{ fontSize: '0.72rem', color: '#8696A0' }}>
+                  online · Official Helpline
+                </span>
+              </div>
             </div>
           </div>
 
-          {/* Action Icons */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', color: '#AEBAC1' }}>
-            <span
-              className="material-symbols-outlined"
-              style={{ fontSize: '20px', cursor: 'pointer' }}
-              title="Voice Call Simulated"
-              onClick={() => alert('Simulated WhatsApp Voice Call to BharatFarm Sahayak Extension Officer Hotline (+91 98765 43210)')}
+          {/* Header Action Controls */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <button
+              onClick={handleRestartDemo}
+              style={{
+                background: 'rgba(255,255,255,0.08)',
+                border: '1px solid rgba(255,255,255,0.12)',
+                color: '#D1D7DB',
+                borderRadius: '14px',
+                padding: '0.25rem 0.6rem',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.25rem',
+                fontSize: '0.7rem',
+                fontWeight: 700,
+                cursor: 'pointer'
+              }}
+              title="Restart Demo to 'HI'"
             >
-              call
-            </span>
-            <span
-              className="material-symbols-outlined"
-              style={{ fontSize: '20px', cursor: 'pointer' }}
-              title="Business Information"
-              onClick={() => setIsInfoDrawerOpen(prev => !prev)}
-            >
-              info
-            </span>
+              <span className="material-symbols-outlined" style={{ fontSize: '14px', color: '#34D399' }}>restart_alt</span>
+              Restart
+            </button>
+
             <button
               onClick={onClose}
               style={{
@@ -465,7 +471,6 @@ export const WhatsAppSimulatorModal: React.FC<WhatsAppSimulatorModalProps> = ({ 
                 justifyContent: 'center',
                 cursor: 'pointer'
               }}
-              title="Close"
             >
               ✕
             </button>
@@ -493,8 +498,8 @@ export const WhatsAppSimulatorModal: React.FC<WhatsAppSimulatorModalProps> = ({ 
                 <h4 style={{ margin: '0 0 0.2rem 0', fontSize: '1rem', fontWeight: 800, color: '#25D366' }}>
                   BharatFarm Sahayak AI
                 </h4>
-                <p style={{ margin: 0, color: '#8696A0', fontSize: '0.76rem' }}>
-                  Meta Cloud API Verified Enterprise ID: 1048291039
+                <p style={{ margin: 0, color: '#8696A0', fontSize: '0.74rem' }}>
+                  Zero-Install Guided WhatsApp Automation Layer
                 </p>
               </div>
               <button
@@ -505,97 +510,86 @@ export const WhatsAppSimulatorModal: React.FC<WhatsAppSimulatorModalProps> = ({ 
               </button>
             </div>
 
-            <div style={{ marginTop: '0.8rem', display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-              <div>📍 <strong>Registered Node:</strong> Haldia / Purba Medinipur Agricultural Command</div>
-              <div>🌾 <strong>Supported Services:</strong> Climate Risk, Smart Mandi, Crop Disease Scanner, Govt Schemes</div>
-              <div>🌐 <strong>Web App Sync:</strong> Linked to https://bharatfarm.app</div>
-              <div>🔒 <strong>Security:</strong> AES-256 Meta Webhook Verified with message deduplication</div>
+            <div style={{ marginTop: '0.8rem', display: 'flex', flexDirection: 'column', gap: '0.4rem', fontSize: '0.78rem' }}>
+              <div>🌾 <strong>Connected Farmer:</strong> {farmerProfile.name || 'Not Connected (Guest Mode)'}</div>
+              <div>📍 <strong>Location:</strong> {farmerProfile.location || 'Nashik / Maharashtra'}</div>
+              <div>🌱 <strong>Farm Crop:</strong> {farmerProfile.crop || 'Tomato'} {farmerProfile.land ? `(${farmerProfile.land})` : ''}</div>
+              <div>⚙️ <strong>State Machine State:</strong> <code style={{ color: '#34D399' }}>{sessionState}</code></div>
+              <div>🔒 <strong>Security:</strong> Meta Cloud API Webhook Verified with deduplication</div>
             </div>
           </div>
         )}
 
-        {/* Sub-bar: Language & Cloud API Indicator */}
+        {/* State Machine Status Bar */}
         <div style={{
           background: '#182229',
-          padding: '0.4rem 0.9rem',
+          padding: '0.35rem 0.9rem',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
           borderBottom: '1px solid #222E35',
-          fontSize: '0.74rem',
+          fontSize: '0.72rem',
           color: '#8696A0'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-            <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#22C55E' }} />
-            <span>Interactive Meta Cloud Simulator</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+            <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: farmerProfile.isLinked ? '#22C55E' : '#EAB308' }} />
+            <span>
+              {farmerProfile.isLinked ? `Connected: ${farmerProfile.name}` : 'Zero-Install Farmer Access'}
+            </span>
           </div>
 
-          <select
-            value={selectedLanguage}
-            onChange={(e: any) => setSelectedLanguage(e.target.value)}
-            style={{
-              background: '#2A3942',
-              border: 'none',
-              color: '#D1D7DB',
-              borderRadius: '6px',
-              padding: '0.2rem 0.4rem',
-              fontSize: '0.72rem',
-              outline: 'none',
-              cursor: 'pointer'
-            }}
-          >
-            <option value="auto">Language: Auto-Detect</option>
-            <option value="hi">हिंदी (Hindi)</option>
-            <option value="bn">বাংলা (Bengali)</option>
-            <option value="en">English</option>
-          </select>
+          <span style={{ color: '#00A884', fontWeight: 700 }}>
+            {sessionState}
+          </span>
         </div>
 
-        {/* Messages Body (WhatsApp Chat Wallpaper Background) */}
-        <div style={{
+        {/* WhatsApp Chat Body Wallpaper */}
+        <div className="wa-chat-wallpaper" style={{
           flex: 1,
           overflowY: 'auto',
-          padding: '1rem',
+          padding: '1rem 0.85rem',
           display: 'flex',
           flexDirection: 'column',
-          gap: '0.75rem',
-          background: '#0B141A radial-gradient(circle at 50% 50%, rgba(32, 44, 51, 0.45) 0%, rgba(11, 20, 26, 0.98) 100%)'
+          gap: '0.75rem'
         }}>
 
-          {/* Encryption Notice */}
+          {/* Encryption Badge */}
           <div style={{
             alignSelf: 'center',
             background: 'rgba(24, 34, 41, 0.85)',
             color: '#FFD279',
-            fontSize: '0.72rem',
+            fontSize: '0.7rem',
             textAlign: 'center',
-            padding: '0.45rem 0.85rem',
+            padding: '0.35rem 0.75rem',
             borderRadius: '8px',
             maxWidth: '92%',
             lineHeight: 1.4,
             border: '1px solid rgba(255, 210, 121, 0.15)'
           }}>
-            🔒 Messages to this chat and calls are secured with end-to-end Meta WhatsApp Cloud encryption.
+            🔒 Messages to this chat and calls are secured with end-to-end Meta WhatsApp encryption.
           </div>
 
+          {/* Message Stream */}
           {messages.map((m) => {
             const isUser = m.sender === 'farmer';
 
             return (
               <div
                 key={m.id}
+                className="wa-msg-anim"
                 style={{
                   alignSelf: isUser ? 'flex-end' : 'flex-start',
-                  maxWidth: '85%',
+                  maxWidth: '88%',
                   display: 'flex',
                   flexDirection: 'column',
                   gap: '0.35rem'
                 }}
               >
+                {/* Message Bubble */}
                 <div style={{
                   background: isUser ? '#005C4B' : '#202C33',
                   color: '#E9EDEF',
-                  padding: '0.55rem 0.85rem',
+                  padding: '0.6rem 0.85rem',
                   borderRadius: isUser ? '14px 14px 2px 14px' : '14px 14px 14px 2px',
                   boxShadow: '0 1px 2px rgba(0,0,0,0.2)',
                   fontSize: '0.86rem',
@@ -603,46 +597,15 @@ export const WhatsAppSimulatorModal: React.FC<WhatsAppSimulatorModalProps> = ({ 
                   wordBreak: 'break-word',
                   position: 'relative'
                 }}>
-                  {/* Attached Image Preview */}
-                  {m.image && (
-                    <div style={{ position: 'relative', marginBottom: '0.45rem' }}>
-                      <img
-                        src={m.image}
-                        alt="Crop leaf attachment"
-                        style={{
-                          width: '100%',
-                          borderRadius: '10px',
-                          maxHeight: '200px',
-                          objectFit: 'cover'
-                        }}
-                      />
-                      <span style={{
-                        position: 'absolute',
-                        top: '6px',
-                        left: '6px',
-                        background: 'rgba(0,0,0,0.65)',
-                        color: '#34D399',
-                        padding: '2px 6px',
-                        borderRadius: '4px',
-                        fontSize: '0.68rem',
-                        fontWeight: 700
-                      }}>
-                        AI Leaf Scan Target
-                      </span>
-                    </div>
-                  )}
+                  {renderFormattedText(m.text)}
 
-                  {/* Text with markdown styling */}
-                  {m.text && renderFormattedText(m.text)}
-
-                  {/* Message Timestamp & Double Checkmarks */}
                   <div style={{
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'flex-end',
                     gap: '0.25rem',
                     marginTop: '0.25rem',
-                    fontSize: '0.68rem',
+                    fontSize: '0.66rem',
                     color: '#8696A0'
                   }}>
                     <span>{m.time}</span>
@@ -652,28 +615,22 @@ export const WhatsAppSimulatorModal: React.FC<WhatsAppSimulatorModalProps> = ({ 
                   </div>
                 </div>
 
-                {/* Interactive Quick Reply Buttons sent by Sahayak */}
-                {!isUser && m.quickReplies && m.quickReplies.length > 0 && (
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem', marginTop: '0.1rem' }}>
-                    {m.quickReplies.map((qr, i) => (
+                {/* WhatsApp Interactive Tappable Buttons (Rendered inside the conversation) */}
+                {!isUser && m.buttons && m.buttons.length > 0 && (
+                  <div style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '0.35rem',
+                    marginTop: '0.1rem',
+                    width: '100%'
+                  }}>
+                    {m.buttons.map((btn) => (
                       <button
-                        key={i}
-                        onClick={() => handleSend(qr)}
-                        style={{
-                          background: 'rgba(32, 44, 51, 0.95)',
-                          border: '1px solid #00A884',
-                          color: '#00A884',
-                          borderRadius: '18px',
-                          padding: '0.35rem 0.75rem',
-                          fontSize: '0.78rem',
-                          fontWeight: 700,
-                          cursor: 'pointer',
-                          transition: 'all 0.15s ease'
-                        }}
-                        onMouseEnter={(e: any) => e.target.style.background = '#00A88422'}
-                        onMouseLeave={(e: any) => e.target.style.background = 'rgba(32, 44, 51, 0.95)'}
+                        key={btn.id}
+                        className="wa-interactive-btn"
+                        onClick={() => handleUserAction(btn.id, btn.title)}
                       >
-                        {qr}
+                        {btn.title}
                       </button>
                     ))}
                   </div>
@@ -682,350 +639,175 @@ export const WhatsAppSimulatorModal: React.FC<WhatsAppSimulatorModalProps> = ({ 
             );
           })}
 
-          {/* Typing indicator bubble */}
+          {/* Typing Indicator */}
           {isTyping && (
-            <div style={{
+            <div className="wa-msg-anim" style={{
               alignSelf: 'flex-start',
               background: '#202C33',
               color: '#8696A0',
-              padding: '0.6rem 0.9rem',
+              padding: '0.55rem 0.85rem',
               borderRadius: '14px 14px 14px 2px',
               fontSize: '0.8rem',
               display: 'flex',
               alignItems: 'center',
-              gap: '0.5rem'
+              gap: '0.4rem'
             }}>
               <span className="wa-dot" />
               <span className="wa-dot" />
               <span className="wa-dot" />
-              <span style={{ marginLeft: '0.3rem', fontSize: '0.75rem' }}>Sahayak analyzing…</span>
+              <span style={{ marginLeft: '0.25rem', fontSize: '0.74rem' }}>BharatFarm Sahayak typing…</span>
             </div>
           )}
 
           <div ref={chatBottomRef} />
         </div>
 
-        {/* Attachment Drawer Menu (Photos, GPS Location, Voice) */}
-        {isAttachmentMenuOpen && (
-          <div style={{
-            background: '#1F2C34',
-            borderTop: '1px solid #2A3942',
-            padding: '0.85rem 1rem',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '0.85rem',
-            animation: 'fadeIn 0.2s ease'
-          }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontSize: '0.78rem', fontWeight: 800, color: '#D1D7DB' }}>
-                Share Agricultural Inputs
-              </span>
-              <button
-                onClick={() => setIsAttachmentMenuOpen(false)}
-                style={{ background: 'transparent', border: 'none', color: '#AEBAC1', cursor: 'pointer' }}
-              >
-                ✕
-              </button>
-            </div>
-
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.75rem', textAlign: 'center' }}>
-              {/* 1. Upload Own Leaf Photo */}
-              <div
-                onClick={() => fileInputRef.current?.click()}
-                style={{ cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.3rem' }}
-              >
-                <div style={{
-                  width: '46px',
-                  height: '46px',
-                  borderRadius: '50%',
-                  background: '#7F66FF',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: '#FFFFFF'
-                }}>
-                  <span className="material-symbols-outlined">image</span>
-                </div>
-                <span style={{ fontSize: '0.72rem', color: '#D1D7DB', fontWeight: 600 }}>Gallery</span>
-              </div>
-
-              {/* 2. Sample Tomato Blight */}
-              <div
-                onClick={() => handleSendSampleLeaf(SAMPLE_LEAF_IMAGES[0].url)}
-                style={{ cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.3rem' }}
-              >
-                <div style={{
-                  width: '46px',
-                  height: '46px',
-                  borderRadius: '50%',
-                  background: '#EF4444',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: '#FFFFFF'
-                }}>
-                  <span className="material-symbols-outlined">pest_control</span>
-                </div>
-                <span style={{ fontSize: '0.72rem', color: '#D1D7DB', fontWeight: 600 }}>Tomato Leaf</span>
-              </div>
-
-              {/* 3. Sample Paddy Spot */}
-              <div
-                onClick={() => handleSendSampleLeaf(SAMPLE_LEAF_IMAGES[1].url)}
-                style={{ cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.3rem' }}
-              >
-                <div style={{
-                  width: '46px',
-                  height: '46px',
-                  borderRadius: '50%',
-                  background: '#F59E0B',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: '#FFFFFF'
-                }}>
-                  <span className="material-symbols-outlined">grass</span>
-                </div>
-                <span style={{ fontSize: '0.72rem', color: '#D1D7DB', fontWeight: 600 }}>Paddy Leaf</span>
-              </div>
-
-              {/* 4. Live GPS Pin */}
-              <div
-                onClick={() => {
-                  setIsAttachmentMenuOpen(false);
-                  handleSend(undefined, undefined, true);
-                }}
-                style={{ cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.3rem' }}
-              >
-                <div style={{
-                  width: '46px',
-                  height: '46px',
-                  borderRadius: '50%',
-                  background: '#10B981',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: '#FFFFFF'
-                }}>
-                  <span className="material-symbols-outlined">location_on</span>
-                </div>
-                <span style={{ fontSize: '0.72rem', color: '#D1D7DB', fontWeight: 600 }}>Location Pin</span>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Tabbed Quick Query Bar */}
+        {/* Demo Quick Shortcuts Bar (Helpful during SIH evaluation) */}
         <div style={{
           background: '#111B21',
-          padding: '0.4rem 0.6rem 0.2rem 0.6rem',
+          padding: '0.35rem 0.65rem',
           borderTop: '1px solid #202C33',
           display: 'flex',
+          alignItems: 'center',
           gap: '0.35rem',
           overflowX: 'auto',
           whiteSpace: 'nowrap'
         }}>
-          {PRESET_CATEGORIES.map((cat, i) => (
+          <span style={{ fontSize: '0.68rem', color: '#8696A0', fontWeight: 800 }}>Demo Inputs:</span>
+          {sessionState === 'ACCOUNT_LINK_PHONE' ? (
             <button
-              key={i}
-              onClick={() => setActiveCategoryTab(i)}
+              onClick={() => handleUserAction(undefined, undefined, '9876543210')}
               style={{
-                background: activeCategoryTab === i ? '#00A884' : '#202C33',
-                color: activeCategoryTab === i ? '#FFFFFF' : '#8696A0',
-                border: 'none',
+                background: '#00A88422',
+                border: '1px solid #00A884',
+                color: '#25D366',
                 borderRadius: '12px',
-                padding: '0.25rem 0.65rem',
+                padding: '0.2rem 0.6rem',
                 fontSize: '0.72rem',
                 fontWeight: 700,
                 cursor: 'pointer'
               }}
             >
-              {cat.category}
+              📱 9876543210 (Demo Farmer Nashik)
             </button>
-          ))}
-        </div>
-
-        {/* Query Pills from Active Category */}
-        <div style={{
-          background: '#111B21',
-          padding: '0.35rem 0.6rem 0.55rem 0.6rem',
-          display: 'flex',
-          gap: '0.4rem',
-          overflowX: 'auto',
-          whiteSpace: 'nowrap'
-        }}>
-          {PRESET_CATEGORIES[activeCategoryTab].items.map((q, idx) => (
+          ) : sessionState === 'MAIN_MENU' ? (
+            <>
+              <button
+                onClick={() => handleUserAction('SRV_PRICE_RISK', '🌾 Price Risk')}
+                style={{
+                  background: '#202C33',
+                  border: '1px solid #2A3942',
+                  color: '#D1D7DB',
+                  borderRadius: '12px',
+                  padding: '0.2rem 0.55rem',
+                  fontSize: '0.72rem',
+                  fontWeight: 600,
+                  cursor: 'pointer'
+                }}
+              >
+                🌾 1. Price Risk
+              </button>
+              <button
+                onClick={() => handleUserAction('SRV_CLIMATE_RISK', '🌦️ Climate Risk')}
+                style={{
+                  background: '#202C33',
+                  border: '1px solid #2A3942',
+                  color: '#D1D7DB',
+                  borderRadius: '12px',
+                  padding: '0.2rem 0.55rem',
+                  fontSize: '0.72rem',
+                  fontWeight: 600,
+                  cursor: 'pointer'
+                }}
+              >
+                🌦️ 2. Climate
+              </button>
+              <button
+                onClick={() => handleUserAction('SRV_SMART_MANDI', '📊 Smart Mandi')}
+                style={{
+                  background: '#202C33',
+                  border: '1px solid #2A3942',
+                  color: '#D1D7DB',
+                  borderRadius: '12px',
+                  padding: '0.2rem 0.55rem',
+                  fontSize: '0.72rem',
+                  fontWeight: 600,
+                  cursor: 'pointer'
+                }}
+              >
+                📊 5. Mandi
+              </button>
+            </>
+          ) : (
             <button
-              key={idx}
-              onClick={() => handleSend(q.text)}
+              onClick={() => handleUserAction(undefined, undefined, 'kal baarish hogi kya?')}
               style={{
                 background: '#202C33',
-                color: '#D1D7DB',
                 border: '1px solid #2A3942',
-                borderRadius: '14px',
-                padding: '0.35rem 0.65rem',
-                fontSize: '0.74rem',
+                color: '#D1D7DB',
+                borderRadius: '12px',
+                padding: '0.2rem 0.55rem',
+                fontSize: '0.72rem',
                 fontWeight: 600,
-                cursor: 'pointer',
-                flexShrink: 0
+                cursor: 'pointer'
               }}
             >
-              {q.label}
+              "kal baarish hogi kya?"
             </button>
-          ))}
+          )}
         </div>
 
-        {/* Bottom Chat Bar with Real WhatsApp styling */}
+        {/* WhatsApp Mobile Message Composer */}
         <div style={{
           background: '#202C33',
-          padding: '0.55rem 0.75rem',
+          padding: '0.5rem 0.75rem',
           display: 'flex',
           alignItems: 'center',
           gap: '0.5rem',
           borderTop: '1px solid #2A3942'
         }}>
-
-          {/* Plus / Attachment Menu Button */}
-          <button
-            onClick={() => setIsAttachmentMenuOpen(prev => !prev)}
-            title="Attach Leaf Image, GPS Location or Preset"
+          <input
+            type="text"
+            value={inputVal}
+            onChange={(e) => setInputVal(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && handleUserAction(undefined, undefined, inputVal)}
+            placeholder={
+              sessionState === 'ACCOUNT_LINK_PHONE'
+                ? "Enter phone (e.g. 9876543210)..."
+                : "Type message or tap button..."
+            }
             style={{
-              background: isAttachmentMenuOpen ? '#00A884' : 'transparent',
+              flex: 1,
+              background: '#2A3942',
               border: 'none',
-              color: isAttachmentMenuOpen ? '#FFFFFF' : '#8696A0',
+              borderRadius: '8px',
+              padding: '0.6rem 0.85rem',
+              color: '#D1D7DB',
+              fontSize: '0.86rem',
+              outline: 'none'
+            }}
+          />
+
+          <button
+            onClick={() => handleUserAction(undefined, undefined, inputVal)}
+            title="Send Message"
+            style={{
+              background: '#00A884',
+              border: 'none',
               borderRadius: '50%',
-              width: '32px',
-              height: '32px',
-              cursor: 'pointer',
+              width: '38px',
+              height: '38px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              transition: 'all 0.2s ease'
+              color: '#FFFFFF',
+              cursor: 'pointer',
+              boxShadow: '0 2px 6px rgba(0, 168, 132, 0.4)',
+              flexShrink: 0
             }}
           >
-            <span className="material-symbols-outlined" style={{ fontSize: '22px' }}>
-              {isAttachmentMenuOpen ? 'close' : 'add'}
-            </span>
+            <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>send</span>
           </button>
-
-          <input
-            type="file"
-            ref={fileInputRef}
-            accept="image/*"
-            style={{ display: 'none' }}
-            onChange={handleImageUpload}
-          />
-
-          {/* In-chat recording indicator */}
-          {isRecordingVoice ? (
-            <div style={{
-              flex: 1,
-              background: '#1F2C34',
-              borderRadius: '8px',
-              padding: '0.55rem 0.85rem',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              color: '#EF4444'
-            }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <span className="material-symbols-outlined" style={{ fontSize: '18px', animation: 'pulse 1s infinite' }}>
-                  fiber_manual_record
-                </span>
-                <span style={{ fontSize: '0.85rem', fontWeight: 700 }}>
-                  Recording audio... 0:0{recordingSeconds}
-                </span>
-              </div>
-              <button
-                onClick={() => setIsRecordingVoice(false)}
-                style={{ background: 'transparent', border: 'none', color: '#8696A0', fontSize: '0.75rem', cursor: 'pointer' }}
-              >
-                Cancel
-              </button>
-            </div>
-          ) : (
-            /* Regular Text Input */
-            <input
-              type="text"
-              value={inputVal}
-              onChange={(e) => setInputVal(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-              placeholder="Message Sahayak (Hindi/Bengali/English)..."
-              style={{
-                flex: 1,
-                background: '#2A3942',
-                border: 'none',
-                borderRadius: '8px',
-                padding: '0.55rem 0.85rem',
-                color: '#D1D7DB',
-                fontSize: '0.88rem',
-                outline: 'none'
-              }}
-            />
-          )}
-
-          {/* Send / Voice Action Buttons */}
-          {isRecordingVoice ? (
-            <button
-              onClick={finishVoiceRecording}
-              title="Send Voice Recording"
-              style={{
-                background: '#00A884',
-                border: 'none',
-                borderRadius: '50%',
-                width: '38px',
-                height: '38px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: '#FFFFFF',
-                cursor: 'pointer',
-                boxShadow: '0 2px 6px rgba(0, 168, 132, 0.4)'
-              }}
-            >
-              <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>send</span>
-            </button>
-          ) : inputVal.trim() ? (
-            <button
-              onClick={() => handleSend()}
-              title="Send Message"
-              style={{
-                background: '#00A884',
-                border: 'none',
-                borderRadius: '50%',
-                width: '38px',
-                height: '38px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: '#FFFFFF',
-                cursor: 'pointer',
-                boxShadow: '0 2px 6px rgba(0, 168, 132, 0.4)'
-              }}
-            >
-              <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>send</span>
-            </button>
-          ) : (
-            <button
-              onClick={() => setIsRecordingVoice(true)}
-              title="Record WhatsApp Voice Note"
-              style={{
-                background: '#2A3942',
-                border: 'none',
-                borderRadius: '50%',
-                width: '38px',
-                height: '38px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: '#00A884',
-                cursor: 'pointer'
-              }}
-            >
-              <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>mic</span>
-            </button>
-          )}
-
         </div>
 
       </div>

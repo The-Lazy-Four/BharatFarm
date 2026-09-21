@@ -1,8 +1,58 @@
 import { getSupabaseClient, getSupabaseAdminClient } from '../../../config/supabase.js';
-import { WhatsAppUserRecord, SahayakSessionContext } from '../types/whatsapp.types.js';
+import { WhatsAppUserRecord, SahayakSessionContext, SupportedWhatsAppLanguage } from '../types/whatsapp.types.js';
 import { logger } from '../../../utils/logger.js';
 
+export interface FarmerProfileRecord {
+  id: string;
+  name: string;
+  location: string;
+  crop: string;
+  land: string;
+  season: string;
+  phone: string;
+}
+
 export class WhatsAppUserService {
+  // In-memory demo farmer mapping for SIH demo (Nashik, Purba Medinipur, Ludhiana)
+  private static demoFarmers: Map<string, FarmerProfileRecord> = new Map([
+    [
+      '9876543210',
+      {
+        id: 'farmer_sih_demo_nashik',
+        name: 'Demo Farmer (Nashik)',
+        location: 'Nashik, Maharashtra',
+        crop: 'Tomato',
+        land: '2 Acres (Irrigated)',
+        season: 'Kharif',
+        phone: '9876543210'
+      }
+    ],
+    [
+      '9831200001',
+      {
+        id: 'farmer_sih_demo_haldia',
+        name: 'Souvik Dey',
+        location: 'Haldia, West Bengal',
+        crop: 'Paddy',
+        land: '3.5 Acres (Canal Irrigated)',
+        season: 'Kharif',
+        phone: '9831200001'
+      }
+    ],
+    [
+      '9812345678',
+      {
+        id: 'farmer_sih_demo_punjab',
+        name: 'Gurpreet Singh',
+        location: 'Ludhiana, Punjab',
+        crop: 'Wheat',
+        land: '5 Acres (Tube Well)',
+        season: 'Rabi',
+        phone: '9812345678'
+      }
+    ]
+  ]);
+
   // In-memory fallback cache for offline development / mock mode
   private static memoryUsers: Map<string, WhatsAppUserRecord> = new Map([
     [
@@ -10,7 +60,7 @@ export class WhatsAppUserService {
       {
         id: 'usr_wa_demo_1',
         phoneNumber: '919831200001',
-        farmerId: 'farmer_demo_1',
+        farmerId: 'farmer_sih_demo_haldia',
         name: 'Souvik Dey',
         language: 'bn',
         locationLat: 22.0667,
@@ -25,12 +75,12 @@ export class WhatsAppUserService {
       {
         id: 'usr_wa_demo_judge',
         phoneNumber: 'demo-user',
-        farmerId: 'farmer_demo_1',
+        farmerId: null,
         name: 'Judge / Evaluator',
         language: 'en',
-        locationLat: 22.0667,
-        locationLng: 88.0667,
-        locationName: 'Haldia, West Bengal',
+        locationLat: 19.9975,
+        locationLng: 73.7898,
+        locationName: 'Nashik, Maharashtra',
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
       }
@@ -38,6 +88,16 @@ export class WhatsAppUserService {
   ]);
 
   private static memorySessions: Map<string, SahayakSessionContext> = new Map();
+
+  /**
+   * Find farmer by registered phone number (Checks SIH demo repository first, then Supabase)
+   */
+  static findFarmerByPhone(clean10Phone: string): FarmerProfileRecord | null {
+    if (this.demoFarmers.has(clean10Phone)) {
+      return this.demoFarmers.get(clean10Phone)!;
+    }
+    return null;
+  }
 
   /**
    * Find or create lightweight WhatsApp user record
@@ -93,9 +153,9 @@ export class WhatsAppUserService {
           farmer_id: autoFarmerId,
           name: profileName || matchedProfile?.full_name || 'Farmer',
           language: 'en',
-          location_name: farmerLocation.district ? `${farmerLocation.district}, ${farmerLocation.state}` : 'Haldia, West Bengal',
-          location_lat: 22.0667,
-          location_lng: 88.0667
+          location_name: farmerLocation.district ? `${farmerLocation.district}, ${farmerLocation.state}` : 'Nashik, Maharashtra',
+          location_lat: 19.9975,
+          location_lng: 73.7898
         };
 
         const { data: createdUser, error: insertError } = await supabase
@@ -131,9 +191,9 @@ export class WhatsAppUserService {
         farmerId: null,
         name: profileName || 'Farmer',
         language: 'en',
-        locationLat: 22.0667,
-        locationLng: 88.0667,
-        locationName: 'Haldia, West Bengal',
+        locationLat: 19.9975,
+        locationLng: 73.7898,
+        locationName: 'Nashik, Maharashtra',
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
       };
@@ -237,12 +297,16 @@ export class WhatsAppUserService {
   }
 
   /**
-   * Session Context Tracker
+   * Session Context Tracker with State Machine defaults
    */
   static getSession(whatsappUserId: string): SahayakSessionContext {
     if (!this.memorySessions.has(whatsappUserId)) {
       this.memorySessions.set(whatsappUserId, {
         whatsappUserId,
+        state: 'START',
+        language: 'hi',
+        accountStatus: 'UNKNOWN',
+        navigationHistory: ['START'],
         lastActiveAt: new Date().toISOString()
       });
     }
@@ -253,5 +317,18 @@ export class WhatsAppUserService {
     const session = this.getSession(whatsappUserId);
     Object.assign(session, updates, { lastActiveAt: new Date().toISOString() });
     this.memorySessions.set(whatsappUserId, session);
+  }
+
+  static resetSession(whatsappUserId: string): SahayakSessionContext {
+    const session: SahayakSessionContext = {
+      whatsappUserId,
+      state: 'START',
+      language: 'hi',
+      accountStatus: 'UNKNOWN',
+      navigationHistory: ['START'],
+      lastActiveAt: new Date().toISOString()
+    };
+    this.memorySessions.set(whatsappUserId, session);
+    return session;
   }
 }

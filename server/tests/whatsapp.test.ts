@@ -170,4 +170,178 @@ describe('Sahayak WhatsApp Access Layer', () => {
       expect(responseBody.data.metadata.isDemoMode).toBe(true);
     });
   });
+
+  describe('5. WhatsApp State Machine Workflows (TEST A - G)', () => {
+    const controller = new WhatsAppController();
+
+    const callDemo = async (body: any) => {
+      let status = 200;
+      let data: any = null;
+      const req: any = { body };
+      const res: any = {
+        status(code: number) { status = code; return this; },
+        json(payload: any) { data = payload; return this; }
+      };
+      await controller.handleDemo(req, res);
+      return { status, data: data?.data };
+    };
+
+    it('TEST A: Full Onboarding Flow (HI -> Hindi -> Yes -> Phone -> Connected -> Main Menu -> Price Risk -> Back -> End)', async () => {
+      const phone = 'test-flow-a-user';
+
+      // 1. Farmer sends HI
+      let res = await callDemo({ phone, message: 'HI' });
+      expect(res.data.state).toBe('LANGUAGE_SELECTION');
+      expect(res.data.reply).toContain('Welcome to BharatFarm Sahayak');
+
+      // 2. Farmer selects Hindi
+      res = await callDemo({ phone, action: 'LANG_HI' });
+      expect(res.data.state).toBe('ACCOUNT_SELECTION');
+      expect(res.data.reply).toContain('क्या आपका BharatFarm अकाउंट है?');
+
+      // 3. Farmer selects Yes
+      res = await callDemo({ phone, action: 'ACCOUNT_YES' });
+      expect(res.data.state).toBe('ACCOUNT_LINK_PHONE');
+      expect(res.data.reply).toContain('registered mobile number भेजें');
+
+      // 4. Farmer sends phone number 9876543210 (Demo Farmer - Nashik)
+      res = await callDemo({ phone, message: '9876543210' });
+      expect(res.data.state).toBe('MAIN_MENU');
+      expect(res.data.farmer.isLinked).toBe(true);
+      expect(res.data.farmer.farmerName).toContain('Demo Farmer');
+      expect(res.data.reply).toContain('सफलतापूर्वक कनेक्ट हो गया है');
+
+      // 5. Farmer selects Price Risk / Before You Sow
+      res = await callDemo({ phone, action: 'SRV_PRICE_RISK' });
+      expect(res.data.state).toBe('SERVICE_RESULT');
+      expect(res.data.reply).toContain('Price Risk Analysis');
+      expect(res.data.reply).toContain('Tomato');
+
+      // 6. Farmer clicks Back
+      res = await callDemo({ phone, action: 'NAV_BACK' });
+      expect(res.data.state).toBe('MAIN_MENU');
+      expect(res.data.reply).toContain('BharatFarm Sahayak');
+
+      // 7. Farmer clicks End Session
+      res = await callDemo({ phone, action: 'NAV_END_SESSION' });
+      expect(res.data.state).toBe('END_SESSION');
+      expect(res.data.reply).toContain('धन्यवाद');
+    });
+
+    it('TEST B: Guest Flow (HI -> English -> No -> Continue -> Climate Risk -> Back -> End)', async () => {
+      const phone = 'test-flow-b-user';
+
+      // 1. Farmer sends HI
+      let res = await callDemo({ phone, message: 'HI' });
+      expect(res.data.state).toBe('LANGUAGE_SELECTION');
+
+      // 2. Select English
+      res = await callDemo({ phone, action: 'LANG_EN' });
+      expect(res.data.state).toBe('ACCOUNT_SELECTION');
+      expect(res.data.reply).toContain('Do you have a BharatFarm account?');
+
+      // 3. Select No
+      res = await callDemo({ phone, action: 'ACCOUNT_NO' });
+      expect(res.data.state).toBe('ACCOUNT_NOT_CONNECTED');
+      expect(res.data.reply).toContain('continue using selected Sahayak services without a BharatFarm account');
+
+      // 4. Continue as Guest
+      res = await callDemo({ phone, action: 'GUEST_CONTINUE' });
+      expect(res.data.state).toBe('MAIN_MENU');
+      expect(res.data.farmer.isLinked).toBe(false);
+
+      // 5. Select Climate Risk
+      res = await callDemo({ phone, action: 'SRV_CLIMATE_RISK' });
+      expect(res.data.state).toBe('SERVICE_RESULT');
+      expect(res.data.reply).toContain('Climate Risk');
+
+      // 6. End Session
+      res = await callDemo({ phone, action: 'NAV_END_SESSION' });
+      expect(res.data.state).toBe('END_SESSION');
+    });
+
+    it('TEST C: Bengali Flow (HI -> Bengali -> Yes -> Phone -> Smart Mandi -> Result)', async () => {
+      const phone = 'test-flow-c-user';
+
+      await callDemo({ phone, message: 'HI' });
+      await callDemo({ phone, action: 'LANG_BN' });
+      await callDemo({ phone, action: 'ACCOUNT_YES' });
+
+      // Link Bengali farmer 9831200001
+      let res = await callDemo({ phone, message: '9831200001' });
+      expect(res.data.farmer.farmerName).toContain('Souvik');
+      expect(res.data.state).toBe('MAIN_MENU');
+
+      // Select Smart Mandi
+      res = await callDemo({ phone, action: 'SRV_SMART_MANDI' });
+      expect(res.data.state).toBe('SERVICE_RESULT');
+      expect(res.data.reply).toContain('Smart Mandi');
+    });
+
+    it('TEST D: Invalid Phone Handling (Error message -> Try valid phone -> Connects)', async () => {
+      const phone = 'test-flow-d-user';
+
+      await callDemo({ phone, message: 'HI' });
+      await callDemo({ phone, action: 'LANG_HI' });
+      await callDemo({ phone, action: 'ACCOUNT_YES' });
+
+      // Invalid format
+      let res = await callDemo({ phone, message: '1234' });
+      expect(res.data.reply).toContain('अमान्य फोन नंबर');
+
+      // Unknown number
+      res = await callDemo({ phone, message: '9999999999' });
+      expect(res.data.reply).toContain('कोई BharatFarm अकाउंट नहीं मिला');
+
+      // Enter valid number
+      res = await callDemo({ phone, message: '9876543210' });
+      expect(res.data.state).toBe('MAIN_MENU');
+      expect(res.data.farmer.isLinked).toBe(true);
+    });
+
+    it('TEST E: Basic Farmer Needs & Sub-services (Leaf Scanner)', async () => {
+      const phone = 'test-flow-e-user';
+
+      await callDemo({ phone, message: 'HI' });
+      await callDemo({ phone, action: 'LANG_HI' });
+      await callDemo({ phone, action: 'ACCOUNT_NO' });
+      await callDemo({ phone, action: 'GUEST_CONTINUE' });
+
+      // Select Basic Farmer Needs
+      let res = await callDemo({ phone, action: 'SRV_BASIC_NEEDS' });
+      expect(res.data.reply).toContain('Basic Farmer Needs');
+
+      // Select Leaf Scanner
+      res = await callDemo({ phone, action: 'BN_LEAF_SCANNER' });
+      expect(res.data.reply).toContain('Leaf Scanner');
+    });
+
+    it('TEST F: Free-text Fallback Intent Routing from Main Menu ("kal baarish hogi kya?")', async () => {
+      const phone = 'test-flow-f-user';
+
+      await callDemo({ phone, message: 'HI' });
+      await callDemo({ phone, action: 'LANG_HI' });
+      await callDemo({ phone, action: 'ACCOUNT_NO' });
+      await callDemo({ phone, action: 'GUEST_CONTINUE' });
+
+      // Type free-text query from Main Menu
+      const res = await callDemo({ phone, message: 'kal baarish hogi kya?' });
+      expect(res.data.state).toBe('SERVICE_RESULT');
+      expect(res.data.reply).toContain('मौसम एवं फसल जोखिम अपडेट');
+    });
+
+    it('TEST G: Session Ending and Clean Restart on New HI', async () => {
+      const phone = 'test-flow-g-user';
+
+      await callDemo({ phone, message: 'HI' });
+      await callDemo({ phone, action: 'LANG_HI' });
+      let res = await callDemo({ phone, action: 'NAV_END_SESSION' });
+      expect(res.data.state).toBe('END_SESSION');
+
+      // Send HI again -> clean new session starting from language selection
+      res = await callDemo({ phone, message: 'HI' });
+      expect(res.data.state).toBe('LANGUAGE_SELECTION');
+      expect(res.data.reply).toContain('Welcome to BharatFarm Sahayak');
+    });
+  });
 });
