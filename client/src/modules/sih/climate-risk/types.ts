@@ -204,3 +204,90 @@ export interface ScenarioSimulationResult {
   tradeAdvisory: string;
   recommendedActions: string[];
 }
+
+export interface GeminiActionItem {
+  id: string;
+  priority: 'HIGH' | 'IMPORTANT' | 'NORMAL';
+  title: string;
+  description: string;
+  timing: string;
+  icon: 'drainage' | 'harvest' | 'protect' | 'cart' | 'spray' | 'monitor' | 'seed' | 'tools' | 'fertilizer' | string;
+}
+
+export interface GeminiBuyItem {
+  name: string;
+  reason: string;
+  urgency: 'HIGH' | 'NORMAL';
+  category: 'fertilizer' | 'seeds' | 'pesticides' | 'tools' | 'storage' | string;
+}
+
+export interface GeminiWarning {
+  show: boolean;
+  title: string;
+  headline: string;
+  subtext: string;
+}
+
+export interface GeminiDecisionPlan {
+  riskLevel: 'LOW' | 'MODERATE' | 'HIGH' | 'SEVERE';
+  riskTitle: string;
+  riskTimeline: string;
+  riskSummary: string;
+  aiExplanation: string;
+  whyReasoningSummary: string;
+  decisionFactors: string[];
+  actions: GeminiActionItem[];
+  buyItems: GeminiBuyItem[];
+  whyBuyNow?: string;
+  warning?: GeminiWarning;
+  weatherSummary?: {
+    temperature: number;
+    condition: string;
+    rainfallProbability: number;
+    expectedRainfallMm: number;
+  };
+  updatedAt: string;
+  source?: 'GEMINI_AI' | 'RULE_BASED' | 'DEMO';
+}
+
+export interface WhatChangedDiff {
+  changed: boolean;
+  rainDiff?: { from: number; to: number };
+  riskDiff?: { from: string; to: string };
+  cropDiff?: { crop: string; stage: string };
+  completedDiff?: { actionTitle: string };
+}
+
+export interface GovtProcurementNeed {
+  item: string;
+  need: string;
+  urgency: 'HIGH' | 'IMPORTANT' | 'NORMAL';
+}
+
+export interface GovtTransportAlert {
+  show: boolean;
+  title?: string;
+  text: string;
+}
+
+export interface GovtStorageAlert {
+  show: boolean;
+  title?: string;
+  text: string;
+}
+
+export interface GovtGeminiDecisionPlan {
+  planTitle: string;
+  subtitle?: string;
+  riskSummary: string;
+  hasUrgentAction?: boolean;
+  actions: GeminiActionItem[];
+  procurementNeeds: GovtProcurementNeed[];
+  transportAlert?: GovtTransportAlert;
+  storageAlert?: GovtStorageAlert;
+  warning?: GeminiWarning;
+  updatedAt?: string;
+  source?: 'GEMINI_AI' | 'RULE_BASED' | 'DEMO';
+}
+
+

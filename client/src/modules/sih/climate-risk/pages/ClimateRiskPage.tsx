@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { SihLayout } from '../../shared/SihLayout';
 import { useLanguage } from '../../../../context/LanguageContext';
 import { ClimateRiskService } from '../climateRisk.service';
@@ -10,30 +10,20 @@ import {
   FoodSecuritySnapshot,
   DistrictRiskItem,
   ScenarioSimulationResult,
-  AiInsightResult
+  GeminiDecisionPlan,
+  WhatChangedDiff
 } from '../types';
 
 // Subcomponents
 import { TopSelectorHeader } from '../components/TopSelectorHeader';
-import { RiskSummaryCards } from '../components/RiskSummaryCards';
-import { WhatToDoNowHero } from '../components/WhatToDoNowHero';
-import { BestWorkWindowSection } from '../components/BestWorkWindowSection';
-import { CurrentWeatherSection } from '../components/CurrentWeatherSection';
-import { SevenDayForecastSection } from '../components/SevenDayForecastSection';
-import { RainfallAnalysisSection } from '../components/RainfallAnalysisSection';
-import { FloodRiskSection } from '../components/FloodRiskSection';
-import { CropRiskSection } from '../components/CropRiskSection';
-import { HarvestDecisionSection } from '../components/HarvestDecisionSection';
-import { FieldOperationsTable } from '../components/FieldOperationsTable';
-import { PostHarvestSection } from '../components/PostHarvestSection';
-import { ClimateAlertsSection } from '../components/ClimateAlertsSection';
-import { LocationRiskViewSection } from '../components/LocationRiskViewSection';
-import { FarmerActionTimelineSection } from '../components/FarmerActionTimelineSection';
-import { HistoricalRiskSection } from '../components/HistoricalRiskSection';
+import { FarmerActionPage } from '../components/FarmerActionPage';
 import { FoodSecurityDashboard } from '../components/FoodSecurityDashboard';
+import { HistoricalRiskSection } from '../components/HistoricalRiskSection';
+
+const STORAGE_KEY_ACTIONS = 'bharatfarm_farmer_action_statuses';
 
 export const ClimateRiskPage: React.FC = () => {
-  const { t } = useLanguage();
+  const { language, t } = useLanguage();
   // Navigation tab state
   const [activeTab, setActiveTab] = useState<'farmer' | 'government'>('farmer');
 
@@ -46,42 +36,113 @@ export const ClimateRiskPage: React.FC = () => {
   const [crop, setCrop] = useState<string>('Paddy');
   const [cropStage, setCropStage] = useState<string>('Flowering');
 
+  // Live Gemini Decision Plan state
+  const [decisionPlan, setDecisionPlan] = useState<GeminiDecisionPlan | null>(null);
+  const previousPlanRef = useRef<GeminiDecisionPlan | null>(null);
+  const [whatChanged, setWhatChanged] = useState<WhatChangedDiff | null>(null);
+
   // Loading & data state
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [weatherData, setWeatherData] = useState<WeatherData | null>(null);
   const [floodData, setFloodData] = useState<FloodRiskAssessment | null>(null);
   const [assessmentData, setAssessmentData] = useState<ClimateAssessmentResult | null>(null);
-  const [aiInsight, setAiInsight] = useState<AiInsightResult | null>(null);
+
+  // Action status state (persisted to localStorage)
+  const [actionStatuses, setActionStatuses] = useState<Record<string, 'not_started' | 'in_progress' | 'done'>>(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY_ACTIONS);
+      return saved ? JSON.parse(saved) : {};
+    } catch {
+      return {};
+    }
+  });
+
+  // Collapsible past history state
+  const [showHistory, setShowHistory] = useState<boolean>(false);
 
   // Government data state
   const [foodSnapshot, setFoodSnapshot] = useState<FoodSecuritySnapshot | null>(null);
   const [districtRisks, setDistrictRisks] = useState<DistrictRiskItem[]>([]);
   const [historyLogs, setHistoryLogs] = useState<AssessmentHistoryItem[]>([]);
 
+  // Update action status and persist
+  const handleUpdateActionStatus = (actionId: string, status: 'not_started' | 'in_progress' | 'done') => {
+    setActionStatuses((prev) => {
+      const next = { ...prev, [actionId]: status };
+      try {
+        localStorage.setItem(STORAGE_KEY_ACTIONS, JSON.stringify(next));
+      } catch (err) {
+        console.warn('Failed to save action status to localStorage:', err);
+      }
+      return next;
+    });
+
+    if (status === 'done') {
+      setWhatChanged({
+        changed: true,
+        completedDiff: { actionTitle: actionId }
+      });
+    }
+  };
+
   // Main loader: resolves coordinates and fetches all dependent data
-  const loadAllData = async (loc: string, c: string, st: string, lat?: number, lon?: number) => {
+  const loadAllData = async (
+    loc: string,
+    c: string,
+    st: string,
+    lat?: number,
+    lon?: number,
+    currentCompletedActions?: string[],
+    currentLang?: string
+  ) => {
     setIsLoading(true);
     try {
+      // Determine completed actions
+      const completedList = currentCompletedActions || Object.entries(actionStatuses)
+        .filter(([_, s]) => s === 'done')
+        .map(([id]) => id);
+
+      // 1. Fetch Gemini Decision Plan in active language
+      const newDecision = await ClimateRiskService.fetchGeminiDecision({
+        location: loc,
+        crop: c,
+        cropStage: st,
+        language: currentLang || language,
+        lat,
+        lon,
+        completedActions: completedList,
+        previousRisk: decisionPlan
+      });
+
+      // Compute What Changed diff if previous plan exists
+      if (previousPlanRef.current) {
+        const prev = previousPlanRef.current;
+        const rainProbPrev = prev.weatherSummary?.rainfallProbability || 0;
+        const rainProbNew = newDecision.weatherSummary?.rainfallProbability || 0;
+        const isRainDiff = Math.abs(rainProbPrev - rainProbNew) >= 5;
+        const isRiskDiff = prev.riskLevel !== newDecision.riskLevel;
+        const isCropDiff = prev.aiExplanation !== newDecision.aiExplanation;
+
+        if (isRainDiff || isRiskDiff || isCropDiff) {
+          setWhatChanged({
+            changed: true,
+            rainDiff: isRainDiff ? { from: rainProbPrev, to: rainProbNew } : undefined,
+            riskDiff: isRiskDiff ? { from: prev.riskLevel, to: newDecision.riskLevel } : undefined,
+            cropDiff: isCropDiff ? { crop: c, stage: st } : undefined
+          });
+        }
+      }
+
+      previousPlanRef.current = newDecision;
+      setDecisionPlan(newDecision);
+
+      // 2. Fetch full telemetry for government tabs & background validation
       const { weather, flood, assessment } = await ClimateRiskService.fetchFullAssessment(loc, c, st, lat, lon);
       setWeatherData(weather);
       setFloodData(flood);
       setAssessmentData(assessment);
 
-      // Fetch AI insight using real data
-      const insight = await ClimateRiskService.fetchAiInsight({
-        location: loc,
-        crop: c,
-        cropStage: st,
-        overallRiskScore: assessment.overallRiskScore,
-        floodScore: flood.floodScore,
-        cropRiskScore: assessment.cropRisk.cropRiskScore,
-        harvestCode: assessment.harvestAdvisory.actionCode,
-        rainfallMm: assessment.rainfallAnalysis.total7DayMm,
-        mainThreat: flood.reasons[0] || 'Rainfall'
-      });
-      setAiInsight(insight);
-
-      // Food security and history data
+      // 3. Food security and history data for government view
       const foodSnap = await ClimateRiskService.fetchFoodSecurityOverview('West Bengal', c);
       setFoodSnapshot(foodSnap);
 
@@ -91,16 +152,16 @@ export const ClimateRiskPage: React.FC = () => {
       const history = await ClimateRiskService.fetchHistory();
       setHistoryLogs(history);
     } catch (err) {
-      console.error('Failed to load climate telemetry:', err);
+      console.error('Failed to load climate decision telemetry:', err);
     } finally {
       setIsLoading(false);
     }
   };
 
-  // 1. Auto-select and fetch Haldia on first load
+  // Auto-select and fetch on initial load and whenever language changes
   useEffect(() => {
-    loadAllData(location, crop, cropStage, latitude, longitude);
-  }, []);
+    loadAllData(location, crop, cropStage, latitude, longitude, undefined, language);
+  }, [language]);
 
   // Handle location selection from geocoding autocomplete
   const handleLocationSelect = (locObj: { displayName: string; lat: number; lon: number }) => {
@@ -137,12 +198,12 @@ export const ClimateRiskPage: React.FC = () => {
         display: 'flex',
         flexDirection: 'column',
         gap: '0.85rem',
-        maxWidth: '1200px',
+        maxWidth: '1100px',
         margin: '0 auto',
         paddingBottom: '2.5rem'
       }}>
 
-        {/* 1. COMPACT TOP SELECTOR & HEADER */}
+        {/* 1. TOP FARM CONTEXT BAR */}
         <TopSelectorHeader
           selectedLocation={location}
           selectedCrop={crop}
@@ -199,96 +260,54 @@ export const ClimateRiskPage: React.FC = () => {
           </button>
         </div>
 
-        {/* LOADING INDICATOR */}
-        {isLoading && !assessmentData ? (
-          <div style={{
-            padding: '3rem 2rem',
-            textAlign: 'center',
-            background: '#ffffff',
-            borderRadius: '10px',
-            border: '1px solid #e2e8f0'
-          }}>
-            <div style={{ fontSize: '1rem', fontWeight: 800, color: '#0f172a' }}>
-              Fetching real-time weather & calculating agricultural risk...
-            </div>
-            <div style={{ fontSize: '0.78rem', color: '#64748b', marginTop: '0.3rem' }}>
-              Resolving coordinates for {location} • Querying Open-Meteo
-            </div>
-          </div>
-        ) : activeTab === 'farmer' ? (
+        {/* 3. TAB CONTENT */}
+        {activeTab === 'farmer' ? (
           /* ============================================================ */
-          /* FARMER DECISION DASHBOARD (STRICT DECISION-FIRST ORDER)       */
+          /* FARMER ACTION PAGE — LIVE GEMINI DECISION SYSTEM             */
           /* ============================================================ */
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
 
-            {/* 1. RISK SUMMARY (4-CARD COMPACT STRIP) */}
-            {assessmentData && <RiskSummaryCards assessment={assessmentData} />}
-
-            {/* 2. WHAT TO DO NOW (HERO ACTION PANEL) */}
-            <WhatToDoNowHero
-              insight={aiInsight}
-              dominantThreat={floodData?.reasons[0] || 'Heavy rainfall'}
+            <FarmerActionPage
+              decisionPlan={decisionPlan}
+              location={location}
+              crop={crop}
+              cropStage={cropStage}
+              isAnalyzing={isLoading}
+              onRefresh={handleRefresh}
+              actionStatuses={actionStatuses}
+              onUpdateActionStatus={handleUpdateActionStatus}
+              whatChanged={whatChanged}
             />
 
-            {/* 3. BEST WORK WINDOW */}
-            {weatherData && <BestWorkWindowSection hourly={weatherData.hourly} />}
+            {/* Collapsible Past Assessment Section */}
+            <div style={{
+              marginTop: '1rem',
+              borderTop: '1px solid #e2e8f0',
+              paddingTop: '0.85rem'
+            }}>
+              <button
+                onClick={() => setShowHistory(!showHistory)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  fontSize: '0.82rem',
+                  fontWeight: 800,
+                  color: '#64748b',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.35rem'
+                }}
+              >
+                <span>{showHistory ? 'HIDE PAST ASSESSMENTS ↑' : 'VIEW PAST ASSESSMENTS →'}</span>
+              </button>
 
-            {/* 4. CURRENT WEATHER + 7-DAY FORECAST (2-COLUMN GRID) */}
-            {weatherData && (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '0.75rem' }}>
-                <CurrentWeatherSection weather={weatherData} />
-                <SevenDayForecastSection daily={weatherData.daily} />
-              </div>
-            )}
-
-            {/* 5. RAINFALL + FLOOD RISK (2-COLUMN GRID) */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '0.75rem' }}>
-              {assessmentData && <RainfallAnalysisSection rainfall={assessmentData.rainfallAnalysis} />}
-              {floodData && <FloodRiskSection flood={floodData} />}
+              {showHistory && (
+                <div style={{ marginTop: '0.85rem' }}>
+                  <HistoricalRiskSection history={historyLogs} />
+                </div>
+              )}
             </div>
-
-            {/* 6. HARVEST DECISION + FIELD OPERATIONS (2-COLUMN GRID) */}
-            {assessmentData && (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '0.75rem' }}>
-                <HarvestDecisionSection
-                  harvestAdvisory={assessmentData.harvestAdvisory}
-                  cropRisk={assessmentData.cropRisk}
-                />
-                <FieldOperationsTable advisories={assessmentData.operationalAdvisories} />
-              </div>
-            )}
-
-            {/* 7. CROP RISK + POST-HARVEST (2-COLUMN GRID) */}
-            {assessmentData && (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '0.75rem' }}>
-                <CropRiskSection cropRisk={assessmentData.cropRisk} />
-                <PostHarvestSection
-                  procurement={assessmentData.procurementAdvisory}
-                  storage={assessmentData.storageAdvisory}
-                />
-              </div>
-            )}
-
-            {/* 8. ALERTS + FIELD LOCATION (2-COLUMN GRID) */}
-            {assessmentData && (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '0.75rem' }}>
-                <ClimateAlertsSection alerts={assessmentData.alerts} />
-                <LocationRiskViewSection
-                  location={location}
-                  latitude={latitude}
-                  longitude={longitude}
-                  assessment={assessmentData}
-                />
-              </div>
-            )}
-
-            {/* 9. FARMER ACTION TIMELINE */}
-            {assessmentData && (
-              <FarmerActionTimelineSection plan={assessmentData.farmerActionPlan} />
-            )}
-
-            {/* 10. HISTORICAL LOG (COMPACT COLLAPSIBLE) */}
-            <HistoricalRiskSection history={historyLogs} />
 
           </div>
         ) : (

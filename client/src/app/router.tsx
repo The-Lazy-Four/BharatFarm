@@ -11,6 +11,7 @@ import { ModuleHomePage } from './pages/ModuleHomePage.js';
 import {
   SihDashboardPage,
   ClimateRiskPage,
+  ActionPlannerPage,
   AggregationOptimizerPage,
   CropInsuranceVerificationPage,
   SmartMandiPage,
@@ -149,6 +150,22 @@ export const AppRouter: React.FC = () => {
         element={
           <ProtectedRoute>
             <ClimateRiskPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/sih/planner"
+        element={
+          <ProtectedRoute>
+            <ActionPlannerPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/planner"
+        element={
+          <ProtectedRoute>
+            <ActionPlannerPage />
           </ProtectedRoute>
         }
       />

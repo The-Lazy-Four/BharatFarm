@@ -2,6 +2,7 @@
 // Exposes each module's public page entry for the top-level router
 
 export { ClimateRiskPage } from './climate-risk/index.js';
+export { ActionPlannerPage } from './action-planner/index.js';
 export { AggregationOptimizerPage } from './aggregation/index.js';
 export { CropInsuranceVerificationPage } from './crop-risk-insurance/index.js';
 export { SmartMandiPage } from './smart-mandi/index.js';

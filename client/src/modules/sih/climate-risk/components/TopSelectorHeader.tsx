@@ -23,10 +23,9 @@ export const TopSelectorHeader: React.FC<Props> = ({
   onCropChange,
   onStageChange,
   onRefresh,
-  isAnalyzing,
-  dataSource
+  isAnalyzing
 }) => {
-  const { t } = useLanguage();
+  const { language, setLanguage, t } = useLanguage();
   const [isSearching, setIsSearching] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [suggestions, setSuggestions] = useState<GeocodeResult[]>([]);
@@ -74,7 +73,7 @@ export const TopSelectorHeader: React.FC<Props> = ({
   return (
     <div style={{
       background: 'linear-gradient(135deg, #064e3b 0%, #022c22 100%)',
-      borderRadius: '12px',
+      borderRadius: '14px',
       padding: '1rem 1.25rem',
       color: '#FFFFFF',
       boxShadow: '0 4px 16px rgba(6, 78, 59, 0.18)',
@@ -82,7 +81,7 @@ export const TopSelectorHeader: React.FC<Props> = ({
       flexDirection: 'column',
       gap: '0.85rem'
     }}>
-      {/* Top row: Title + Clean Source Badge */}
+      {/* Top row: Title + AI Status Badge */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
           <span style={{
@@ -90,29 +89,104 @@ export const TopSelectorHeader: React.FC<Props> = ({
             color: '#052e16',
             fontWeight: 900,
             fontSize: '0.72rem',
-            padding: '0.2rem 0.55rem',
-            borderRadius: '4px',
+            padding: '0.22rem 0.6rem',
+            borderRadius: '5px',
             letterSpacing: '0.04em'
           }}>
-            {t('sih.climateRiskPlanner')}
+            CLIMATE RISK PLANNER
           </span>
-          <span style={{ fontSize: '0.82rem', color: '#a7f3d0', fontWeight: 600 }}>
-            {selectedLocation} • {selectedCrop} ({selectedStage})
+          <span style={{ fontSize: '0.82rem', color: '#a7f3d0', fontWeight: 700 }}>
+            📍 {selectedLocation.split(',')[0]} • 🌾 {selectedCrop} ({selectedStage})
           </span>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <span style={{
-            background: 'rgba(255, 255, 255, 0.08)',
-            border: '1px solid rgba(255, 255, 255, 0.15)',
-            fontSize: '0.7rem',
-            fontWeight: 700,
-            color: '#86efac',
-            padding: '0.2rem 0.5rem',
-            borderRadius: '999px'
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', flexWrap: 'wrap' }}>
+          {/* Language Selector: English | বাংলা | हिन्दी */}
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.25rem',
+            background: 'rgba(0, 0, 0, 0.3)',
+            padding: '0.2rem 0.35rem',
+            borderRadius: '8px',
+            border: '1px solid rgba(255, 255, 255, 0.18)'
           }}>
-            {t('sih.liveWeather')}
-          </span>
+            <button
+              onClick={() => setLanguage('en')}
+              style={{
+                padding: '0.22rem 0.55rem',
+                borderRadius: '5px',
+                border: 'none',
+                background: language === 'en' ? '#22c55e' : 'transparent',
+                color: language === 'en' ? '#052e16' : '#cbd5e1',
+                fontWeight: language === 'en' ? 800 : 600,
+                fontSize: '0.74rem',
+                cursor: 'pointer',
+                transition: 'all 0.15s ease'
+              }}
+            >
+              🇬🇧 English
+            </button>
+            <button
+              onClick={() => setLanguage('bn')}
+              style={{
+                padding: '0.22rem 0.55rem',
+                borderRadius: '5px',
+                border: 'none',
+                background: language === 'bn' ? '#22c55e' : 'transparent',
+                color: language === 'bn' ? '#052e16' : '#cbd5e1',
+                fontWeight: language === 'bn' ? 800 : 600,
+                fontSize: '0.74rem',
+                cursor: 'pointer',
+                transition: 'all 0.15s ease'
+              }}
+            >
+              🇮🇳 বাংলা
+            </button>
+            <button
+              onClick={() => setLanguage('hi')}
+              style={{
+                padding: '0.22rem 0.55rem',
+                borderRadius: '5px',
+                border: 'none',
+                background: language === 'hi' ? '#22c55e' : 'transparent',
+                color: language === 'hi' ? '#052e16' : '#cbd5e1',
+                fontWeight: language === 'hi' ? 800 : 600,
+                fontSize: '0.74rem',
+                cursor: 'pointer',
+                transition: 'all 0.15s ease'
+              }}
+            >
+              🇮🇳 हिन्दी
+            </button>
+          </div>
+
+          <div style={{
+            background: 'rgba(34, 197, 94, 0.15)',
+            border: '1px solid rgba(74, 222, 128, 0.35)',
+            fontSize: '0.74rem',
+            fontWeight: 800,
+            color: '#86efac',
+            padding: '0.25rem 0.65rem',
+            borderRadius: '999px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.35rem'
+          }}>
+            <span style={{
+              width: '7px',
+              height: '7px',
+              borderRadius: '50%',
+              background: '#4ade80',
+              display: 'inline-block',
+              boxShadow: '0 0 8px #4ade80'
+            }} />
+            <span>
+              {isAnalyzing
+                ? (language === 'bn' ? 'বিশ্লেষণ চলছে...' : language === 'hi' ? 'विश्लेषण जारी...' : 'Analyzing Farm Context...')
+                : (language === 'bn' ? 'Gemini প্রস্তুত' : language === 'hi' ? 'Gemini तैयार' : 'Gemini Ready')}
+            </span>
+          </div>
         </div>
       </div>
 
@@ -139,10 +213,10 @@ export const TopSelectorHeader: React.FC<Props> = ({
                 justifyContent: 'space-between',
                 transition: 'all 0.15s ease'
               }}
-              title="Click to search any location"
+              title="Click to search any location in India"
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', overflow: 'hidden' }}>
-                <span style={{ color: '#4ade80', fontSize: '1rem' }}>📍</span>
+                <span style={{ color: '#4ade80', fontSize: '0.95rem' }}>📍</span>
                 <span style={{ fontSize: '0.82rem', fontWeight: 700, whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>
                   {selectedLocation.split(',')[0]}
                 </span>
@@ -156,7 +230,7 @@ export const TopSelectorHeader: React.FC<Props> = ({
               <input
                 type="text"
                 autoFocus
-                placeholder={t('common.search')}
+                placeholder="Search city, district..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 style={{
@@ -242,9 +316,12 @@ export const TopSelectorHeader: React.FC<Props> = ({
         >
           <option value="Paddy" style={{ background: '#022c22' }}>🌾 Paddy (Rice)</option>
           <option value="Wheat" style={{ background: '#022c22' }}>🌾 Wheat</option>
-          <option value="Mustard" style={{ background: '#022c22' }}>🌱 Mustard</option>
+          <option value="Potato" style={{ background: '#022c22' }}>🥔 Potato</option>
           <option value="Maize" style={{ background: '#022c22' }}>🌽 Maize</option>
+          <option value="Mustard" style={{ background: '#022c22' }}>🌱 Mustard</option>
           <option value="Cotton" style={{ background: '#022c22' }}>☁️ Cotton</option>
+          <option value="Tomato" style={{ background: '#022c22' }}>🍅 Tomato</option>
+          <option value="Soybean" style={{ background: '#022c22' }}>🫘 Soybean</option>
           <option value="Jute" style={{ background: '#022c22' }}>🌿 Jute</option>
         </select>
 
@@ -267,12 +344,12 @@ export const TopSelectorHeader: React.FC<Props> = ({
           <option value="Sowing" style={{ background: '#022c22' }}>Stage: Sowing</option>
           <option value="Vegetative" style={{ background: '#022c22' }}>Stage: Vegetative</option>
           <option value="Flowering" style={{ background: '#022c22' }}>Stage: Flowering</option>
-          <option value="Grain Filling" style={{ background: '#022c22' }}>Stage: Grain Filling</option>
+          <option value="Grain Filling" style={{ background: '#022c22' }}>Stage: Grain Filling / Bulking</option>
           <option value="Maturity" style={{ background: '#022c22' }}>Stage: Near Maturity</option>
           <option value="Ready to Harvest" style={{ background: '#022c22' }}>Stage: Ready to Harvest</option>
         </select>
 
-        {/* Refresh / Re-analyze button */}
+        {/* Refresh AI Analysis Button */}
         <button
           onClick={onRefresh}
           disabled={isAnalyzing}
@@ -280,21 +357,30 @@ export const TopSelectorHeader: React.FC<Props> = ({
             padding: '0.48rem 0.9rem',
             borderRadius: '8px',
             border: 'none',
-            background: '#22c55e',
+            background: isAnalyzing ? '#15803d' : '#22c55e',
             color: '#052e16',
             fontWeight: 800,
             fontSize: '0.82rem',
-            cursor: 'pointer',
+            cursor: isAnalyzing ? 'not-allowed' : 'pointer',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            gap: '0.35rem',
-            boxShadow: '0 2px 8px rgba(34, 197, 94, 0.3)'
+            gap: '0.4rem',
+            boxShadow: '0 2px 8px rgba(34, 197, 94, 0.3)',
+            transition: 'all 0.15s ease'
           }}
         >
-          <span>{isAnalyzing ? t('common.analyzing') : t('common.refresh')}</span>
+          <span style={{
+            display: 'inline-block',
+            transform: isAnalyzing ? 'rotate(360deg)' : 'none',
+            transition: isAnalyzing ? 'transform 1s linear infinite' : 'none'
+          }}>
+            ↻
+          </span>
+          <span>{isAnalyzing ? 'Refreshing AI...' : 'Refresh AI Analysis'}</span>
         </button>
       </div>
     </div>
   );
 };
+
