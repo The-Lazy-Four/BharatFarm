@@ -62,6 +62,7 @@ export const Header: React.FC = () => {
       <header
         className="app-mobile-top-bar"
         style={{
+          display: 'flex',
           height: '56px',
           padding: '0 1rem',
           background: 'var(--surface-nav)',

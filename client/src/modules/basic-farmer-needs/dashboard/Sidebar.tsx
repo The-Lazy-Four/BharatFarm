@@ -8,7 +8,7 @@ import { useLanguage } from '@core/context/LanguageContext';
 export const Sidebar: React.FC = () => {
   const { user, profileImage, getUserInitials } = useAuth();
   const { theme, toggleTheme } = useTheme();
-  const { t } = useLanguage();
+  const { language, setLanguage, t } = useLanguage();
 
   // Nav items use translation keys for labels
   const navItems = [
@@ -89,6 +89,47 @@ export const Sidebar: React.FC = () => {
 
       {/* Bottom: Theme Control & User Profile */}
       <div style={{ padding: '0 1.25rem', marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: '0.75rem', paddingTop: '1rem' }}>
+        {/* Multilingual Selector */}
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            padding: '0.5rem 0.85rem',
+            borderRadius: '12px',
+            background: 'var(--surface-1)',
+            border: '1px solid var(--border-default)',
+            color: 'var(--text-primary)',
+            fontSize: '0.82rem',
+            fontWeight: 600
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <span className="material-symbols-outlined" style={{ fontSize: '18px', color: 'var(--signal-lime)' }}>
+              language
+            </span>
+            <span>Language</span>
+          </div>
+          <select
+            value={language}
+            onChange={(e) => setLanguage(e.target.value)}
+            title={t('common.languageSelect')}
+            style={{
+              background: 'transparent',
+              color: 'var(--text-primary)',
+              border: 'none',
+              fontSize: '0.82rem',
+              fontWeight: 700,
+              cursor: 'pointer',
+              outline: 'none'
+            }}
+          >
+            <option value="en" style={{ color: '#0F172A' }}>EN</option>
+            <option value="hi" style={{ color: '#0F172A' }}>हिंदी</option>
+            <option value="bn" style={{ color: '#0F172A' }}>বাংলা</option>
+          </select>
+        </div>
+
         {/* Desktop Theme Switcher */}
         <button
           onClick={toggleTheme}
