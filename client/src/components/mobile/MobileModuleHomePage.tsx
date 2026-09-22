@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext.js';
 import { useLanguage } from '../../context/LanguageContext.js';
 import { usePWA } from '../../context/PWAContext.js';
 import { MobileBottomNav } from './MobileBottomNav.js';
 import { PriceRiskService } from '../../modules/sih/price-risk/priceRisk.service.js';
+import { ClimateRiskService } from '../../modules/sih/climate-risk/climateRisk.service.js';
 
 interface NotificationItem {
   id: string;
@@ -50,136 +51,66 @@ export const MobileModuleHomePage: React.FC = () => {
 
   const [showNotifDrawer, setShowNotifDrawer] = useState(false);
   const [notifications, setNotifications] = useState<NotificationItem[]>(INITIAL_NOTIFS);
-  const [sendingTest, setSendingTest] = useState(false);
-  const [testSuccess, setTestSuccess] = useState('');
+
+  // Weather state from real service
+  const [weatherLoading, setWeatherLoading] = useState(true);
+  const [weatherTemp, setWeatherTemp] = useState<number>(28);
+  const [weatherCondition, setWeatherCondition] = useState<string>('Partly Sunny');
+  const [rainProbability, setRainProbability] = useState<number>(15);
 
   const reg = PriceRiskService.getFieldRegistration(user?.id || 'demo_farmer') || {
     fieldName: 'North Paddy Field',
     crop: 'Paddy',
     landSizeAcres: 0.4,
     district: 'Haldia',
-    state: 'West Bengal'
+    state: 'West Bengal',
+    latitude: 22.0667,
+    longitude: 88.0667
   };
 
   const farmerName = user?.fullName || 'Farmer';
 
-  const sendTestAlert = async (category: 'climate' | 'mandi' | 'aggregation') => {
-    setSendingTest(true);
-    setTestSuccess('');
-    try {
-      const res = await fetch('/api/push/send-test', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          category,
-          title: category === 'climate' ? 'BharatFarm Climate Alert 🌧️' : category === 'mandi' ? 'BharatFarm Mandi Alert 📍' : 'BharatFarm Aggregation Update 🤝',
-          body: category === 'climate' ? 'Heavy rainfall warning in your region. Protect your harvested paddy.' : category === 'mandi' ? 'Ludhiana mandi prices spiked by 8%! Sell now.' : 'Group buying fertilizer order confirmed.',
-          url: category === 'climate' ? '/sih/climate-risk' : category === 'mandi' ? '/sih/smart-mandi' : '/sih/aggregation'
-        })
-      });
-
-      if (res.ok) {
-        setTestSuccess(`Live PWA Push Alert sent to Android Tray!`);
-      } else {
-        setTestSuccess(`In-app notification created!`);
+  // Fetch real weather using ClimateRiskService
+  useEffect(() => {
+    let isMounted = true;
+    const loadWeather = async () => {
+      try {
+        const full = await ClimateRiskService.fetchFullAssessment(
+          `${reg.district}, ${reg.state}`,
+          reg.crop || 'Paddy',
+          'Flowering',
+          reg.latitude,
+          reg.longitude
+        );
+        if (isMounted && full?.weather) {
+          setWeatherTemp(Math.round(full.weather.temperatureCelsius ?? 28));
+          setWeatherCondition(full.weather.condition || 'Partly Cloudy');
+          setRainProbability(full.weather.rainfallProbability ?? 20);
+        }
+      } catch (err) {
+        console.warn('Could not fetch live weather, using fallback:', err);
+      } finally {
+        if (isMounted) setWeatherLoading(false);
       }
+    };
 
-      // Add to local list
-      const newNotif: NotificationItem = {
-        id: 'n_' + Date.now(),
-        title: category === 'climate' ? 'BharatFarm Climate Alert 🌧️' : category === 'mandi' ? 'BharatFarm Mandi Alert 📍' : 'BharatFarm Aggregation Update 🤝',
-        message: category === 'climate' ? 'Heavy rainfall expected tomorrow. Protect your crops.' : category === 'mandi' ? 'Mandi price update for Paddy.' : 'Group selling pool updated.',
-        time: 'Just now',
-        type: category,
-        route: category === 'climate' ? '/sih/climate-risk' : category === 'mandi' ? '/sih/smart-mandi' : '/sih/aggregation'
-      };
-
-      setNotifications(prev => [newNotif, ...prev]);
-    } catch {
-      setTestSuccess('Notification added locally.');
-    } finally {
-      setSendingTest(false);
-    }
-  };
-
-  const solutions = [
-    {
-      id: 'price-risk',
-      title: t('sih.priceRiskNav'),
-      subtitle: t('sih.priceRiskSubtitle'),
-      description: t('sih.priceRiskDesc'),
-      badgeIcon: 'eco',
-      badgeBg: '#FFFFFF',
-      badgeColor: '#15803D',
-      path: '/sih/price-risk',
-      image: 'https://images.unsplash.com/photo-1574943320219-553eb213f72d?auto=format&fit=crop&w=600&q=80' // sprout seedling in rich dark soil
-    },
-    {
-      id: 'climate-risk',
-      title: t('sih.climateRiskNav'),
-      subtitle: t('sih.climateRiskSubtitle'),
-      description: t('sih.climateRiskDesc'),
-      badgeIcon: 'wb_sunny',
-      badgeBg: '#FFFFFF',
-      badgeColor: '#1D4ED8',
-      path: '/sih/climate-risk',
-      image: 'https://images.unsplash.com/photo-1534274988757-a28bf1a57c17?auto=format&fit=crop&w=600&q=80' // dark rain/weather landscape
-    },
-    {
-      id: 'aggregation',
-      title: t('sih.aggregationNav'),
-      subtitle: t('sih.aggregationSubtitle'),
-      description: t('sih.aggregationDesc'),
-      badgeIcon: 'group',
-      badgeBg: '#FFFFFF',
-      badgeColor: '#0D9488',
-      path: '/sih/aggregation',
-      image: 'https://images.unsplash.com/photo-1595974482597-4b8da8879bc5?auto=format&fit=crop&w=600&q=80' // field workers collective farming
-    },
-    {
-      id: 'crop-insurance',
-      title: t('sih.cropInsuranceNav'),
-      subtitle: t('sih.cropInsuranceSubtitle'),
-      description: t('sih.cropInsuranceDesc'),
-      badgeIcon: 'verified_user',
-      badgeBg: '#FFFFFF',
-      badgeColor: '#D97706',
-      path: '/sih/crop-insurance',
-      image: 'https://images.unsplash.com/photo-1625246333195-78d9c38ad449?auto=format&fit=crop&w=600&q=80' // green sapling crop insurance
-    },
-    {
-      id: 'smart-mandi',
-      title: t('sih.smartMandiNav'),
-      subtitle: t('sih.smartMandiSubtitle'),
-      description: t('sih.smartMandiDesc'),
-      badgeIcon: 'bar_chart',
-      badgeBg: '#FFFFFF',
-      badgeColor: '#DC2626',
-      path: '/sih/smart-mandi',
-      image: 'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=600&q=80' // fresh market produce
-    },
-    {
-      id: 'sahayak',
-      title: t('sih.sahayakNav'),
-      subtitle: t('sih.sahayakSubtitle'),
-      description: t('sih.sahayakDesc'),
-      badgeIcon: 'chat',
-      badgeBg: '#FFFFFF',
-      badgeColor: '#7C3AED',
-      path: '/sih/sahayak',
-      image: 'https://images.unsplash.com/photo-1592982537447-7440770cbfc9?auto=format&fit=crop&w=600&q=80' // lush field / sahayak AI
-    }
-  ];
+    loadWeather();
+    return () => {
+      isMounted = false;
+    };
+  }, [reg.district, reg.state, reg.crop, reg.latitude, reg.longitude]);
 
   return (
     <div style={{
       minHeight: '100vh',
       width: '100vw',
-      background: '#F8FAFC',
-      paddingBottom: '82px',
-      fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+      maxWidth: '100%',
+      background: '#F7F4EC', // Warm agricultural off-white
+      paddingBottom: '84px',
+      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
       boxSizing: 'border-box',
-      overflowX: 'hidden'
+      overflowX: 'hidden',
+      color: '#18231B' // Dark earthy green-charcoal text
     }}>
       {/* 1. COMPACT HEADER */}
       <header style={{
@@ -191,8 +122,8 @@ export const MobileModuleHomePage: React.FC = () => {
         position: 'sticky',
         top: 0,
         zIndex: 50,
-        borderBottom: '1px solid #E2E8F0',
-        boxShadow: '0 1px 3px rgba(0,0,0,0.03)'
+        borderBottom: '1px solid #EAE4D5',
+        boxShadow: '0 1px 3px rgba(24, 35, 27, 0.04)'
       }}>
         {/* Brand */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.55rem' }}>
@@ -205,15 +136,15 @@ export const MobileModuleHomePage: React.FC = () => {
             <div style={{
               fontSize: '1.15rem',
               fontWeight: 900,
-              color: '#0F172A',
+              color: '#174A2A',
               letterSpacing: '-0.02em',
               lineHeight: 1.1
             }}>
-              Bharat<span style={{ color: '#16A34A' }}>Farm</span>
+              Bharat<span style={{ color: '#4F7D32' }}>Farm</span>
             </div>
             <div style={{
               fontSize: '0.62rem',
-              color: '#64748B',
+              color: '#6B7280',
               fontWeight: 600,
               letterSpacing: '0.01em',
               lineHeight: 1
@@ -223,7 +154,7 @@ export const MobileModuleHomePage: React.FC = () => {
           </div>
         </div>
 
-        {/* Right header controls */}
+        {/* Right header controls: Language + Notification + Profile */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
           {/* Language selector pill */}
           <div style={{ position: 'relative' }}>
@@ -234,31 +165,31 @@ export const MobileModuleHomePage: React.FC = () => {
               style={{
                 appearance: 'none',
                 WebkitAppearance: 'none',
-                background: '#F1F5F9',
-                color: '#1E293B',
-                border: '1px solid #CBD5E1',
+                background: '#F2EDE2',
+                color: '#18231B',
+                border: '1px solid #D9D2C3',
                 borderRadius: '9999px',
-                padding: '0.3rem 1.4rem 0.3rem 0.65rem',
-                fontSize: '0.74rem',
+                padding: '0.25rem 1.3rem 0.25rem 0.6rem',
+                fontSize: '0.72rem',
                 fontWeight: 700,
                 cursor: 'pointer',
                 outline: 'none',
-                height: '32px'
+                height: '30px'
               }}
             >
               <option value="en">EN</option>
-              <option value="hi">HI</option>
-              <option value="bn">BN</option>
+              <option value="hi">हिन्दी</option>
+              <option value="bn">বাংলা</option>
             </select>
             <span
               className="material-symbols-outlined"
               style={{
                 position: 'absolute',
-                right: '5px',
+                right: '4px',
                 top: '50%',
                 transform: 'translateY(-50%)',
                 fontSize: '14px',
-                color: '#64748B',
+                color: '#6B7280',
                 pointerEvents: 'none'
               }}
             >
@@ -271,20 +202,21 @@ export const MobileModuleHomePage: React.FC = () => {
             onClick={() => setShowNotifDrawer(true)}
             title={t('common.notifications')}
             style={{
-              width: '34px',
-              height: '34px',
+              width: '32px',
+              height: '32px',
               borderRadius: '50%',
-              background: '#F1F5F9',
-              border: '1px solid #CBD5E1',
-              color: '#1E293B',
+              background: '#F2EDE2',
+              border: '1px solid #D9D2C3',
+              color: '#18231B',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               cursor: 'pointer',
-              position: 'relative'
+              position: 'relative',
+              padding: 0
             }}
           >
-            <span className="material-symbols-outlined" style={{ fontSize: '18px', color: '#1E293B' }}>
+            <span className="material-symbols-outlined" style={{ fontSize: '18px', color: '#174A2A' }}>
               notifications
             </span>
             {notifications.length > 0 && (
@@ -292,32 +224,32 @@ export const MobileModuleHomePage: React.FC = () => {
                 position: 'absolute',
                 top: '4px',
                 right: '4px',
-                width: '7px',
-                height: '7px',
+                width: '6px',
+                height: '6px',
                 borderRadius: '50%',
-                background: '#EF4444',
-                border: '1.5px solid #FFFFFF'
+                background: '#DC2626'
               }} />
             )}
           </button>
 
-          {/* User Avatar Circle */}
+          {/* User Profile Avatar Circle */}
           <button
             onClick={() => navigate('/profile')}
             title={t('moduleHome.profileTitle', { name: farmerName })}
             style={{
-              width: '34px',
-              height: '34px',
+              width: '32px',
+              height: '32px',
               borderRadius: '50%',
-              background: '#143621',
+              background: '#174A2A',
               color: '#FFFFFF',
               border: 'none',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               fontWeight: 800,
-              fontSize: '0.88rem',
-              cursor: 'pointer'
+              fontSize: '0.82rem',
+              cursor: 'pointer',
+              padding: 0
             }}
           >
             {user?.fullName ? user.fullName[0].toUpperCase() : 'S'}
@@ -325,50 +257,118 @@ export const MobileModuleHomePage: React.FC = () => {
         </div>
       </header>
 
+      {/* Greeting Banner */}
+      <section style={{
+        position: 'relative',
+        padding: '0.85rem 1rem 0.75rem',
+        overflow: 'hidden',
+        background: 'linear-gradient(180deg, rgba(234, 243, 222, 0.7) 0%, rgba(247, 244, 236, 0.95) 100%)',
+        borderBottom: '1px solid #EAE4D5'
+      }}>
+        {/* Subtle landscape texture */}
+        <div style={{
+          position: 'absolute',
+          inset: 0,
+          backgroundImage: 'url("https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1000&q=80")',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center 35%',
+          opacity: 0.12,
+          pointerEvents: 'none'
+        }} />
+
+        <div style={{ position: 'relative', zIndex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div>
+            <h1 style={{
+              fontSize: '1.28rem',
+              fontWeight: 900,
+              color: '#18231B',
+              margin: 0,
+              letterSpacing: '-0.02em',
+              lineHeight: 1.2
+            }}>
+              Hello, {farmerName}! 👋
+            </h1>
+            <p style={{
+              fontSize: '0.74rem',
+              color: '#4B5563',
+              margin: '0.15rem 0 0 0',
+              fontWeight: 600,
+              lineHeight: 1.3
+            }}>
+              {t('home.empowerTagline')}
+            </p>
+          </div>
+
+          {/* Decorative agricultural badge */}
+          <div style={{
+            textAlign: 'right',
+            userSelect: 'none',
+            flexShrink: 0
+          }}>
+            <div style={{
+              fontFamily: '"Caveat", "Brush Script MT", cursive, sans-serif',
+              fontSize: '0.95rem',
+              fontWeight: 700,
+              color: '#8A6545',
+              lineHeight: 1.05,
+              transform: 'rotate(-2deg)'
+            }}>
+              For a Stronger<br />
+              <span style={{ fontSize: '1.1rem', color: '#174A2A', fontWeight: 800 }}>Bharat</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Interactive Notification Drawer Modal */}
       {showNotifDrawer && (
-        <div style={{
-          position: 'fixed',
-          inset: 0,
-          background: 'rgba(15, 23, 42, 0.6)',
-          backdropFilter: 'blur(4px)',
-          zIndex: 999,
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'flex-start',
-          padding: '1rem'
-        }} onClick={() => setShowNotifDrawer(false)}>
-          <div style={{
-            width: '100%',
-            maxWidth: '440px',
-            background: '#FFFFFF',
-            borderRadius: '18px',
-            boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)',
-            padding: '1.15rem',
-            maxHeight: '85vh',
-            overflowY: 'auto',
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(24, 35, 27, 0.65)',
+            backdropFilter: 'blur(2px)',
+            zIndex: 999,
             display: 'flex',
-            flexDirection: 'column',
-            gap: '0.85rem',
-            marginTop: '1.5rem'
-          }} onClick={e => e.stopPropagation()}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #E2E8F0', paddingBottom: '0.65rem' }}>
+            justifyContent: 'center',
+            alignItems: 'flex-start',
+            padding: '1rem'
+          }}
+          onClick={() => setShowNotifDrawer(false)}
+        >
+          <div
+            style={{
+              width: '100%',
+              maxWidth: '420px',
+              background: '#FFFFFF',
+              borderRadius: '16px',
+              boxShadow: '0 12px 28px rgba(0,0,0,0.15)',
+              padding: '1rem',
+              maxHeight: '80vh',
+              overflowY: 'auto',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '0.75rem',
+              marginTop: '1rem'
+            }}
+            onClick={e => e.stopPropagation()}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #EAE4D5', paddingBottom: '0.5rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                <span className="material-symbols-outlined" style={{ color: '#16A34A', fontSize: '22px' }}>notifications</span>
-                <h3 style={{ fontSize: '1rem', fontWeight: 800, color: '#0F172A', margin: 0 }}>
+                <span className="material-symbols-outlined" style={{ color: '#174A2A', fontSize: '20px' }}>notifications</span>
+                <h3 style={{ fontSize: '0.94rem', fontWeight: 800, color: '#18231B', margin: 0 }}>
                   {t('notifications.agriNotifs')}
                 </h3>
               </div>
               <button
                 onClick={() => setShowNotifDrawer(false)}
-                style={{ background: 'none', border: 'none', fontSize: '1.2rem', color: '#64748B', cursor: 'pointer' }}
+                style={{ background: 'none', border: 'none', fontSize: '1.1rem', color: '#6B7280', cursor: 'pointer' }}
               >
                 ✕
               </button>
             </div>
 
-            {/* Notification Items List */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.55rem' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
               {notifications.map(n => (
                 <div
                   key={n.id}
@@ -377,21 +377,18 @@ export const MobileModuleHomePage: React.FC = () => {
                     navigate(n.route);
                   }}
                   style={{
-                    background: '#F8FAFC',
-                    border: '1px solid #E2E8F0',
+                    background: '#FDFBF7',
+                    border: '1px solid #EAE4D5',
                     borderRadius: '10px',
-                    padding: '0.65rem 0.75rem',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '0.15rem'
+                    padding: '0.6rem 0.75rem',
+                    cursor: 'pointer'
                   }}
                 >
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{ fontSize: '0.82rem', fontWeight: 800, color: '#0F172A' }}>{n.title}</span>
-                    <span style={{ fontSize: '0.65rem', color: '#64748B', fontWeight: 600 }}>{n.time}</span>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.2rem' }}>
+                    <span style={{ fontSize: '0.8rem', fontWeight: 800, color: '#174A2A' }}>{n.title}</span>
+                    <span style={{ fontSize: '0.62rem', color: '#6B7280', fontWeight: 600 }}>{n.time}</span>
                   </div>
-                  <p style={{ fontSize: '0.74rem', color: '#475569', margin: 0, lineHeight: 1.3 }}>{n.message}</p>
+                  <p style={{ fontSize: '0.72rem', color: '#374151', margin: 0, lineHeight: 1.3 }}>{n.message}</p>
                 </div>
               ))}
             </div>
@@ -399,151 +396,102 @@ export const MobileModuleHomePage: React.FC = () => {
         </div>
       )}
 
-      {/* 2. COMPACT HERO / GREETING SECTION (Occupies ~15-20% viewport, no vertical waste) */}
-      <section style={{
-        position: 'relative',
-        padding: '1rem 1rem 0.85rem',
-        overflow: 'hidden',
-        background: 'linear-gradient(180deg, rgba(236, 253, 245, 0.5) 0%, rgba(248, 250, 252, 0.95) 100%)',
-        borderBottom: '1px solid #F1F5F9'
-      }}>
-        {/* Real agricultural landscape background image */}
-        <div style={{
-          position: 'absolute',
-          inset: 0,
-          backgroundImage: 'url("https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1000&q=80")',
-          backgroundSize: 'cover',
-          backgroundPosition: 'center 35%',
-          opacity: 0.18,
-          pointerEvents: 'none'
-        }} />
+      {/* Main Dashboard Body */}
+      <main style={{ padding: '0.85rem 1rem', display: 'flex', flexDirection: 'column', gap: '0.9rem' }}>
 
-        <div style={{ position: 'relative', zIndex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div>
-            <h1 style={{
-              fontSize: '1.35rem',
-              fontWeight: 900,
-              color: '#0F172A',
-              margin: 0,
-              letterSpacing: '-0.02em',
-              lineHeight: 1.2
-            }}>
-              Hello, {farmerName}! 👋
-            </h1>
-            <p style={{
-              fontSize: '0.78rem',
-              color: '#475569',
-              margin: '0.2rem 0 0 0',
-              fontWeight: 600,
-              lineHeight: 1.3
-            }}>
-              {t('home.empowerTagline')}
-            </p>
-          </div>
-
-          {/* Decorative compact badge */}
-          <div style={{
-            textAlign: 'right',
-            userSelect: 'none',
-            flexShrink: 0
-          }}>
-            <div style={{
-              fontFamily: '"Caveat", "Brush Script MT", cursive, sans-serif',
-              fontSize: '1.05rem',
-              fontWeight: 700,
-              color: '#92400E',
-              lineHeight: 1.05,
-              transform: 'rotate(-3deg)'
-            }}>
-              For a Stronger<br />
-              <span style={{ fontSize: '1.2rem', color: '#15803D', fontWeight: 800 }}>Bharat</span>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Main dashboard content */}
-      <main style={{ padding: '0.85rem 1rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-
-        {/* 3. COMPACT REGISTERED FARM CARD (Matching reference layout) */}
-        <div style={{
+        {/* 2. FARM CONTEXT CARD — Real, trustworthy farm passport */}
+        <section style={{
           background: '#FFFFFF',
-          border: '1px solid #E2E8F0',
-          borderRadius: '18px',
-          padding: '0.9rem 1rem',
-          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.03)',
-          position: 'relative'
+          border: '1px solid #DFD9C9',
+          borderRadius: '14px',
+          padding: '0.85rem 0.95rem',
+          boxShadow: '0 1px 3px rgba(24, 35, 27, 0.04)'
         }}>
-          {/* Main info row with circular farm thumbnail */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', marginBottom: '0.65rem' }}>
-            {/* Circular Farm Thumbnail */}
+          {/* Tag header */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.45rem' }}>
             <div style={{
-              width: '58px',
-              height: '58px',
-              borderRadius: '50%',
+              fontSize: '0.65rem',
+              fontWeight: 800,
+              color: '#8A6545', // Earth/soil accent
+              letterSpacing: '0.06em',
+              textTransform: 'uppercase'
+            }}>
+              {t('home.yourFarmTitle')}
+            </div>
+
+            <button
+              onClick={() => navigate('/sih/field-mapping')}
+              style={{
+                background: '#16A34A',
+                border: '1px solid #15803D',
+                borderRadius: '9999px',
+                padding: '0.28rem 0.75rem',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.28rem',
+                fontSize: '0.72rem',
+                fontWeight: 800,
+                color: '#FFFFFF',
+                cursor: 'pointer',
+                boxShadow: '0 2px 6px rgba(22, 163, 74, 0.3)'
+              }}
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: '13px', color: '#FFFFFF' }}>
+                edit
+              </span>
+              <span>{t('home.updateBtn')}</span>
+            </button>
+          </div>
+
+          {/* Farm details */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <div style={{
+              width: '46px',
+              height: '46px',
+              borderRadius: '10px',
               overflow: 'hidden',
               flexShrink: 0,
-              border: '2px solid #86EFAC',
-              boxShadow: '0 2px 6px rgba(22, 163, 74, 0.15)'
+              border: '1px solid #DFD9C9'
             }}>
               <img
-                src="https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=300&q=80"
+                src="https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=200&q=80"
                 alt={reg.fieldName}
                 style={{ width: '100%', height: '100%', objectFit: 'cover' }}
               />
             </div>
 
             <div style={{ flex: 1, minWidth: 0 }}>
-              {/* Header: Badge & Update button */}
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.35rem', marginBottom: '0.15rem' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-                  <span className="material-symbols-outlined" style={{ fontSize: '15px', color: '#16A34A', fontVariationSettings: "'FILL' 1" }}>
-                    check_circle
-                  </span>
-                  <span style={{ fontSize: '0.74rem', fontWeight: 800, color: '#14532D', letterSpacing: '0.01em' }}>
-                    {t('home.registeredFarmTitle')}
-                  </span>
-                </div>
-
-                <button
-                  onClick={() => navigate('/sih/field-mapping')}
-                  style={{
-                    background: '#16A34A',
-                    border: '1px solid #15803D',
-                    borderRadius: '9999px',
-                    padding: '0.28rem 0.75rem',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.3rem',
-                    fontSize: '0.72rem',
-                    fontWeight: 800,
-                    color: '#FFFFFF',
-                    cursor: 'pointer',
-                    boxShadow: '0 2px 6px rgba(22, 163, 74, 0.35)',
-                    transition: 'all 0.15s ease'
-                  }}
-                >
-                  <span className="material-symbols-outlined" style={{ fontSize: '13px', color: '#FFFFFF', fontVariationSettings: "'FILL' 1" }}>
-                    edit
-                  </span>
-                  <span>{t('home.updateBtn')}</span>
-                </button>
-              </div>
-
               <div style={{
-                fontSize: '0.94rem',
+                fontSize: '0.98rem',
                 fontWeight: 800,
-                color: '#0F172A',
-                lineHeight: 1.2,
+                color: '#18231B',
+                lineHeight: 1.25,
                 whiteSpace: 'nowrap',
                 overflow: 'hidden',
                 textOverflow: 'ellipsis'
               }}>
-                {reg.fieldName} <span style={{ fontWeight: 600, color: '#64748B', fontSize: '0.78rem' }}>({reg.crop}, {reg.landSizeAcres} Acres)</span>
+                {reg.fieldName}
               </div>
 
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.2rem', fontSize: '0.72rem', color: '#64748B', fontWeight: 600, marginTop: '0.15rem' }}>
-                <span className="material-symbols-outlined" style={{ fontSize: '13px', color: '#16A34A' }}>
+              <div style={{
+                fontSize: '0.76rem',
+                color: '#4B5563',
+                fontWeight: 600,
+                marginTop: '0.12rem'
+              }}>
+                {reg.crop} · {reg.landSizeAcres} {language === 'hi' ? 'एकड़' : language === 'bn' ? 'একর' : 'acres'}
+              </div>
+
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.25rem',
+                fontSize: '0.72rem',
+                color: '#6B7280',
+                fontWeight: 500,
+                marginTop: '0.2rem'
+              }}>
+                <span className="material-symbols-outlined" style={{ fontSize: '14px', color: '#8A6545' }}>
                   location_on
                 </span>
                 <span>{reg.district}, {reg.state}</span>
@@ -551,399 +499,646 @@ export const MobileModuleHomePage: React.FC = () => {
             </div>
           </div>
 
-          {/* Sub-Actions Row: Field Map | Soil | Walk Farm with icons */}
+          {/* Quick field shortcuts */}
           <div style={{
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            marginTop: '0.65rem',
+            marginTop: '0.7rem',
             paddingTop: '0.6rem',
-            borderTop: '1px solid #F1F5F9',
+            borderTop: '1px dashed #EAE4D5',
             fontSize: '0.72rem',
             fontWeight: 700,
-            color: '#15803D'
+            color: '#174A2A'
           }}>
             <div
               onClick={() => navigate('/sih/field-mapping')}
-              style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', cursor: 'pointer' }}
+              style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', cursor: 'pointer' }}
             >
-              <span className="material-symbols-outlined" style={{ fontSize: '15px', color: '#16A34A' }}>map</span>
+              <span className="material-symbols-outlined" style={{ fontSize: '14px', color: '#4F7D32' }}>map</span>
               <span>{t('home.fieldMappingShort')}</span>
             </div>
-            <span style={{ color: '#E2E8F0' }}>•</span>
+            <span style={{ color: '#D9D2C3' }}>•</span>
             <div
               onClick={() => navigate('/sih/climate-risk')}
-              style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', cursor: 'pointer' }}
+              style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', cursor: 'pointer' }}
             >
-              <span className="material-symbols-outlined" style={{ fontSize: '15px', color: '#16A34A' }}>psychology</span>
+              <span className="material-symbols-outlined" style={{ fontSize: '14px', color: '#4F7D32' }}>psychology</span>
               <span>{t('home.soilInsights')}</span>
             </div>
-            <span style={{ color: '#E2E8F0' }}>•</span>
+            <span style={{ color: '#D9D2C3' }}>•</span>
             <div
               onClick={() => navigate('/sih/field-mapping')}
-              style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', cursor: 'pointer' }}
+              style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', cursor: 'pointer' }}
             >
-              <span className="material-symbols-outlined" style={{ fontSize: '15px', color: '#16A34A' }}>directions_walk</span>
+              <span className="material-symbols-outlined" style={{ fontSize: '14px', color: '#4F7D32' }}>directions_walk</span>
               <span>{t('home.walkTheFarm')}</span>
             </div>
           </div>
-        </div>
+        </section>
 
-        {/* 4. "OUR SOLUTIONS" 2-COLUMN COMPACT MOBILE GRID (~175px Height per tile) */}
-        <div>
-          <div style={{ marginBottom: '0.5rem' }}>
-            <h2 style={{
-              fontSize: '1.05rem',
-              fontWeight: 900,
-              color: '#0F172A',
-              margin: 0,
-              letterSpacing: '-0.01em'
-            }}>
-              {t('home.solutionsTitle')}
-            </h2>
-            <p style={{
-              fontSize: '0.72rem',
-              color: '#64748B',
-              margin: '0.1rem 0 0 0',
-              fontWeight: 500
-            }}>
-              {t('home.solutionsSubtitle')}
-            </p>
-          </div>
-
-          {/* 2-Column Grid: Full-Bleed Image Cards matching reference design */}
+        {/* 3. "TODAY ON YOUR FARM" — Contextual Weather & Decision Card with Image */}
+        <section style={{
+          background: '#FFFFFF',
+          border: '1px solid #DFD9C9',
+          borderRadius: '14px',
+          padding: '0.85rem 0.95rem',
+          boxShadow: '0 1px 3px rgba(24, 35, 27, 0.04)'
+        }}>
           <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(2, 1fr)',
-            gap: '0.75rem'
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            marginBottom: '0.5rem'
           }}>
-            {solutions.map((item) => (
-              <div
-                key={item.id}
-                onClick={() => navigate(item.path)}
-                style={{
-                  height: '190px',
-                  borderRadius: '16px',
-                  overflow: 'hidden',
-                  cursor: 'pointer',
-                  position: 'relative',
-                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  justifyContent: 'space-between',
-                  boxSizing: 'border-box'
-                }}
-              >
-                {/* Full-bleed background image */}
-                <img
-                  src={item.image}
-                  alt={item.title}
-                  style={{
-                    position: 'absolute',
-                    inset: 0,
-                    width: '100%',
-                    height: '100%',
-                    objectFit: 'cover',
-                    zIndex: 0
-                  }}
-                />
-
-                {/* Rich dark gradient overlay from bottom upwards for text legibility */}
-                <div style={{
-                  position: 'absolute',
-                  inset: 0,
-                  background: 'linear-gradient(180deg, rgba(15, 23, 42, 0.15) 0%, rgba(15, 23, 42, 0.25) 45%, rgba(15, 23, 42, 0.88) 80%, rgba(15, 23, 42, 0.98) 100%)',
-                  zIndex: 1
-                }} />
-
-                {/* Top: Module Badge Icon */}
-                <div style={{ position: 'relative', zIndex: 2, padding: '0.65rem 0.65rem 0' }}>
-                  <div style={{
-                    width: '28px',
-                    height: '28px',
-                    borderRadius: '8px',
-                    background: '#FFFFFF',
-                    color: item.badgeColor,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    boxShadow: '0 2px 6px rgba(0, 0, 0, 0.2)'
-                  }}>
-                    <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>
-                      {item.badgeIcon}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Bottom: Title, Subtitle, Description, and Circular White Arrow */}
-                <div style={{
-                  position: 'relative',
-                  zIndex: 2,
-                  padding: '0.65rem 0.65rem 0.55rem',
-                  display: 'flex',
-                  alignItems: 'flex-end',
-                  justifyContent: 'space-between',
-                  gap: '0.4rem'
-                }}>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <h3 style={{
-                      fontSize: '0.88rem',
-                      fontWeight: 800,
-                      color: '#FFFFFF',
-                      margin: '0 0 0.15rem 0',
-                      lineHeight: 1.2,
-                      textShadow: '0 1px 3px rgba(0,0,0,0.5)'
-                    }}>
-                      {item.title}
-                    </h3>
-                    <div style={{
-                      fontSize: '0.7rem',
-                      fontWeight: 700,
-                      color: '#86EFAC',
-                      lineHeight: 1.15,
-                      marginBottom: '0.15rem',
-                      textShadow: '0 1px 2px rgba(0,0,0,0.4)'
-                    }}>
-                      {item.subtitle || item.description}
-                    </div>
-                    <div style={{
-                      fontSize: '0.62rem',
-                      color: '#E2E8F0',
-                      lineHeight: 1.15,
-                      fontWeight: 500,
-                      display: '-webkit-box',
-                      WebkitLineClamp: 2,
-                      WebkitBoxOrient: 'vertical',
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis'
-                    }}>
-                      {item.description}
-                    </div>
-                  </div>
-
-                  {/* Circular White Arrow Button */}
-                  <div style={{
-                    width: '24px',
-                    height: '24px',
-                    borderRadius: '50%',
-                    background: '#FFFFFF',
-                    color: '#0F172A',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    flexShrink: 0,
-                    boxShadow: '0 2px 6px rgba(0,0,0,0.3)'
-                  }}>
-                    <span className="material-symbols-outlined" style={{ fontSize: '15px', fontWeight: 800 }}>
-                      arrow_forward
-                    </span>
-                  </div>
-                </div>
-              </div>
-            ))}
+            <span style={{
+              fontSize: '0.65rem',
+              fontWeight: 800,
+              color: '#8A6545',
+              letterSpacing: '0.06em',
+              textTransform: 'uppercase'
+            }}>
+              {t('home.todayOnFarmTitle')}
+            </span>
+            <span style={{ fontSize: '0.68rem', color: '#6B7280', fontWeight: 600 }}>
+              {reg.district}
+            </span>
           </div>
 
-          {/* Basic Farmer Needs (Everyday Tools) Card - Full-bleed matching card */}
           <div
-            onClick={() => navigate('/dashboard')}
+            onClick={() => navigate('/sih/climate-risk')}
             style={{
-              marginTop: '0.75rem',
-              height: '140px',
-              borderRadius: '16px',
+              borderRadius: '14px',
               overflow: 'hidden',
               cursor: 'pointer',
               position: 'relative',
-              boxShadow: '0 4px 14px rgba(0, 0, 0, 0.08)',
               display: 'flex',
               flexDirection: 'column',
               justifyContent: 'space-between',
+              minHeight: '135px',
+              padding: '0.85rem 0.95rem',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
               boxSizing: 'border-box'
             }}
           >
-            {/* Full-bleed landscape photo */}
+            {/* Full Card Weather Background Image */}
             <img
-              src="https://images.unsplash.com/photo-1500937386664-56d1dfef3854?auto=format&fit=crop&w=800&q=80"
-              alt="Basic Farmer Needs"
+              src={
+                rainProbability >= 60
+                  ? 'https://images.unsplash.com/photo-1534274988757-a28bf1a57c17?auto=format&fit=crop&w=600&q=80' // Rain, storm clouds & dark field
+                  : rainProbability >= 30
+                  ? 'https://images.unsplash.com/photo-1513002749550-c59d786b8e6c?auto=format&fit=crop&w=600&q=80' // Sky & clouds
+                  : 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=600&q=80' // Golden hour farm field
+              }
+              alt={weatherCondition}
               style={{
                 position: 'absolute',
                 inset: 0,
                 width: '100%',
                 height: '100%',
                 objectFit: 'cover',
-                objectPosition: 'center 40%',
                 zIndex: 0
               }}
             />
 
-            {/* Dark gradient overlay */}
+            {/* Dark agricultural gradient overlay for text readability */}
             <div style={{
               position: 'absolute',
               inset: 0,
-              background: 'linear-gradient(180deg, rgba(15, 23, 42, 0.15) 0%, rgba(15, 23, 42, 0.4) 40%, rgba(15, 23, 42, 0.9) 85%, rgba(15, 23, 42, 0.98) 100%)',
+              background: 'linear-gradient(180deg, rgba(15, 23, 42, 0.45) 0%, rgba(15, 23, 42, 0.7) 45%, rgba(15, 23, 42, 0.92) 100%)',
               zIndex: 1
             }} />
 
-            {/* Top: Tractor Icon Badge */}
-            <div style={{ position: 'relative', zIndex: 2, padding: '0.65rem 0.75rem 0' }}>
-              <div style={{
-                width: '28px',
-                height: '28px',
-                borderRadius: '8px',
-                background: '#FFFFFF',
-                color: '#B45309',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                boxShadow: '0 2px 6px rgba(0, 0, 0, 0.2)'
-              }}>
-                <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>
-                  agriculture
-                </span>
+            {/* Top Row: Weather stats & emoji */}
+            <div style={{ position: 'relative', zIndex: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+              <div>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.5rem' }}>
+                  <span style={{ fontSize: '1.75rem', fontWeight: 900, color: '#FFFFFF', lineHeight: 1, textShadow: '0 1px 3px rgba(0,0,0,0.6)' }}>
+                    {weatherLoading ? '--' : `${weatherTemp}°C`}
+                  </span>
+                  <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#86EFAC', textShadow: '0 1px 2px rgba(0,0,0,0.5)' }}>
+                    {weatherLoading ? t('home.weatherChecking') : `${weatherCondition} · ${rainProbability}% rain`}
+                  </span>
+                </div>
+
+                <div style={{
+                  fontSize: '0.74rem',
+                  color: '#F1F5F9',
+                  fontWeight: 500,
+                  marginTop: '0.25rem',
+                  lineHeight: 1.3,
+                  textShadow: '0 1px 2px rgba(0,0,0,0.6)'
+                }}>
+                  {rainProbability >= 60
+                    ? (language === 'hi' ? 'भारी बारिश संभव — कटाई सुरक्षित करें' : language === 'bn' ? 'ভারী বৃষ্টির সম্ভাবনা — ফসল রক্ষা করুন' : 'Rain expected — protect harvested crop')
+                    : t('home.weatherSummaryStable')}
+                </div>
               </div>
+
+              {/* Weather Icon Badge */}
+              <span style={{
+                background: 'rgba(255, 255, 255, 0.92)',
+                borderRadius: '8px',
+                padding: '4px 7px',
+                fontSize: '1.1rem',
+                lineHeight: 1,
+                boxShadow: '0 2px 5px rgba(0,0,0,0.25)'
+              }}>
+                {rainProbability >= 60 ? '🌧️' : rainProbability >= 30 ? '🌦️' : '☀️'}
+              </span>
             </div>
 
-            {/* Bottom Content Row */}
+            {/* Bottom Row: Plan Harvesting Action Bar */}
             <div style={{
               position: 'relative',
               zIndex: 2,
-              padding: '0.65rem 0.85rem 0.65rem',
               display: 'flex',
-              alignItems: 'flex-end',
+              alignItems: 'center',
               justifyContent: 'space-between',
-              gap: '0.5rem'
+              paddingTop: '0.55rem',
+              marginTop: '0.45rem',
+              borderTop: '1px solid rgba(255, 255, 255, 0.25)',
+              fontSize: '0.74rem',
+              fontWeight: 800,
+              color: '#86EFAC'
             }}>
-              <div>
-                <h3 style={{
-                  fontSize: '0.96rem',
-                  fontWeight: 800,
-                  color: '#FFFFFF',
-                  margin: '0 0 0.15rem 0',
-                  lineHeight: 1.2,
-                  textShadow: '0 1px 3px rgba(0,0,0,0.5)'
-                }}>
-                  {t('home.basicFarmerNeedsTitle')}
-                </h3>
-                <div style={{
-                  fontSize: '0.72rem',
-                  fontWeight: 700,
-                  color: '#FDE047',
-                  lineHeight: 1.15,
-                  marginBottom: '0.15rem',
-                  textShadow: '0 1px 2px rgba(0,0,0,0.4)'
-                }}>
-                  {t('home.everydayTools')}
-                </div>
-                <div style={{
-                  fontSize: '0.66rem',
-                  color: '#E2E8F0',
-                  lineHeight: 1.15,
-                  fontWeight: 500
-                }}>
-                  {t('home.everydayToolsDesc')}
-                </div>
-              </div>
-
-              {/* White circular arrow button */}
+              <span>{t('home.weatherPlanHarvesting')}</span>
               <div style={{
-                width: '26px',
-                height: '26px',
+                width: '24px',
+                height: '24px',
                 borderRadius: '50%',
                 background: '#FFFFFF',
-                color: '#0F172A',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                flexShrink: 0,
-                boxShadow: '0 2px 6px rgba(0,0,0,0.3)'
+                boxShadow: '0 1px 4px rgba(0,0,0,0.3)'
               }}>
-                <span className="material-symbols-outlined" style={{ fontSize: '16px', fontWeight: 800 }}>
+                <span className="material-symbols-outlined" style={{ fontSize: '15px', color: '#14532D', fontWeight: 800 }}>
                   arrow_forward
                 </span>
               </div>
             </div>
           </div>
-        </div>
+        </section>
 
-        {/* 5. BRAND / IMPACT BANNER (Compact) */}
-        <div style={{
-          position: 'relative',
-          borderRadius: '16px',
-          overflow: 'hidden',
-          minHeight: '85px',
-          display: 'flex',
-          alignItems: 'center',
-          boxShadow: '0 2px 8px rgba(15, 23, 42, 0.05)'
-        }}>
-          {/* Background: Farmer in field */}
-          <img
-            src="https://images.unsplash.com/photo-1592982537447-7440770cbfc9?auto=format&fit=crop&w=800&q=80"
-            alt="Indian Farmer in Field"
-            style={{
-              position: 'absolute',
-              inset: 0,
-              width: '100%',
-              height: '100%',
-              objectFit: 'cover',
-              objectPosition: 'center 30%'
-            }}
-          />
-
-          {/* Gradient overlay */}
+        {/* 4. PRIMARY FARMER ACTIONS — Task Oriented (What do you want to do?) */}
+        <section>
           <div style={{
-            position: 'absolute',
-            inset: 0,
-            background: 'linear-gradient(90deg, rgba(254, 252, 232, 0.94) 0%, rgba(254, 252, 232, 0.7) 48%, rgba(15, 50, 28, 0.95) 70%, rgba(10, 36, 20, 0.98) 100%)'
-          }} />
-
-          {/* Banner text */}
-          <div style={{
-            position: 'relative',
-            zIndex: 2,
-            width: '100%',
-            padding: '0.75rem 0.9rem',
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            gap: '0.6rem'
+            fontSize: '0.94rem',
+            fontWeight: 800,
+            color: '#18231B',
+            marginBottom: '0.55rem',
+            letterSpacing: '-0.01em'
           }}>
-            <div style={{ maxWidth: '160px' }}>
-              <p style={{
-                fontFamily: '"Caveat", "Brush Script MT", cursive, sans-serif',
-                fontSize: '0.95rem',
-                fontWeight: 700,
-                color: '#1E293B',
-                margin: 0,
-                lineHeight: 1.15,
-                fontStyle: 'italic'
-              }}>
-                {t('home.bannerQuote')}
-              </p>
-            </div>
+            {t('home.whatToDoTitle')}
+          </div>
 
-            <div style={{ textAlign: 'left', color: '#FFFFFF' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', marginBottom: '0.1rem' }}>
-                <img
-                  src="/logo.png"
-                  alt="BharatFarm"
-                  style={{ width: '18px', height: '18px', objectFit: 'contain' }}
-                />
-                <span style={{ fontSize: '0.92rem', fontWeight: 900, letterSpacing: '-0.02em', color: '#FFFFFF' }}>
-                  Bharat<span style={{ color: '#86EFAC' }}>Farm</span>
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(2, 1fr)',
+            gap: '0.65rem'
+          }}>
+            {/* Task 1: Before You Sow — Full Image Card */}
+            <div
+              onClick={() => navigate('/sih/price-risk')}
+              style={{
+                height: '110px',
+                borderRadius: '14px',
+                overflow: 'hidden',
+                cursor: 'pointer',
+                position: 'relative',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-between',
+                padding: '0.5rem 0.55rem',
+                boxShadow: '0 2px 6px rgba(0, 0, 0, 0.08)',
+                boxSizing: 'border-box'
+              }}
+            >
+              {/* Full Card Background Image */}
+              <img
+                src="https://images.unsplash.com/photo-1574943320219-553eb213f72d?auto=format&fit=crop&w=400&q=80"
+                alt={t('home.beforeYouSowTitle')}
+                style={{
+                  position: 'absolute',
+                  inset: 0,
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
+                  zIndex: 0
+                }}
+              />
+
+              {/* Dark Gradient Overlay for text legibility */}
+              <div style={{
+                position: 'absolute',
+                inset: 0,
+                background: 'linear-gradient(180deg, rgba(24, 35, 27, 0.15) 0%, rgba(24, 35, 27, 0.35) 40%, rgba(24, 35, 27, 0.92) 80%, rgba(24, 35, 27, 0.98) 100%)',
+                zIndex: 1
+              }} />
+
+              {/* Floating Emoji Badge Top-Left */}
+              <div style={{ position: 'relative', zIndex: 2 }}>
+                <span style={{
+                  background: 'rgba(255, 255, 255, 0.92)',
+                  borderRadius: '7px',
+                  padding: '2px 5px',
+                  fontSize: '0.8rem',
+                  lineHeight: 1,
+                  display: 'inline-block',
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.2)'
+                }}>
+                  🌱
                 </span>
               </div>
-              <div style={{ fontSize: '0.64rem', color: '#CBD5E1', fontWeight: 600, lineHeight: 1.2 }}>
-                {t('home.bannerForFarmers')}<br />
-                {t('home.bannerSustainableBharat')}
+
+              {/* Bottom Text Content */}
+              <div style={{ position: 'relative', zIndex: 2 }}>
+                <div style={{
+                  fontSize: '0.84rem',
+                  fontWeight: 800,
+                  color: '#FFFFFF',
+                  lineHeight: 1.15,
+                  textShadow: '0 1px 2px rgba(0,0,0,0.5)'
+                }}>
+                  {t('home.beforeYouSowTitle')}
+                </div>
+                <div style={{
+                  fontSize: '0.62rem',
+                  color: '#E2E8F0',
+                  fontWeight: 500,
+                  marginTop: '0.1rem',
+                  lineHeight: 1.15
+                }}>
+                  {t('home.beforeYouSowSub')}
+                </div>
+              </div>
+            </div>
+
+            {/* Task 2: Where to Sell? — Full Image Card */}
+            <div
+              onClick={() => navigate('/sih/smart-mandi')}
+              style={{
+                height: '110px',
+                borderRadius: '14px',
+                overflow: 'hidden',
+                cursor: 'pointer',
+                position: 'relative',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-between',
+                padding: '0.5rem 0.55rem',
+                boxShadow: '0 2px 6px rgba(0, 0, 0, 0.08)',
+                boxSizing: 'border-box'
+              }}
+            >
+              {/* Full Card Background Image */}
+              <img
+                src="https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=400&q=80"
+                alt={t('home.whereToSellTitle')}
+                style={{
+                  position: 'absolute',
+                  inset: 0,
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
+                  zIndex: 0
+                }}
+              />
+
+              {/* Dark Gradient Overlay */}
+              <div style={{
+                position: 'absolute',
+                inset: 0,
+                background: 'linear-gradient(180deg, rgba(24, 35, 27, 0.15) 0%, rgba(24, 35, 27, 0.35) 40%, rgba(24, 35, 27, 0.92) 80%, rgba(24, 35, 27, 0.98) 100%)',
+                zIndex: 1
+              }} />
+
+              {/* Floating Emoji Badge Top-Left */}
+              <div style={{ position: 'relative', zIndex: 2 }}>
+                <span style={{
+                  background: 'rgba(255, 255, 255, 0.92)',
+                  borderRadius: '7px',
+                  padding: '2px 5px',
+                  fontSize: '0.8rem',
+                  lineHeight: 1,
+                  display: 'inline-block',
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.2)'
+                }}>
+                  📍
+                </span>
+              </div>
+
+              {/* Bottom Text Content */}
+              <div style={{ position: 'relative', zIndex: 2 }}>
+                <div style={{
+                  fontSize: '0.84rem',
+                  fontWeight: 800,
+                  color: '#FFFFFF',
+                  lineHeight: 1.15,
+                  textShadow: '0 1px 2px rgba(0,0,0,0.5)'
+                }}>
+                  {t('home.whereToSellTitle')}
+                </div>
+                <div style={{
+                  fontSize: '0.62rem',
+                  color: '#E2E8F0',
+                  fontWeight: 500,
+                  marginTop: '0.1rem',
+                  lineHeight: 1.15
+                }}>
+                  {t('home.whereToSellSub')}
+                </div>
+              </div>
+            </div>
+
+            {/* Task 3: Sell Together — Full Image Card */}
+            <div
+              onClick={() => navigate('/sih/aggregation')}
+              style={{
+                height: '110px',
+                borderRadius: '14px',
+                overflow: 'hidden',
+                cursor: 'pointer',
+                position: 'relative',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-between',
+                padding: '0.5rem 0.55rem',
+                boxShadow: '0 2px 6px rgba(0, 0, 0, 0.08)',
+                boxSizing: 'border-box'
+              }}
+            >
+              {/* Full Card Background Image */}
+              <img
+                src="https://images.unsplash.com/photo-1595974482597-4b8da8879bc5?auto=format&fit=crop&w=400&q=80"
+                alt={t('home.sellTogetherTitle')}
+                style={{
+                  position: 'absolute',
+                  inset: 0,
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
+                  zIndex: 0
+                }}
+              />
+
+              {/* Dark Gradient Overlay */}
+              <div style={{
+                position: 'absolute',
+                inset: 0,
+                background: 'linear-gradient(180deg, rgba(24, 35, 27, 0.15) 0%, rgba(24, 35, 27, 0.35) 40%, rgba(24, 35, 27, 0.92) 80%, rgba(24, 35, 27, 0.98) 100%)',
+                zIndex: 1
+              }} />
+
+              {/* Floating Emoji Badge Top-Left */}
+              <div style={{ position: 'relative', zIndex: 2 }}>
+                <span style={{
+                  background: 'rgba(255, 255, 255, 0.92)',
+                  borderRadius: '7px',
+                  padding: '2px 5px',
+                  fontSize: '0.8rem',
+                  lineHeight: 1,
+                  display: 'inline-block',
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.2)'
+                }}>
+                  👥
+                </span>
+              </div>
+
+              {/* Bottom Text Content */}
+              <div style={{ position: 'relative', zIndex: 2 }}>
+                <div style={{
+                  fontSize: '0.84rem',
+                  fontWeight: 800,
+                  color: '#FFFFFF',
+                  lineHeight: 1.15,
+                  textShadow: '0 1px 2px rgba(0,0,0,0.5)'
+                }}>
+                  {t('home.sellTogetherTitle')}
+                </div>
+                <div style={{
+                  fontSize: '0.62rem',
+                  color: '#E2E8F0',
+                  fontWeight: 500,
+                  marginTop: '0.1rem',
+                  lineHeight: 1.15
+                }}>
+                  {t('home.sellTogetherSub')}
+                </div>
+              </div>
+            </div>
+
+            {/* Task 4: Protect My Crop — Full Image Card */}
+            <div
+              onClick={() => navigate('/sih/crop-insurance')}
+              style={{
+                height: '110px',
+                borderRadius: '14px',
+                overflow: 'hidden',
+                cursor: 'pointer',
+                position: 'relative',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-between',
+                padding: '0.5rem 0.55rem',
+                boxShadow: '0 2px 6px rgba(0, 0, 0, 0.08)',
+                boxSizing: 'border-box'
+              }}
+            >
+              {/* Full Card Background Image */}
+              <img
+                src="https://images.unsplash.com/photo-1625246333195-78d9c38ad449?auto=format&fit=crop&w=400&q=80"
+                alt={t('home.protectCropTitle')}
+                style={{
+                  position: 'absolute',
+                  inset: 0,
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
+                  zIndex: 0
+                }}
+              />
+
+              {/* Dark Gradient Overlay */}
+              <div style={{
+                position: 'absolute',
+                inset: 0,
+                background: 'linear-gradient(180deg, rgba(24, 35, 27, 0.15) 0%, rgba(24, 35, 27, 0.35) 40%, rgba(24, 35, 27, 0.92) 80%, rgba(24, 35, 27, 0.98) 100%)',
+                zIndex: 1
+              }} />
+
+              {/* Floating Emoji Badge Top-Left */}
+              <div style={{ position: 'relative', zIndex: 2 }}>
+                <span style={{
+                  background: 'rgba(255, 255, 255, 0.92)',
+                  borderRadius: '7px',
+                  padding: '2px 5px',
+                  fontSize: '0.8rem',
+                  lineHeight: 1,
+                  display: 'inline-block',
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.2)'
+                }}>
+                  🛡️
+                </span>
+              </div>
+
+              {/* Bottom Text Content */}
+              <div style={{ position: 'relative', zIndex: 2 }}>
+                <div style={{
+                  fontSize: '0.84rem',
+                  fontWeight: 800,
+                  color: '#FFFFFF',
+                  lineHeight: 1.15,
+                  textShadow: '0 1px 2px rgba(0,0,0,0.5)'
+                }}>
+                  {t('home.protectCropTitle')}
+                </div>
+                <div style={{
+                  fontSize: '0.62rem',
+                  color: '#E2E8F0',
+                  fontWeight: 500,
+                  marginTop: '0.1rem',
+                  lineHeight: 1.15
+                }}>
+                  {t('home.protectCropSub')}
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        </section>
+
+        {/* 5. SAHAYAK — Enlarged & Prominent Assistant Card */}
+        <section
+          onClick={() => navigate('/sih/sahayak')}
+          style={{
+            background: '#F0E9DC',
+            border: '1px solid #D9D2C3',
+            borderRadius: '16px',
+            padding: '1.05rem 1.15rem',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: '0.9rem',
+            boxShadow: '0 2px 6px rgba(24, 35, 27, 0.05)',
+            transition: 'all 0.15s ease'
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.9rem' }}>
+            <div style={{
+              width: '58px',
+              height: '58px',
+              borderRadius: '50%',
+              overflow: 'hidden',
+              flexShrink: 0,
+              border: '2.5px solid #174A2A',
+              boxShadow: '0 2px 8px rgba(23, 74, 42, 0.25)'
+            }}>
+              <img
+                src="https://images.unsplash.com/photo-1592982537447-7440770cbfc9?auto=format&fit=crop&w=300&q=80"
+                alt="Sahayak"
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              />
+            </div>
+
+            <div>
+              <div style={{ fontSize: '1.05rem', fontWeight: 900, color: '#174A2A', lineHeight: 1.2 }}>
+                {t('home.askSahayakTitle')}
+              </div>
+              <div style={{ fontSize: '0.76rem', color: '#4B5563', fontWeight: 600, marginTop: '0.2rem', lineHeight: 1.3 }}>
+                {t('home.askSahayakSubtitle')}
+              </div>
+            </div>
+          </div>
+
+          <div style={{
+            width: '34px',
+            height: '34px',
+            borderRadius: '50%',
+            background: '#FFFFFF',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            flexShrink: 0,
+            border: '1px solid #DFD9C9',
+            boxShadow: '0 2px 5px rgba(0,0,0,0.06)'
+          }}>
+            <span className="material-symbols-outlined" style={{ fontSize: '18px', color: '#174A2A', fontWeight: 800 }}>
+              arrow_forward
+            </span>
+          </div>
+        </section>
+
+        {/* 6. MORE FARM TOOLS — Enlarged & Prominent Utility Card */}
+        <section
+          onClick={() => navigate('/dashboard')}
+          style={{
+            background: '#FFFFFF',
+            border: '1px solid #DFD9C9',
+            borderRadius: '16px',
+            padding: '1.05rem 1.15rem',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: '0.9rem',
+            boxShadow: '0 2px 6px rgba(24, 35, 27, 0.04)',
+            transition: 'all 0.15s ease'
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.9rem' }}>
+            <div style={{
+              width: '54px',
+              height: '54px',
+              borderRadius: '12px',
+              overflow: 'hidden',
+              flexShrink: 0,
+              border: '1.5px solid #DFD9C9',
+              boxShadow: '0 2px 6px rgba(0,0,0,0.06)'
+            }}>
+              <img
+                src="https://images.unsplash.com/photo-1500937386664-56d1dfef3854?auto=format&fit=crop&w=300&q=80"
+                alt="Tools"
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              />
+            </div>
+            <div>
+              <div style={{ fontSize: '0.98rem', fontWeight: 900, color: '#18231B', lineHeight: 1.2 }}>
+                {t('home.moreFarmToolsTitle')} →
+              </div>
+              <div style={{ fontSize: '0.74rem', color: '#6B7280', fontWeight: 500, marginTop: '0.2rem', lineHeight: 1.3 }}>
+                {t('home.moreFarmToolsSubtitle')}
+              </div>
+            </div>
+          </div>
+
+          <span className="material-symbols-outlined" style={{ fontSize: '22px', color: '#8A6545', fontWeight: 700 }}>
+            chevron_right
+          </span>
+        </section>
+
+        {/* 7. RESTRAINED BHARATFARM BRAND BANNER */}
+        <section style={{
+          padding: '0.65rem 0.85rem',
+          textAlign: 'center',
+          color: '#8A6545',
+          fontSize: '0.72rem',
+          fontWeight: 600,
+          lineHeight: 1.4
+        }}>
+          <div>🌾 {t('home.bannerSustainableBharat')}</div>
+          <div style={{ fontSize: '0.64rem', color: '#9CA3AF', marginTop: '0.15rem' }}>
+            BharatFarm v2.0 · Simple & Reliable for Indian Agriculture
+          </div>
+        </section>
 
       </main>
 
-      {/* 7. Fixed Bottom Navigation */}
+      {/* 8. Fixed Bottom Navigation */}
       <MobileBottomNav type="main" />
     </div>
   );
 };
+
 

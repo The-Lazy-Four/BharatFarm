@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
 import { SihLayout } from '../../shared/SihLayout';
 import { useLanguage } from '@core/context/LanguageContext';
+import { useIsMobile } from '../../../../hooks/useIsMobile';
 import { WhatsAppSimulatorModal } from '../components/WhatsAppSimulatorModal';
 import { CallSimulatorModal } from '../components/CallSimulatorModal';
+import { MobileSahayakView } from '../components/MobileSahayakView';
 
 /* Sahayak AI voice/text companion page with human advisor directory */
 export const SahayakPage: React.FC = () => {
+  const isMobile = useIsMobile();
   const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState<'ai' | 'human'>('ai');
   const [isSimulatorOpen, setIsSimulatorOpen] = useState(false);
@@ -38,6 +41,14 @@ export const SahayakPage: React.FC = () => {
     { icon: 'photo_camera', text: t('sahayakPage.sendPhoto'), prompt: t('sahayakPage.photoPrompt') },
     { icon: 'support_agent', text: t('sahayakPage.talkToHuman'), prompt: t('sahayakPage.humanPrompt') }
   ];
+
+  if (isMobile) {
+    return (
+      <SihLayout activeModuleId="sahayak" moduleTitle={t('sahayakPage.title') || "Sahayak"} moduleIcon="eco">
+        <MobileSahayakView />
+      </SihLayout>
+    );
+  }
 
   return (
     <SihLayout activeModuleId="sahayak" moduleTitle="Sahayak" moduleIcon="eco">
