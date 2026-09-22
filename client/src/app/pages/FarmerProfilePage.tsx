@@ -4,8 +4,11 @@ import { useAuth } from '../../context/AuthContext.js';
 import { useLanguage } from '../../context/LanguageContext.js';
 import { PriceRiskService } from '../../modules/sih/price-risk/priceRisk.service.js';
 import { ProfileService } from '../../services/profile.service.js';
+import { useIsMobile } from '../../hooks/useIsMobile.js';
+import { MobileFarmerProfileView } from '../../components/mobile/MobileFarmerProfileView.js';
 
 export const FarmerProfilePage: React.FC = () => {
+    const isMobile = useIsMobile();
     const { user, logout, updateProfile: updateAuthUser, profileImage, setProfileImage, getUserInitials } = useAuth();
     const { language, setLanguage } = useLanguage();
     const navigate = useNavigate();
@@ -138,6 +141,39 @@ export const FarmerProfilePage: React.FC = () => {
         logout();
         navigate('/login', { replace: true });
     };
+
+    if (isMobile) {
+        return (
+            <MobileFarmerProfileView
+                user={user}
+                name={name}
+                setName={setName}
+                phone={phone}
+                setPhone={setPhone}
+                state={state}
+                setState={setState}
+                district={district}
+                setDistrict={setDistrict}
+                landAcres={landAcres}
+                setLandAcres={setLandAcres}
+                primaryCropsStr={primaryCropsStr}
+                setPrimaryCropsStr={setPrimaryCropsStr}
+                language={language}
+                setLanguage={setLanguage}
+                profileImage={profileImage}
+                getUserInitials={getUserInitials}
+                fieldReg={fieldReg}
+                handleImageSelect={handleImageSelect}
+                handleSave={handleSave}
+                handleLogout={handleLogout}
+                isSaving={isSaving}
+                savedSuccess={savedSuccess}
+                errorMsg={errorMsg}
+                pushAlerts={pushAlerts}
+                setPushAlerts={setPushAlerts}
+            />
+        );
+    }
 
     return (
         <div style={{

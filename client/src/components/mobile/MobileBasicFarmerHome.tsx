@@ -31,45 +31,42 @@ export const MobileBasicFarmerHome: React.FC = () => {
       boxSizing: 'border-box',
       overflowX: 'hidden'
     }}>
-      {/* Top Bar Header */}
+      {/* Top Bar Header with Back Button */}
       <header style={{
         padding: '0.85rem 1rem',
         background: '#FFFFFF',
         borderBottom: '1px solid #E2E8F0',
         display: 'flex',
         alignItems: 'center',
-        justifyContent: 'space-between',
+        gap: '0.75rem',
         position: 'sticky',
         top: 0,
         zIndex: 50
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-          <img src="/logo.png" alt="BharatFarm" style={{ width: '32px', height: '32px', borderRadius: '8px', objectFit: 'contain' }} />
-          <h1 style={{ fontSize: '1.25rem', fontWeight: 900, color: '#0F172A', margin: 0 }}>
-            {t('common.appName')}
-          </h1>
-        </div>
-
-        <select
-          value={language}
-          onChange={(e) => setLanguage(e.target.value)}
-          title={t('common.languageSelect')}
+        <button
+          onClick={() => navigate('/home')}
           style={{
             background: '#F1F5F9',
+            border: 'none',
+            borderRadius: '50%',
+            width: '36px',
+            height: '36px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
             color: '#0F172A',
-            border: '1px solid #CBD5E1',
-            borderRadius: '20px',
-            padding: '0.25rem 0.5rem',
-            fontSize: '0.75rem',
-            fontWeight: 700,
             cursor: 'pointer',
-            outline: 'none'
+            padding: 0,
+            flexShrink: 0
           }}
+          aria-label="Back to Home"
         >
-          <option value="en">EN</option>
-          <option value="hi">हिंदी</option>
-          <option value="bn">বাংলা</option>
-        </select>
+          <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>arrow_back</span>
+        </button>
+
+        <h1 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#0F172A', margin: 0, lineHeight: 1.2 }}>
+          {t('home.basicFarmerNeedsTitle')}
+        </h1>
       </header>
 
       {/* Main Grid for Tools */}
