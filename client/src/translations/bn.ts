@@ -238,7 +238,7 @@ export const bn: typeof en = {
     whereToSellSub: "আশেপাশের মান্ডি ও ক্রেতাদের দর তুলনা করুন",
     sellTogetherTitle: "একসাথে বিক্রি করুন",
     sellTogetherSub: "নিকটস্থ কৃষকদের সাথে ফসল একত্রিত করুন",
-    protectCropTitle: "ফসলের সুরক্ষা",
+    protectCropTitle: "বীমা দাবি করুন",
     protectCropSub: "স্যাটেলাইট নিরীক্ষা ও ফসল বীমা দাবি",
     weatherAndRiskTitle: "আবহাওয়া ও ঝুঁকি",
     weatherAndRiskSub: "৭ দিনের বৃষ্টিপাত ও ফসল তোলার পূর্বাভাস",

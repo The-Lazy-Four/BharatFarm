@@ -600,7 +600,7 @@ export const en = {
     whereToSellSub: "Compare mandis & buyer prices",
     sellTogetherTitle: "Sell Together",
     sellTogetherSub: "Pool crops with nearby farmers",
-    protectCropTitle: "Protect My Crop",
+    protectCropTitle: "Claim Your Insurance",
     protectCropSub: "Satellite audit & insurance claim",
     weatherAndRiskTitle: "Weather & Risk",
     weatherAndRiskSub: "7-day rain & harvest forecast",

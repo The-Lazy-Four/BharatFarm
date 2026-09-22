@@ -551,16 +551,28 @@ export const MobileModuleHomePage: React.FC = () => {
             justifyContent: 'space-between',
             marginBottom: '0.5rem'
           }}>
-            <span style={{
-              fontSize: '0.65rem',
-              fontWeight: 800,
-              color: '#8A6545',
-              letterSpacing: '0.06em',
-              textTransform: 'uppercase'
-            }}>
-              {t('home.todayOnFarmTitle')}
-            </span>
-            <span style={{ fontSize: '0.68rem', color: '#6B7280', fontWeight: 600 }}>
+            <div>
+              <div style={{
+                fontSize: '0.94rem',
+                fontWeight: 800,
+                color: '#18231B',
+                letterSpacing: '-0.01em',
+                lineHeight: 1.2
+              }}>
+                Procurement Planner
+              </div>
+              <div style={{
+                fontSize: '0.62rem',
+                fontWeight: 700,
+                color: '#8A6545',
+                letterSpacing: '0.04em',
+                textTransform: 'uppercase',
+                marginTop: '1px'
+              }}>
+                {t('home.todayOnFarmTitle')}
+              </div>
+            </div>
+            <span style={{ fontSize: '0.72rem', color: '#6B7280', fontWeight: 600 }}>
               {reg.district}
             </span>
           </div>

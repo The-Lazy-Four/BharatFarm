@@ -238,7 +238,7 @@ export const hi: typeof en = {
     whereToSellSub: "आसपास की मंडियां और खरीदार देखें",
     sellTogetherTitle: "साथ मिलकर बेचें",
     sellTogetherSub: "पास के किसानों संग उपज जोड़ें",
-    protectCropTitle: "फसल की सुरक्षा",
+    protectCropTitle: "बीमा दावा करें",
     protectCropSub: "सैटेलाइट जांच और फसल बीमा दावा",
     weatherAndRiskTitle: "मौसम और जोखिम",
     weatherAndRiskSub: "7-दिवसीय वर्षा और कटाई पूर्वानुमान",
