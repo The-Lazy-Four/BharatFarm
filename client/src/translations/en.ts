@@ -596,7 +596,7 @@ export const en = {
     moreFarmToolsSubtitle: "Crop calendar, market rates, disease scanner & government schemes",
     beforeYouSowTitle: "Before You Sow",
     beforeYouSowSub: "Check market risk & crop advisory",
-    whereToSellTitle: "Where to Sell?",
+    whereToSellTitle: "Where to Buy",
     whereToSellSub: "Compare mandis & buyer prices",
     sellTogetherTitle: "Sell Together",
     sellTogetherSub: "Pool crops with nearby farmers",

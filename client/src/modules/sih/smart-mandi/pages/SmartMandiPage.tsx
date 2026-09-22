@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { SihLayout } from '../../shared/SihLayout.js';
 import { SmartMandiService, MandiRoute } from '../smartMandi.service.js';
 import { fieldMappingService, FieldRecord } from '../../field-mapping/fieldMapping.service.js';
@@ -29,7 +30,16 @@ const POPULAR_CROPS = ['Potato', 'Tomato', 'Wheat', 'Paddy', 'Onion', 'Chilli', 
 export const SmartMandiPage: React.FC = () => {
   const { user } = useAuth();
   const { t } = useLanguage();
-  const [activeTab, setActiveTab] = useState<ActiveTab>('buy');
+  const [searchParams] = useSearchParams();
+  const initialTab = searchParams.get('tab') === 'sell' ? 'sell' : 'buy';
+  const [activeTab, setActiveTab] = useState<ActiveTab>(initialTab);
+
+  useEffect(() => {
+    const tabParam = searchParams.get('tab');
+    if (tabParam === 'sell' || tabParam === 'buy' || tabParam === 'mandi-rates' || tabParam === 'notifications') {
+      setActiveTab(tabParam as ActiveTab);
+    }
+  }, [searchParams]);
 
   // ── BUYER STATE ──────────────────────────────────────────
   const [buyerCrop, setBuyerCrop] = useState('Potato');
@@ -327,7 +337,7 @@ export const SmartMandiPage: React.FC = () => {
 
   if (isMobile) {
     return (
-      <SihLayout activeModuleId="smart-mandi" moduleTitle={t('sih.smartMandiTitle')} moduleIcon="bar_chart">
+      <SihLayout activeModuleId="smart-mandi" moduleTitle={t('sih.smartMandiTitle')} moduleIcon="bar_chart" hideMobileHeaderTitle={true}>
         <MobileSmartMandiView
           activeTab={activeTab}
           setActiveTab={setActiveTab}

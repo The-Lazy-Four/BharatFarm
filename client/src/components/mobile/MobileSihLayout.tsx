@@ -6,9 +6,10 @@ import { MobileBottomNav } from './MobileBottomNav';
 interface MobileSihLayoutProps {
   children: React.ReactNode;
   title: string;
+  hideHeaderTitle?: boolean;
 }
 
-export const MobileSihLayout: React.FC<MobileSihLayoutProps> = ({ children, title }) => {
+export const MobileSihLayout: React.FC<MobileSihLayoutProps> = ({ children, title, hideHeaderTitle }) => {
   const navigate = useNavigate();
   const { language, setLanguage, t } = useLanguage();
 
@@ -56,9 +57,11 @@ export const MobileSihLayout: React.FC<MobileSihLayoutProps> = ({ children, titl
             <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>arrow_back</span>
           </button>
 
-          <h1 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#0F172A', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-            {title}
-          </h1>
+          {!hideHeaderTitle && (
+            <h1 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#0F172A', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              {title}
+            </h1>
+          )}
         </div>
 
         {/* Multilingual Selector */}

@@ -12,12 +12,14 @@ interface SihShellProps {
   moduleTitle: string;
   moduleIcon?: string;
   moduleBadge?: string;
+  hideMobileHeaderTitle?: boolean;
 }
 
 export const SihLayout: React.FC<SihShellProps> = ({
   children,
   activeModuleId,
-  moduleTitle
+  moduleTitle,
+  hideMobileHeaderTitle
 }) => {
   const isMobile = useIsMobile();
   const navigate = useNavigate();
@@ -27,13 +29,13 @@ export const SihLayout: React.FC<SihShellProps> = ({
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
 
   if (isMobile) {
-    return <MobileSihLayout title={moduleTitle}>{children}</MobileSihLayout>;
+    return <MobileSihLayout title={moduleTitle} hideHeaderTitle={hideMobileHeaderTitle}>{children}</MobileSihLayout>;
   }
 
 
   const sihNavItems = [
     { id: 'climate-risk', label: t('sih.climateRiskNav'), icon: 'partly_cloudy_day', path: '/sih/climate-risk' },
-    { id: 'aggregation', label: t('sih.aggregationNav'), icon: 'groups', path: '/sih/aggregation' },
+    { id: 'aggregation', label: t('sih.aggregationNav'), icon: 'groups', path: '/sih/smart-mandi?tab=sell' },
     { id: 'crop-insurance', label: t('sih.cropInsuranceNav'), icon: 'verified_user', path: '/sih/crop-insurance' },
     { id: 'smart-mandi', label: t('sih.smartMandiNav'), icon: 'bar_chart', path: '/sih/smart-mandi' },
     { id: 'sahayak', label: t('sih.sahayakNav'), icon: 'eco', path: '/sih/sahayak' },

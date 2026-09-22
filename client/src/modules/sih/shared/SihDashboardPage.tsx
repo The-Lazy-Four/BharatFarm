@@ -38,7 +38,7 @@ export const SihDashboardPage: React.FC = () => {
       subtitle: t('sihDashboard.aggregationSubtitle'),
       icon: '🤝',
       imageUrl: 'https://images.unsplash.com/photo-1586771107445-d3ca888129ff?auto=format&fit=crop&w=1000&q=85',
-      path: '/sih/aggregation',
+      path: '/sih/smart-mandi?tab=sell',
       badge: t('sihDashboard.aggregationBadge'),
       actionText: t('sihDashboard.openWorkspace')
     },

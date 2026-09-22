@@ -234,7 +234,7 @@ export const hi: typeof en = {
     moreFarmToolsSubtitle: "फसल कैलेंडर, मंडी भाव, रोग स्कैनर और सरकारी योजनाएं",
     beforeYouSowTitle: "बुवाई से पहले",
     beforeYouSowSub: "बाजार जोखिम व फसल सलाह जांचें",
-    whereToSellTitle: "कहाँ बेचें?",
+    whereToSellTitle: "कहाँ से खरीदें",
     whereToSellSub: "आसपास की मंडियां और खरीदार देखें",
     sellTogetherTitle: "साथ मिलकर बेचें",
     sellTogetherSub: "पास के किसानों संग उपज जोड़ें",

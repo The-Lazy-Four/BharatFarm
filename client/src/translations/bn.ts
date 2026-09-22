@@ -234,7 +234,7 @@ export const bn: typeof en = {
     moreFarmToolsSubtitle: "ফসল ক্যালেন্ডার, মান্ডি দর, রোগ স্ক্যানার ও সরকারি প্রকল্প",
     beforeYouSowTitle: "বপনের পূর্বে",
     beforeYouSowSub: "বাজার ঝুঁকি ও ফসল পরামর্শ যাচাই করুন",
-    whereToSellTitle: "কোথায় বিক্রি করবেন?",
+    whereToSellTitle: "কোথা থেকে কিনবেন",
     whereToSellSub: "আশেপাশের মান্ডি ও ক্রেতাদের দর তুলনা করুন",
     sellTogetherTitle: "একসাথে বিক্রি করুন",
     sellTogetherSub: "নিকটস্থ কৃষকদের সাথে ফসল একত্রিত করুন",

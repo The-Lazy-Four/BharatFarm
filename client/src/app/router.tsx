@@ -171,11 +171,7 @@ export const AppRouter: React.FC = () => {
       />
       <Route
         path="/sih/aggregation"
-        element={
-          <ProtectedRoute>
-            <AggregationOptimizerPage />
-          </ProtectedRoute>
-        }
+        element={<Navigate to="/sih/smart-mandi?tab=sell" replace />}
       />
       <Route
         path="/sih/crop-insurance"

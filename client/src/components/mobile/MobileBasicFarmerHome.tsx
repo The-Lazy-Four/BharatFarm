@@ -17,7 +17,7 @@ export const MobileBasicFarmerHome: React.FC = () => {
     { title: t('mobileHome.costCalculator'), icon: 'calculate', path: '/calculator', color: '#7C3AED', bg: '#EDE9FE' },
     { title: t('mobileHome.myFarm'), icon: 'description', path: '/records', color: '#DC2626', bg: '#FEE2E2' },
     { title: t('mobileHome.schemes'), icon: 'account_balance', path: '/schemes', color: '#2563EB', bg: '#DBEAFE' },
-    { title: t('mobileHome.community'), icon: 'groups', path: '/sih/aggregation', color: '#059669', bg: '#D1FAE5' },
+    { title: t('mobileHome.community'), icon: 'groups', path: '/sih/smart-mandi?tab=sell', color: '#059669', bg: '#D1FAE5' },
     { title: t('mobileHome.profile'), icon: 'person', path: '/profile', color: '#4B5563', bg: '#F3F4F6' }
   ];
 

@@ -61,7 +61,7 @@ export const ModuleHomePage: React.FC = () => {
       subtitle: t('sih.aggregationSubtitle'),
       description: t('sih.aggregationDesc'),
       icon: 'groups',
-      path: '/sih/aggregation',
+      path: '/sih/smart-mandi?tab=sell',
       image: 'https://images.unsplash.com/photo-1595974482597-4b8da8879bc5?auto=format&fit=crop&w=600&q=80'
     },
     {

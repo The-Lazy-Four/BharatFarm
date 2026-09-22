@@ -39,7 +39,7 @@ const INITIAL_NOTIFS: NotificationItem[] = [
     message: 'Your Haldia group-selling pool has reached 80% of its target quota.',
     time: '3h ago',
     type: 'aggregation',
-    route: '/sih/aggregation'
+    route: '/sih/smart-mandi?tab=sell'
   }
 ];
 
@@ -854,7 +854,7 @@ export const MobileModuleHomePage: React.FC = () => {
 
             {/* Task 3: Sell Together — Full Image Card */}
             <div
-              onClick={() => navigate('/sih/aggregation')}
+              onClick={() => navigate('/sih/smart-mandi?tab=sell')}
               style={{
                 height: '110px',
                 borderRadius: '14px',
