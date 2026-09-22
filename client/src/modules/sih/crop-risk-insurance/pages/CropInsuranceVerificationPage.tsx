@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { SihLayout } from '../../shared/SihLayout';
 import { useLanguage } from '@core/context/LanguageContext';
+import { useIsMobile } from '../../../../hooks/useIsMobile';
 import { CropRiskService } from '../cropRisk.service';
+import { MobileCropInsuranceView } from '../components/MobileCropInsuranceView';
 
 export const CropInsuranceVerificationPage: React.FC = () => {
   const { t } = useLanguage();
@@ -162,20 +164,33 @@ export const CropInsuranceVerificationPage: React.FC = () => {
   const economicLoss = claimData?.economicLoss;
   const satEvidence = claimData?.satelliteEvidence;
   const govtDecision = claimData?.governmentDecision;
+  const isMobile = useIsMobile();
 
   return (
     <SihLayout activeModuleId="crop-insurance" moduleTitle={t('sihDashboard.cropInsuranceTitle')} moduleIcon="verified_user">
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '1.75rem' }}>
-        
-        {/* Heading */}
-        <div>
-          <h1 style={{ fontSize: '1.75rem', fontWeight: 900, color: '#0F172A', margin: 0 }}>
-            {t('cropInsurance.pageTitle')}
-          </h1>
-          <p style={{ fontSize: '0.95rem', color: '#64748B', marginTop: '0.35rem', margin: 0 }}>
-            {t('cropInsurance.pageSubtitle')}
-          </p>
-        </div>
+      {isMobile ? (
+        <MobileCropInsuranceView
+          claimData={claimData}
+          activeClaimId={activeClaimId}
+          loading={loading}
+          statusMessage={statusMessage}
+          onInitiateClaim={handleInitiateClaim}
+          onCheckStatus={handleCheckStatus}
+          onViewReport={handleViewReport}
+          onOpenGovernmentDecision={openGovernmentDecision}
+        />
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.75rem' }}>
+          
+          {/* Heading */}
+          <div>
+            <h1 style={{ fontSize: '1.75rem', fontWeight: 900, color: '#0F172A', margin: 0 }}>
+              {t('cropInsurance.pageTitle')}
+            </h1>
+            <p style={{ fontSize: '0.95rem', color: '#64748B', marginTop: '0.35rem', margin: 0 }}>
+              {t('cropInsurance.pageSubtitle')}
+            </p>
+          </div>
 
         {/* Hero Satellite / Farm Image Panel */}
         <div style={{
@@ -678,8 +693,10 @@ export const CropInsuranceVerificationPage: React.FC = () => {
             <span>{t('cropInsurance.viewReport')}</span>
           </button>
         </div>
+      </div>
+      )}
 
-        {/* GOVERNMENT DECISION MODAL */}
+      {/* GOVERNMENT DECISION MODAL */}
         {decisionModalOpen && (
           <div style={{
             position: 'fixed', inset: 0, background: 'rgba(15, 23, 42, 0.65)', backdropFilter: 'blur(4px)',
@@ -795,7 +812,6 @@ export const CropInsuranceVerificationPage: React.FC = () => {
           </div>
         )}
 
-      </div>
     </SihLayout>
   );
 };

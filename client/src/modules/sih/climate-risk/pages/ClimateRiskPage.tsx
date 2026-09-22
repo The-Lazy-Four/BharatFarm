@@ -19,6 +19,8 @@ import { TopSelectorHeader } from '../components/TopSelectorHeader';
 import { FarmerActionPage } from '../components/FarmerActionPage';
 import { FoodSecurityDashboard } from '../components/FoodSecurityDashboard';
 import { HistoricalRiskSection } from '../components/HistoricalRiskSection';
+import { useIsMobile } from '../../../../hooks/useIsMobile';
+import { MobileClimateRiskView } from '../components/MobileClimateRiskView';
 
 const STORAGE_KEY_ACTIONS = 'bharatfarm_farmer_action_statuses';
 
@@ -192,16 +194,38 @@ export const ClimateRiskPage: React.FC = () => {
     return await ClimateRiskService.runScenarioSimulation(lossPct, 'West Bengal', crop);
   };
 
+  const isMobile = useIsMobile();
+
   return (
     <SihLayout activeModuleId="climate-risk" moduleTitle="Climate Risk Planner" moduleIcon="partly_cloudy_day">
-      <div style={{
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '0.85rem',
-        maxWidth: '1100px',
-        margin: '0 auto',
-        paddingBottom: '2.5rem'
-      }}>
+      {isMobile ? (
+        <MobileClimateRiskView
+          location={location}
+          crop={crop}
+          cropStage={cropStage}
+          weatherData={weatherData}
+          decisionPlan={decisionPlan}
+          isLoading={isLoading}
+          onRefresh={handleRefresh}
+          onLocationSelect={handleLocationSelect}
+          onCropChange={handleCropChange}
+          onStageChange={handleStageChange}
+          actionStatuses={actionStatuses}
+          onUpdateActionStatus={handleUpdateActionStatus}
+          whatChanged={whatChanged}
+          foodSnapshot={foodSnapshot}
+          districtRisks={districtRisks}
+          onSimulateScenario={handleSimulateScenario}
+        />
+      ) : (
+        <div style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '0.85rem',
+          maxWidth: '1100px',
+          margin: '0 auto',
+          paddingBottom: '2.5rem'
+        }}>
 
         {/* 1. TOP FARM CONTEXT BAR */}
         <TopSelectorHeader
@@ -324,6 +348,7 @@ export const ClimateRiskPage: React.FC = () => {
         )}
 
       </div>
+      )}
     </SihLayout>
   );
 };
