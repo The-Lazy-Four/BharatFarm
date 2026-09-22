@@ -4,6 +4,8 @@ import { SmartMandiService, MandiRoute } from '../smartMandi.service.js';
 import { fieldMappingService, FieldRecord } from '../../field-mapping/fieldMapping.service.js';
 import { useAuth } from '../../../../context/AuthContext.js';
 import { useLanguage } from '../../../../context/LanguageContext.js';
+import { useIsMobile } from '../../../../hooks/useIsMobile.js';
+import { MobileSmartMandiView } from '../components/MobileSmartMandiView.js';
 import type {
   BuyerRequirement,
   FarmerSupply,
@@ -318,10 +320,81 @@ export const SmartMandiPage: React.FC = () => {
     }
   };
 
-  // Preserved APMC mandi routes
+  const isMobile = useIsMobile();
   const mandiOptions: MandiRoute[] = SmartMandiService.getMandiRecommendations(buyerCrop, buyerDistrict);
 
   const unreadNotifCount = notifications.filter(n => !n.read).length;
+
+  if (isMobile) {
+    return (
+      <SihLayout activeModuleId="smart-mandi" moduleTitle={t('sih.smartMandiTitle')} moduleIcon="bar_chart">
+        <MobileSmartMandiView
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+          buyerCrop={buyerCrop}
+          setBuyerCrop={setBuyerCrop}
+          buyerQty={buyerQty}
+          setBuyerQty={setBuyerQty}
+          buyerPrice={buyerPrice}
+          setBuyerPrice={setBuyerPrice}
+          buyerDistrict={buyerDistrict}
+          setBuyerDistrict={setBuyerDistrict}
+          buyerVillage={buyerVillage}
+          setBuyerVillage={setBuyerVillage}
+          buyerPostOffice={buyerPostOffice}
+          setBuyerPostOffice={setBuyerPostOffice}
+          buyerState={buyerState}
+          setBuyerState={setBuyerState}
+          buyerRadius={buyerRadius}
+          setBuyerRadius={setBuyerRadius}
+          buyerDeadline={buyerDeadline}
+          setBuyerDeadline={setBuyerDeadline}
+          buyerLat={buyerLat}
+          buyerLng={buyerLng}
+          handleFindSupply={handleFindSupply}
+          handleLoadSihDemo={handleLoadSihDemo}
+          nlpPrompt={nlpPrompt}
+          setNlpPrompt={setNlpPrompt}
+          nlpLoading={nlpLoading}
+          handleNlpParse={handleNlpParse}
+          isSearching={isSearching}
+          activePool={activePool}
+          activeCollectionPlan={activeCollectionPlan}
+          setShowCollectionModal={setShowCollectionModal}
+          farmerCrop={farmerCrop}
+          setFarmerCrop={setFarmerCrop}
+          farmerQty={farmerQty}
+          setFarmerQty={setFarmerQty}
+          farmerPrice={farmerPrice}
+          setFarmerPrice={setFarmerPrice}
+          farmerDistrict={farmerDistrict}
+          setFarmerDistrict={setFarmerDistrict}
+          farmerVillage={farmerVillage}
+          setFarmerVillage={setFarmerVillage}
+          farmerPostOffice={farmerPostOffice}
+          setFarmerPostOffice={setFarmerPostOffice}
+          farmerState={farmerState}
+          setFarmerState={setFarmerState}
+          farmerAvailDate={farmerAvailDate}
+          setFarmerAvailDate={setFarmerAvailDate}
+          farmerLat={farmerLat}
+          farmerLng={farmerLng}
+          mySupplies={mySupplies}
+          isSubmittingSupply={isSubmittingSupply}
+          farmerMatchAlert={farmerMatchAlert}
+          handlePostSupply={handlePostSupply}
+          handleAllocationResponse={handleAllocationResponse}
+          gpsLoading={gpsLoading}
+          handleGetGps={handleGetGps}
+          notifications={notifications}
+          setNotifications={setNotifications}
+          actionSuccessMsg={actionSuccessMsg}
+          setActionSuccessMsg={setActionSuccessMsg}
+          mandiOptions={mandiOptions}
+        />
+      </SihLayout>
+    );
+  }
 
   return (
     <SihLayout activeModuleId="smart-mandi" moduleTitle={t('sih.smartMandiTitle')} moduleIcon="bar_chart">

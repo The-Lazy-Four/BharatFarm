@@ -116,16 +116,23 @@ export const ModuleHomePage: React.FC = () => {
         position: 'sticky',
         top: 0,
         zIndex: 50,
-        boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
+        boxShadow: '0 1px 3px rgba(0,0,0,0.04)'
       }}>
         {/* Brand */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
           <img
             src="/logo.png"
             alt="BharatFarm"
-            style={{ width: '38px', height: '38px', borderRadius: '10px', objectFit: 'contain' }}
+            style={{ width: '38px', height: '38px', objectFit: 'contain' }}
           />
-          <span style={{ fontSize: '1.3rem', fontWeight: 900, color: '#1E293B', letterSpacing: '-0.02em' }}>BharatFarm</span>
+          <div>
+            <div style={{ fontSize: '1.35rem', fontWeight: 900, color: '#0F172A', letterSpacing: '-0.02em', lineHeight: 1.1 }}>
+              Bharat<span style={{ color: '#16A34A' }}>Farm</span>
+            </div>
+            <div style={{ fontSize: '0.72rem', color: '#64748B', fontWeight: 600 }}>
+              Smart Tools. Stronger Farmers.
+            </div>
+          </div>
         </div>
 
         {/* Header Right Controls */}
@@ -136,12 +143,12 @@ export const ModuleHomePage: React.FC = () => {
             onChange={(e) => setLanguage(e.target.value)}
             title={t('common.languageSelect')}
             style={{
-              background: '#F1F5F9',
+              background: '#F8FAFC',
               color: '#0F172A',
-              border: '1px solid #CBD5E1',
+              border: '1.5px solid #E2E8F0',
               borderRadius: '20px',
-              padding: '0.25rem 0.65rem',
-              fontSize: '0.8rem',
+              padding: '0.35rem 0.85rem',
+              fontSize: '0.82rem',
               fontWeight: 700,
               cursor: 'pointer',
               outline: 'none'
@@ -155,26 +162,26 @@ export const ModuleHomePage: React.FC = () => {
             onClick={() => setIsNotificationsOpen(true)}
             title={t('common.notifications')}
             style={{
-              background: '#F1F5F9',
-              border: 'none',
+              background: '#F8FAFC',
+              border: '1.5px solid #E2E8F0',
               borderRadius: '50%',
-              width: '38px',
-              height: '38px',
+              width: '40px',
+              height: '40px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              color: '#475569',
+              color: '#334155',
               cursor: 'pointer',
               position: 'relative'
             }}
           >
-            <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>notifications</span>
+            <span className="material-symbols-outlined" style={{ fontSize: '22px' }}>notifications</span>
             <span style={{
               position: 'absolute',
-              top: '4px',
-              right: '4px',
-              width: '9px',
-              height: '9px',
+              top: '5px',
+              right: '5px',
+              width: '8px',
+              height: '8px',
               borderRadius: '50%',
               background: '#EF4444',
               border: '2px solid #FFFFFF'
@@ -186,18 +193,18 @@ export const ModuleHomePage: React.FC = () => {
             onClick={() => navigate('/profile')}
             title={t('moduleHome.profileTitle', { name: user?.fullName || 'Farmer' })}
             style={{
-              width: '38px',
-              height: '38px',
+              width: '40px',
+              height: '40px',
               borderRadius: '50%',
-              background: '#16A34A',
+              background: '#143621',
               color: '#FFFFFF',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               fontWeight: 800,
-              fontSize: '0.9rem',
+              fontSize: '1rem',
               cursor: 'pointer',
-              boxShadow: '0 2px 8px rgba(22, 163, 74, 0.3)'
+              boxShadow: '0 2px 8px rgba(20, 54, 33, 0.25)'
             }}
           >
             {user?.fullName ? user.fullName[0].toUpperCase() : 'S'}
@@ -224,64 +231,108 @@ export const ModuleHomePage: React.FC = () => {
         gap: '2.5rem'
       }}>
 
-        {/* Welcome Banner */}
-        <div>
-          <h1 style={{
-            fontSize: '2rem',
-            fontWeight: 900,
-            color: '#0F172A',
-            margin: 0,
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.5rem'
-          }}>
-            {t('home.helloFarmer')}
-          </h1>
-          <p style={{
-            fontSize: '1rem',
-            color: '#64748B',
-            marginTop: '0.35rem',
-            marginBottom: 0,
-            fontWeight: 500
-          }}>
-            {t('home.heroSubtitle')}
-          </p>
+        {/* Welcome Banner with Landscape background */}
+        <div style={{
+          position: 'relative',
+          borderRadius: '24px',
+          overflow: 'hidden',
+          padding: '2rem 2.5rem',
+          background: 'linear-gradient(135deg, #F8FAFC 0%, #F1F5F9 100%)',
+          border: '1px solid #E2E8F0',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center'
+        }}>
+          <div style={{
+            position: 'absolute',
+            inset: 0,
+            backgroundImage: 'url("https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1400&q=80")',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center 40%',
+            opacity: 0.18,
+            pointerEvents: 'none'
+          }} />
+          <div style={{ position: 'relative', zIndex: 1 }}>
+            <h1 style={{
+              fontSize: '2.2rem',
+              fontWeight: 900,
+              color: '#0F172A',
+              margin: 0,
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              letterSpacing: '-0.02em'
+            }}>
+              {t('home.welcomeUser', { name: user?.fullName || 'Farmer' })}
+            </h1>
+            <p style={{
+              fontSize: '1.05rem',
+              color: '#475569',
+              marginTop: '0.45rem',
+              marginBottom: 0,
+              fontWeight: 600
+            }}>
+              {t('home.empowerTagline')}
+            </p>
+          </div>
+
+          <div style={{ position: 'relative', zIndex: 1, textAlign: 'right' }}>
+            <div style={{
+              fontFamily: '"Caveat", "Brush Script MT", cursive, sans-serif',
+              fontSize: '1.6rem',
+              fontWeight: 700,
+              color: '#92400E',
+              lineHeight: 1.1
+            }}>
+              For a Stronger <span style={{ color: '#15803D', fontWeight: 800 }}>Bharat</span>
+            </div>
+          </div>
         </div>
 
         {/* Top Section: Field Mapping Registered Farm Status Card */}
         <div style={{
-          background: '#F0FDF4',
+          background: 'linear-gradient(135deg, #F0FDF4 0%, #DCFCE7 100%)',
           border: '1.5px solid #BBF7D0',
-          borderRadius: '16px',
-          padding: '1rem 1.35rem',
+          borderRadius: '20px',
+          padding: '1.25rem 1.75rem',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          gap: '1rem',
+          gap: '1.5rem',
           flexWrap: 'wrap',
-          boxShadow: '0 4px 12px rgba(22, 163, 74, 0.08)'
+          boxShadow: '0 4px 16px rgba(22, 163, 74, 0.08)'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
             <div style={{
-              width: '44px',
-              height: '44px',
-              borderRadius: '12px',
-              background: '#DCFCE7',
+              width: '52px',
+              height: '52px',
+              borderRadius: '50%',
+              background: '#BBF7D0',
               color: '#15803D',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               flexShrink: 0
             }}>
-              <span className="material-symbols-outlined" style={{ fontSize: '24px' }}>map</span>
+              <span className="material-symbols-outlined" style={{ fontSize: '28px' }}>potted_plant</span>
             </div>
             <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: '#166534', fontSize: '0.95rem', fontWeight: 800 }}>
-                <span className="material-symbols-outlined" style={{ fontSize: '18px', color: '#16A34A' }}>check_circle</span>
-                <span>{t('home.registeredFarm', { name: reg.fieldName, crop: reg.crop, acres: reg.landSizeAcres, district: reg.district, state: reg.state })}</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: '#14532D', fontSize: '0.86rem', fontWeight: 800 }}>
+                <span className="material-symbols-outlined" style={{ fontSize: '18px', color: '#16A34A', fontVariationSettings: "'FILL' 1" }}>check_circle</span>
+                <span>{t('home.registeredFarmTitle')}</span>
               </div>
-              <div style={{ fontSize: '0.82rem', color: '#15803D', marginTop: '0.2rem', fontWeight: 500 }}>
-                {t('home.fieldMappingTag')}
+              <div style={{ fontSize: '1.15rem', fontWeight: 800, color: '#0F172A', marginTop: '0.15rem' }}>
+                {reg.fieldName} <span style={{ fontWeight: 600, color: '#475569', fontSize: '1rem' }}>({reg.crop}, {reg.landSizeAcres} Acres)</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.85rem', color: '#15803D', marginTop: '0.2rem', fontWeight: 600 }}>
+                <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>location_on</span>
+                <span>{reg.district}, {reg.state}</span>
+                <span style={{ margin: '0 0.4rem', color: '#86EFAC' }}>•</span>
+                <span style={{ cursor: 'pointer', textDecoration: 'underline' }} onClick={() => navigate('/sih/field-mapping')}>{t('home.fieldMappingShort')}</span>
+                <span style={{ margin: '0 0.4rem', color: '#86EFAC' }}>•</span>
+                <span style={{ cursor: 'pointer', textDecoration: 'underline' }} onClick={() => navigate('/sih/climate-risk')}>{t('home.soilInsights')}</span>
+                <span style={{ margin: '0 0.4rem', color: '#86EFAC' }}>•</span>
+                <span style={{ cursor: 'pointer', textDecoration: 'underline' }} onClick={() => navigate('/sih/field-mapping')}>{t('home.walkTheFarm')}</span>
               </div>
             </div>
           </div>
@@ -292,15 +343,15 @@ export const ModuleHomePage: React.FC = () => {
               background: '#16A34A',
               color: '#FFFFFF',
               border: 'none',
-              borderRadius: '10px',
-              padding: '0.65rem 1.25rem',
-              fontSize: '0.86rem',
+              borderRadius: '9999px',
+              padding: '0.65rem 1.4rem',
+              fontSize: '0.88rem',
               fontWeight: 800,
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
               gap: '0.4rem',
-              boxShadow: '0 2px 8px rgba(22, 163, 74, 0.25)'
+              boxShadow: '0 4px 12px rgba(22, 163, 74, 0.25)'
             }}
           >
             <span>{t('home.updateRegistration')}</span>
