@@ -7,7 +7,7 @@
 CREATE TABLE IF NOT EXISTS public.field_mapping_sessions (
   id                     UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   field_id               UUID REFERENCES public.field_mappings(id) ON DELETE CASCADE,
-  user_id                UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+  user_id                UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   crop_name              TEXT NOT NULL,
   mapping_mode           TEXT NOT NULL CHECK (mapping_mode IN ('REAL_GPS', 'DEMO')),
   started_at             TIMESTAMPTZ NOT NULL DEFAULT now(),
@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS public.field_mapping_sessions (
 CREATE TABLE IF NOT EXISTS public.field_gps_points (
   id                     UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   session_id             UUID NOT NULL REFERENCES public.field_mapping_sessions(id) ON DELETE CASCADE,
-  user_id                UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+  user_id                UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   sequence_number        INTEGER NOT NULL,
   latitude               NUMERIC NOT NULL,
   longitude              NUMERIC NOT NULL,
@@ -42,7 +42,9 @@ CREATE TABLE IF NOT EXISTS public.field_gps_points (
 -- 3. ML Training Observations Table (Structured ML-ready feature store)
 CREATE TABLE IF NOT EXISTS public.ml_training_observations (
   id                     UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  field_id               UUID REFERENCES public.field_mappings(id) ON DELETE CASCADE,
+  -- An observation belongs to the owner of its mapped field. Keep ownership
+  -- normalized through field_mappings rather than duplicating a user_id here.
+  field_id               UUID NOT NULL REFERENCES public.field_mappings(id) ON DELETE CASCADE,
   session_id             UUID REFERENCES public.field_mapping_sessions(id) ON DELETE CASCADE,
   crop_name              TEXT NOT NULL,
   area_sq_meters         NUMERIC NOT NULL,
@@ -68,13 +70,42 @@ ALTER TABLE public.field_gps_points ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.ml_training_observations ENABLE ROW LEVEL SECURITY;
 
 -- RLS Policies for Mapping Sessions
-CREATE POLICY "Users view own mapping sessions" ON public.field_mapping_sessions FOR SELECT USING (auth.uid() = user_id OR user_id IS NULL);
-CREATE POLICY "Users insert own mapping sessions" ON public.field_mapping_sessions FOR INSERT WITH CHECK (auth.uid() = user_id OR user_id IS NULL);
+CREATE POLICY "Users view own mapping sessions"
+  ON public.field_mapping_sessions FOR SELECT
+  USING (auth.uid() = user_id);
+
+CREATE POLICY "Users insert own mapping sessions"
+  ON public.field_mapping_sessions FOR INSERT
+  WITH CHECK (auth.uid() = user_id);
 
 -- RLS Policies for GPS Points
-CREATE POLICY "Users view own gps points" ON public.field_gps_points FOR SELECT USING (auth.uid() = user_id OR user_id IS NULL);
-CREATE POLICY "Users insert own gps points" ON public.field_gps_points FOR INSERT WITH CHECK (auth.uid() = user_id OR user_id IS NULL);
+CREATE POLICY "Users view own gps points"
+  ON public.field_gps_points FOR SELECT
+  USING (auth.uid() = user_id);
+
+CREATE POLICY "Users insert own gps points"
+  ON public.field_gps_points FOR INSERT
+  WITH CHECK (auth.uid() = user_id);
 
 -- RLS Policies for ML Observations
-CREATE POLICY "Users view own ml observations" ON public.ml_training_observations FOR SELECT USING (auth.uid() = user_id OR user_id IS NULL);
-CREATE POLICY "Users insert own ml observations" ON public.ml_training_observations FOR INSERT WITH CHECK (auth.uid() = user_id OR user_id IS NULL);
+CREATE POLICY "Users view own ml observations"
+  ON public.ml_training_observations FOR SELECT
+  USING (
+    EXISTS (
+      SELECT 1
+      FROM public.field_mappings AS fm
+      WHERE fm.id = field_id
+        AND fm.user_id = auth.uid()
+    )
+  );
+
+CREATE POLICY "Users insert own ml observations"
+  ON public.ml_training_observations FOR INSERT
+  WITH CHECK (
+    EXISTS (
+      SELECT 1
+      FROM public.field_mappings AS fm
+      WHERE fm.id = field_id
+        AND fm.user_id = auth.uid()
+    )
+  );

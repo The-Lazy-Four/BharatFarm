@@ -41,7 +41,7 @@ CREATE POLICY "Public read access to pools"
   ON public.group_buying_pools FOR SELECT USING (true);
 
 CREATE POLICY "Authenticated users can create pools"
-  ON public.group_buying_pools FOR INSERT WITH CHECK (auth.uid() IS NOT NULL);
+  ON public.group_buying_pools FOR INSERT WITH CHECK (auth.uid() = creator_id);
 
 CREATE POLICY "Pool creators can update own pools"
   ON public.group_buying_pools FOR UPDATE USING (auth.uid() = creator_id);

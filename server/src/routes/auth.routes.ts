@@ -3,6 +3,7 @@ import { ApiResponse } from '../utils/apiResponse.js';
 import { config } from '../config/env.js';
 import { getSupabaseClient, getSupabaseAdminClient } from '../config/supabase.js';
 import { signJwtToken, verifyJwtToken } from '../utils/jwt.js';
+import { logger } from '../utils/logger.js';
 
 const router = Router();
 
@@ -34,7 +35,7 @@ router.post('/register', async (req, res) => {
     };
     const token = signJwtToken(mockUser);
     return ApiResponse.success(res, {
-      token,
+      accessToken: token,
       user: mockUser
     }, 'Registration successful (Mock Mode)');
   }
@@ -42,45 +43,22 @@ router.post('/register', async (req, res) => {
   const supabase = getSupabaseClient();
   const supabaseAdmin = getSupabaseAdminClient();
 
-  if (!supabase || !supabaseAdmin) {
-    return ApiResponse.error(res, 'Supabase auth service is not configured', 'SERVER_ERROR', 500);
+  if (!supabase || !supabaseAdmin || !config.supabase.serviceRoleKey) {
+    return ApiResponse.error(res, 'Authentication service is not fully configured', 'AUTH_CONFIGURATION_ERROR', 503);
   }
 
   try {
-    // 1. Create user via Supabase Auth (admin.createUser auto-confirms email and bypasses rate limits when service role key is available)
-    let authData: { user: any; session?: any } | null = null;
-    let authError: any = null;
-
-    if (config.supabase.serviceRoleKey) {
-      const { data, error } = await supabaseAdmin.auth.admin.createUser({
-        email,
-        password,
-        email_confirm: true,
-        user_metadata: {
-          full_name: fullName,
-          role
-        }
-      });
-      authError = error;
-      if (data?.user) {
-        // Sign in immediately to generate a session token for the response
-        const { data: sessionData } = await supabase.auth.signInWithPassword({ email, password });
-        authData = { user: data.user, session: sessionData?.session || null };
+    // This endpoint is server-side only. The secret key creates a confirmed
+    // Auth user and is never included in the client bundle.
+    const { data: createdUser, error: authError } = await supabaseAdmin.auth.admin.createUser({
+      email,
+      password,
+      email_confirm: true,
+      user_metadata: {
+        full_name: fullName,
+        role
       }
-    } else {
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: {
-            full_name: fullName,
-            role
-          }
-        }
-      });
-      authData = data;
-      authError = error;
-    }
+    });
 
     if (authError) {
       if (
@@ -93,11 +71,11 @@ router.post('/register', async (req, res) => {
       return ApiResponse.error(res, authError.message, 'AUTH_ERROR', 400);
     }
 
-    if (!authData || !authData.user) {
+    if (!createdUser.user) {
       return ApiResponse.error(res, 'Failed to create user account', 'AUTH_ERROR', 500);
     }
 
-    const userId = authData.user.id;
+    const userId = createdUser.user.id;
 
     // Normalize phone field name for DB column phone
     const phoneValue = phone || null;
@@ -118,16 +96,27 @@ router.post('/register', async (req, res) => {
       .single();
 
     if (profileError) {
-      // Attempt safe rollback of auth.users if profile initialization fails
-      if (config.supabase.serviceRoleKey) {
-        await supabaseAdmin.auth.admin.deleteUser(userId).catch(() => {});
-      }
+      // Avoid retaining a partially-created account when profile creation fails.
+      await supabaseAdmin.auth.admin.deleteUser(userId).catch(() => {});
+      logger.error('[Auth] Profile creation failed', {
+        code: profileError.code,
+        message: profileError.message,
+        details: profileError.details
+      });
       return ApiResponse.error(
         res,
-        `Account registration failed during profile initialization: ${profileError.message}`,
+        'Account registration could not create its profile. Please try again.',
         'PROFILE_ERROR',
-        500
+        500,
+        config.env === 'development'
+          ? { databaseCode: profileError.code || 'UNKNOWN' }
+          : undefined
       );
+    }
+
+    const { data: sessionData, error: sessionError } = await supabase.auth.signInWithPassword({ email, password });
+    if (sessionError || !sessionData.session) {
+      return ApiResponse.error(res, 'Account created, but sign-in could not be completed. Please sign in again.', 'SESSION_ERROR', 500);
     }
 
     const userObj = {
@@ -136,14 +125,15 @@ router.post('/register', async (req, res) => {
       role: profile.role,
       fullName: profile.full_name,
       phone: profile.phone || undefined,
-      state: profile.state || undefined
+      state: profile.state || undefined,
+      district: profile.district || undefined
     };
 
     const token = signJwtToken(userObj);
 
     return ApiResponse.success(res, {
-      token,
-      refreshToken: authData.session?.refresh_token || '',
+      accessToken: token,
+      refreshToken: sessionData.session.refresh_token,
       user: userObj
     }, 'Registration successful');
   } catch (err: any) {
@@ -173,7 +163,7 @@ router.post('/login', async (req, res) => {
     };
     const token = signJwtToken(mockUser);
     return ApiResponse.success(res, {
-      token,
+      accessToken: token,
       user: mockUser
     }, 'Login successful (Mock Mode)');
   }
@@ -183,8 +173,9 @@ router.post('/login', async (req, res) => {
   }
 
   const supabase = getSupabaseClient();
-  if (!supabase) {
-    return ApiResponse.error(res, 'Supabase auth service is not configured', 'SERVER_ERROR', 500);
+  const supabaseAdmin = getSupabaseAdminClient();
+  if (!supabase || !supabaseAdmin || !config.supabase.serviceRoleKey) {
+    return ApiResponse.error(res, 'Authentication service is not fully configured', 'AUTH_CONFIGURATION_ERROR', 503);
   }
 
   try {
@@ -203,26 +194,35 @@ router.post('/login', async (req, res) => {
 
     const userId = authData.user.id;
 
-    // Fetch corresponding profile
-    const { data: profile } = await supabase
+    // Profile reads occur on the secure backend. The regular client is
+    // anonymous here and is correctly restricted by profiles RLS.
+    const { data: profile, error: profileError } = await supabaseAdmin
       .from('profiles')
       .select('*')
       .eq('id', userId)
-      .single();
+      .maybeSingle();
+
+    if (profileError) {
+      return ApiResponse.error(res, 'Unable to load the user profile', 'PROFILE_LOOKUP_ERROR', 503);
+    }
+    if (!profile) {
+      return ApiResponse.error(res, 'Your account profile is missing. Please contact support.', 'PROFILE_NOT_FOUND', 409);
+    }
 
     const userObj = {
       id: userId,
       email: authData.user.email || email,
-      role: profile?.role || 'farmer',
-      fullName: profile?.full_name || authData.user.user_metadata?.full_name || email.split('@')[0],
-      phone: profile?.phone || undefined,
-      state: profile?.state || undefined
+      role: profile.role || 'farmer',
+      fullName: profile.full_name || authData.user.user_metadata?.full_name || email.split('@')[0],
+      phone: profile.phone || undefined,
+      state: profile.state || undefined,
+      district: profile.district || undefined
     };
 
     const token = signJwtToken(userObj);
 
     return ApiResponse.success(res, {
-      token,
+      accessToken: token,
       refreshToken: authData.session.refresh_token,
       user: userObj
     }, 'Login successful');
@@ -272,8 +272,9 @@ router.get('/me', async (req, res) => {
   }
 
   const supabase = getSupabaseClient();
-  if (!supabase) {
-    return ApiResponse.error(res, 'Supabase auth service is not configured', 'SERVER_ERROR', 500);
+  const supabaseAdmin = getSupabaseAdminClient();
+  if (!supabase || !supabaseAdmin || !config.supabase.serviceRoleKey) {
+    return ApiResponse.error(res, 'Authentication service is not fully configured', 'AUTH_CONFIGURATION_ERROR', 503);
   }
 
   try {
@@ -284,21 +285,28 @@ router.get('/me', async (req, res) => {
       return ApiResponse.error(res, 'Invalid or expired access token', 'UNAUTHORIZED', 401);
     }
 
-    // Fetch profile
-    const { data: profile } = await supabase
+    const { data: profile, error: profileError } = await supabaseAdmin
       .from('profiles')
       .select('*')
       .eq('id', authUser.id)
-      .single();
+      .maybeSingle();
+
+    if (profileError) {
+      return ApiResponse.error(res, 'Unable to load the user profile', 'PROFILE_LOOKUP_ERROR', 503);
+    }
+    if (!profile) {
+      return ApiResponse.error(res, 'Your account profile is missing. Please contact support.', 'PROFILE_NOT_FOUND', 409);
+    }
 
     return ApiResponse.success(res, {
       user: {
         id: authUser.id,
         email: authUser.email || '',
-        role: profile?.role || 'farmer',
-        fullName: profile?.full_name || authUser.user_metadata?.full_name || '',
-        phone: profile?.phone || undefined,
-        state: profile?.state || undefined
+        role: profile.role || 'farmer',
+        fullName: profile.full_name || authUser.user_metadata?.full_name || '',
+        phone: profile.phone || undefined,
+        state: profile.state || undefined,
+        district: profile.district || undefined
       }
     });
   } catch (err: any) {

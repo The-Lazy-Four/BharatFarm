@@ -21,7 +21,7 @@ export function getSupabaseClient(): SupabaseClient | null {
   if (_supabase) return _supabase;
 
   const url = config.supabase.url;
-  const key = config.supabase.anonKey || config.supabase.serviceRoleKey;
+  const key = config.supabase.anonKey;
 
   if (!url || !key) {
     logger.warn('[Supabase] URL or Key not configured — database operations will be unavailable.');
@@ -46,7 +46,7 @@ export function getSupabaseAdminClient(): SupabaseClient | null {
 
   if (!url || !serviceKey) {
     logger.warn('[Supabase Admin] SUPABASE_SERVICE_ROLE_KEY is missing — administrative actions will fail or fallback to client key.');
-    return getSupabaseClient();
+    return null;
   }
 
   _supabaseAdmin = createClient(url, serviceKey, {

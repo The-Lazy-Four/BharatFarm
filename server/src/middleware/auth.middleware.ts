@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { ApiResponse } from '../utils/apiResponse.js';
 import { config } from '../config/env.js';
-import { getSupabaseClient } from '../config/supabase.js';
+import { getSupabaseClient, getSupabaseAdminClient } from '../config/supabase.js';
 import { verifyJwtToken } from '../utils/jwt.js';
 
 export interface AuthenticatedUser {
@@ -102,25 +102,37 @@ export const authenticateToken = async (req: AuthenticatedRequest, res: Response
       return ApiResponse.error(res, 'Invalid or expired access token', 'UNAUTHORIZED', 401);
     }
 
-    // Fetch corresponding profile for role & full name & farm context
-    const { data: profile } = await supabase
+    // This is server-side profile enrichment. Use the admin client because the
+    // verification client is anonymous and profiles RLS correctly blocks it.
+    const supabaseAdmin = getSupabaseAdminClient();
+    if (!supabaseAdmin) {
+      return ApiResponse.error(res, 'Authentication profile service unavailable', 'SERVER_ERROR', 503);
+    }
+    const { data: profile, error: profileError } = await supabaseAdmin
       .from('profiles')
       .select('*')
       .eq('id', authUser.id)
-      .single();
+      .maybeSingle();
+
+    if (profileError) {
+      return ApiResponse.error(res, 'Unable to load the user profile', 'PROFILE_LOOKUP_ERROR', 503);
+    }
+    if (!profile) {
+      return ApiResponse.error(res, 'Your account profile is missing. Please contact support.', 'PROFILE_NOT_FOUND', 409);
+    }
 
     req.user = {
       id: authUser.id,
       email: authUser.email || '',
-      role: profile?.role || (authUser.user_metadata?.role as string) || 'farmer',
-      fullName: profile?.full_name || authUser.user_metadata?.full_name,
-      phone: profile?.phone || undefined,
-      state: profile?.state || undefined,
-      district: profile?.district || undefined,
-      landSizeAcres: profile?.land_size_acres != null ? Number(profile.land_size_acres) : undefined,
-      primaryCrops: profile?.primary_crops || undefined,
-      preferredLanguage: profile?.preferred_language || undefined,
-      avatarUrl: profile?.avatar_url || undefined
+      role: profile.role || (authUser.user_metadata?.role as string) || 'farmer',
+      fullName: profile.full_name || authUser.user_metadata?.full_name,
+      phone: profile.phone || undefined,
+      state: profile.state || undefined,
+      district: profile.district || undefined,
+      landSizeAcres: profile.land_size_acres != null ? Number(profile.land_size_acres) : undefined,
+      primaryCrops: profile.primary_crops || undefined,
+      preferredLanguage: profile.preferred_language || undefined,
+      avatarUrl: profile.avatar_url || undefined
     };
 
     return next();

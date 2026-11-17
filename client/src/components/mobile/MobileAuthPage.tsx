@@ -9,11 +9,12 @@ interface MobileAuthPageProps {
 }
 
 export const MobileAuthPage: React.FC<MobileAuthPageProps> = ({ mode }) => {
-  const { login } = useAuth();
+  const { login, register } = useAuth();
   const { language, setLanguage, t } = useLanguage();
   const navigate = useNavigate();
 
   const [emailOrPhone, setEmailOrPhone] = useState('');
+  const [fullName, setFullName] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -33,10 +34,22 @@ export const MobileAuthPage: React.FC<MobileAuthPageProps> = ({ mode }) => {
       return;
     }
 
+    if (mode === 'register' && !fullName.trim()) {
+      setErrorMsg(t('auth.fullName'));
+      return;
+    }
+
     setIsLoading(true);
     try {
       const loginEmail = input.includes('@') ? input : `${input.replace(/\D/g, '')}@bharatfarm.org`;
-      const res = await login(loginEmail, password);
+      const res = mode === 'login'
+        ? await login(loginEmail, password)
+        : await register({
+            fullName: fullName.trim(),
+            email: loginEmail,
+            password,
+            role: 'farmer'
+          });
       if (res.success) {
         navigate('/home', { replace: true });
       } else {
@@ -130,6 +143,31 @@ export const MobileAuthPage: React.FC<MobileAuthPageProps> = ({ mode }) => {
           )}
 
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            {mode === 'register' && (
+              <div>
+                <label style={{ fontSize: '0.82rem', fontWeight: 700, color: '#334155', display: 'block', marginBottom: '0.35rem' }}>
+                  {t('auth.fullName')}
+                </label>
+                <input
+                  type="text"
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  placeholder={t('auth.fullNamePlaceholder')}
+                  disabled={isLoading}
+                  required
+                  style={{
+                    width: '100%',
+                    padding: '0.75rem 1rem',
+                    borderRadius: '12px',
+                    border: '1px solid #CBD5E1',
+                    background: '#F8FAFC',
+                    fontSize: '0.92rem',
+                    boxSizing: 'border-box',
+                    outline: 'none'
+                  }}
+                />
+              </div>
+            )}
             <div>
               <label style={{ fontSize: '0.82rem', fontWeight: 700, color: '#334155', display: 'block', marginBottom: '0.35rem' }}>
                 {t('auth.emailOrPhone')}
