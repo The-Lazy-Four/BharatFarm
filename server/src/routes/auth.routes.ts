@@ -12,7 +12,14 @@ const router = Router();
  * Register a user via Supabase Auth & create a linked record in public.profiles.
  */
 router.post('/register', async (req, res) => {
-  const { email, password, fullName, phone, role = 'farmer', state = 'Punjab', district } = req.body;
+  const { email, password, fullName, phone, role: requestedRole = 'farmer', state = 'Punjab', district } = req.body;
+  // Public registration may create only regular application identities. Admin
+  // and expert roles are assigned later by the protected database RPC or a
+  // trusted service-role administration workflow.
+  if (requestedRole !== 'farmer' && requestedRole !== 'buyer') {
+    return ApiResponse.error(res, 'This role must be assigned by an administrator', 'ROLE_ASSIGNMENT_FORBIDDEN', 403);
+  }
+  const role = requestedRole;
 
   if (!email || !password || !fullName) {
     return ApiResponse.error(res, 'Email, password, and full name are required', 'VALIDATION_ERROR', 400);
