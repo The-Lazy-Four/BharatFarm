@@ -3,8 +3,18 @@ import { ApiResponse } from '../utils/apiResponse.js';
 import { logger } from '../utils/logger.js';
 import { SmartMandiMatchingService } from '../services/smartMandiMatching.service.js';
 import { SmartMandiAiService } from '../services/smartMandiAi.service.js';
+import { MandiPriceService } from '../services/mandiPrice.service.js';
 
 export class SmartMandiController {
+  getLivePrices = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const snapshot = await MandiPriceService.getWestBengalPrices(req.query.refresh === 'true');
+      ApiResponse.success(res, snapshot, 'West Bengal mandi prices retrieved');
+    } catch (err: any) {
+      logger.error('[SmartMandiController] live price fetch failed', { message: err?.message });
+      ApiResponse.error(res, 'Unable to retrieve official mandi prices. Please try again.', 'MANDI_DATA_UNAVAILABLE', 503);
+    }
+  };
 
   /**
    * POST /api/smart-mandi/requirements

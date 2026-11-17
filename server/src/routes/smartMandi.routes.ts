@@ -5,6 +5,8 @@ import { asyncHandler } from '../utils/asyncHandler.js';
 const router = Router();
 const controller = new SmartMandiController();
 
+router.get('/prices', asyncHandler(controller.getLivePrices));
+
 // Buyer Requirement routes
 router.post('/requirements', asyncHandler(controller.createRequirement));
 router.get('/requirements', asyncHandler(controller.getAllRequirements));

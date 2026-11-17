@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { SmartMandiService, MandiRoute } from '../smartMandi.service.js';
+import { LiveMandiPriceDashboard } from './LiveMandiPriceDashboard.js';
 import { FieldRecord } from '../../field-mapping/fieldMapping.service.js';
 import { useAuth } from '../../../../context/AuthContext.js';
 import { useLanguage } from '../../../../context/LanguageContext.js';
@@ -1018,7 +1019,8 @@ export const MobileSmartMandiView: React.FC<MobileSmartMandiViewProps> = (props)
       )}
 
       {/* ── 6. MANDI RATES TAB (RECOMMENDED MANDI CARD FIRST) ─────── */}
-      {props.activeTab === 'mandi-rates' && (
+      {props.activeTab === 'mandi-rates' && <LiveMandiPriceDashboard />}
+      {props.activeTab === ('legacy-mandi-rates' as typeof props.activeTab) && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
           {/* Top Quick Filter Bar */}
           <div style={{

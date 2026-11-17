@@ -22,7 +22,22 @@ export interface MandiRoute {
   transitTimeMinutes: number;
 }
 
+export interface LiveMandiPriceRecord {
+  state: string; district: string; market: string; commodity: string; variety: string; grade: string; arrivalDate: string;
+  minPrice: number | null; maxPrice: number | null; modalPrice: number | null; suspicious: boolean;
+}
+export interface LiveMandiPriceSnapshot {
+  records: LiveMandiPriceRecord[]; fetchedAt: string; latestArrivalDate: string | null;
+  source: string; totalSourceRecords: number;
+}
+
 export class SmartMandiService {
+
+  static async getLivePrices(refresh = false): Promise<LiveMandiPriceSnapshot> {
+    const res = await ApiClient.get<LiveMandiPriceSnapshot>(`/smart-mandi/prices${refresh ? '?refresh=true' : ''}`);
+    if (res.success && res.data) return res.data;
+    throw new Error(res.error?.message || 'Unable to retrieve official mandi prices.');
+  }
 
   // ─────────────────────────────────────────────────────────
   // BUYER REQUIREMENT APIS

@@ -7,6 +7,7 @@ import { useAuth } from '../../../../context/AuthContext.js';
 import { useLanguage } from '../../../../context/LanguageContext.js';
 import { useIsMobile } from '../../../../hooks/useIsMobile.js';
 import { MobileSmartMandiView } from '../components/MobileSmartMandiView.js';
+import { LiveMandiPriceDashboard } from '../components/LiveMandiPriceDashboard.js';
 import type {
   BuyerRequirement,
   FarmerSupply,
@@ -1654,7 +1655,8 @@ export const SmartMandiPage: React.FC = () => {
         {/* ═══════════════════════════════════════════════════════════ */}
         {/* TAB 3: MANDI RATES (Preserved APMC Route Comparison)        */}
         {/* ═══════════════════════════════════════════════════════════ */}
-        {activeTab === 'mandi-rates' && (
+        {activeTab === 'mandi-rates' && <LiveMandiPriceDashboard />}
+        {activeTab === ('legacy-mandi-rates' as ActiveTab) && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
             <div style={{
               background: '#FFFFFF',

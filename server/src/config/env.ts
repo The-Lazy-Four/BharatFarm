@@ -23,6 +23,7 @@ export const config = {
   aiProviderApiKey: process.env.OPENROUTER_API_KEY || process.env.AI_PROVIDER_API_KEY || '',
   geminiModel: process.env.GEMINI_MODEL || 'google/gemini-2.5-flash',
   weatherApiKey: process.env.WEATHER_API_KEY || '',
+  dataGovInApiKey: process.env.DATA_GOV_IN_API_KEY || '',
   useMockData: process.env.USE_MOCK_DATA === 'true',
   jwt: {
     secret: process.env.JWT_SECRET || 'bharatfarm_jwt_secret_key_2026_super_secure',
