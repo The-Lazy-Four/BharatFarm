@@ -103,21 +103,6 @@ BharatFarm/
 | **📋 Action Planner** | Seasonal task checklists, crop calendar milestone tracking, and daily farm action management. |
 | **🗺️ Field Mapping** | Interactive plot boundary mapping and soil health parameter visualization. |
 
-### 3. Track 4: BharatFarm Regenerative Intelligence (`client/src/modules/build-ai`)
-
-A dedicated, mobile-first agricultural intelligence suite designed to convert field, satellite, and soil data into practical regenerative farming decisions:
-
-| Feature Capability | Route | Description |
-| :--- | :--- | :--- |
-| **🌱 Regenerative Intelligence Home** | `/build-ai` | Product launcher featuring active field context, visual capability cards with high-res imagery, and zero-clutter navigation. |
-| **🛰️ Satellite Health** | `/build-ai/satellite` | Real-time / demo Sentinel-2 10m NDVI vegetation telemetry, canopy health indices, historical time-series trends, and GIS field maps. |
-| **🧪 Soil Health Analysis** | `/build-ai/soil-health` | Lab test diagnostics for NPK, pH, and organic carbon with instant soil score gauge, nutrient deficiency alerts, and biological remedies. |
-| **🧠 Regenerative AI Engine** | `/build-ai/regenerative-ai` | Decision-support synthesis combining satellite canopy vigor and soil test data to produce prioritized, time-stamped action plans. |
-| **🌍 BRICS Knowledge Hub** | `/build-ai/brics-hub` | Multi-nation regenerative agricultural practices repository covering India, Brazil, Russia, China, and South Africa with side-by-side comparative views. |
-
-- **Contextual "Explore Tools" Bottom-Sheet:** Replaces traditional desktop dashboard tab bars with a mobile-friendly bottom-sheet selector accessible from every capability page.
-- **Robust Fallback Engine:** Features live API integration (Sentinel Hub & OpenRouter/Gemini AI) with instant deterministic fallbacks for reliable offline/demo resilience.
-
 ---
 
 ## 🛠️ Technology Stack
@@ -210,10 +195,6 @@ All server API responses are formatted using a standardized JSON envelope (`ApiR
 | `/api/crop-risk/assess` | `POST` | Evaluate parametric crop damage risks |
 | `/api/insurance/policies` | `GET` | List available crop insurance schemes and eligibility |
 | `/api/ai/query` | `POST` | Process AI farming advisory questions via Gemini/OpenRouter |
-| `/api/build-ai/satellite/timeseries` | `GET` | Retrieve multi-date NDVI telemetry & Sentinel satellite observations |
-| `/api/build-ai/soil/analyze` | `POST` | Analyze NPK, pH & organic carbon with automated diagnostic scores |
-| `/api/build-ai/regenerative/plan` | `POST` | Synthesize multi-source field, soil & satellite data into action plans |
-| `/api/build-ai/brics/records` | `GET` | Query curated BRICS regenerative farming practices & comparative views |
 
 ---
 

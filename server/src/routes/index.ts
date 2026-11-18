@@ -10,12 +10,6 @@ import smartMandiRoutes from './smartMandi.routes.js';
 import insuranceRoutes from './insurance.routes.js';
 import weatherRoutes from './weather.routes.js';
 import { whatsappRoutes, callRoutes } from '../modules/sahayak/index.js';
-import satelliteRoutes from '../modules/build-ai/satellite/satellite.routes.js';
-import soilRoutes from '../modules/build-ai/soil/soil.routes.js';
-import regenerativeRoutes from '../modules/build-ai/regenerative/regenerative.routes.js';
-import bricsRoutes from '../modules/build-ai/brics/brics.routes.js';
-import interopRoutes from '../modules/build-ai/interoperability/interop.routes.js';
-import impactRoutes from '../modules/build-ai/impact/impact.routes.js';
 
 const aggregateRouter = Router();
 
@@ -31,14 +25,6 @@ aggregateRouter.use('/smart-mandi', smartMandiRoutes);
 aggregateRouter.use('/insurance', insuranceRoutes);
 aggregateRouter.use('/sahayak/whatsapp', whatsappRoutes);
 aggregateRouter.use('/sahayak/call', callRoutes);
-
-// Build-with-AI Track 4 Route Endpoints
-aggregateRouter.use('/build-ai/satellite', satelliteRoutes);
-aggregateRouter.use('/build-ai/soil', soilRoutes);
-aggregateRouter.use('/build-ai/regenerative', regenerativeRoutes);
-aggregateRouter.use('/build-ai/brics', bricsRoutes);
-aggregateRouter.use('/build-ai/api', interopRoutes);
-aggregateRouter.use('/build-ai/impact', impactRoutes);
 
 export default aggregateRouter;
 
