@@ -105,14 +105,31 @@ export const MobileModuleHomePage: React.FC = () => {
       minHeight: '100vh',
       width: '100vw',
       maxWidth: '100%',
-      background: '#F7F4EC', // Warm agricultural off-white
+      background: 'var(--app-bg)',
       paddingBottom: '84px',
-      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+      fontFamily: 'var(--font-family)',
       boxSizing: 'border-box',
       overflowX: 'hidden',
-      color: '#18231B' // Dark earthy green-charcoal text
+      color: 'var(--text-primary)'
     }}>
-      {/* 1. COMPACT HEADER */}
+      {/* 1. TOP INSTITUTIONAL STRIP */}
+      <div
+        style={{
+          background: '#0D233D',
+          color: '#FFFFFF',
+          padding: '0.25rem 0.85rem',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          fontSize: '0.68rem',
+          borderBottom: '1px solid rgba(255,255,255,0.1)'
+        }}
+      >
+        <span style={{ fontWeight: 600, color: '#E2E8F0' }}>National Agricultural Portal</span>
+        <span style={{ color: '#E99A32', fontWeight: 700 }}>GIGW Accessible</span>
+      </div>
+
+      {/* 2. COMPACT GOVERNMENT HEADER */}
       <header style={{
         padding: '0.65rem 1rem',
         background: '#FFFFFF',
@@ -122,29 +139,29 @@ export const MobileModuleHomePage: React.FC = () => {
         position: 'sticky',
         top: 0,
         zIndex: 50,
-        borderBottom: '1px solid #EAE4D5',
-        boxShadow: '0 1px 3px rgba(24, 35, 27, 0.04)'
+        borderBottom: '2px solid #E99A32',
+        boxShadow: 'var(--shadow-sm)'
       }}>
         {/* Brand */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.55rem' }}>
           <img
             src="/logo.png"
-            alt="BharatFarm"
+            alt="BharatFarm Emblem"
             style={{ width: '32px', height: '32px', objectFit: 'contain' }}
           />
           <div>
             <div style={{
               fontSize: '1.15rem',
               fontWeight: 900,
-              color: '#174A2A',
+              color: '#12345A',
               letterSpacing: '-0.02em',
               lineHeight: 1.1
             }}>
-              Bharat<span style={{ color: '#4F7D32' }}>Farm</span>
+              Bharat<span style={{ color: '#168447' }}>Farm</span>
             </div>
             <div style={{
               fontSize: '0.62rem',
-              color: '#6B7280',
+              color: '#64748B',
               fontWeight: 600,
               letterSpacing: '0.01em',
               lineHeight: 1
@@ -165,10 +182,10 @@ export const MobileModuleHomePage: React.FC = () => {
               style={{
                 appearance: 'none',
                 WebkitAppearance: 'none',
-                background: '#F2EDE2',
-                color: '#18231B',
-                border: '1px solid #D9D2C3',
-                borderRadius: '9999px',
+                background: '#F1F5F9',
+                color: '#12345A',
+                border: '1px solid #DCE2E8',
+                borderRadius: '4px',
                 padding: '0.25rem 1.3rem 0.25rem 0.6rem',
                 fontSize: '0.72rem',
                 fontWeight: 700,
@@ -189,7 +206,7 @@ export const MobileModuleHomePage: React.FC = () => {
                 top: '50%',
                 transform: 'translateY(-50%)',
                 fontSize: '14px',
-                color: '#6B7280',
+                color: '#64748B',
                 pointerEvents: 'none'
               }}
             >
@@ -204,10 +221,10 @@ export const MobileModuleHomePage: React.FC = () => {
             style={{
               width: '32px',
               height: '32px',
-              borderRadius: '50%',
-              background: '#F2EDE2',
-              border: '1px solid #D9D2C3',
-              color: '#18231B',
+              borderRadius: '4px',
+              background: '#F1F5F9',
+              border: '1px solid #DCE2E8',
+              color: '#12345A',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -216,7 +233,7 @@ export const MobileModuleHomePage: React.FC = () => {
               padding: 0
             }}
           >
-            <span className="material-symbols-outlined" style={{ fontSize: '18px', color: '#174A2A' }}>
+            <span className="material-symbols-outlined" style={{ fontSize: '18px', color: '#12345A' }}>
               notifications
             </span>
             {notifications.length > 0 && (
@@ -232,15 +249,15 @@ export const MobileModuleHomePage: React.FC = () => {
             )}
           </button>
 
-          {/* User Profile Avatar Circle */}
+          {/* User Profile Avatar */}
           <button
             onClick={() => navigate('/profile')}
             title={t('moduleHome.profileTitle', { name: farmerName })}
             style={{
               width: '32px',
               height: '32px',
-              borderRadius: '50%',
-              background: '#174A2A',
+              borderRadius: '4px',
+              background: '#12345A',
               color: '#FFFFFF',
               border: 'none',
               display: 'flex',

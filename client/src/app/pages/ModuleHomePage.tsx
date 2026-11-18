@@ -1,28 +1,30 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React from 'react';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext.js';
 import { useLanguage } from '../../context/LanguageContext.js';
 import { useIsMobile } from '../../hooks/useIsMobile';
 import { MobileModuleHomePage } from '../../components/mobile/MobileModuleHomePage';
 import { PriceRiskService } from '../../modules/sih/price-risk/priceRisk.service.js';
-import { NotificationDrawer } from '../../components/notifications/NotificationDrawer';
+import { Header } from '../../components/layout/Header';
+import { InstitutionalFooter } from '../../components/layout/InstitutionalFooter';
 
-interface SihCard {
+interface ServiceCard {
   id: string;
   title: string;
-  subtitle?: string;
+  department: string;
   description: string;
   icon: string;
   path: string;
-  image: string;
+  actionLabel: string;
+  badge?: string;
+  status: string;
 }
 
 export const ModuleHomePage: React.FC = () => {
   const isMobile = useIsMobile();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { language, setLanguage, t } = useLanguage();
-  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+  const { t } = useLanguage();
 
   if (isMobile) {
     return <MobileModuleHomePage />;
@@ -36,531 +38,434 @@ export const ModuleHomePage: React.FC = () => {
     state: 'West Bengal'
   };
 
-  const sihInnovations: SihCard[] = [
-    {
-      id: 'price-risk',
-      title: t('sih.priceRiskNav'),
-      subtitle: t('sih.priceRiskSubtitle'),
-      description: t('sih.priceRiskDesc'),
-      icon: 'psychology',
-      path: '/sih/price-risk',
-      image: 'https://images.unsplash.com/photo-1586771107445-d3ca888129ff?auto=format&fit=crop&w=600&q=80'
-    },
+  const portalServices: ServiceCard[] = [
     {
       id: 'climate-risk',
-      title: t('sih.climateRiskNav'),
-      subtitle: t('sih.climateRiskSubtitle'),
-      description: t('sih.climateRiskDesc'),
+      title: t('sih.climateRiskNav') || 'Climate & Disaster Risk Intelligence',
+      department: 'Agro-Meteorology & Risk Advisory',
+      description: 'Block-level precipitation forecasts, flood probability assessment, extreme heat alerts, and field operation recommendations.',
       icon: 'partly_cloudy_day',
       path: '/sih/climate-risk',
-      image: 'https://images.unsplash.com/photo-1534274988757-a28bf1a57c17?auto=format&fit=crop&w=600&q=80'
-    },
-    {
-      id: 'aggregation',
-      title: t('sih.aggregationNav'),
-      subtitle: t('sih.aggregationSubtitle'),
-      description: t('sih.aggregationDesc'),
-      icon: 'groups',
-      path: '/sih/smart-mandi?tab=sell',
-      image: 'https://images.unsplash.com/photo-1595974482597-4b8da8879bc5?auto=format&fit=crop&w=600&q=80'
-    },
-    {
-      id: 'crop-insurance',
-      title: t('sih.cropInsuranceNav'),
-      subtitle: t('sih.cropInsuranceSubtitle'),
-      description: t('sih.cropInsuranceDesc'),
-      icon: 'verified_user',
-      path: '/sih/crop-insurance',
-      image: 'https://images.unsplash.com/photo-1625246333195-78d9c38ad449?auto=format&fit=crop&w=600&q=80'
+      actionLabel: 'Access Risk Advisory',
+      status: 'Live Advisory Active'
     },
     {
       id: 'smart-mandi',
-      title: t('sih.smartMandiNav'),
-      subtitle: t('sih.smartMandiSubtitle'),
-      description: t('sih.smartMandiDesc'),
+      title: t('sih.smartMandiNav') || 'Smart Mandi Real-Time Prices',
+      department: 'Agricultural Marketing & Price Intelligence',
+      description: 'Real-time market prices across nearby APMC mandis, logistics cost breakdown, and net profit optimization per quintal.',
       icon: 'bar_chart',
       path: '/sih/smart-mandi',
-      image: 'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=600&q=80'
+      actionLabel: 'View Mandi Prices',
+      status: 'Data Updated Today'
+    },
+    {
+      id: 'aggregation',
+      title: t('sih.aggregationNav') || 'Group Selling & Transport Pooling',
+      department: 'Logistics Aggregation & Cooperative Pooling',
+      description: 'Join verified regional farmer aggregation pools to reduce transport overhead and gain bulk bargaining power.',
+      icon: 'groups',
+      path: '/sih/smart-mandi?tab=sell',
+      actionLabel: 'Join Aggregation Pool',
+      status: 'Pools Open in District'
+    },
+    {
+      id: 'crop-insurance',
+      title: t('sih.cropInsuranceNav') || 'Crop Insurance Verification',
+      department: 'Pradhan Mantri Fasal Bima / Satellite Claims',
+      description: 'Transparent automated claim verification powered by satellite NDVI vegetative index telemetry and automated weather audits.',
+      icon: 'verified_user',
+      path: '/sih/crop-insurance',
+      actionLabel: 'Check Claim Eligibility',
+      status: 'Automated Audit Active'
     },
     {
       id: 'sahayak',
-      title: t('sih.sahayakNav'),
-      subtitle: t('sih.sahayakSubtitle'),
-      description: t('sih.sahayakDesc'),
+      title: t('sih.sahayakNav') || 'Sahayak AI Multilingual Assistant',
+      department: 'Citizen Farmer Helpdesk & Advisory AI',
+      description: 'Interactive voice and text farming advisory available in Hindi, Bengali, and English, with automated WhatsApp and IVR call support.',
       icon: 'chat',
       path: '/sih/sahayak',
-      image: 'https://images.unsplash.com/photo-1592982537447-7440770cbfc9?auto=format&fit=crop&w=600&q=80'
+      actionLabel: 'Consult Sahayak',
+      status: '24/7 Virtual Helpdesk'
+    },
+    {
+      id: 'price-risk',
+      title: t('sih.priceRiskNav') || 'Before You Sow Price Advisory',
+      department: 'Pre-Sowing Decision Intelligence',
+      description: 'Forward-looking price projection based on national supply-demand trends before purchasing seed and commencing cultivation.',
+      icon: 'psychology',
+      path: '/sih/price-risk',
+      actionLabel: 'Evaluate Crop Sowing',
+      status: 'Kharif / Rabi Guidance'
+    },
+    {
+      id: 'field-mapping',
+      title: 'GIS Farm Boundary & Satellite Mapping',
+      department: 'Cadastral & Geospatial Services',
+      description: 'Interactive polygon mapping on high-resolution satellite imagery with automatic acreage calculation and GPS walk-the-farm logging.',
+      icon: 'map',
+      path: '/sih/field-mapping',
+      actionLabel: 'View Cadastral Map',
+      status: 'Field Registered'
+    },
+    {
+      id: 'basic-dashboard',
+      title: 'Farmer Operations Workspace',
+      department: 'Integrated Farm Management System',
+      description: 'Daily operational workspace covering crop roadmaps, AI leaf disease diagnostics, government scheme directory, and farm logbooks.',
+      icon: 'dashboard',
+      path: '/dashboard',
+      actionLabel: 'Open Farmer Workspace',
+      status: 'Active Profile'
     }
   ];
-
-  const filteredInnovations = sihInnovations;
 
   return (
     <div style={{
       minHeight: '100vh',
-      background: '#F8FAFC',
-      color: '#0F172A',
-      fontFamily: 'Inter, system-ui, -apple-system, sans-serif',
+      background: 'var(--app-bg)',
+      color: 'var(--text-primary)',
+      fontFamily: 'var(--font-family)',
       display: 'flex',
       flexDirection: 'column'
     }}>
+      {/* Universal Institutional Header */}
+      <Header />
 
-      {/* Top Main Navigation Header */}
-      <header style={{
-        background: '#FFFFFF',
-        borderBottom: '1px solid #E2E8F0',
-        padding: '0.85rem 2rem',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        position: 'sticky',
-        top: 0,
-        zIndex: 50,
-        boxShadow: '0 1px 3px rgba(0,0,0,0.04)'
-      }}>
-        {/* Brand */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <img
-            src="/logo.png"
-            alt="BharatFarm"
-            style={{ width: '38px', height: '38px', objectFit: 'contain' }}
-          />
-          <div>
-            <div style={{ fontSize: '1.35rem', fontWeight: 900, color: '#0F172A', letterSpacing: '-0.02em', lineHeight: 1.1 }}>
-              Bharat<span style={{ color: '#16A34A' }}>Farm</span>
-            </div>
-            <div style={{ fontSize: '0.72rem', color: '#64748B', fontWeight: 600 }}>
-              Smart Tools. Stronger Farmers.
-            </div>
-          </div>
-        </div>
-
-        {/* Header Right Controls */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          {/* Language Selector Dropdown */}
-          <select
-            value={language}
-            onChange={(e) => setLanguage(e.target.value)}
-            title={t('common.languageSelect')}
-            style={{
-              background: '#F8FAFC',
-              color: '#0F172A',
-              border: '1.5px solid #E2E8F0',
-              borderRadius: '20px',
-              padding: '0.35rem 0.85rem',
-              fontSize: '0.82rem',
-              fontWeight: 700,
-              cursor: 'pointer',
-              outline: 'none'
-            }}
-          >
-            <option value="en">EN</option>
-            <option value="hi">हिंदी</option>
-            <option value="bn">বাংলা</option>
-          </select>
-          <button
-            onClick={() => setIsNotificationsOpen(true)}
-            title={t('common.notifications')}
-            style={{
-              background: '#F8FAFC',
-              border: '1.5px solid #E2E8F0',
-              borderRadius: '50%',
-              width: '40px',
-              height: '40px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: '#334155',
-              cursor: 'pointer',
-              position: 'relative'
-            }}
-          >
-            <span className="material-symbols-outlined" style={{ fontSize: '22px' }}>notifications</span>
-            <span style={{
-              position: 'absolute',
-              top: '5px',
-              right: '5px',
-              width: '8px',
-              height: '8px',
-              borderRadius: '50%',
-              background: '#EF4444',
-              border: '2px solid #FFFFFF'
-            }} />
-          </button>
-
-          {/* User Avatar Circle */}
-          <div
-            onClick={() => navigate('/profile')}
-            title={t('moduleHome.profileTitle', { name: user?.fullName || 'Farmer' })}
-            style={{
-              width: '40px',
-              height: '40px',
-              borderRadius: '50%',
-              background: '#143621',
-              color: '#FFFFFF',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontWeight: 800,
-              fontSize: '1rem',
-              cursor: 'pointer',
-              boxShadow: '0 2px 8px rgba(20, 54, 33, 0.25)'
-            }}
-          >
-            {user?.fullName ? user.fullName[0].toUpperCase() : 'S'}
-          </div>
-        </div>
-      </header>
-
-      {/* Interactive Notifications Drawer */}
-      <NotificationDrawer
-        isOpen={isNotificationsOpen}
-        onClose={() => setIsNotificationsOpen(false)}
-      />
-
-      {/* Main Body */}
-      <main style={{
+      {/* Main Container */}
+      <main id="main-content" style={{
         flex: 1,
-        padding: '2.5rem 2rem',
+        padding: '2rem 1.5rem 3rem',
         maxWidth: '1280px',
         width: '100%',
         margin: '0 auto',
         boxSizing: 'border-box',
         display: 'flex',
         flexDirection: 'column',
-        gap: '2.5rem'
+        gap: '2rem'
       }}>
 
-        {/* Welcome Banner with Landscape background */}
-        <div style={{
-          position: 'relative',
-          borderRadius: '24px',
-          overflow: 'hidden',
-          padding: '2rem 2.5rem',
-          background: 'linear-gradient(135deg, #F8FAFC 0%, #F1F5F9 100%)',
-          border: '1px solid #E2E8F0',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center'
-        }}>
-          <div style={{
-            position: 'absolute',
-            inset: 0,
-            backgroundImage: 'url("https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1400&q=80")',
-            backgroundSize: 'cover',
-            backgroundPosition: 'center 40%',
-            opacity: 0.18,
-            pointerEvents: 'none'
-          }} />
-          <div style={{ position: 'relative', zIndex: 1 }}>
-            <h1 style={{
-              fontSize: '2.2rem',
-              fontWeight: 900,
-              color: '#0F172A',
-              margin: 0,
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.5rem',
-              letterSpacing: '-0.02em'
-            }}>
-              {t('home.welcomeUser', { name: user?.fullName || 'Farmer' })}
+        {/* ── SECTION B: HERO / WELCOME SECTION (Government-grade Public Banner) ── */}
+        <section
+          style={{
+            background: '#FFFFFF',
+            border: '1px solid #DCE2E8',
+            borderRadius: 'var(--radius)',
+            padding: '2rem 2.5rem',
+            boxShadow: 'var(--shadow-sm)',
+            display: 'grid',
+            gridTemplateColumns: '1.4fr 1fr',
+            gap: '2.5rem',
+            alignItems: 'center',
+            position: 'relative',
+            overflow: 'hidden'
+          }}
+        >
+          {/* Subtle Institutional Border Accent */}
+          <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '4px', background: 'linear-gradient(90deg, #12345A 0%, #168447 50%, #E99A32 100%)' }} />
+
+          <div>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.45rem', background: '#F1F5F9', border: '1px solid #DCE2E8', borderRadius: '4px', padding: '0.2rem 0.6rem', marginBottom: '1rem' }}>
+              <span className="material-symbols-outlined" style={{ fontSize: '15px', color: '#168447' }}>verified</span>
+              <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#12345A', letterSpacing: '0.04em', textTransform: 'uppercase' }}>
+                National Agricultural Digital Platform
+              </span>
+            </div>
+
+            <h1 style={{ fontSize: '2.2rem', fontWeight: 800, color: '#12345A', lineHeight: 1.2, margin: '0 0 1rem 0', letterSpacing: '-0.02em' }}>
+              Empowering Indian Agriculture Through Digital Intelligence
             </h1>
-            <p style={{
-              fontSize: '1.05rem',
-              color: '#475569',
-              marginTop: '0.45rem',
-              marginBottom: 0,
-              fontWeight: 600
-            }}>
-              {t('home.empowerTagline')}
+
+            <p style={{ fontSize: '0.95rem', color: '#334155', lineHeight: 1.6, margin: '0 0 1.5rem 0', maxWidth: '640px' }}>
+              An integrated agricultural platform connecting farmers with intelligent tools, market insights, weather information, and data-driven farming support.
             </p>
-          </div>
 
-          <div style={{ position: 'relative', zIndex: 1, textAlign: 'right' }}>
-            <div style={{
-              fontFamily: '"Caveat", "Brush Script MT", cursive, sans-serif',
-              fontSize: '1.6rem',
-              fontWeight: 700,
-              color: '#92400E',
-              lineHeight: 1.1
-            }}>
-              For a Stronger <span style={{ color: '#15803D', fontWeight: 800 }}>Bharat</span>
-            </div>
-          </div>
-        </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', flexWrap: 'wrap' }}>
+              <button
+                onClick={() => navigate('/dashboard')}
+                style={{
+                  background: '#12345A',
+                  color: '#FFFFFF',
+                  border: 'none',
+                  borderRadius: 'var(--radius-sm)',
+                  padding: '0.65rem 1.4rem',
+                  fontSize: '0.88rem',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.4rem',
+                  boxShadow: '0 2px 8px rgba(18, 52, 90, 0.2)'
+                }}
+              >
+                <span>Access Farmer Workspace</span>
+                <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>arrow_forward</span>
+              </button>
 
-        {/* Top Section: Field Mapping Registered Farm Status Card */}
-        <div style={{
-          background: 'linear-gradient(135deg, #F0FDF4 0%, #DCFCE7 100%)',
-          border: '1.5px solid #BBF7D0',
-          borderRadius: '20px',
-          padding: '1.25rem 1.75rem',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: '1.5rem',
-          flexWrap: 'wrap',
-          boxShadow: '0 4px 16px rgba(22, 163, 74, 0.08)'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
-            <div style={{
-              width: '52px',
-              height: '52px',
-              borderRadius: '50%',
-              background: '#BBF7D0',
-              color: '#15803D',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              flexShrink: 0
-            }}>
-              <span className="material-symbols-outlined" style={{ fontSize: '28px' }}>potted_plant</span>
-            </div>
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: '#14532D', fontSize: '0.86rem', fontWeight: 800 }}>
-                <span className="material-symbols-outlined" style={{ fontSize: '18px', color: '#16A34A', fontVariationSettings: "'FILL' 1" }}>check_circle</span>
-                <span>{t('home.registeredFarmTitle')}</span>
-              </div>
-              <div style={{ fontSize: '1.15rem', fontWeight: 800, color: '#0F172A', marginTop: '0.15rem' }}>
-                {reg.fieldName} <span style={{ fontWeight: 600, color: '#475569', fontSize: '1rem' }}>({reg.crop}, {reg.landSizeAcres} Acres)</span>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.85rem', color: '#15803D', marginTop: '0.2rem', fontWeight: 600 }}>
-                <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>location_on</span>
-                <span>{reg.district}, {reg.state}</span>
-                <span style={{ margin: '0 0.4rem', color: '#86EFAC' }}>•</span>
-                <span style={{ cursor: 'pointer', textDecoration: 'underline' }} onClick={() => navigate('/sih/field-mapping')}>{t('home.fieldMappingShort')}</span>
-                <span style={{ margin: '0 0.4rem', color: '#86EFAC' }}>•</span>
-                <span style={{ cursor: 'pointer', textDecoration: 'underline' }} onClick={() => navigate('/sih/climate-risk')}>{t('home.soilInsights')}</span>
-                <span style={{ margin: '0 0.4rem', color: '#86EFAC' }}>•</span>
-                <span style={{ cursor: 'pointer', textDecoration: 'underline' }} onClick={() => navigate('/sih/field-mapping')}>{t('home.walkTheFarm')}</span>
-              </div>
+              <button
+                onClick={() => navigate('/sih/climate-risk')}
+                style={{
+                  background: '#FFFFFF',
+                  color: '#12345A',
+                  border: '1px solid #CBD5E1',
+                  borderRadius: 'var(--radius-sm)',
+                  padding: '0.65rem 1.25rem',
+                  fontSize: '0.88rem',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.4rem'
+                }}
+              >
+                <span className="material-symbols-outlined" style={{ fontSize: '18px', color: '#168447' }}>partly_cloudy_day</span>
+                <span>Check Today's Weather Advisory</span>
+              </button>
             </div>
           </div>
 
-          <button
-            onClick={() => navigate('/sih/field-mapping')}
+          {/* Quick Notice Panel */}
+          <div
             style={{
-              background: '#16A34A',
-              color: '#FFFFFF',
-              border: 'none',
-              borderRadius: '9999px',
-              padding: '0.65rem 1.4rem',
-              fontSize: '0.88rem',
-              fontWeight: 800,
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.4rem',
-              boxShadow: '0 4px 12px rgba(22, 163, 74, 0.25)'
+              background: '#F8FAFC',
+              border: '1px solid #DCE2E8',
+              borderRadius: 'var(--radius-sm)',
+              padding: '1.25rem',
+              fontSize: '0.82rem'
             }}
           >
-            <span>{t('home.updateRegistration')}</span>
-            <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>arrow_forward</span>
-          </button>
-        </div>
-
-        {/* Section A: SIH Innovations (6 Cards) */}
-        <section>
-          <div style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            marginBottom: '1.25rem'
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <span className="material-symbols-outlined" style={{ fontSize: '24px', color: '#16A34A' }}>eco</span>
-              <h2 style={{ fontSize: '1.35rem', fontWeight: 900, color: '#0F172A', margin: 0 }}>
-                {t('home.sihModulesTitle')}
-              </h2>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 700, color: '#12345A', marginBottom: '0.75rem', borderBottom: '1px solid #E2E8F0', paddingBottom: '0.5rem' }}>
+              <span className="material-symbols-outlined" style={{ fontSize: '18px', color: '#E99A32' }}>campaign</span>
+              <span>Important Farmer Advisories</span>
             </div>
-            <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#15803D', background: '#DCFCE7', padding: '0.3rem 0.75rem', borderRadius: '14px' }}>
-              {t('home.sihModulesCount')}
+            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
+              <li style={{ display: 'flex', gap: '0.5rem', lineHeight: 1.4 }}>
+                <span style={{ color: '#168447', fontWeight: 700 }}>•</span>
+                <span><strong>Mandi Rates:</strong> Live modal mandi prices for Paddy & Wheat refreshed as of today.</span>
+              </li>
+              <li style={{ display: 'flex', gap: '0.5rem', lineHeight: 1.4 }}>
+                <span style={{ color: '#168447', fontWeight: 700 }}>•</span>
+                <span><strong>Weather:</strong> Moderate rainfall likelihood in coastal eastern districts. Plan harvesting accordingly.</span>
+              </li>
+              <li style={{ display: 'flex', gap: '0.5rem', lineHeight: 1.4 }}>
+                <span style={{ color: '#168447', fontWeight: 700 }}>•</span>
+                <span><strong>Insurance:</strong> Automated satellite crop verification active for Kharif season policies.</span>
+              </li>
+            </ul>
+          </div>
+        </section>
+
+        {/* ── SECTION C: REGISTERED FARMER INFORMATION (Government Service Information Panel) ── */}
+        <section
+          style={{
+            background: '#FFFFFF',
+            border: '1px solid #DCE2E8',
+            borderRadius: 'var(--radius)',
+            padding: '1.5rem',
+            boxShadow: 'var(--shadow-sm)'
+          }}
+        >
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', borderBottom: '1px solid #F1F5F9', paddingBottom: '0.85rem', flexWrap: 'wrap', gap: '1rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+              <div style={{ width: '36px', height: '36px', borderRadius: '4px', background: '#E8F5E9', color: '#168447', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>badge</span>
+              </div>
+              <div>
+                <h2 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#12345A', margin: 0 }}>
+                  Registered Farmer & Land Record Details
+                </h2>
+                <span style={{ fontSize: '0.72rem', color: '#64748B' }}>
+                  Unique Farmer Digital Identification & Field Record
+                </span>
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <span style={{ background: '#E8F5E9', color: '#168447', fontSize: '0.72rem', fontWeight: 700, padding: '0.2rem 0.6rem', borderRadius: '4px', border: '1px solid rgba(22, 132, 71, 0.2)' }}>
+                Status: Verified Record
+              </span>
+              <button
+                onClick={() => navigate('/sih/field-mapping')}
+                style={{
+                  background: '#FFFFFF',
+                  color: '#12345A',
+                  border: '1px solid #CBD5E1',
+                  borderRadius: 'var(--radius-sm)',
+                  padding: '0.4rem 0.85rem',
+                  fontSize: '0.78rem',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.3rem'
+                }}
+              >
+                <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>edit</span>
+                <span>Update Registration</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Structured Key-Value Metadata Grid */}
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+              gap: '1rem',
+              background: '#F8FAFC',
+              padding: '1.25rem',
+              borderRadius: 'var(--radius-sm)',
+              border: '1px solid #E2E8F0'
+            }}
+          >
+            <div>
+              <div style={{ fontSize: '0.72rem', color: '#64748B', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                Registered Field Name
+              </div>
+              <div style={{ fontSize: '0.95rem', fontWeight: 800, color: '#172B45', marginTop: '0.2rem' }}>
+                {reg.fieldName}
+              </div>
+            </div>
+
+            <div>
+              <div style={{ fontSize: '0.72rem', color: '#64748B', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                Primary Crop Cultivated
+              </div>
+              <div style={{ fontSize: '0.95rem', fontWeight: 800, color: '#168447', marginTop: '0.2rem' }}>
+                {reg.crop}
+              </div>
+            </div>
+
+            <div>
+              <div style={{ fontSize: '0.72rem', color: '#64748B', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                Total Land Holding
+              </div>
+              <div style={{ fontSize: '0.95rem', fontWeight: 800, color: '#172B45', marginTop: '0.2rem' }}>
+                {reg.landSizeAcres} Acres
+              </div>
+            </div>
+
+            <div>
+              <div style={{ fontSize: '0.72rem', color: '#64748B', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                District & State Jurisdiction
+              </div>
+              <div style={{ fontSize: '0.95rem', fontWeight: 800, color: '#172B45', marginTop: '0.2rem' }}>
+                {reg.district}, {reg.state}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ── SECTION D: AGRICULTURAL SERVICES DIRECTORY (Government-Style Service Cards) ── */}
+        <section>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
+            <div>
+              <h2 style={{ fontSize: '1.35rem', fontWeight: 800, color: '#12345A', margin: 0 }}>
+                Digital Agriculture Services & Utilities
+              </h2>
+              <p style={{ fontSize: '0.82rem', color: '#64748B', margin: '0.25rem 0 0' }}>
+                National digital infrastructure tools available for field monitoring, market access, and financial protection.
+              </p>
+            </div>
+            <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#12345A', background: '#F1F5F9', border: '1px solid #DCE2E8', padding: '0.3rem 0.75rem', borderRadius: '4px' }}>
+              8 Services Available
             </span>
           </div>
 
-          {/* Cards Grid */}
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-            gap: '1.25rem'
-          }}>
-            {filteredInnovations.map((card) => (
+          {/* Clean Government Service Card Grid */}
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+              gap: '1.25rem'
+            }}
+          >
+            {portalServices.map((service) => (
               <div
-                key={card.id}
-                onClick={() => navigate(card.path)}
+                key={service.id}
                 style={{
                   background: '#FFFFFF',
-                  borderRadius: '16px',
-                  border: '1px solid #E2E8F0',
-                  boxShadow: '0 4px 12px rgba(0,0,0,0.04)',
-                  cursor: 'pointer',
+                  border: '1px solid #DCE2E8',
+                  borderRadius: 'var(--radius)',
                   display: 'flex',
                   flexDirection: 'column',
                   justifyContent: 'space-between',
-                  overflow: 'hidden',
-                  transition: 'transform 0.2s ease, box-shadow 0.2s ease'
+                  boxShadow: 'var(--shadow-sm)',
+                  transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
+                  overflow: 'hidden'
                 }}
-                className="sih-feature-card"
               >
-                {/* Unsplash Image Header with Overlay */}
-                <div style={{ position: 'relative', height: '140px', width: '100%', overflow: 'hidden' }}>
-                  <img
-                    src={card.image}
-                    alt={card.title}
-                    style={{
-                      width: '100%',
-                      height: '100%',
-                      objectFit: 'cover',
-                      transition: 'transform 0.3s ease'
-                    }}
-                  />
-                  <div style={{
-                    position: 'absolute',
-                    inset: 0,
-                    background: 'linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(15,23,42,0.6) 100%)'
-                  }} />
-                  <div style={{
-                    position: 'absolute',
-                    top: '12px',
-                    left: '12px',
-                    width: '38px',
-                    height: '38px',
-                    borderRadius: '10px',
-                    background: 'rgba(255, 255, 255, 0.9)',
-                    backdropFilter: 'blur(4px)',
-                    color: card.id === 'field-mapping' ? '#0369A1' : '#15803D',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    boxShadow: '0 2px 8px rgba(0,0,0,0.15)'
-                  }}>
-                    <span className="material-symbols-outlined" style={{ fontSize: '22px' }}>{card.icon}</span>
+                {/* Card Header Strip */}
+                <div style={{ padding: '1.25rem 1.25rem 0.5rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.75rem' }}>
+                    <div
+                      style={{
+                        width: '42px',
+                        height: '42px',
+                        borderRadius: '4px',
+                        background: '#EBF3FB',
+                        color: '#12345A',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                      }}
+                    >
+                      <span className="material-symbols-outlined" style={{ fontSize: '24px' }}>{service.icon}</span>
+                    </div>
+
+                    <span style={{ fontSize: '0.68rem', fontWeight: 700, background: '#F8FAFC', border: '1px solid #E2E8F0', padding: '0.2rem 0.5rem', borderRadius: '4px', color: '#475569' }}>
+                      {service.status}
+                    </span>
                   </div>
+
+                  <div style={{ fontSize: '0.68rem', fontWeight: 700, color: '#168447', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: '0.25rem' }}>
+                    {service.department}
+                  </div>
+
+                  <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#12345A', margin: '0 0 0.5rem 0', lineHeight: 1.3 }}>
+                    {service.title}
+                  </h3>
+
+                  <p style={{ fontSize: '0.82rem', color: '#475569', lineHeight: 1.5, margin: 0 }}>
+                    {service.description}
+                  </p>
                 </div>
 
-                <div style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', flex: 1, justifyContent: 'space-between' }}>
-                  <div>
-                    <h3 style={{
-                      fontSize: '1.15rem',
-                      fontWeight: 800,
-                      color: '#0F172A',
-                      margin: '0 0 0.2rem 0',
-                      lineHeight: 1.2
-                    }}>
-                      {card.title}
-                    </h3>
-
-                    {card.subtitle && (
-                      <div style={{ fontSize: '0.82rem', fontWeight: 800, color: card.id === 'field-mapping' ? '#0284C7' : '#16A34A', marginBottom: '0.4rem' }}>
-                        {card.subtitle}
-                      </div>
-                    )}
-
-                    <p style={{
-                      fontSize: '0.85rem',
-                      color: '#64748B',
-                      margin: 0,
-                      lineHeight: 1.4,
-                      fontWeight: 500
-                    }}>
-                      {card.description}
-                    </p>
-                  </div>
-
-                  <div style={{
-                    display: 'flex',
-                    justifyContent: 'flex-end',
-                    marginTop: '1rem'
-                  }}>
-                    <div style={{
-                      width: '32px',
-                      height: '32px',
-                      borderRadius: '50%',
-                      background: card.id === 'field-mapping' ? '#0284C7' : '#16A34A',
-                      color: '#FFFFFF',
+                {/* Card Action Footer */}
+                <div style={{ padding: '1rem 1.25rem', background: '#F8FAFC', borderTop: '1px solid #F1F5F9', marginTop: '1rem' }}>
+                  <button
+                    onClick={() => navigate(service.path)}
+                    style={{
+                      width: '100%',
+                      background: '#FFFFFF',
+                      color: '#12345A',
+                      border: '1px solid #CBD5E1',
+                      borderRadius: 'var(--radius-sm)',
+                      padding: '0.55rem 1rem',
+                      fontSize: '0.82rem',
+                      fontWeight: 700,
+                      cursor: 'pointer',
                       display: 'flex',
                       alignItems: 'center',
-                      justifyContent: 'center'
-                    }}>
-                      <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>arrow_forward</span>
-                    </div>
-                  </div>
+                      justifyContent: 'center',
+                      gap: '0.4rem',
+                      transition: 'background 0.15s ease'
+                    }}
+                  >
+                    <span>{service.actionLabel}</span>
+                    <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>arrow_forward</span>
+                  </button>
                 </div>
               </div>
             ))}
           </div>
         </section>
 
-        {/* Section B: Basic Farmer Needs (Separate Product/Module) */}
-        <section>
-          <div
-            onClick={() => navigate('/dashboard')}
-            style={{
-              borderRadius: '20px',
-              border: '1.5px solid #FDE047',
-              boxShadow: '0 8px 20px rgba(234, 179, 8, 0.15)',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              flexWrap: 'wrap',
-              gap: '1.5rem',
-              position: 'relative',
-              overflow: 'hidden',
-              minHeight: '140px'
-            }}
-          >
-            {/* Unsplash Background Banner */}
-            <img
-              src="https://images.unsplash.com/photo-1560493676-04071c5f467b?auto=format&fit=crop&w=1200&q=80"
-              alt="Basic Farmer Needs"
-              style={{
-                position: 'absolute',
-                inset: 0,
-                width: '100%',
-                height: '100%',
-                objectFit: 'cover'
-              }}
-            />
-            <div style={{
-              position: 'absolute',
-              inset: 0,
-              background: 'linear-gradient(90deg, rgba(15,23,42,0.85) 0%, rgba(15,23,42,0.65) 100%)'
-            }} />
-
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', zIndex: 2, padding: '2rem' }}>
-              <div style={{
-                width: '60px',
-                height: '60px',
-                borderRadius: '16px',
-                background: '#16A34A',
-                color: '#FFFFFF',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                boxShadow: '0 6px 16px rgba(22, 163, 74, 0.3)'
-              }}>
-                <span className="material-symbols-outlined" style={{ fontSize: '36px' }}>agriculture</span>
-              </div>
-
-              <div>
-                <h2 style={{ fontSize: '1.6rem', fontWeight: 900, color: '#FFFFFF', margin: '0 0 0.35rem 0' }}>
-                  {t('home.basicFarmerNeedsTitle')}
-                </h2>
-                <p style={{ fontSize: '1rem', color: '#FCD34D', margin: 0, fontWeight: 700 }}>
-                  {t('home.basicFarmerNeedsDesc')}
-                </p>
-              </div>
-            </div>
-
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#FFFFFF', fontWeight: 800, fontSize: '1.1rem', zIndex: 2, paddingRight: '2rem' }}>
-              <span>{t('home.openDashboard')}</span>
-              <span className="material-symbols-outlined" style={{ fontSize: '24px' }}>arrow_forward</span>
-            </div>
-          </div>
-        </section>
-
       </main>
+
+      {/* Institutional Footer */}
+      <InstitutionalFooter />
     </div>
   );
 };

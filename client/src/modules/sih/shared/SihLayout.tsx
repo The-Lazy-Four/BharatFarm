@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../../context/AuthContext.js';
+import React from 'react';
+import { useNavigate, NavLink } from 'react-router-dom';
 import { useLanguage } from '../../../context/LanguageContext.js';
 import { useIsMobile } from '../../../hooks/useIsMobile';
 import { MobileSihLayout } from '../../../components/mobile/MobileSihLayout';
-import { NotificationDrawer } from '../../../components/notifications/NotificationDrawer';
+import { Header } from '../../../components/layout/Header';
+import { InstitutionalFooter } from '../../../components/layout/InstitutionalFooter';
 
 interface SihShellProps {
   children: React.ReactNode;
@@ -23,175 +23,65 @@ export const SihLayout: React.FC<SihShellProps> = ({
 }) => {
   const isMobile = useIsMobile();
   const navigate = useNavigate();
-  const { user } = useAuth();
-  const { language, setLanguage, t } = useLanguage();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+  const { t } = useLanguage();
 
   if (isMobile) {
     return <MobileSihLayout title={moduleTitle} hideHeaderTitle={hideMobileHeaderTitle}>{children}</MobileSihLayout>;
   }
 
-
   const sihNavItems = [
-    { id: 'climate-risk', label: t('sih.climateRiskNav'), icon: 'partly_cloudy_day', path: '/sih/climate-risk' },
-    { id: 'aggregation', label: t('sih.aggregationNav'), icon: 'groups', path: '/sih/smart-mandi?tab=sell' },
-    { id: 'crop-insurance', label: t('sih.cropInsuranceNav'), icon: 'verified_user', path: '/sih/crop-insurance' },
-    { id: 'smart-mandi', label: t('sih.smartMandiNav'), icon: 'bar_chart', path: '/sih/smart-mandi' },
-    { id: 'sahayak', label: t('sih.sahayakNav'), icon: 'eco', path: '/sih/sahayak' },
-    { id: 'price-risk', label: t('sih.priceRiskNav'), icon: 'psychology', path: '/sih/price-risk' },
+    { id: 'climate-risk', label: t('sih.climateRiskNav') || 'Climate Risk', icon: 'partly_cloudy_day', path: '/sih/climate-risk' },
+    { id: 'aggregation', label: t('sih.aggregationNav') || 'Group Aggregation', icon: 'groups', path: '/sih/smart-mandi?tab=sell' },
+    { id: 'crop-insurance', label: t('sih.cropInsuranceNav') || 'Crop Insurance', icon: 'verified_user', path: '/sih/crop-insurance' },
+    { id: 'smart-mandi', label: t('sih.smartMandiNav') || 'Smart Mandi', icon: 'bar_chart', path: '/sih/smart-mandi' },
+    { id: 'sahayak', label: t('sih.sahayakNav') || 'Sahayak AI', icon: 'chat', path: '/sih/sahayak' },
+    { id: 'price-risk', label: t('sih.priceRiskNav') || 'Price Risk', icon: 'psychology', path: '/sih/price-risk' },
+    { id: 'field-mapping', label: 'Field Mapping', icon: 'map', path: '/sih/field-mapping' }
   ];
 
   return (
     <div style={{
       minHeight: '100vh',
-      background: '#F8FAFC',
-      color: '#0F172A',
-      fontFamily: 'Inter, system-ui, -apple-system, sans-serif',
+      background: 'var(--app-bg)',
+      color: 'var(--text-primary)',
+      fontFamily: 'var(--font-family)',
       display: 'flex',
       flexDirection: 'column'
     }}>
+      {/* Universal Government-style Header */}
+      <Header />
 
-      {/* Top Header */}
-      <header style={{
-        background: '#FFFFFF',
-        borderBottom: '1px solid #E2E8F0',
-        padding: '0.85rem 1.5rem',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        position: 'sticky',
-        top: 0,
-        zIndex: 50,
-        boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
-      }}>
-        {/* Brand */}
-        <div
-          onClick={() => navigate('/home')}
-          style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', cursor: 'pointer' }}
-        >
-          <img
-            src="/logo.png"
-            alt="BharatFarm"
-            style={{ width: '36px', height: '36px', borderRadius: '8px', objectFit: 'contain' }}
-          />
-          <span style={{ fontSize: '1.25rem', fontWeight: 900, color: '#1E293B', letterSpacing: '-0.02em' }}>BharatFarm</span>
-        </div>
-
-        {/* User Controls */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
-          {/* Language Dropdown Selector */}
-          <select
-            value={language}
-            onChange={(e) => setLanguage(e.target.value)}
-            title={t('common.languageSelect')}
-            style={{
-              background: '#F1F5F9',
-              color: '#0F172A',
-              border: '1px solid #CBD5E1',
-              borderRadius: '20px',
-              padding: '0.25rem 0.6rem',
-              fontSize: '0.75rem',
-              fontWeight: 700,
-              cursor: 'pointer',
-              outline: 'none'
-            }}
-          >
-            <option value="en">EN</option>
-            <option value="hi">हिंदी</option>
-            <option value="bn">বাংলা</option>
-          </select>
-          <button
-            onClick={() => setIsNotificationsOpen(true)}
-            title="Notifications"
-            style={{
-              background: '#F1F5F9',
-              border: 'none',
-              borderRadius: '50%',
-              width: '36px',
-              height: '36px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: '#475569',
-              cursor: 'pointer',
-              position: 'relative'
-            }}
-          >
-            <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>notifications</span>
-            <span style={{
-              position: 'absolute',
-              top: '4px',
-              right: '4px',
-              width: '8px',
-              height: '8px',
-              borderRadius: '50%',
-              background: '#EF4444',
-              border: '2px solid #FFFFFF'
-            }} />
-          </button>
-
-          <div
-            onClick={() => navigate('/profile')}
-            title={`View Profile & Settings (${user?.fullName || 'Farmer'})`}
-            style={{
-              width: '36px',
-              height: '36px',
-              borderRadius: '50%',
-              background: '#16A34A',
-              color: '#FFFFFF',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontWeight: 800,
-              fontSize: '0.85rem',
-              cursor: 'pointer'
-            }}
-          >
-            {user?.fullName ? user.fullName[0].toUpperCase() : 'S'}
-          </div>
-
-          <button
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="sih-mobile-toggle"
-            style={{
-              background: 'none',
-              border: 'none',
-              color: '#0F172A',
-              cursor: 'pointer',
-              display: 'none'
-            }}
-          >
-            <span className="material-symbols-outlined" style={{ fontSize: '24px' }}>
-              {mobileMenuOpen ? 'close' : 'menu'}
-            </span>
-          </button>
-        </div>
-      </header>
-
-      {/* Main Body Layout (Left Sidebar Rail + Content) */}
+      {/* Main Body Layout (Left Sidebar Rail + Breadcrumb + Content) */}
       <div style={{ display: 'flex', flex: 1 }}>
 
-        {/* Compact Left Sidebar Rail */}
+        {/* Structured Left Navigation Rail */}
         <aside style={{
-          width: '240px',
-          background: '#FFFFFF',
-          borderRight: '1px solid #E2E8F0',
+          width: '260px',
+          background: 'var(--surface-1)',
+          borderRight: '1px solid var(--border-default)',
           padding: '1.25rem 0.85rem',
           display: 'flex',
           flexDirection: 'column',
-          gap: '0.35rem',
+          gap: '0.25rem',
           flexShrink: 0
         }} className="sih-left-sidebar">
           <div style={{
             fontSize: '0.72rem',
             fontWeight: 800,
-            color: '#94A3B8',
+            color: 'var(--gov-navy)',
             textTransform: 'uppercase',
-            letterSpacing: '0.05em',
-            padding: '0.4rem 0.75rem 0.6rem'
+            letterSpacing: '0.06em',
+            padding: '0.4rem 0.75rem 0.6rem',
+            borderBottom: '1px solid var(--border-subtle)',
+            marginBottom: '0.5rem',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.4rem'
           }}>
-            {t('sih.sihModulesHeader')}
+            <span className="material-symbols-outlined" style={{ fontSize: '16px', color: 'var(--gov-saffron)' }}>
+              account_balance
+            </span>
+            <span>Digital Agriculture Services</span>
           </div>
 
           {sihNavItems.map((item) => {
@@ -204,19 +94,20 @@ export const SihLayout: React.FC<SihShellProps> = ({
                   display: 'flex',
                   alignItems: 'center',
                   gap: '0.75rem',
-                  padding: '0.7rem 0.85rem',
-                  borderRadius: '10px',
+                  padding: '0.65rem 0.85rem',
+                  borderRadius: 'var(--radius-sm)',
                   border: 'none',
-                  background: isActive ? '#DCFCE7' : 'transparent',
-                  color: isActive ? '#15803D' : '#475569',
-                  fontWeight: isActive ? 800 : 600,
-                  fontSize: '0.9rem',
+                  borderLeft: isActive ? '3px solid var(--gov-navy)' : '3px solid transparent',
+                  background: isActive ? '#EBF3FB' : 'transparent',
+                  color: isActive ? 'var(--gov-navy)' : 'var(--text-secondary)',
+                  fontWeight: isActive ? 700 : 500,
+                  fontSize: '0.85rem',
                   cursor: 'pointer',
                   textAlign: 'left',
                   transition: 'all 0.15s ease'
                 }}
               >
-                <span className="material-symbols-outlined" style={{ fontSize: '20px', color: isActive ? '#16A34A' : '#64748B' }}>
+                <span className="material-symbols-outlined" style={{ fontSize: '19px', color: isActive ? 'var(--gov-navy)' : 'var(--text-muted)' }}>
                   {item.icon}
                 </span>
                 <span>{item.label}</span>
@@ -224,90 +115,67 @@ export const SihLayout: React.FC<SihShellProps> = ({
             );
           })}
 
-          <div style={{ marginTop: 'auto', paddingTop: '1rem', borderTop: '1px solid #E2E8F0' }}>
-            <button
-              onClick={() => navigate('/home')}
+          <div style={{ marginTop: 'auto', paddingTop: '1rem', borderTop: '1px solid var(--border-subtle)' }}>
+            <NavLink
+              to="/home"
               style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: '0.75rem',
-                padding: '0.65rem 0.85rem',
-                borderRadius: '10px',
-                border: '1px solid #CBD5E1',
-                background: '#FFFFFF',
-                color: '#334155',
-                fontWeight: 700,
-                fontSize: '0.85rem',
-                cursor: 'pointer',
-                width: '100%'
+                gap: '0.65rem',
+                padding: '0.6rem 0.85rem',
+                borderRadius: 'var(--radius-sm)',
+                border: '1px solid var(--border-default)',
+                background: 'var(--surface-3)',
+                color: 'var(--text-secondary)',
+                fontWeight: 600,
+                fontSize: '0.82rem',
+                textDecoration: 'none'
               }}
             >
               <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>arrow_back</span>
-              <span>{t('common.backToHome')}</span>
-            </button>
+              <span>Back to Portal Home</span>
+            </NavLink>
           </div>
         </aside>
 
-        {/* Mobile Nav Dropdown */}
-        {mobileMenuOpen && (
-          <div style={{
-            position: 'absolute',
-            top: '57px',
-            left: 0,
-            right: 0,
-            background: '#FFFFFF',
-            borderBottom: '1px solid #E2E8F0',
-            padding: '1rem',
-            zIndex: 40,
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '0.5rem',
-            boxShadow: '0 10px 20px rgba(0,0,0,0.05)'
-          }}>
-            {sihNavItems.map((item) => (
-              <button
-                key={item.id}
-                onClick={() => {
-                  setMobileMenuOpen(false);
-                  navigate(item.path);
-                }}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.75rem',
-                  padding: '0.75rem 1rem',
-                  borderRadius: '10px',
-                  border: 'none',
-                  background: item.id === activeModuleId ? '#DCFCE7' : 'transparent',
-                  color: item.id === activeModuleId ? '#15803D' : '#334155',
-                  fontWeight: 800,
-                  fontSize: '0.95rem'
-                }}
-              >
-                <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>{item.icon}</span>
-                <span>{item.label}</span>
-              </button>
-            ))}
-          </div>
-        )}
-
         {/* Main Content Area */}
-        <main style={{
-          flex: 1,
-          padding: '2rem',
-          maxWidth: '1200px',
-          boxSizing: 'border-box'
-        }}>
-          {children}
-        </main>
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+          {/* Breadcrumb strip */}
+          <div
+            style={{
+              padding: '0.65rem 2rem',
+              background: '#FFFFFF',
+              borderBottom: '1px solid var(--border-default)',
+              fontSize: '0.78rem',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              color: 'var(--text-muted)'
+            }}
+          >
+            <NavLink to="/home" style={{ color: 'var(--gov-navy)', textDecoration: 'none', fontWeight: 600 }}>
+              National Portal
+            </NavLink>
+            <span>/</span>
+            <span>Agricultural Intelligence Services</span>
+            <span>/</span>
+            <span style={{ color: 'var(--text-primary)', fontWeight: 700 }}>{moduleTitle}</span>
+          </div>
+
+          <main id="main-content" style={{
+            flex: 1,
+            padding: '2rem',
+            maxWidth: '1280px',
+            width: '100%',
+            boxSizing: 'border-box',
+            margin: '0 auto'
+          }}>
+            {children}
+          </main>
+
+          <InstitutionalFooter />
+        </div>
       </div>
-
-      {/* Interactive Notification Drawer */}
-      <NotificationDrawer
-        isOpen={isNotificationsOpen}
-        onClose={() => setIsNotificationsOpen(false)}
-      />
-
     </div>
   );
 };
