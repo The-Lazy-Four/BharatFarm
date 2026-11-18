@@ -105,14 +105,31 @@ export const MobileModuleHomePage: React.FC = () => {
       minHeight: '100vh',
       width: '100vw',
       maxWidth: '100%',
-      background: '#F7F4EC', // Warm agricultural off-white
+      background: 'var(--app-bg)',
       paddingBottom: '84px',
-      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+      fontFamily: 'var(--font-family)',
       boxSizing: 'border-box',
       overflowX: 'hidden',
-      color: '#18231B' // Dark earthy green-charcoal text
+      color: 'var(--text-primary)'
     }}>
-      {/* 1. COMPACT HEADER */}
+      {/* 1. TOP INSTITUTIONAL STRIP */}
+      <div
+        style={{
+          background: '#0D233D',
+          color: '#FFFFFF',
+          padding: '0.25rem 0.85rem',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          fontSize: '0.68rem',
+          borderBottom: '1px solid rgba(255,255,255,0.1)'
+        }}
+      >
+        <span style={{ fontWeight: 600, color: '#E2E8F0' }}>National Agricultural Portal</span>
+        <span style={{ color: '#E99A32', fontWeight: 700 }}>GIGW Accessible</span>
+      </div>
+
+      {/* 2. COMPACT GOVERNMENT HEADER */}
       <header style={{
         padding: '0.65rem 1rem',
         background: '#FFFFFF',
@@ -122,29 +139,29 @@ export const MobileModuleHomePage: React.FC = () => {
         position: 'sticky',
         top: 0,
         zIndex: 50,
-        borderBottom: '1px solid #EAE4D5',
-        boxShadow: '0 1px 3px rgba(24, 35, 27, 0.04)'
+        borderBottom: '2px solid #E99A32',
+        boxShadow: 'var(--shadow-sm)'
       }}>
         {/* Brand */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.55rem' }}>
           <img
             src="/logo.png"
-            alt="BharatFarm"
+            alt="BharatFarm Emblem"
             style={{ width: '32px', height: '32px', objectFit: 'contain' }}
           />
           <div>
             <div style={{
               fontSize: '1.15rem',
               fontWeight: 900,
-              color: '#174A2A',
+              color: '#12345A',
               letterSpacing: '-0.02em',
               lineHeight: 1.1
             }}>
-              Bharat<span style={{ color: '#4F7D32' }}>Farm</span>
+              Bharat<span style={{ color: '#168447' }}>Farm</span>
             </div>
             <div style={{
               fontSize: '0.62rem',
-              color: '#6B7280',
+              color: '#64748B',
               fontWeight: 600,
               letterSpacing: '0.01em',
               lineHeight: 1
@@ -165,10 +182,10 @@ export const MobileModuleHomePage: React.FC = () => {
               style={{
                 appearance: 'none',
                 WebkitAppearance: 'none',
-                background: '#F2EDE2',
-                color: '#18231B',
-                border: '1px solid #D9D2C3',
-                borderRadius: '9999px',
+                background: '#F1F5F9',
+                color: '#12345A',
+                border: '1px solid #DCE2E8',
+                borderRadius: '4px',
                 padding: '0.25rem 1.3rem 0.25rem 0.6rem',
                 fontSize: '0.72rem',
                 fontWeight: 700,
@@ -189,7 +206,7 @@ export const MobileModuleHomePage: React.FC = () => {
                 top: '50%',
                 transform: 'translateY(-50%)',
                 fontSize: '14px',
-                color: '#6B7280',
+                color: '#64748B',
                 pointerEvents: 'none'
               }}
             >
@@ -204,10 +221,10 @@ export const MobileModuleHomePage: React.FC = () => {
             style={{
               width: '32px',
               height: '32px',
-              borderRadius: '50%',
-              background: '#F2EDE2',
-              border: '1px solid #D9D2C3',
-              color: '#18231B',
+              borderRadius: '4px',
+              background: '#F1F5F9',
+              border: '1px solid #DCE2E8',
+              color: '#12345A',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -216,7 +233,7 @@ export const MobileModuleHomePage: React.FC = () => {
               padding: 0
             }}
           >
-            <span className="material-symbols-outlined" style={{ fontSize: '18px', color: '#174A2A' }}>
+            <span className="material-symbols-outlined" style={{ fontSize: '18px', color: '#12345A' }}>
               notifications
             </span>
             {notifications.length > 0 && (
@@ -232,15 +249,15 @@ export const MobileModuleHomePage: React.FC = () => {
             )}
           </button>
 
-          {/* User Profile Avatar Circle */}
+          {/* User Profile Avatar */}
           <button
             onClick={() => navigate('/profile')}
             title={t('moduleHome.profileTitle', { name: farmerName })}
             style={{
               width: '32px',
               height: '32px',
-              borderRadius: '50%',
-              background: '#174A2A',
+              borderRadius: '4px',
+              background: '#12345A',
               color: '#FFFFFF',
               border: 'none',
               display: 'flex',
@@ -1017,71 +1034,6 @@ export const MobileModuleHomePage: React.FC = () => {
                 </div>
               </div>
             </div>
-          </div>
-        </section>
-
-        {/* 4.5. BHARATFARM REGENERATIVE INTELLIGENCE — Track 4 Card */}
-        <section
-          onClick={() => navigate('/build-ai')}
-          style={{
-            background: 'linear-gradient(135deg, #F0FDF4 0%, #DCFCE7 100%)',
-            border: '1.5px solid #BBF7D0',
-            borderRadius: '16px',
-            padding: '1.05rem 1.15rem',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            gap: '0.9rem',
-            boxShadow: '0 2px 8px rgba(22, 163, 74, 0.08)',
-            transition: 'all 0.15s ease'
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.9rem' }}>
-            <div style={{
-              width: '54px',
-              height: '54px',
-              borderRadius: '14px',
-              overflow: 'hidden',
-              flexShrink: 0,
-              border: '2px solid #16A34A',
-              boxShadow: '0 2px 6px rgba(22, 163, 74, 0.2)'
-            }}>
-              <img
-                src="https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=300&q=80"
-                alt="Regenerative Intelligence"
-                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-              />
-            </div>
-
-            <div>
-              <div style={{ fontSize: '0.66rem', fontWeight: 800, color: '#15803D', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                AgriN & Regenerative Agricultural Intelligence
-              </div>
-              <div style={{ fontSize: '0.98rem', fontWeight: 900, color: '#0F172A', lineHeight: 1.25, marginTop: '2px' }}>
-                BharatFarm Regenerative Intelligence
-              </div>
-              <div style={{ fontSize: '0.74rem', color: '#475569', fontWeight: 500, marginTop: '0.2rem', lineHeight: 1.3 }}>
-                Satellite NDVI, soil health analysis & practical regenerative AI actions.
-              </div>
-            </div>
-          </div>
-
-          <div style={{
-            width: '34px',
-            height: '34px',
-            borderRadius: '50%',
-            background: '#FFFFFF',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            flexShrink: 0,
-            border: '1px solid #BBF7D0',
-            boxShadow: '0 2px 5px rgba(0,0,0,0.06)'
-          }}>
-            <span className="material-symbols-outlined" style={{ fontSize: '18px', color: '#16A34A', fontWeight: 800 }}>
-              arrow_forward
-            </span>
           </div>
         </section>
 
