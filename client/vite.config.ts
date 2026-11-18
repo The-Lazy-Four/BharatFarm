@@ -11,6 +11,7 @@ export default defineConfig(({ mode }) => {
   const apiPort = env.PORT || '3000';
 
   return {
+    envDir: workspaceRoot,
     plugins: [
       react(),
       VitePWA({

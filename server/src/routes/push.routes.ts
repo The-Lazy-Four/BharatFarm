@@ -9,9 +9,9 @@ const router = Router();
 
 // Helper to get fresh VAPID credentials (ensures env vars loaded via dotenv)
 function getVapidCredentials() {
-    const publicKey = process.env.VAPID_PUBLIC_KEY || '';
-    const privateKey = process.env.VAPID_PRIVATE_KEY || '';
-    const subject = process.env.VAPID_SUBJECT || 'mailto:pwa@bharatfarm.org';
+    const publicKey = process.env.VAPID_PUBLIC_KEY || config.vapid?.publicKey || '';
+    const privateKey = process.env.VAPID_PRIVATE_KEY || config.vapid?.privateKey || '';
+    const subject = process.env.VAPID_SUBJECT || config.vapid?.subject || 'mailto:pwa@bharatfarm.org';
     return { publicKey, privateKey, subject };
 }
 

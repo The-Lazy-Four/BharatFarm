@@ -156,7 +156,20 @@ export const PWAProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }, []);
 
     const subscribeToNotifications = useCallback(async (): Promise<boolean> => {
-        if (!swRegistrationRef.current || !VAPID_PUBLIC_KEY) {
+        let key = VAPID_PUBLIC_KEY;
+        if (!key) {
+            try {
+                const res = await fetch('/api/push/public-key');
+                if (res.ok) {
+                    const json = await res.json();
+                    key = json.data?.publicKey || '';
+                }
+            } catch {
+                // Ignore fallback error
+            }
+        }
+
+        if (!swRegistrationRef.current || !key) {
             // Fallback request permission
             const granted = await requestNotificationPermission();
             return granted;
@@ -167,12 +180,16 @@ export const PWAProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
             const subscription = await swRegistrationRef.current.pushManager.subscribe({
                 userVisibleOnly: true,
-                applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY) as unknown as BufferSource
+                applicationServerKey: urlBase64ToUint8Array(key) as unknown as BufferSource
             });
 
+            const token = localStorage.getItem('auth_token');
             await fetch('/api/push/subscribe', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...(token ? { Authorization: `Bearer ${token}` } : {})
+                },
                 credentials: 'include',
                 body: JSON.stringify(subscription.toJSON())
             });
@@ -188,9 +205,13 @@ export const PWAProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const unsubscribeFromNotifications = useCallback(async (): Promise<void> => {
         if (!pushSubscription) return;
         try {
+            const token = localStorage.getItem('auth_token');
             await fetch('/api/push/unsubscribe', {
                 method: 'DELETE',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...(token ? { Authorization: `Bearer ${token}` } : {})
+                },
                 credentials: 'include',
                 body: JSON.stringify({ endpoint: pushSubscription.endpoint })
             });

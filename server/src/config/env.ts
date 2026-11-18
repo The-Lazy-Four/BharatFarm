@@ -35,6 +35,11 @@ export const config = {
     businessAccountId: process.env.WHATSAPP_BUSINESS_ACCOUNT_ID || '',
     verifyToken: process.env.WHATSAPP_VERIFY_TOKEN || 'bharatfarm_verify_token_secure',
     apiVersion: process.env.WHATSAPP_API_VERSION || 'v19.0'
+  },
+  vapid: {
+    publicKey: process.env.VAPID_PUBLIC_KEY || '',
+    privateKey: process.env.VAPID_PRIVATE_KEY || '',
+    subject: process.env.VAPID_SUBJECT || 'mailto:pwa@bharatfarm.org'
   }
 };
 

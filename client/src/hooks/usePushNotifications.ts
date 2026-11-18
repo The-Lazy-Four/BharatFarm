@@ -48,7 +48,21 @@ export function usePushNotifications(): UsePushNotificationsReturn {
 
     const requestPermissionAndSubscribe = useCallback(async (): Promise<boolean> => {
         if (!('Notification' in window) || !('serviceWorker' in navigator)) return false;
-        if (!VAPID_PUBLIC_KEY) {
+
+        let key = VAPID_PUBLIC_KEY;
+        if (!key) {
+            try {
+                const res = await fetch('/api/push/public-key');
+                if (res.ok) {
+                    const json = await res.json();
+                    key = json.data?.publicKey || '';
+                }
+            } catch {
+                // Ignore fallback error
+            }
+        }
+
+        if (!key) {
             console.warn('[PWA] VITE_VAPID_PUBLIC_KEY not configured. Push notifications disabled.');
             return false;
         }
@@ -72,7 +86,7 @@ export function usePushNotifications(): UsePushNotificationsReturn {
 
             const subscription = await registration.pushManager.subscribe({
                 userVisibleOnly: true,
-                applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
+                applicationServerKey: urlBase64ToUint8Array(key)
             });
 
             const authToken = localStorage.getItem('auth_token');
